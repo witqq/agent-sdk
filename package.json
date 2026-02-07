@@ -1,0 +1,110 @@
+{
+  "name": "@witqq/agent-sdk",
+  "version": "0.1.0",
+  "description": "Universal AI agent abstraction layer supporting Copilot CLI, Claude CLI, and Vercel AI SDK backends",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./copilot": {
+      "import": {
+        "types": "./dist/backends/copilot.d.ts",
+        "default": "./dist/backends/copilot.js"
+      },
+      "require": {
+        "types": "./dist/backends/copilot.d.cts",
+        "default": "./dist/backends/copilot.cjs"
+      }
+    },
+    "./claude": {
+      "import": {
+        "types": "./dist/backends/claude.d.ts",
+        "default": "./dist/backends/claude.js"
+      },
+      "require": {
+        "types": "./dist/backends/claude.d.cts",
+        "default": "./dist/backends/claude.cjs"
+      }
+    },
+    "./vercel-ai": {
+      "import": {
+        "types": "./dist/backends/vercel-ai.d.ts",
+        "default": "./dist/backends/vercel-ai.js"
+      },
+      "require": {
+        "types": "./dist/backends/vercel-ai.d.cts",
+        "default": "./dist/backends/vercel-ai.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "copilot",
+    "claude",
+    "vercel-ai",
+    "llm",
+    "tools",
+    "sdk"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "peerDependencies": {
+    "@ai-sdk/openai-compatible": ">=2.0.0",
+    "@anthropic-ai/claude-agent-sdk": ">=0.2.0",
+    "@github/copilot-sdk": "^0.1.22",
+    "ai": ">=4.0.0",
+    "zod": "^3.23.0"
+  },
+  "peerDependenciesMeta": {
+    "@github/copilot-sdk": {
+      "optional": true
+    },
+    "@anthropic-ai/claude-agent-sdk": {
+      "optional": true
+    },
+    "ai": {
+      "optional": true
+    },
+    "@ai-sdk/openai-compatible": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@ai-sdk/openai-compatible": "^2.0.27",
+    "@anthropic-ai/claude-agent-sdk": "^0.2.34",
+    "@github/copilot-sdk": "^0.1.22",
+    "@types/node": "^25.2.1",
+    "ai": "^6.0.73",
+    "testfold": "^0.2.1",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.0.0",
+    "zod": "^3.24.0"
+  }
+}
