@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.2.0] — 2026-02-07
 
 ### Core
 - `heartbeat` event type in `AgentEvent` — keepalive for long-running streams during tool execution gaps
