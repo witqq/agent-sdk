@@ -141,13 +141,24 @@ export interface StructuredOutputConfig<T = unknown> {
   description?: string;
 }
 
+// ─── Usage Data ────────────────────────────────────────────────
+
+/** Usage data from LLM execution — tokens consumed plus optional metadata */
+export interface UsageData {
+  promptTokens: number;
+  completionTokens: number;
+  model?: string;
+  backend?: string;
+}
+
 // ─── Agent Events (Streaming) ──────────────────────────────────
 
 /** Events emitted during streaming agent execution */
 export type AgentEvent =
   | { type: "text_delta"; text: string }
-  | { type: "tool_call_start"; toolName: string; args: JSONValue }
-  | { type: "tool_call_end"; toolName: string; result: JSONValue }
+  | { type: "thinking_delta"; text: string }
+  | { type: "tool_call_start"; toolCallId: string; toolName: string; args: JSONValue }
+  | { type: "tool_call_end"; toolCallId: string; toolName: string; result: JSONValue }
   | { type: "permission_request"; request: PermissionRequest }
   | {
       type: "permission_response";
@@ -162,7 +173,10 @@ export type AgentEvent =
       type: "usage_update";
       promptTokens: number;
       completionTokens: number;
+      model?: string;
+      backend?: string;
     }
+  | { type: "heartbeat" }
   | { type: "error"; error: string; recoverable: boolean }
   | { type: "done"; finalOutput: string | null; structuredOutput?: unknown };
 
@@ -227,6 +241,13 @@ export interface AgentConfig {
   /** Filter for backend built-in tools (e.g. ["web_search", "web_fetch"] for Copilot).
    *  When set, only listed built-in tools are available. Backend-specific. */
   availableTools?: string[];
+  /** Callback invoked with usage data after run completion or during streaming.
+   *  Fire-and-forget: errors are logged but not propagated. */
+  onUsage?: (usage: UsageData) => void;
+  /** Interval in milliseconds for emitting heartbeat events during streaming.
+   *  When set, heartbeat events are emitted to keep the stream alive during
+   *  long tool executions. Default: off (no heartbeats). */
+  heartbeatInterval?: number;
 }
 
 // ─── Agent Result (Generic) ────────────────────────────────────
@@ -242,7 +263,7 @@ export interface AgentResult<T = void> {
     approved: boolean;
   }>;
   messages: Message[];
-  usage?: { promptTokens: number; completionTokens: number };
+  usage?: UsageData;
 }
 
 // ─── Agent State ───────────────────────────────────────────────
@@ -254,22 +275,34 @@ export type AgentState = "idle" | "running" | "streaming" | "disposed";
 
 /** Core agent interface — run prompts, stream events, manage lifecycle */
 export interface IAgent {
+  /** Run a single prompt and return the result. Wraps prompt in a user message. */
   run(prompt: MessageContent, options?: RunOptions): Promise<AgentResult>;
+  /** Run with full conversation history. Messages are passed directly to the backend. */
   runWithContext(
     messages: Message[],
     options?: RunOptions,
   ): Promise<AgentResult>;
+  /** Run with structured output validated against a Zod schema. */
   runStructured<T>(
     prompt: MessageContent,
     schema: StructuredOutputConfig<T>,
     options?: RunOptions,
   ): Promise<AgentResult<T>>;
+  /** Stream events for a single prompt. Wraps prompt in a user message. */
   stream(
     prompt: MessageContent,
     options?: RunOptions,
   ): AsyncIterable<AgentEvent>;
+  /** Stream events with full conversation history. Messages are passed directly to the backend. */
+  streamWithContext(
+    messages: Message[],
+    options?: RunOptions,
+  ): AsyncIterable<AgentEvent>;
+  /** Abort the current operation. No-op if not running. */
   abort(): void;
+  /** Get current agent lifecycle state. */
   getState(): AgentState;
+  /** Get frozen agent configuration. */
   getConfig(): Readonly<AgentConfig>;
   /** Release resources. After dispose(), agent must not be used. */
   dispose(): void;

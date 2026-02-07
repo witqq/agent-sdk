@@ -372,6 +372,8 @@ describe("Claude Backend", () => {
       expect(result.usage).toEqual({
         promptTokens: 100,
         completionTokens: 50,
+        model: undefined,
+        backend: "claude",
       });
     });
 
@@ -592,6 +594,8 @@ describe("Claude Backend", () => {
         type: "usage_update",
         promptTokens: 100,
         completionTokens: 50,
+        model: undefined,
+        backend: "claude",
       });
     });
 
@@ -622,6 +626,7 @@ describe("Claude Backend", () => {
       expect(toolEvents).toHaveLength(1);
       expect(toolEvents[0]).toEqual({
         type: "tool_call_start",
+        toolCallId: "tu-1",
         toolName: "search",
         args: { query: "ai" },
       });
@@ -955,7 +960,7 @@ describe("Claude Backend", () => {
   // ── tool_call_end emission (B2 fix) ─────────────────────────────
 
   describe("tool_call_end emission", () => {
-    it("should emit tool_call_end from tool_use_summary", async () => {
+    it("should emit tool_call_end from tool_use_summary with matching toolCallId", async () => {
       injectMockSDK([
         {
           type: "assistant",
@@ -968,6 +973,7 @@ describe("Claude Backend", () => {
         {
           type: "tool_use_summary",
           summary: "Found 3 results for test",
+          tool_name: "search",
           preceding_tool_use_ids: ["tu_1"],
           uuid: "u1",
           session_id: "s1",
@@ -979,9 +985,13 @@ describe("Claude Backend", () => {
       const events = [];
       for await (const e of agent.stream("test")) events.push(e);
 
+      const toolStart = events.find((e) => e.type === "tool_call_start");
       const toolEnd = events.find((e) => e.type === "tool_call_end");
+      expect(toolStart).toBeDefined();
       expect(toolEnd).toBeDefined();
-      expect(toolEnd!.type).toBe("tool_call_end");
+      // toolCallId matches between start and end
+      expect((toolStart as { toolCallId: string }).toolCallId).toBe("tu_1");
+      expect((toolEnd as { toolCallId: string }).toolCallId).toBe("tu_1");
       expect((toolEnd as { result: unknown }).result).toBe("Found 3 results for test");
     });
 
@@ -1005,8 +1015,62 @@ describe("Claude Backend", () => {
 
       const starts = events.filter((e) => e.type === "tool_call_start");
       expect(starts).toHaveLength(2);
+      expect((starts[0] as { toolCallId: string }).toolCallId).toBe("tu_1");
       expect((starts[0] as { toolName: string }).toolName).toBe("search");
+      expect((starts[1] as { toolCallId: string }).toolCallId).toBe("tu_2");
       expect((starts[1] as { toolName: string }).toolName).toBe("fetch");
+    });
+
+    it("should correlate toolCallId across parallel tool calls via tracker", async () => {
+      injectMockSDK([
+        {
+          type: "assistant",
+          message: {
+            content: [
+              { type: "tool_use", name: "search", input: { q: "a" }, id: "tu_10" },
+              { type: "tool_use", name: "search", input: { q: "b" }, id: "tu_11" },
+            ],
+          },
+        },
+        {
+          type: "tool_use_summary",
+          summary: "Result for a",
+          tool_name: "search",
+          preceding_tool_use_ids: ["tu_10"],
+          uuid: "u1",
+          session_id: "s1",
+        },
+        {
+          type: "tool_use_summary",
+          summary: "Result for b",
+          tool_name: "search",
+          preceding_tool_use_ids: ["tu_11"],
+          uuid: "u2",
+          session_id: "s1",
+        },
+        successResult("done"),
+      ]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      const events = [];
+      for await (const e of agent.stream("test")) events.push(e);
+
+      const starts = events.filter((e) => e.type === "tool_call_start") as Array<{
+        toolCallId: string; toolName: string;
+      }>;
+      const ends = events.filter((e) => e.type === "tool_call_end") as Array<{
+        toolCallId: string; toolName: string;
+      }>;
+      expect(starts).toHaveLength(2);
+      expect(ends).toHaveLength(2);
+
+      // Start IDs match tool_use block IDs
+      expect(starts[0].toolCallId).toBe("tu_10");
+      expect(starts[1].toolCallId).toBe("tu_11");
+
+      // End IDs from preceding_tool_use_ids match
+      expect(ends[0].toolCallId).toBe("tu_10");
+      expect(ends[1].toolCallId).toBe("tu_11");
     });
 
     it("should emit both text_delta and tool_call_start from mixed content", async () => {
@@ -1095,6 +1159,88 @@ describe("Claude Backend", () => {
       } finally {
         warnSpy.mockRestore();
       }
+    });
+  });
+
+  // ── Usage Metadata & onUsage Callback ────────────────────────
+
+  describe("Usage metadata and onUsage callback", () => {
+    it("should include model and backend in run result usage", async () => {
+      injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig({ model: "claude-opus-4-20250514" }));
+      const result = await agent.run("test");
+
+      expect(result.usage?.model).toBe("claude-opus-4-20250514");
+      expect(result.usage?.backend).toBe("claude");
+    });
+
+    it("should include model and backend in stream usage_update events", async () => {
+      injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig({ model: "claude-sonnet" }));
+
+      const events = [];
+      for await (const event of agent.stream("test")) {
+        events.push(event);
+      }
+
+      const usageEvents = events.filter((e) => e.type === "usage_update");
+      expect(usageEvents).toHaveLength(1);
+      const ue = usageEvents[0] as { model?: string; backend?: string };
+      expect(ue.model).toBe("claude-sonnet");
+      expect(ue.backend).toBe("claude");
+    });
+
+    it("should call onUsage callback after run", async () => {
+      injectMockSDK([successResult("ok")]);
+      const onUsage = vi.fn();
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig({ model: "claude-sonnet", onUsage }));
+      await agent.run("test");
+
+      expect(onUsage).toHaveBeenCalledOnce();
+      expect(onUsage).toHaveBeenCalledWith({
+        promptTokens: 100,
+        completionTokens: 50,
+        model: "claude-sonnet",
+        backend: "claude",
+      });
+    });
+
+    it("should call onUsage callback during streaming", async () => {
+      injectMockSDK([successResult("ok")]);
+      const onUsage = vi.fn();
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig({ model: "claude-sonnet", onUsage }));
+
+      for await (const _event of agent.stream("test")) {
+        // consume
+      }
+
+      expect(onUsage).toHaveBeenCalledOnce();
+      expect(onUsage).toHaveBeenCalledWith({
+        promptTokens: 100,
+        completionTokens: 50,
+        model: "claude-sonnet",
+        backend: "claude",
+      });
+    });
+
+    it("should not propagate onUsage callback errors", async () => {
+      injectMockSDK([successResult("ok")]);
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const onUsage = vi.fn(() => { throw new Error("boom"); });
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig({ onUsage }));
+      const result = await agent.run("test");
+
+      expect(result.output).toBe("ok");
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("onUsage callback error"),
+        expect.stringContaining("boom"),
+      );
+      warnSpy.mockRestore();
     });
   });
 

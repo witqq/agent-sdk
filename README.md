@@ -196,20 +196,72 @@ for await (const event of agent.stream("Tell me a story")) {
 }
 ```
 
+### Streaming with Conversation History
+
+Use `streamWithContext` to stream with full conversation history:
+
+```typescript
+const messages = [
+  { role: "system" as const, content: "You are helpful." },
+  { role: "user" as const, content: "Hello" },
+  { role: "assistant" as const, content: "Hi! How can I help?" },
+  { role: "user" as const, content: "What is 2+2?" },
+];
+
+for await (const event of agent.streamWithContext(messages)) {
+  if (event.type === "text_delta") process.stdout.write(event.text);
+}
+```
+
 | Event | Fields | Description |
 |-------|--------|-------------|
 | `text_delta` | `text` | Incremental text output |
+| `thinking_delta` | `text` | Incremental reasoning/thinking text |
 | `thinking_start` | — | Model started reasoning |
 | `thinking_end` | — | Model finished reasoning |
-| `tool_call_start` | `toolName`, `args` | Tool invocation began |
-| `tool_call_end` | `toolName`, `result` | Tool invocation completed |
+| `tool_call_start` | `toolCallId`, `toolName`, `args` | Tool invocation began |
+| `tool_call_end` | `toolCallId`, `toolName`, `result` | Tool invocation completed |
 | `permission_request` | `request` | Permission check initiated |
 | `permission_response` | `toolName`, `decision` | Permission decision made |
 | `ask_user` | `request` | User input requested |
 | `ask_user_response` | `answer` | User response received |
-| `usage_update` | `promptTokens`, `completionTokens` | Token usage |
+| `usage_update` | `promptTokens`, `completionTokens`, `model?`, `backend?` | Token usage with metadata |
+| `heartbeat` | — | Keepalive signal during long operations |
 | `error` | `error`, `recoverable` | Error during execution |
 | `done` | `finalOutput`, `structuredOutput?` | Execution completed |
+
+## Usage Tracking
+
+Track token usage with the `onUsage` callback. Called after each `run()`/`runWithContext()`/`runStructured()` completion and during `stream()`/`streamWithContext()` when usage data arrives:
+
+```typescript
+const agent = service.createAgent({
+  systemPrompt: "You are a helpful assistant.",
+  onUsage: (usage) => {
+    console.log(`${usage.backend}/${usage.model}: ${usage.promptTokens}+${usage.completionTokens} tokens`);
+  },
+});
+```
+
+Usage data includes `promptTokens`, `completionTokens`, and optional `model` and `backend` fields. Callback errors are logged but not propagated (fire-and-forget).
+
+## Heartbeat
+
+Keep HTTP streams alive during long tool executions by emitting periodic heartbeat events:
+
+```typescript
+const agent = service.createAgent({
+  systemPrompt: "You are a helpful assistant.",
+  heartbeatInterval: 15000, // emit heartbeat every 15s during gaps
+});
+
+for await (const event of agent.stream("Run a long analysis")) {
+  if (event.type === "heartbeat") continue; // ignore keepalive
+  // handle other events...
+}
+```
+
+When `heartbeatInterval` is set, heartbeat events are emitted during streaming gaps (e.g., while a tool executes). No heartbeats are emitted when backend events flow continuously. The timer is cleaned up when the stream completes, errors, or is aborted.
 
 ## Backend-Specific Options
 

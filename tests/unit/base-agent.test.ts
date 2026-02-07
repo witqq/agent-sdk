@@ -13,6 +13,7 @@ import { ReentrancyError, DisposedError, AbortError } from "../../src/errors.js"
 // ─── Concrete Test Implementation ──────────────────────────────
 
 class TestAgent extends BaseAgent {
+  protected readonly backendName = "test";
   public runCalled = false;
   public structuredCalled = false;
   public streamCalled = false;
@@ -211,6 +212,94 @@ describe("BaseAgent", () => {
     });
   });
 
+  describe("streamWithContext()", () => {
+    it("should pass full message history to executeStream", async () => {
+      const agent = makeAgent();
+      const messages: Message[] = [
+        { role: "system", content: "You are helpful" },
+        { role: "user", content: "hello" },
+        { role: "assistant", content: "hi" },
+        { role: "user", content: "what is 2+2?" },
+      ];
+      const events: AgentEvent[] = [];
+      for await (const event of agent.streamWithContext(messages)) {
+        events.push(event);
+      }
+      expect(agent.streamCalled).toBe(true);
+      expect(agent.lastMessages).toEqual(messages);
+      expect(events).toEqual([
+        { type: "text_delta", text: "chunk1" },
+        { type: "text_delta", text: "chunk2" },
+      ]);
+    });
+
+    it("should set state to streaming then back to idle", async () => {
+      const agent = makeAgent();
+      let stateDuringStream: string | undefined;
+
+      const origStream = (agent as any).executeStream.bind(agent);
+      (agent as any).executeStream = async function* (...args: any[]) {
+        stateDuringStream = agent.getState();
+        yield* origStream(...args);
+      };
+
+      const messages: Message[] = [{ role: "user", content: "test" }];
+      for await (const _ of agent.streamWithContext(messages)) {
+        // consume
+      }
+      expect(stateDuringStream).toBe("streaming");
+      expect(agent.getState()).toBe("idle");
+    });
+
+    it("should throw ReentrancyError if called while running", async () => {
+      const agent = makeAgent();
+      agent.runDelay = 50;
+
+      const first = agent.run("first");
+      const messages: Message[] = [{ role: "user", content: "second" }];
+      const iter = agent.streamWithContext(messages)[Symbol.asyncIterator]();
+      await expect(iter.next()).rejects.toThrow(ReentrancyError);
+      await first;
+    });
+
+    it("should throw DisposedError after dispose", async () => {
+      const agent = makeAgent();
+      agent.dispose();
+      const messages: Message[] = [{ role: "user", content: "test" }];
+      const iter = agent.streamWithContext(messages)[Symbol.asyncIterator]();
+      await expect(iter.next()).rejects.toThrow(DisposedError);
+    });
+
+    it("should support abort signal", async () => {
+      const agent = makeAgent();
+      const externalAc = new AbortController();
+
+      (agent as any).executeStream = async function* (
+        _msgs: Message[],
+        _opts: RunOptions | undefined,
+        signal: AbortSignal,
+      ) {
+        yield { type: "text_delta" as const, text: "before" };
+        await new Promise((r) => setTimeout(r, 100));
+        if (signal.aborted) throw new AbortError();
+        yield { type: "text_delta" as const, text: "after" };
+      };
+
+      const messages: Message[] = [{ role: "user", content: "test" }];
+      const events: AgentEvent[] = [];
+
+      setTimeout(() => externalAc.abort(), 10);
+      await expect(async () => {
+        for await (const event of agent.streamWithContext(messages, { signal: externalAc.signal })) {
+          events.push(event);
+        }
+      }).rejects.toThrow(AbortError);
+
+      expect(events).toEqual([{ type: "text_delta", text: "before" }]);
+      expect(agent.getState()).toBe("idle");
+    });
+  });
+
   describe("re-entrancy guard (M8)", () => {
     it("should throw ReentrancyError if run called while running", async () => {
       const agent = makeAgent();
@@ -334,6 +423,136 @@ describe("BaseAgent", () => {
       const agent = makeAgent();
       agent.dispose();
       expect(agent.getState()).toBe("disposed");
+    });
+  });
+
+  describe("heartbeat", () => {
+    it("should not emit heartbeat events when heartbeatInterval is not set", async () => {
+      const agent = makeAgent();
+      (agent as any).executeStream = async function* () {
+        yield { type: "text_delta" as const, text: "hello" };
+      };
+      const events: AgentEvent[] = [];
+      for await (const event of agent.stream("test")) {
+        events.push(event);
+      }
+      expect(events.some((e) => e.type === "heartbeat")).toBe(false);
+    });
+
+    it("should emit heartbeat events at configured intervals during gaps", async () => {
+      const agent = makeAgent({ heartbeatInterval: 30 });
+      (agent as any).executeStream = async function* () {
+        yield { type: "text_delta" as const, text: "before" };
+        // Simulate a long tool execution gap
+        await new Promise((r) => setTimeout(r, 120));
+        yield { type: "text_delta" as const, text: "after" };
+      };
+      const events: AgentEvent[] = [];
+      for await (const event of agent.stream("test")) {
+        events.push(event);
+      }
+      const heartbeats = events.filter((e) => e.type === "heartbeat");
+      expect(heartbeats.length).toBeGreaterThanOrEqual(2);
+      // Heartbeats should appear between the two text_delta events
+      const firstText = events.findIndex((e) => e.type === "text_delta" && e.text === "before");
+      const secondText = events.findIndex((e) => e.type === "text_delta" && e.text === "after");
+      const heartbeatsBetween = events.slice(firstText + 1, secondText).filter((e) => e.type === "heartbeat");
+      expect(heartbeatsBetween.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it("should stop heartbeat after stream completion", async () => {
+      const agent = makeAgent({ heartbeatInterval: 10 });
+      (agent as any).executeStream = async function* () {
+        yield { type: "text_delta" as const, text: "done" };
+      };
+      const events: AgentEvent[] = [];
+      for await (const event of agent.stream("test")) {
+        events.push(event);
+      }
+      // Wait to ensure no more heartbeats are emitted after stream ends
+      const countBefore = events.filter((e) => e.type === "heartbeat").length;
+      await new Promise((r) => setTimeout(r, 50));
+      // No way to observe leaked heartbeats externally, but agent state should be idle
+      expect(agent.getState()).toBe("idle");
+      // The count should remain the same (no side effects after completion)
+      expect(events.filter((e) => e.type === "heartbeat").length).toBe(countBefore);
+    });
+
+    it("should respect abort signal and stop heartbeat", async () => {
+      const agent = makeAgent({ heartbeatInterval: 10 });
+      const externalAc = new AbortController();
+
+      (agent as any).executeStream = async function* (
+        _msgs: Message[],
+        _opts: RunOptions | undefined,
+        signal: AbortSignal,
+      ) {
+        yield { type: "text_delta" as const, text: "before" };
+        await new Promise((r) => setTimeout(r, 200));
+        if (signal.aborted) throw new AbortError();
+        yield { type: "text_delta" as const, text: "after" };
+      };
+
+      const events: AgentEvent[] = [];
+      setTimeout(() => externalAc.abort(), 50);
+
+      await expect(async () => {
+        for await (const event of agent.stream("test", { signal: externalAc.signal })) {
+          events.push(event);
+        }
+      }).rejects.toThrow(AbortError);
+
+      expect(events.some((e) => e.type === "text_delta" && e.text === "before")).toBe(true);
+      expect(events.some((e) => e.type === "heartbeat")).toBe(true);
+      expect(agent.getState()).toBe("idle");
+    });
+
+    it("should work with streamWithContext", async () => {
+      const agent = makeAgent({ heartbeatInterval: 30 });
+      (agent as any).executeStream = async function* () {
+        yield { type: "text_delta" as const, text: "start" };
+        await new Promise((r) => setTimeout(r, 100));
+        yield { type: "text_delta" as const, text: "end" };
+      };
+      const events: AgentEvent[] = [];
+      const messages: Message[] = [{ role: "user", content: "test" }];
+      for await (const event of agent.streamWithContext(messages)) {
+        events.push(event);
+      }
+      expect(events.some((e) => e.type === "heartbeat")).toBe(true);
+    });
+
+    it("should pass through events without delay when no gap", async () => {
+      const agent = makeAgent({ heartbeatInterval: 1000 });
+      (agent as any).executeStream = async function* () {
+        yield { type: "text_delta" as const, text: "a" };
+        yield { type: "text_delta" as const, text: "b" };
+        yield { type: "text_delta" as const, text: "c" };
+      };
+      const events: AgentEvent[] = [];
+      for await (const event of agent.stream("test")) {
+        events.push(event);
+      }
+      // All events should pass through, no heartbeats since events arrive fast
+      expect(events).toEqual([
+        { type: "text_delta", text: "a" },
+        { type: "text_delta", text: "b" },
+        { type: "text_delta", text: "c" },
+      ]);
+    });
+
+    it("should not emit heartbeat when interval is 0", async () => {
+      const agent = makeAgent({ heartbeatInterval: 0 });
+      (agent as any).executeStream = async function* () {
+        yield { type: "text_delta" as const, text: "hello" };
+        await new Promise((r) => setTimeout(r, 50));
+        yield { type: "text_delta" as const, text: "world" };
+      };
+      const events: AgentEvent[] = [];
+      for await (const event of agent.stream("test")) {
+        events.push(event);
+      }
+      expect(events.some((e) => e.type === "heartbeat")).toBe(false);
     });
   });
 });

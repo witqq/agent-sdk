@@ -16,6 +16,7 @@ export type {
   UserInputResponse,
   SupervisorHooks,
   StructuredOutputConfig,
+  UsageData,
   AgentEvent,
   RunOptions,
   ModelParams,

@@ -525,10 +525,12 @@ describe("Cross-backend consistency", () => {
       ] as const) {
         const starts = events.filter((e) => e.type === "tool_call_start") as Array<{
           type: "tool_call_start";
+          toolCallId: string;
           toolName: string;
         }>;
         const ends = events.filter((e) => e.type === "tool_call_end") as Array<{
           type: "tool_call_end";
+          toolCallId: string;
           toolName: string;
         }>;
         expect(starts.length, `${name} missing tool_call_start`).toBeGreaterThanOrEqual(1);
@@ -536,6 +538,10 @@ describe("Cross-backend consistency", () => {
         // Tool name should be actual, not hardcoded
         expect(starts[0].toolName, `${name} tool_call_start has wrong toolName`).toBe("search");
         expect(ends[0].toolName, `${name} tool_call_end has wrong toolName`).toBe("search");
+        // toolCallId must be present and consistent between start/end
+        expect(starts[0].toolCallId, `${name} tool_call_start missing toolCallId`).toBeDefined();
+        expect(typeof starts[0].toolCallId, `${name} toolCallId should be string`).toBe("string");
+        expect(ends[0].toolCallId, `${name} tool_call_end missing toolCallId`).toBeDefined();
       }
     });
   });
@@ -593,6 +599,102 @@ describe("Cross-backend consistency", () => {
         expect(result.structuredOutput, `${name} missing structuredOutput`).toBeDefined();
         expect((result.structuredOutput as any).name, `${name} wrong name`).toBe("test");
         expect((result.structuredOutput as any).value, `${name} wrong value`).toBe(42);
+      }
+    });
+  });
+
+  describe("Usage metadata", () => {
+    it("should include backend name in usage from all backends", async () => {
+      // Copilot
+      createCopilotMock({
+        events: [
+          {
+            id: "u1",
+            timestamp: new Date().toISOString(),
+            parentId: null,
+            type: "assistant.usage",
+            data: { inputTokens: 100, outputTokens: 50 },
+          },
+        ],
+      });
+      const copilotResult = await createCopilotService({})
+        .createAgent(makeConfig({ model: "gpt-4o" }))
+        .run("test");
+
+      // Claude
+      createClaudeMock([claudeSuccessResult("ok")]);
+      const claudeResult = await createClaudeService({})
+        .createAgent(makeConfig({ model: "claude-sonnet" }))
+        .run("test");
+
+      // Vercel
+      createVercelMock();
+      const vercelResult = await createVercelAIService({
+        apiKey: "test",
+        provider: "test",
+        baseUrl: "https://test.example.com",
+      })
+        .createAgent(makeConfig({ model: "test/model" }))
+        .run("test");
+
+      // All should have backend field
+      expect(copilotResult.usage?.backend).toBe("copilot");
+      expect(claudeResult.usage?.backend).toBe("claude");
+      expect(vercelResult.usage?.backend).toBe("vercel-ai");
+
+      // All should have model field
+      expect(copilotResult.usage?.model).toBe("gpt-4o");
+      expect(claudeResult.usage?.model).toBe("claude-sonnet");
+      expect(vercelResult.usage?.model).toBe("test/model");
+    });
+
+    it("should include model and backend in stream usage_update events from all backends", async () => {
+      // Copilot
+      createCopilotMock({
+        events: [
+          {
+            id: "u1",
+            timestamp: new Date().toISOString(),
+            parentId: null,
+            type: "assistant.usage",
+            data: { inputTokens: 100, outputTokens: 50 },
+          },
+        ],
+      });
+      const copilotEvents: AgentEvent[] = [];
+      for await (const e of createCopilotService({}).createAgent(makeConfig({ model: "gpt-4o" })).stream("test")) {
+        copilotEvents.push(e);
+      }
+
+      // Claude
+      createClaudeMock([claudeSuccessResult("ok")]);
+      const claudeEvents: AgentEvent[] = [];
+      for await (const e of createClaudeService({}).createAgent(makeConfig({ model: "claude-sonnet" })).stream("test")) {
+        claudeEvents.push(e);
+      }
+
+      // Vercel
+      createVercelMock();
+      const vercelEvents: AgentEvent[] = [];
+      for await (const e of createVercelAIService({
+        apiKey: "test",
+        provider: "test",
+        baseUrl: "https://test.example.com",
+      }).createAgent(makeConfig({ model: "test/model" })).stream("test")) {
+        vercelEvents.push(e);
+      }
+
+      for (const [name, events, expectedBackend, expectedModel] of [
+        ["copilot", copilotEvents, "copilot", "gpt-4o"],
+        ["claude", claudeEvents, "claude", "claude-sonnet"],
+        ["vercel", vercelEvents, "vercel-ai", "test/model"],
+      ] as const) {
+        const usageEvents = events.filter((e) => e.type === "usage_update") as Array<{
+          type: "usage_update"; model?: string; backend?: string;
+        }>;
+        expect(usageEvents.length, `${name} should have usage_update`).toBeGreaterThanOrEqual(1);
+        expect(usageEvents[0].backend, `${name} backend`).toBe(expectedBackend);
+        expect(usageEvents[0].model, `${name} model`).toBe(expectedModel);
       }
     });
   });

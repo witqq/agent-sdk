@@ -23,6 +23,7 @@ import type {
   SupervisorHooks,
   StructuredOutputConfig,
   ContentPart,
+  UsageData,
 } from "../../src/types.js";
 
 describe("Type Guards", () => {
@@ -180,15 +181,17 @@ describe("Type Consistency", () => {
   it("AgentEvent discriminated union type field is unique per variant", () => {
     const events: AgentEvent[] = [
       { type: "text_delta", text: "hello" },
-      { type: "tool_call_start", toolName: "search", args: { q: "test" } },
-      { type: "tool_call_end", toolName: "search", result: "found" },
+      { type: "thinking_delta", text: "reasoning..." },
+      { type: "tool_call_start", toolCallId: "tc-1", toolName: "search", args: { q: "test" } },
+      { type: "tool_call_end", toolCallId: "tc-1", toolName: "search", result: "found" },
       { type: "permission_request", request: { toolName: "x", toolArgs: {} } },
       { type: "permission_response", toolName: "x", decision: { allowed: true } },
       { type: "ask_user", request: { question: "ok?" } },
       { type: "ask_user_response", answer: "yes" },
       { type: "thinking_start" },
       { type: "thinking_end" },
-      { type: "usage_update", promptTokens: 100, completionTokens: 50 },
+      { type: "usage_update", promptTokens: 100, completionTokens: 50, model: "gpt-4", backend: "vercel-ai" },
+      { type: "heartbeat" },
       { type: "error", error: "oops", recoverable: false },
       { type: "done", finalOutput: "result" },
     ];
@@ -219,6 +222,44 @@ describe("Type Consistency", () => {
       messages: [],
     };
     expect(typedResult.structuredOutput[0].title).toBe("News");
+  });
+
+  it("UsageData has required and optional fields", () => {
+    const minimal: UsageData = { promptTokens: 100, completionTokens: 50 };
+    expect(minimal.promptTokens).toBe(100);
+    expect(minimal.model).toBeUndefined();
+    expect(minimal.backend).toBeUndefined();
+
+    const full: UsageData = {
+      promptTokens: 200,
+      completionTokens: 100,
+      model: "gpt-4",
+      backend: "vercel-ai",
+    };
+    expect(full.model).toBe("gpt-4");
+    expect(full.backend).toBe("vercel-ai");
+  });
+
+  it("AgentConfig supports onUsage callback", () => {
+    const usageCalls: UsageData[] = [];
+    const config: AgentConfig = {
+      systemPrompt: "test",
+      tools: [],
+      onUsage: (usage) => { usageCalls.push(usage); },
+    };
+    expect(config.onUsage).toBeDefined();
+    config.onUsage!({ promptTokens: 10, completionTokens: 5, model: "m", backend: "b" });
+    expect(usageCalls).toHaveLength(1);
+    expect(usageCalls[0].model).toBe("m");
+  });
+
+  it("AgentConfig supports heartbeatInterval", () => {
+    const config: AgentConfig = {
+      systemPrompt: "test",
+      tools: [],
+      heartbeatInterval: 5000,
+    };
+    expect(config.heartbeatInterval).toBe(5000);
   });
 
   it("AgentConfig requires systemPrompt and tools", () => {
