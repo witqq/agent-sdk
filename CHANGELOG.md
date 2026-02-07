@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.1] — 2026-02-07
+
 ### Copilot Backend
 - Auth check on client startup — throws `SubprocessError` immediately if not authenticated
 - Default auto-approve permission handler in headless mode (no `onPermission` callback)
