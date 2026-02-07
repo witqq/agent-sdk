@@ -260,7 +260,7 @@ describe("Copilot Backend", () => {
       });
     });
 
-    it("should create session with correct config", async () => {
+    it("should create session with correct config (default append mode)", async () => {
       const { client } = injectMockSDK();
       const service = createCopilotService({});
       const config = makeConfig({ model: "gpt-4o" });
@@ -271,7 +271,7 @@ describe("Copilot Backend", () => {
         expect.objectContaining({
           model: "gpt-4o",
           streaming: false,
-          systemMessage: { mode: "replace", content: "You are a helpful assistant." },
+          systemMessage: { mode: "append", content: "You are a helpful assistant." },
         }),
       );
     });
@@ -452,14 +452,21 @@ describe("Copilot Backend", () => {
       expect(sdkResult.kind).toBe("denied-interactively-by-user");
     });
 
-    it("should not set permission handler when no supervisor", async () => {
+    it("should auto-approve when no supervisor (headless safety)", async () => {
       const { client } = injectMockSDK();
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
       await agent.run("test");
 
       const sessionConfig = client.createSession.mock.calls[0][0];
-      expect(sessionConfig.onPermissionRequest).toBeUndefined();
+      expect(sessionConfig.onPermissionRequest).toBeDefined();
+
+      // Default handler auto-approves to prevent SDK from hanging
+      const result = await sessionConfig.onPermissionRequest!(
+        { kind: "shell", command: "ls" },
+        { sessionId: "s1" },
+      );
+      expect(result.kind).toBe("approved");
     });
   });
 
@@ -497,14 +504,22 @@ describe("Copilot Backend", () => {
       expect(askCalls[0].choices).toEqual(["yes", "no"]);
     });
 
-    it("should not set user input handler when no onAskUser", async () => {
+    it("should auto-answer when no onAskUser (headless safety)", async () => {
       const { client } = injectMockSDK();
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
       await agent.run("test");
 
       const sessionConfig = client.createSession.mock.calls[0][0];
-      expect(sessionConfig.onUserInputRequest).toBeUndefined();
+      expect(sessionConfig.onUserInputRequest).toBeDefined();
+
+      // Default handler auto-answers to prevent SDK from returning question as output
+      const result = await sessionConfig.onUserInputRequest!(
+        { question: "Continue?", choices: ["yes", "no"], allowFreeform: true },
+        { sessionId: "s1" },
+      );
+      expect(result.answer).toContain("autonomously");
+      expect(result.wasFreeform).toBe(true);
     });
   });
 
@@ -851,6 +866,122 @@ describe("Copilot Backend", () => {
 
       // Both use the same client (createSession called twice)
       expect(client.createSession).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  // ── Auth Check ─────────────────────────────────────────────────
+
+  describe("Auth check on startup", () => {
+    it("should throw SubprocessError when not authenticated", async () => {
+      const { client } = injectMockSDK();
+      client.getAuthStatus.mockResolvedValue({ isAuthenticated: false });
+
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig());
+
+      await expect(agent.run("test")).rejects.toThrow(SubprocessError);
+      await expect(agent.run("test")).rejects.toThrow("Not authenticated");
+      expect(client.stop).toHaveBeenCalled();
+    });
+
+    it("should succeed when authenticated", async () => {
+      injectMockSDK();
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig());
+
+      const result = await agent.run("test");
+      expect(result.output).toBe("Hello from Copilot!");
+    });
+  });
+
+  // ── CLI Args ──────────────────────────────────────────────────
+
+  describe("CLI args passthrough", () => {
+    it("should pass cliArgs to CopilotClient", async () => {
+      const mockSDK = injectMockSDK();
+      const CopilotClientCtor = vi.fn(() => mockSDK.client);
+      _resetSDK();
+      _injectSDK({ CopilotClient: CopilotClientCtor as any });
+
+      const service = createCopilotService({
+        cliArgs: ["--allow-all", "--allow-all-urls"],
+      });
+      await service.listModels();
+
+      expect(CopilotClientCtor).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cliArgs: ["--allow-all", "--allow-all-urls"],
+        }),
+      );
+    });
+
+    it("should not include cliArgs when not provided", async () => {
+      const mockSDK = injectMockSDK();
+      const CopilotClientCtor = vi.fn(() => mockSDK.client);
+      _resetSDK();
+      _injectSDK({ CopilotClient: CopilotClientCtor as any });
+
+      const service = createCopilotService({});
+      await service.listModels();
+
+      const callArgs = CopilotClientCtor.mock.calls[0][0];
+      expect(callArgs).not.toHaveProperty("cliArgs");
+    });
+  });
+
+  // ── System Message Mode ───────────────────────────────────────
+
+  describe("systemMessageMode", () => {
+    it("should default to 'append' mode", async () => {
+      const { client } = injectMockSDK();
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig());
+      await agent.run("test");
+
+      const sessionConfig = client.createSession.mock.calls[0][0];
+      expect(sessionConfig.systemMessage).toEqual({
+        mode: "append",
+        content: "You are a helpful assistant.",
+      });
+    });
+
+    it("should use 'replace' when explicitly set", async () => {
+      const { client } = injectMockSDK();
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig({ systemMessageMode: "replace" }));
+      await agent.run("test");
+
+      const sessionConfig = client.createSession.mock.calls[0][0];
+      expect(sessionConfig.systemMessage).toEqual({
+        mode: "replace",
+        content: "You are a helpful assistant.",
+      });
+    });
+  });
+
+  // ── Available Tools ───────────────────────────────────────────
+
+  describe("availableTools", () => {
+    it("should pass availableTools to session config", async () => {
+      const { client } = injectMockSDK();
+      const service = createCopilotService({});
+      const agent = service.createAgent(
+        makeConfig({ availableTools: ["web_search", "web_fetch"] }),
+      );
+      await agent.run("test");
+
+      const sessionConfig = client.createSession.mock.calls[0][0];
+      expect(sessionConfig.availableTools).toEqual(["web_search", "web_fetch"]);
+    });
+
+    it("should not include availableTools when not set", async () => {
+      const { client } = injectMockSDK();
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig());
+      await agent.run("test");
+
+      const sessionConfig = client.createSession.mock.calls[0][0];
+      expect(sessionConfig).not.toHaveProperty("availableTools");
     });
   });
 

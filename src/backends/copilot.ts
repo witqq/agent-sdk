@@ -35,6 +35,7 @@ interface SDKClientOptions {
   logLevel?: string;
   githubToken?: string;
   useLoggedInUser?: boolean;
+  cliArgs?: string[];
 }
 
 /** @internal */
@@ -97,6 +98,7 @@ interface SDKSessionConfig {
   ) => Promise<SDKUserInputResponse> | SDKUserInputResponse;
   streaming?: boolean;
   workingDirectory?: string;
+  availableTools?: string[];
 }
 
 /** @internal */
@@ -200,9 +202,14 @@ function mapToolsToSDK(tools: ToolDefinition[]): SDKTool[] {
 
 function buildPermissionHandler(
   config: AgentConfig,
-): SDKSessionConfig["onPermissionRequest"] | undefined {
+): SDKSessionConfig["onPermissionRequest"] {
   const onPermission = config.supervisor?.onPermission;
-  if (!onPermission) return undefined;
+
+  // Headless safety: always provide a handler to prevent SDK from hanging.
+  // Without a handler the SDK waits for interactive input indefinitely.
+  if (!onPermission) {
+    return async (): Promise<SDKPermissionResult> => ({ kind: "approved" });
+  }
 
   const permissionStore = config.permissionStore;
 
@@ -241,9 +248,17 @@ function buildPermissionHandler(
 
 function buildUserInputHandler(
   config: AgentConfig,
-): SDKSessionConfig["onUserInputRequest"] | undefined {
+): SDKSessionConfig["onUserInputRequest"] {
   const onAskUser = config.supervisor?.onAskUser;
-  if (!onAskUser) return undefined;
+
+  // Headless safety: always provide a handler to prevent SDK from hanging
+  // or returning a question as the final output instead of completing the task.
+  if (!onAskUser) {
+    return async (): Promise<SDKUserInputResponse> => ({
+      answer: "Complete the task autonomously without asking questions.",
+      wasFreeform: true,
+    });
+  }
 
   return async (
     request: SDKUserInputRequest,
@@ -414,9 +429,13 @@ class CopilotAgent extends BaseAgent {
     this.sessionConfig = {
       model: config.model,
       tools: this.sdkTools,
-      systemMessage: { mode: "replace", content: config.systemPrompt },
+      systemMessage: {
+        mode: config.systemMessageMode ?? "append",
+        content: config.systemPrompt,
+      },
       onPermissionRequest: buildPermissionHandler(config),
       onUserInputRequest: buildUserInputHandler(config),
+      ...(config.availableTools ? { availableTools: config.availableTools } : {}),
     };
   }
 
@@ -675,8 +694,19 @@ class CopilotAgentService implements IAgentService {
           logLevel: "error",
           githubToken: this.options.githubToken,
           useLoggedInUser: this.options.useLoggedInUser ?? true,
+          ...(this.options.cliArgs ? { cliArgs: this.options.cliArgs } : {}),
         });
         await client.start();
+
+        // Verify authentication early to fail fast instead of hanging
+        const auth = await client.getAuthStatus();
+        if (!auth.isAuthenticated) {
+          await client.stop();
+          throw new SubprocessError(
+            "Not authenticated with GitHub Copilot. Run 'copilot auth login' or set GITHUB_TOKEN.",
+          );
+        }
+
         this.client = client;
         return client;
       } catch (e) {
