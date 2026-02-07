@@ -1,0 +1,643 @@
+import type {
+  IAgent,
+  IAgentService,
+  AgentConfig,
+  AgentResult,
+  AgentEvent,
+  Message,
+  RunOptions,
+  StructuredOutputConfig,
+  ToolDefinition,
+  VercelAIBackendOptions,
+  ModelInfo,
+  ValidationResult,
+  JSONValue,
+  PermissionRequest as UnifiedPermissionRequest,
+  PermissionDecision,
+} from "../types.js";
+import { getTextContent } from "../types.js";
+import { BaseAgent } from "../base-agent.js";
+import { DisposedError, DependencyError, AbortError, ToolExecutionError } from "../errors.js";
+import { zodToJsonSchema } from "../utils/schema.js";
+import type { IPermissionStore } from "../permission-store.js";
+
+export type { VercelAIBackendOptions } from "../types.js";
+
+// ─── Local Type Definitions (matching Vercel AI SDK shapes) ─────
+// Avoids requiring the SDK to be installed at compile time.
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+/** @internal Vercel AI SDK tool result */
+interface SDKToolDefinition {
+  description: string;
+  parameters: any;
+  execute?: (args: any, options: any) => Promise<any>;
+  needsApproval?: boolean | ((args: any, options: any) => Promise<boolean>);
+}
+
+/** @internal Vercel AI SDK generateText result */
+interface SDKGenerateTextResult {
+  text: string;
+  toolCalls: Array<{ toolCallId: string; toolName: string; args: any }>;
+  toolResults: Array<{ toolCallId: string; toolName: string; result: any }>;
+  steps: Array<{
+    text: string;
+    toolCalls: Array<{ toolCallId: string; toolName: string; args: any }>;
+    toolResults: Array<{ toolCallId: string; toolName: string; result: any }>;
+    usage: { inputTokens?: number; outputTokens?: number };
+    finishReason: string;
+  }>;
+  totalUsage: { inputTokens?: number; outputTokens?: number };
+  finishReason: string;
+  response: { messages: any[] };
+}
+
+/** @internal Vercel AI SDK generateObject result */
+interface SDKGenerateObjectResult {
+  object: any;
+  usage: { inputTokens?: number; outputTokens?: number };
+}
+
+/** @internal Vercel AI SDK streamText result */
+interface SDKStreamTextResult {
+  fullStream: AsyncIterable<SDKStreamPart>;
+  totalUsage: PromiseLike<{ inputTokens?: number; outputTokens?: number }>;
+  text: PromiseLike<string>;
+}
+
+/** @internal Vercel AI SDK stream part union */
+interface SDKStreamPart {
+  type: string;
+  [key: string]: any;
+}
+
+/** @internal Vercel AI SDK LanguageModel */
+type SDKLanguageModel = any;
+
+/** @internal SDK module shape */
+interface SDKModule {
+  generateText: (options: any) => Promise<SDKGenerateTextResult>;
+  streamText: (options: any) => SDKStreamTextResult;
+  generateObject: (options: any) => Promise<SDKGenerateObjectResult>;
+  tool: (options: any) => SDKToolDefinition;
+  jsonSchema: (schema: any) => any;
+}
+
+/** @internal OpenAI-compatible module shape */
+interface SDKCompatModule {
+  createOpenAICompatible: (options: any) => {
+    chatModel: (modelId: string) => SDKLanguageModel;
+    languageModel: (modelId: string) => SDKLanguageModel;
+  };
+}
+
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+// ─── Dynamic SDK Loader ─────────────────────────────────────────
+
+let sdkModule: SDKModule | null = null;
+let compatModule: SDKCompatModule | null = null;
+
+async function loadSDK(): Promise<SDKModule> {
+  if (sdkModule) return sdkModule;
+  try {
+    // @ts-ignore — peer dependency, not present at compile time
+    sdkModule = (await import("ai")) as SDKModule;
+    return sdkModule!;
+  } catch {
+    throw new DependencyError("ai");
+  }
+}
+
+async function loadCompat(): Promise<SDKCompatModule> {
+  if (compatModule) return compatModule;
+  try {
+    // @ts-ignore — peer dependency, not present at compile time
+    compatModule = (await import("@ai-sdk/openai-compatible")) as SDKCompatModule;
+    return compatModule!;
+  } catch {
+    throw new DependencyError("@ai-sdk/openai-compatible");
+  }
+}
+
+/** @internal For testing: inject mock SDK module */
+export function _injectSDK(mock: SDKModule | null): void {
+  sdkModule = mock;
+}
+
+/** @internal For testing: inject mock compat module */
+export function _injectCompat(mock: SDKCompatModule | null): void {
+  compatModule = mock;
+}
+
+/** @internal For testing: reset injected SDK */
+export function _resetSDK(): void {
+  sdkModule = null;
+  compatModule = null;
+}
+
+// ─── Constants ──────────────────────────────────────────────────
+
+const DEFAULT_BASE_URL = "https://openrouter.ai/api/v1";
+const DEFAULT_PROVIDER = "openrouter";
+const DEFAULT_MAX_TURNS = 10;
+
+// ─── Tool Mapping ───────────────────────────────────────────────
+
+function mapToolsToSDK(
+  sdk: SDKModule,
+  tools: ToolDefinition[],
+  config: AgentConfig,
+  sessionApprovals: Set<string>,
+  permissionStore: IPermissionStore | undefined,
+  signal: AbortSignal,
+): Record<string, SDKToolDefinition> {
+  const toolMap: Record<string, SDKToolDefinition> = {};
+  const supervisor = config.supervisor;
+
+  for (const ourTool of tools) {
+    const jsonSchema = zodToJsonSchema(ourTool.parameters);
+
+    toolMap[ourTool.name] = sdk.tool({
+      description: ourTool.description,
+      parameters: sdk.jsonSchema(jsonSchema),
+      execute: wrapToolExecute(ourTool, supervisor, sessionApprovals, permissionStore, signal),
+      ...(ourTool.needsApproval && supervisor?.onPermission
+        ? {
+            needsApproval: async (_args: Record<string, unknown>) => {
+              // If already approved via store, skip
+              if (permissionStore && await permissionStore.isApproved(ourTool.name)) return false;
+              // If already session-approved, skip
+              if (sessionApprovals.has(ourTool.name)) return false;
+              return true; // will be handled in execute wrapper
+            },
+          }
+        : {}),
+    });
+  }
+
+  // M1: Inject built-in ask_user tool when supervisor.onAskUser is provided
+  if (supervisor?.onAskUser) {
+    const onAskUser = supervisor.onAskUser;
+    toolMap["ask_user"] = sdk.tool({
+      description: "Ask the user a question and wait for their response",
+      parameters: sdk.jsonSchema({
+        type: "object",
+        properties: {
+          question: { type: "string", description: "The question to ask the user" },
+        },
+        required: ["question"],
+      }),
+      execute: async (args: { question: string }) => {
+        const response = await onAskUser(
+          { question: args.question, allowFreeform: true },
+          signal,
+        );
+        return response.answer;
+      },
+    });
+  }
+
+  return toolMap;
+}
+
+function wrapToolExecute(
+  ourTool: ToolDefinition,
+  supervisor: AgentConfig["supervisor"],
+  sessionApprovals: Set<string>,
+  permissionStore: IPermissionStore | undefined,
+  signal: AbortSignal,
+): (args: unknown) => Promise<JSONValue> {
+  return async (args: unknown): Promise<JSONValue> => {
+    // Permission check for tools with needsApproval
+    if (ourTool.needsApproval && supervisor?.onPermission) {
+      // Check store first, then fall back to sessionApprovals set
+      const storeApproved = permissionStore && await permissionStore.isApproved(ourTool.name);
+      if (!storeApproved && !sessionApprovals.has(ourTool.name)) {
+        const request: UnifiedPermissionRequest = {
+          toolName: ourTool.name,
+          toolArgs: (args ?? {}) as Record<string, unknown>,
+        };
+
+        const decision: PermissionDecision = await supervisor.onPermission(
+          request,
+          signal,
+        );
+
+        if (!decision.allowed) {
+          throw new ToolExecutionError(
+            ourTool.name,
+            decision.reason ?? "Permission denied",
+          );
+        }
+
+        // Persist approval to store if available
+        if (permissionStore && decision.scope) {
+          await permissionStore.approve(ourTool.name, decision.scope);
+        }
+
+        // Also keep sessionApprovals for backward compat
+        if (decision.scope === "session" || decision.scope === "always" || decision.scope === "project") {
+          sessionApprovals.add(ourTool.name);
+        }
+
+        // Use modified input if provided
+        if (decision.modifiedInput) {
+          args = decision.modifiedInput;
+        }
+      }
+    }
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await ourTool.execute(args as any);
+      return result as JSONValue;
+    } catch (e) {
+      if (e instanceof ToolExecutionError) throw e;
+      throw new ToolExecutionError(
+        ourTool.name,
+        e instanceof Error ? e.message : String(e),
+      );
+    }
+  };
+}
+
+// ─── Message Conversion ─────────────────────────────────────────
+
+function messagesToSDK(messages: Message[]): Array<Record<string, unknown>> {
+  return messages.map((msg) => {
+    switch (msg.role) {
+      case "user":
+        return { role: "user", content: getTextContent(msg.content) };
+      case "assistant":
+        return { role: "assistant", content: getTextContent(msg.content) };
+      case "system":
+        return { role: "system", content: msg.content };
+      case "tool":
+        return { role: "tool", content: msg.content ?? "" };
+      default:
+        return { role: "user", content: "" };
+    }
+  });
+}
+
+// ─── Event Mapping (fullStream → AgentEvent) ────────────────────
+
+function mapStreamPart(part: SDKStreamPart): AgentEvent | null {
+  switch (part.type) {
+    case "text-delta":
+      return { type: "text_delta", text: part.text ?? "" };
+
+    case "tool-call":
+      return {
+        type: "tool_call_start",
+        toolName: part.toolName ?? "unknown",
+        args: (part.args as JSONValue) ?? {},
+      };
+
+    case "tool-result":
+      return {
+        type: "tool_call_end",
+        toolName: part.toolName ?? "unknown",
+        result: (part.result as JSONValue) ?? null,
+      };
+
+    case "tool-error":
+      return {
+        type: "error",
+        error: part.error instanceof Error
+          ? part.error.message
+          : String(part.error ?? "Tool execution failed"),
+        recoverable: true,
+      };
+
+    case "reasoning-start":
+      return { type: "thinking_start" };
+
+    case "reasoning-end":
+      return { type: "thinking_end" };
+
+    case "reasoning-delta":
+      return { type: "text_delta", text: part.text ?? "" };
+
+    case "finish-step":
+      return {
+        type: "usage_update",
+        promptTokens: Number(part.usage?.inputTokens ?? 0),
+        completionTokens: Number(part.usage?.outputTokens ?? 0),
+      };
+
+    case "error":
+      return {
+        type: "error",
+        error: part.error instanceof Error
+          ? part.error.message
+          : String(part.error ?? "Unknown error"),
+        recoverable: false,
+      };
+
+    default:
+      return null;
+  }
+}
+
+// ─── VercelAIAgent ──────────────────────────────────────────────
+
+class VercelAIAgent extends BaseAgent {
+  private readonly backendOptions: VercelAIBackendOptions;
+  private readonly sessionApprovals = new Set<string>();
+  private model: SDKLanguageModel | null = null;
+
+  constructor(
+    config: AgentConfig,
+    backendOptions: VercelAIBackendOptions,
+  ) {
+    super(config);
+    this.backendOptions = backendOptions;
+  }
+
+  private async getModel(): Promise<SDKLanguageModel> {
+    if (this.model) return this.model;
+
+    const compat = await loadCompat();
+    const provider = compat.createOpenAICompatible({
+      name: this.backendOptions.provider ?? DEFAULT_PROVIDER,
+      baseURL: this.backendOptions.baseUrl ?? DEFAULT_BASE_URL,
+      apiKey: this.backendOptions.apiKey,
+    });
+
+    const modelId = this.config.model ?? "anthropic/claude-sonnet-4-5";
+    this.model = provider.chatModel(modelId);
+    return this.model;
+  }
+
+  private async getSDKTools(signal: AbortSignal): Promise<Record<string, SDKToolDefinition>> {
+    const sdk = await loadSDK();
+    return mapToolsToSDK(sdk, this.config.tools, this.config, this.sessionApprovals, this.config.permissionStore, signal);
+  }
+
+  // ─── executeRun ─────────────────────────────────────────────────
+
+  protected async executeRun(
+    messages: Message[],
+    _options: RunOptions | undefined,
+    signal: AbortSignal,
+  ): Promise<AgentResult> {
+    this.checkAbort(signal);
+
+    const sdk = await loadSDK();
+    const model = await this.getModel();
+    const tools = await this.getSDKTools(signal);
+    const maxTurns = this.config.maxTurns ?? DEFAULT_MAX_TURNS;
+
+    const sdkMessages = messagesToSDK(messages);
+    const hasTools = Object.keys(tools).length > 0;
+
+    const result: SDKGenerateTextResult = await sdk.generateText({
+      model,
+      system: this.config.systemPrompt,
+      messages: sdkMessages,
+      tools: hasTools ? tools : undefined,
+      maxSteps: maxTurns,
+      abortSignal: signal,
+      ...(this.config.modelParams?.temperature !== undefined && {
+        temperature: this.config.modelParams.temperature,
+      }),
+      ...(this.config.modelParams?.maxTokens !== undefined && {
+        maxTokens: this.config.modelParams.maxTokens,
+      }),
+      ...(this.config.modelParams?.topP !== undefined && {
+        topP: this.config.modelParams.topP,
+      }),
+    });
+
+    // Collect all tool calls across all steps
+    const toolCalls: AgentResult["toolCalls"] = [];
+    for (const step of result.steps) {
+      for (const tc of step.toolCalls) {
+        const matchingResult = step.toolResults.find(
+          (tr) => tr.toolCallId === tc.toolCallId,
+        );
+        toolCalls.push({
+          toolName: tc.toolName,
+          args: (tc.args as JSONValue) ?? {},
+          result: (matchingResult?.result as JSONValue) ?? null,
+          approved: true,
+        });
+      }
+    }
+
+    const usage = {
+      promptTokens: Number(result.totalUsage?.inputTokens ?? 0),
+      completionTokens: Number(result.totalUsage?.outputTokens ?? 0),
+    };
+
+    return {
+      output: result.text || null,
+      structuredOutput: undefined as AgentResult["structuredOutput"],
+      toolCalls,
+      messages: [
+        ...messages,
+        ...(result.text
+          ? [{ role: "assistant" as const, content: result.text }]
+          : []),
+      ],
+      usage,
+    };
+  }
+
+  // ─── executeRunStructured ───────────────────────────────────────
+
+  protected async executeRunStructured<T>(
+    messages: Message[],
+    schema: StructuredOutputConfig<T>,
+    _options: RunOptions | undefined,
+    signal: AbortSignal,
+  ): Promise<AgentResult<T>> {
+    this.checkAbort(signal);
+
+    const sdk = await loadSDK();
+    const model = await this.getModel();
+
+    const sdkMessages = messagesToSDK(messages);
+    const jsonSchema = zodToJsonSchema(schema.schema);
+
+    const result: SDKGenerateObjectResult = await sdk.generateObject({
+      model,
+      system: this.config.systemPrompt,
+      messages: sdkMessages,
+      schema: sdk.jsonSchema(jsonSchema),
+      schemaName: schema.name,
+      schemaDescription: schema.description,
+      abortSignal: signal,
+      ...(this.config.modelParams?.temperature !== undefined && {
+        temperature: this.config.modelParams.temperature,
+      }),
+      ...(this.config.modelParams?.maxTokens !== undefined && {
+        maxTokens: this.config.modelParams.maxTokens,
+      }),
+    });
+
+    // Validate and parse through our zod schema
+    let structuredOutput: T | undefined;
+    try {
+      structuredOutput = schema.schema.parse(result.object);
+    } catch {
+      // If zod validation fails, leave undefined
+    }
+
+    const usage = {
+      promptTokens: Number(result.usage?.inputTokens ?? 0),
+      completionTokens: Number(result.usage?.outputTokens ?? 0),
+    };
+
+    return {
+      output: JSON.stringify(result.object),
+      structuredOutput: structuredOutput as AgentResult<T>["structuredOutput"],
+      toolCalls: [],
+      messages: [
+        ...messages,
+        ...(result.object != null
+          ? [{ role: "assistant" as const, content: JSON.stringify(result.object) }]
+          : []),
+      ],
+      usage,
+    };
+  }
+
+  // ─── executeStream ──────────────────────────────────────────────
+
+  protected async *executeStream(
+    messages: Message[],
+    _options: RunOptions | undefined,
+    signal: AbortSignal,
+  ): AsyncIterable<AgentEvent> {
+    this.checkAbort(signal);
+
+    const sdk = await loadSDK();
+    const model = await this.getModel();
+    const tools = await this.getSDKTools(signal);
+    const maxTurns = this.config.maxTurns ?? DEFAULT_MAX_TURNS;
+
+    const sdkMessages = messagesToSDK(messages);
+    const hasTools = Object.keys(tools).length > 0;
+
+    const result: SDKStreamTextResult = sdk.streamText({
+      model,
+      system: this.config.systemPrompt,
+      messages: sdkMessages,
+      tools: hasTools ? tools : undefined,
+      maxSteps: maxTurns,
+      abortSignal: signal,
+      ...(this.config.modelParams?.temperature !== undefined && {
+        temperature: this.config.modelParams.temperature,
+      }),
+      ...(this.config.modelParams?.maxTokens !== undefined && {
+        maxTokens: this.config.modelParams.maxTokens,
+      }),
+      ...(this.config.modelParams?.topP !== undefined && {
+        topP: this.config.modelParams.topP,
+      }),
+    });
+
+    let finalText = "";
+
+    try {
+      for await (const part of result.fullStream) {
+        if (signal.aborted) throw new AbortError();
+
+        const event = mapStreamPart(part as SDKStreamPart);
+        if (event) yield event;
+
+        if ((part as SDKStreamPart).type === "text-delta") {
+          finalText += (part as SDKStreamPart).text ?? "";
+        }
+      }
+
+      // Emit final usage from totalUsage
+      const totalUsage = await result.totalUsage;
+      yield {
+        type: "usage_update",
+        promptTokens: Number(totalUsage?.inputTokens ?? 0),
+        completionTokens: Number(totalUsage?.outputTokens ?? 0),
+      };
+
+      yield {
+        type: "done",
+        finalOutput: finalText || null,
+      };
+    } catch (e) {
+      if (signal.aborted) throw new AbortError();
+      throw e;
+    }
+  }
+
+  override dispose(): void {
+    this.sessionApprovals.clear();
+    this.model = null;
+    super.dispose();
+  }
+}
+
+// ─── VercelAIAgentService ───────────────────────────────────────
+
+class VercelAIAgentService implements IAgentService {
+  readonly name = "vercel-ai";
+  private disposed = false;
+  private readonly options: VercelAIBackendOptions;
+
+  constructor(options: VercelAIBackendOptions) {
+    this.options = options;
+  }
+
+  createAgent(config: AgentConfig): IAgent {
+    if (this.disposed) throw new DisposedError("VercelAIAgentService");
+    return new VercelAIAgent(config, this.options);
+  }
+
+  async listModels(): Promise<ModelInfo[]> {
+    if (this.disposed) throw new DisposedError("VercelAIAgentService");
+    // API-based backends can't easily enumerate models without provider-specific endpoints.
+    // Return empty array; callers should consult provider documentation.
+    return [];
+  }
+
+  async validate(): Promise<ValidationResult> {
+    if (this.disposed) throw new DisposedError("VercelAIAgentService");
+
+    const errors: string[] = [];
+
+    if (!this.options.apiKey) {
+      errors.push("apiKey is required for Vercel AI backend.");
+    }
+
+    try {
+      await loadSDK();
+    } catch (e) {
+      errors.push(e instanceof Error ? e.message : String(e));
+    }
+
+    try {
+      await loadCompat();
+    } catch (e) {
+      errors.push(e instanceof Error ? e.message : String(e));
+    }
+
+    return { valid: errors.length === 0, errors };
+  }
+
+  async dispose(): Promise<void> {
+    if (this.disposed) return;
+    this.disposed = true;
+  }
+}
+
+// ─── Factory ────────────────────────────────────────────────────
+
+/** Create Vercel AI SDK backend service. */
+export function createVercelAIService(
+  options: VercelAIBackendOptions,
+): IAgentService {
+  return new VercelAIAgentService(options);
+}

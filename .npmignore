@@ -1,0 +1,12 @@
+src/
+tests/
+*.tgz
+.DS_Store
+tsconfig.json
+tsup.config.ts
+vitest.config.ts
+CLAUDE.md
+DOCUMENTATION-STYLE-GUIDE.md
+PROJECT_CHECKLIST.md
+.git/
+.gitignore
