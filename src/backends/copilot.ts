@@ -362,7 +362,7 @@ function mapSessionEvent(
       const toolName = String(data.toolName ?? "unknown");
       const args = (data.arguments as JSONValue) ?? {};
       tracker.trackStart(toolCallId, toolName, args);
-      const toolStartEvent: AgentEvent = { type: "tool_call_start", toolName, args };
+      const toolStartEvent: AgentEvent = { type: "tool_call_start", toolCallId, toolName, args };
       if (thinkingTracker.endThinking()) {
         return [{ type: "thinking_end" }, toolStartEvent];
       }
@@ -377,6 +377,7 @@ function mapSessionEvent(
       )?.content;
       return {
         type: "tool_call_end",
+        toolCallId,
         toolName: info?.toolName ?? "unknown",
         result: (resultContent as JSONValue) ?? null,
       };
@@ -415,6 +416,7 @@ function mapSessionEvent(
 // ─── CopilotAgent ───────────────────────────────────────────────
 
 class CopilotAgent extends BaseAgent {
+  protected readonly backendName = "copilot";
   private readonly getClient: () => Promise<SDKClient>;
   private readonly sdkTools: SDKTool[];
   private readonly sessionConfig: Omit<SDKSessionConfig, "streaming">;

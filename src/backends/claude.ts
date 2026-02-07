@@ -362,7 +362,44 @@ function aggregateUsage(
 
 // ─── Event Mapping ──────────────────────────────────────────────
 
-function mapSDKMessage(msg: SDKMessage, thinkingBlockIndices?: Set<number>): AgentEvent | AgentEvent[] | null {
+/**
+ * Tracks tool call IDs to tool names for Claude backend.
+ *
+ * The Claude SDK emits tool_use blocks (with `id` and `name`) in assistant messages,
+ * but tool_use_summary messages only carry `tool_name` (and optionally
+ * `preceding_tool_use_ids`). This tracker correlates start/end events using a
+ * per-tool-name FIFO queue to handle parallel calls to the same tool.
+ */
+class ClaudeToolCallTracker {
+  private queues = new Map<string, string[]>();
+
+  trackStart(toolCallId: string, toolName: string): void {
+    if (!this.queues.has(toolName)) {
+      this.queues.set(toolName, []);
+    }
+    this.queues.get(toolName)!.push(toolCallId);
+  }
+
+  /** Peek at the current tool call ID for a tool name (does not consume) */
+  peekToolCallId(toolName: string): string {
+    const queue = this.queues.get(toolName);
+    if (!queue || queue.length === 0) return "";
+    return queue[0];
+  }
+
+  /** Consume and return the first tool call ID for a tool name */
+  consumeToolCallId(toolName: string): string {
+    const queue = this.queues.get(toolName);
+    if (!queue || queue.length === 0) return "";
+    return queue.shift()!;
+  }
+
+  clear(): void {
+    this.queues.clear();
+  }
+}
+
+function mapSDKMessage(msg: SDKMessage, thinkingBlockIndices?: Set<number>, toolCallTracker?: ClaudeToolCallTracker): AgentEvent | AgentEvent[] | null {
   switch (msg.type) {
     case "assistant": {
       // Full assistant message — contains BetaMessage with content blocks
@@ -392,9 +429,15 @@ function mapSDKMessage(msg: SDKMessage, thinkingBlockIndices?: Set<number>): Age
       // Emit tool_call_start for each tool_use block
       for (const block of betaMessage.content) {
         if (block.type === "tool_use") {
+          const toolCallId = String(block.id ?? "");
+          const toolName = block.name ?? "unknown";
+          if (toolCallTracker) {
+            toolCallTracker.trackStart(toolCallId, toolName);
+          }
           events.push({
             type: "tool_call_start",
-            toolName: block.name ?? "unknown",
+            toolCallId,
+            toolName,
             args: (block.input as JSONValue) ?? {},
           });
         }
@@ -419,10 +462,21 @@ function mapSDKMessage(msg: SDKMessage, thinkingBlockIndices?: Set<number>): Age
       // Emitted after tool execution — contains summary of tool results
       const summary = msg.summary as string | undefined;
       const toolName = (msg.tool_name as string | undefined) ?? "unknown";
+      // Resolve toolCallId: prefer preceding_tool_use_ids, fall back to tracker
+      const precedingIds = msg.preceding_tool_use_ids as string[] | undefined;
+      let toolCallId = "";
+      if (precedingIds && precedingIds.length > 0) {
+        toolCallId = precedingIds[0];
+        // Consume from tracker to keep queue in sync
+        if (toolCallTracker) toolCallTracker.consumeToolCallId(toolName);
+      } else if (toolCallTracker) {
+        toolCallId = toolCallTracker.consumeToolCallId(toolName);
+      }
       // Emit as tool_call_end with summary as result
       if (summary) {
         return {
           type: "tool_call_end",
+          toolCallId,
           toolName,
           result: summary as JSONValue,
         };
@@ -465,9 +519,9 @@ function mapSDKMessage(msg: SDKMessage, thinkingBlockIndices?: Set<number>): Age
 
     case "tool_progress": {
       const toolName = msg.tool_name as string | undefined;
-      return toolName
-        ? { type: "tool_call_start", toolName, args: {} }
-        : null;
+      if (!toolName) return null;
+      const toolCallId = toolCallTracker?.peekToolCallId(toolName) ?? "";
+      return { type: "tool_call_start", toolCallId, toolName, args: {} };
     }
 
     case "result": {
@@ -497,6 +551,7 @@ function mapSDKMessage(msg: SDKMessage, thinkingBlockIndices?: Set<number>): Age
 // ─── ClaudeAgent ────────────────────────────────────────────────
 
 class ClaudeAgent extends BaseAgent {
+  protected readonly backendName = "claude";
   private readonly options: ClaudeBackendOptions;
   private readonly tools: ToolDefinition[];
   private readonly canUseTool: SDKCanUseTool | undefined;
@@ -746,12 +801,13 @@ class ClaudeAgent extends BaseAgent {
 
     const q = sdk.query({ prompt, options: opts });
     const thinkingBlockIndices = new Set<number>();
+    const toolCallTracker = new ClaudeToolCallTracker();
 
     try {
       for await (const msg of q) {
         if (signal.aborted) throw new AbortError();
 
-        const event = mapSDKMessage(msg, thinkingBlockIndices);
+        const event = mapSDKMessage(msg, thinkingBlockIndices, toolCallTracker);
         if (event) {
           if (Array.isArray(event)) {
             for (const e of event) yield e;

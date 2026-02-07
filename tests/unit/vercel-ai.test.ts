@@ -220,7 +220,7 @@ describe("VercelAIAgent.run", () => {
 
     expect(result.output).toBe("Hello from Vercel AI!");
     expect(result.toolCalls).toEqual([]);
-    expect(result.usage).toEqual({ promptTokens: 100, completionTokens: 50 });
+    expect(result.usage).toEqual({ promptTokens: 100, completionTokens: 50, model: "test/model", backend: "vercel-ai" });
     expect(result.messages).toHaveLength(2); // user + assistant
 
     // Verify SDK was called correctly
@@ -656,10 +656,12 @@ describe("VercelAIAgent.stream", () => {
 
     const toolStart = events.find((e) => e.type === "tool_call_start");
     expect(toolStart).toBeDefined();
+    expect(toolStart!.toolCallId).toBe("tc-1");
     expect(toolStart!.toolName).toBe("greet");
 
     const toolEnd = events.find((e) => e.type === "tool_call_end");
     expect(toolEnd).toBeDefined();
+    expect(toolEnd!.toolCallId).toBe("tc-1");
     expect(toolEnd!.result).toBe("Hi Bob!");
   });
 
@@ -687,9 +689,88 @@ describe("VercelAIAgent.stream", () => {
 
     expect(events.find((e) => e.type === "thinking_start")).toBeDefined();
     expect(events.find((e) => e.type === "thinking_end")).toBeDefined();
-    // reasoning-delta now mapped to text_delta
+    // reasoning-delta mapped to thinking_delta (not text_delta)
+    const thinkingDeltas = events.filter((e) => e.type === "thinking_delta");
+    expect(thinkingDeltas).toHaveLength(1);
+    expect(thinkingDeltas[0].text).toBe("Thinking...");
+    // text_delta should only contain actual output text
     const textDeltas = events.filter((e) => e.type === "text_delta");
-    expect(textDeltas.some((e) => e.text === "Thinking...")).toBe(true);
+    expect(textDeltas.some((e) => e.text === "Thinking...")).toBe(false);
+  });
+
+  it("should not leak reasoning text into text_delta events", async () => {
+    const sdk = createMockSDK({
+      streamParts: [
+        { type: "reasoning-start", id: "r1" },
+        { type: "reasoning-delta", id: "r1", text: "Let me think step by step..." },
+        { type: "reasoning-delta", id: "r1", text: "First, I need to consider..." },
+        { type: "reasoning-end", id: "r1" },
+        { type: "text-delta", text: "The answer is 42.", id: "t1" },
+        { type: "finish-step", usage: { inputTokens: 100, outputTokens: 50 }, finishReason: "stop" },
+      ],
+    });
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+
+    const events: Array<Record<string, unknown>> = [];
+    for await (const event of agent.stream("What is the meaning of life?")) {
+      events.push(event as Record<string, unknown>);
+    }
+
+    // thinking_delta events carry reasoning text
+    const thinkingDeltas = events.filter((e) => e.type === "thinking_delta");
+    expect(thinkingDeltas).toHaveLength(2);
+    expect(thinkingDeltas[0].text).toBe("Let me think step by step...");
+    expect(thinkingDeltas[1].text).toBe("First, I need to consider...");
+
+    // text_delta events carry only output text — no reasoning leakage
+    const textDeltas = events.filter((e) => e.type === "text_delta");
+    expect(textDeltas).toHaveLength(1);
+    expect(textDeltas[0].text).toBe("The answer is 42.");
+
+    // thinking_start/end bracket the reasoning
+    const thinkingStart = events.findIndex((e) => e.type === "thinking_start");
+    const thinkingEnd = events.findIndex((e) => e.type === "thinking_end");
+    expect(thinkingStart).toBeLessThan(thinkingEnd);
+  });
+
+  it("should propagate toolCallId consistently between start and end", async () => {
+    const sdk = createMockSDK({
+      streamParts: [
+        { type: "tool-call", toolName: "search", toolCallId: "tc-abc", args: { q: "first" } },
+        { type: "tool-result", toolName: "search", toolCallId: "tc-abc", result: "result-1" },
+        { type: "tool-call", toolName: "fetch", toolCallId: "tc-def", args: { url: "http://x" } },
+        { type: "tool-result", toolName: "fetch", toolCallId: "tc-def", result: "result-2" },
+        { type: "text-delta", text: "Done", id: "t1" },
+        { type: "finish-step", usage: { inputTokens: 50, outputTokens: 20 }, finishReason: "stop" },
+      ],
+    });
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+
+    const events: Array<Record<string, unknown>> = [];
+    for await (const event of agent.stream("Test tools")) {
+      events.push(event as Record<string, unknown>);
+    }
+
+    const starts = events.filter((e) => e.type === "tool_call_start");
+    const ends = events.filter((e) => e.type === "tool_call_end");
+    expect(starts).toHaveLength(2);
+    expect(ends).toHaveLength(2);
+
+    // Each start/end pair shares the same toolCallId
+    expect(starts[0].toolCallId).toBe("tc-abc");
+    expect(ends[0].toolCallId).toBe("tc-abc");
+    expect(starts[1].toolCallId).toBe("tc-def");
+    expect(ends[1].toolCallId).toBe("tc-def");
   });
 
   it("should map error events", async () => {
@@ -746,7 +827,7 @@ describe("VercelAIAgent.runStructured", () => {
     });
 
     expect(result.structuredOutput).toEqual({ city: "Paris", population: 2161000 });
-    expect(result.usage).toEqual({ promptTokens: 60, completionTokens: 30 });
+    expect(result.usage).toEqual({ promptTokens: 60, completionTokens: 30, model: "test/model", backend: "vercel-ai" });
     expect(result.output).toBe('{"city":"Paris","population":2161000}');
 
     // Verify generateObject was called
@@ -921,6 +1002,109 @@ describe("VercelAIAgent.runWithContext", () => {
 
     const callArgs = sdk.generateText.mock.calls[0][0];
     expect(callArgs.messages).toHaveLength(3);
+  });
+});
+
+// ─── Usage Metadata & onUsage Callback ──────────────────────────
+
+describe("Usage metadata and onUsage callback", () => {
+  it("should include model and backend in run result usage", async () => {
+    const sdk = createMockSDK();
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig({ model: "my-model" }));
+    const result = await agent.run("Hello");
+
+    expect(result.usage?.model).toBe("my-model");
+    expect(result.usage?.backend).toBe("vercel-ai");
+  });
+
+  it("should include model and backend in stream usage_update events", async () => {
+    const sdk = createMockSDK();
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig({ model: "stream-model" }));
+
+    const events: Array<Record<string, unknown>> = [];
+    for await (const event of agent.stream("Hello")) {
+      events.push(event as Record<string, unknown>);
+    }
+
+    const usageEvents = events.filter((e) => e.type === "usage_update");
+    expect(usageEvents.length).toBeGreaterThanOrEqual(1);
+    for (const ue of usageEvents) {
+      expect(ue.model).toBe("stream-model");
+      expect(ue.backend).toBe("vercel-ai");
+    }
+  });
+
+  it("should call onUsage callback after run with correct data", async () => {
+    const sdk = createMockSDK();
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const onUsage = vi.fn();
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig({ model: "cb-model", onUsage }));
+    await agent.run("Hello");
+
+    expect(onUsage).toHaveBeenCalledOnce();
+    expect(onUsage).toHaveBeenCalledWith({
+      promptTokens: 100,
+      completionTokens: 50,
+      model: "cb-model",
+      backend: "vercel-ai",
+    });
+  });
+
+  it("should call onUsage callback during streaming", async () => {
+    const sdk = createMockSDK();
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const onUsage = vi.fn();
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig({ model: "s-model", onUsage }));
+
+    for await (const _event of agent.stream("Hello")) {
+      // consume
+    }
+
+    // Called for each usage_update event (finish-step + final totalUsage)
+    expect(onUsage).toHaveBeenCalled();
+    for (const call of onUsage.mock.calls) {
+      expect(call[0].backend).toBe("vercel-ai");
+      expect(call[0].model).toBe("s-model");
+    }
+  });
+
+  it("should not propagate onUsage callback errors", async () => {
+    const sdk = createMockSDK();
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const onUsage = vi.fn(() => { throw new Error("callback boom"); });
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig({ onUsage }));
+    const result = await agent.run("Hello");
+
+    // Run should succeed despite callback error
+    expect(result.output).toBe("Hello from Vercel AI!");
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining("onUsage callback error"),
+      expect.stringContaining("callback boom"),
+    );
+    warnSpy.mockRestore();
   });
 });
 

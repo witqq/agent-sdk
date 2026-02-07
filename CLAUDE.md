@@ -10,7 +10,7 @@ Shared interfaces for tools, permissions, streaming, structured output.
 
 ```bash
 npm run build     # tsup → ESM + CJS + DTS
-npm run test      # vitest (277 tests)
+npm run test      # vitest (311 tests)
 npm run typecheck # tsc --noEmit
 ```
 
@@ -96,6 +96,6 @@ Backends extend and implement `executeRun`, `executeRunStructured`, `executeStre
 
 ## Testing
 
-- Unit: vitest (`tests/unit/`), 277 tests
+- Unit: vitest (`tests/unit/`), 311 tests
 - Integration: vitest (`tests/integration/`) — requires real CLI authentication
 - Use cheap models for integration tests (`gpt-4.1`)

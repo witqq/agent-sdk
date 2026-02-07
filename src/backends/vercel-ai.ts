@@ -292,6 +292,7 @@ function mapStreamPart(part: SDKStreamPart): AgentEvent | null {
     case "tool-call":
       return {
         type: "tool_call_start",
+        toolCallId: String(part.toolCallId ?? ""),
         toolName: part.toolName ?? "unknown",
         args: (part.args as JSONValue) ?? {},
       };
@@ -299,6 +300,7 @@ function mapStreamPart(part: SDKStreamPart): AgentEvent | null {
     case "tool-result":
       return {
         type: "tool_call_end",
+        toolCallId: String(part.toolCallId ?? ""),
         toolName: part.toolName ?? "unknown",
         result: (part.result as JSONValue) ?? null,
       };
@@ -319,7 +321,7 @@ function mapStreamPart(part: SDKStreamPart): AgentEvent | null {
       return { type: "thinking_end" };
 
     case "reasoning-delta":
-      return { type: "text_delta", text: part.text ?? "" };
+      return { type: "thinking_delta", text: part.text ?? "" };
 
     case "finish-step":
       return {
@@ -345,6 +347,7 @@ function mapStreamPart(part: SDKStreamPart): AgentEvent | null {
 // ─── VercelAIAgent ──────────────────────────────────────────────
 
 class VercelAIAgent extends BaseAgent {
+  protected readonly backendName = "vercel-ai";
   private readonly backendOptions: VercelAIBackendOptions;
   private readonly sessionApprovals = new Set<string>();
   private model: SDKLanguageModel | null = null;

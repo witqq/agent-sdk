@@ -360,7 +360,7 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig());
       const result = await agent.run("test");
 
-      expect(result.usage).toEqual({ promptTokens: 100, completionTokens: 50 });
+      expect(result.usage).toEqual({ promptTokens: 100, completionTokens: 50, model: undefined, backend: "copilot" });
     });
 
     it("should handle null response from sendAndWait", async () => {
@@ -592,7 +592,9 @@ describe("Copilot Backend", () => {
       const ends = collected.filter((e) => e.type === "tool_call_end");
       expect(starts).toHaveLength(1);
       expect(ends).toHaveLength(1);
+      expect((starts[0] as { toolCallId: string }).toolCallId).toBe("tc-1");
       expect((starts[0] as { toolName: string }).toolName).toBe("search");
+      expect((ends[0] as { toolCallId: string }).toolCallId).toBe("tc-1");
       expect((ends[0] as { toolName: string }).toolName).toBe("search");
       expect((ends[0] as { result: JSONValue }).result).toBe("found");
     });
@@ -717,16 +719,33 @@ describe("Copilot Backend", () => {
         collected.push(event);
       }
 
+      const starts = collected.filter((e) => e.type === "tool_call_start") as Array<{
+        type: "tool_call_start";
+        toolCallId: string;
+        toolName: string;
+        args: JSONValue;
+      }>;
       const ends = collected.filter((e) => e.type === "tool_call_end") as Array<{
         type: "tool_call_end";
+        toolCallId: string;
         toolName: string;
         result: JSONValue;
       }>;
+      expect(starts).toHaveLength(2);
       expect(ends).toHaveLength(2);
+
+      // Starts carry the original toolCallId
+      expect(starts[0].toolCallId).toBe("tc-42");
+      expect(starts[0].toolName).toBe("search");
+      expect(starts[1].toolCallId).toBe("tc-43");
+      expect(starts[1].toolName).toBe("read_file");
+
       // tc-43 completes first → read_file
+      expect(ends[0].toolCallId).toBe("tc-43");
       expect(ends[0].toolName).toBe("read_file");
       expect(ends[0].result).toBe("file content");
       // tc-42 completes second → search
+      expect(ends[1].toolCallId).toBe("tc-42");
       expect(ends[1].toolName).toBe("search");
       expect(ends[1].result).toBe("search result");
     });
@@ -982,6 +1001,113 @@ describe("Copilot Backend", () => {
 
       const sessionConfig = client.createSession.mock.calls[0][0];
       expect(sessionConfig).not.toHaveProperty("availableTools");
+    });
+  });
+
+  // ── Usage Metadata & onUsage Callback ────────────────────────
+
+  describe("Usage metadata and onUsage callback", () => {
+    it("should include model and backend in run result usage", async () => {
+      const events: MockSessionEvent[] = [
+        {
+          id: "e1",
+          timestamp: new Date().toISOString(),
+          parentId: null,
+          ephemeral: true,
+          type: "assistant.usage",
+          data: { model: "gpt-4o", inputTokens: 200, outputTokens: 100 },
+        },
+      ];
+
+      injectMockSDK({ events });
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig({ model: "gpt-4o" }));
+      const result = await agent.run("test");
+
+      expect(result.usage?.model).toBe("gpt-4o");
+      expect(result.usage?.backend).toBe("copilot");
+    });
+
+    it("should include model and backend in stream usage_update events", async () => {
+      const events: MockSessionEvent[] = [
+        {
+          id: "e1",
+          timestamp: new Date().toISOString(),
+          parentId: null,
+          ephemeral: true,
+          type: "assistant.usage",
+          data: { inputTokens: 200, outputTokens: 100 },
+        },
+      ];
+
+      injectMockSDK({ events });
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig({ model: "gpt-4o" }));
+
+      const collected: import("../../src/types.js").AgentEvent[] = [];
+      for await (const event of agent.stream("test")) {
+        collected.push(event);
+      }
+
+      const usageEvents = collected.filter((e) => e.type === "usage_update");
+      expect(usageEvents).toHaveLength(1);
+      const ue = usageEvents[0] as { model?: string; backend?: string };
+      expect(ue.model).toBe("gpt-4o");
+      expect(ue.backend).toBe("copilot");
+    });
+
+    it("should call onUsage callback after run", async () => {
+      const events: MockSessionEvent[] = [
+        {
+          id: "e1",
+          timestamp: new Date().toISOString(),
+          parentId: null,
+          ephemeral: true,
+          type: "assistant.usage",
+          data: { inputTokens: 50, outputTokens: 30 },
+        },
+      ];
+
+      injectMockSDK({ events });
+      const onUsage = vi.fn();
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig({ model: "gpt-4o", onUsage }));
+      await agent.run("test");
+
+      expect(onUsage).toHaveBeenCalledOnce();
+      expect(onUsage).toHaveBeenCalledWith({
+        promptTokens: 50,
+        completionTokens: 30,
+        model: "gpt-4o",
+        backend: "copilot",
+      });
+    });
+
+    it("should not propagate onUsage callback errors", async () => {
+      const events: MockSessionEvent[] = [
+        {
+          id: "e1",
+          timestamp: new Date().toISOString(),
+          parentId: null,
+          ephemeral: true,
+          type: "assistant.usage",
+          data: { inputTokens: 50, outputTokens: 30 },
+        },
+      ];
+
+      injectMockSDK({ events });
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const onUsage = vi.fn(() => { throw new Error("callback error"); });
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig({ onUsage }));
+      const result = await agent.run("test");
+
+      expect(result.output).toBe("Hello from Copilot!");
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("onUsage callback error"),
+        expect.stringContaining("callback error"),
+      );
+      warnSpy.mockRestore();
     });
   });
 

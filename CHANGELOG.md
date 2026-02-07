@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 
+### Core
+- `heartbeat` event type in `AgentEvent` — keepalive for long-running streams during tool execution gaps
+- `AgentConfig.heartbeatInterval` — interval in milliseconds for emitting heartbeat events during streaming (default: off)
+- `IAgent.streamWithContext(messages)` — streaming with full conversation history, mirrors `runWithContext` pattern
+- `thinking_delta` event type in `AgentEvent` — reasoning text separated from output
+- `toolCallId` field in `tool_call_start` and `tool_call_end` events — propagated from all three backends
+- `UsageData` type with optional `model` and `backend` fields — enriched in `AgentResult.usage` and `usage_update` events
+- `AgentConfig.onUsage` callback — fire-and-forget usage notification after run completion and during streaming
+
+### Vercel AI Backend
+- `reasoning-delta` stream parts emit `thinking_delta` events instead of `text_delta`, preventing reasoning text from leaking into main output
+- Tool call events propagate `toolCallId` from SDK stream parts
+
+### Copilot Backend
+- Tool call events propagate `toolCallId` from SDK event data
+
+### Claude Backend
+- `ClaudeToolCallTracker` correlates `tool_use` block IDs with `tool_use_summary` events for consistent `toolCallId` propagation
+
 ## [0.1.1] — 2026-02-07
 
 ### Copilot Backend
