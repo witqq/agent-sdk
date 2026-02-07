@@ -10,11 +10,13 @@ npm install @witqq/agent-sdk zod
 
 ## Backends
 
-| Backend | Peer dependency | Type |
-|---|---|---|
-| `copilot` | `@github/copilot-sdk` | CLI subprocess |
-| `claude` | `@anthropic-ai/claude-agent-sdk` | CLI subprocess |
-| `vercel-ai` | `ai` + `@ai-sdk/openai-compatible` | API-based |
+`zod` is the only required peer dependency. Backend SDKs are **optional** — install only what you use:
+
+| Backend | Peer dependency | Required | Type |
+|---|---|---|---|
+| `copilot` | `@github/copilot-sdk` ^0.1.22 | optional | CLI subprocess |
+| `claude` | `@anthropic-ai/claude-agent-sdk` >=0.2.0 | optional | CLI subprocess |
+| `vercel-ai` | `ai` >=4.0.0 + `@ai-sdk/openai-compatible` >=2.0.0 | optional | API-based |
 
 Install only the backend you need:
 
@@ -221,6 +223,23 @@ const service = createCopilotService({
   cliPath: "/path/to/copilot",   // optional custom CLI path
   workingDirectory: process.cwd(),
   githubToken: "ghp_...",        // optional, alternative to useLoggedInUser
+  cliArgs: ["--allow-all"],      // extra CLI flags for the subprocess
+});
+```
+
+**System requirements:** `@github/copilot-sdk` includes a native binary that requires glibc. Alpine Linux (musl) is not supported — use `node:20-bookworm-slim` or similar glibc-based images.
+
+**Headless defaults:** When `supervisor.onPermission` or `supervisor.onAskUser` are not provided, the Copilot backend auto-approves permission requests and auto-answers user questions to prevent the SDK from hanging in headless mode.
+
+**System prompt mode:** By default, `systemPrompt` is appended to the Copilot CLI's built-in prompt (`mode: "append"`). Set `systemMessageMode: "replace"` in `AgentConfig` to fully replace it (note: this removes built-in tool instructions).
+
+**Available tools filter:** Use `availableTools` in `AgentConfig` to restrict which Copilot built-in tools are available:
+
+```typescript
+const agent = service.createAgent({
+  systemPrompt: "Research assistant",
+  tools: [],
+  availableTools: ["web_search", "web_fetch"], // only these built-in tools
 });
 ```
 
@@ -296,6 +315,18 @@ import { createCopilotService } from "@witqq/agent-sdk/copilot";
 import { createClaudeService } from "@witqq/agent-sdk/claude";
 import { createVercelAIService } from "@witqq/agent-sdk/vercel-ai";
 ```
+
+## Model Names
+
+`AgentConfig.model` accepts both full model IDs and short names:
+
+| Backend | Full ID example | Short name |
+|---|---|---|
+| Copilot | `gpt-4o` | (same) |
+| Claude | `claude-sonnet-4-5-20250514` | `sonnet` |
+| Vercel AI | `anthropic/claude-sonnet-4-5` | (provider-specific) |
+
+Use `service.listModels()` to get available model IDs for each backend.
 
 ## Build
 

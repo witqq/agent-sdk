@@ -10,7 +10,7 @@ Shared interfaces for tools, permissions, streaming, structured output.
 
 ```bash
 npm run build     # tsup → ESM + CJS + DTS
-npm run test      # vitest (269 tests)
+npm run test      # vitest (277 tests)
 npm run typecheck # tsc --noEmit
 ```
 
@@ -48,12 +48,14 @@ Backends extend and implement `executeRun`, `executeRunStructured`, `executeStre
 ### Copilot Backend (`src/backends/copilot.ts`)
 
 `CopilotAgentService` wraps `@github/copilot-sdk` (optional peer dep).
-- `ensureClient()`: lazy init, explicit `start()`, caches via promise
+- `ensureClient()`: lazy init, explicit `start()`, auth check, caches via promise
 - Session-per-run: fresh `CopilotSession` per `run()`/`stream()`, destroyed in `finally`
 - `ToolCallTracker`: maps `toolCallId` → `toolName` (SDK's `tool.execution_complete` lacks name)
 - `mapToolsToSDK()`: `ToolDefinition[]` → SDK `Tool[]` with `zodToJsonSchema`
-- `buildPermissionHandler()`: `SupervisorHooks.onPermission` → SDK `onPermissionRequest`
-- `buildUserInputHandler()`: `SupervisorHooks.onAskUser` → SDK `onUserInputRequest`
+- `buildPermissionHandler()`: `SupervisorHooks.onPermission` → SDK `onPermissionRequest` (auto-approve default)
+- `buildUserInputHandler()`: `SupervisorHooks.onAskUser` → SDK `onUserInputRequest` (auto-answer default)
+- `cliArgs` passthrough from `CopilotBackendOptions` to `CopilotClient`
+- `systemMessageMode` (default "append") and `availableTools` from `AgentConfig`
 - Structured output: prompt augmentation + JSON parsing from response text
 - Test injection: `_injectSDK()` / `_resetSDK()` for mock SDK in unit tests
 
@@ -94,6 +96,6 @@ Backends extend and implement `executeRun`, `executeRunStructured`, `executeStre
 
 ## Testing
 
-- Unit: vitest (`tests/unit/`), 269 tests
+- Unit: vitest (`tests/unit/`), 277 tests
 - Integration: vitest (`tests/integration/`) — requires real CLI authentication
 - Use cheap models for integration tests (`gpt-4.1`)

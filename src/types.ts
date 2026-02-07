@@ -221,6 +221,12 @@ export interface AgentConfig {
   errorHandling?: ErrorHandlingConfig;
   /** Pluggable store for persisting permission scope decisions across runs */
   permissionStore?: IPermissionStore;
+  /** How to apply systemPrompt: "append" adds to backend default, "replace" overrides it.
+   *  Default: "append". Currently used by the Copilot backend. */
+  systemMessageMode?: "append" | "replace";
+  /** Filter for backend built-in tools (e.g. ["web_search", "web_fetch"] for Copilot).
+   *  When set, only listed built-in tools are available. Backend-specific. */
+  availableTools?: string[];
 }
 
 // ─── Agent Result (Generic) ────────────────────────────────────
@@ -301,6 +307,8 @@ export interface CopilotBackendOptions {
   workingDirectory?: string;
   githubToken?: string;
   useLoggedInUser?: boolean;
+  /** Extra CLI arguments passed to the Copilot subprocess (e.g. ["--allow-all"]) */
+  cliArgs?: string[];
 }
 
 /** Options for Claude CLI backend */
