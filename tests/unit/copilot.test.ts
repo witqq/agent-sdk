@@ -114,7 +114,7 @@ function injectMockSDK(
 ) {
   const mock = createMockClient(clientOverrides);
   _injectSDK({
-    CopilotClient: vi.fn(() => mock.client) as unknown as new () => typeof mock.client,
+    CopilotClient: vi.fn(function() { return mock.client; }) as unknown as new () => typeof mock.client,
   });
   return mock;
 }
@@ -286,11 +286,11 @@ describe("Copilot Backend", () => {
       expect(sessionConfig.tools).toHaveLength(1);
       expect(sessionConfig.tools[0].name).toBe("search");
       expect(sessionConfig.tools[0].description).toBe("Search the web");
-      // Parameters should be JSON schema
-      expect(sessionConfig.tools[0].parameters).toEqual({
+      // Parameters should be JSON schema (toMatchObject handles Zod v4 extra fields like $schema)
+      expect(sessionConfig.tools[0].parameters).toMatchObject({
         type: "object",
         properties: { query: { type: "string" } },
-        required: ["query"],
+        required: expect.arrayContaining(["query"]),
       });
     });
 
@@ -918,7 +918,7 @@ describe("Copilot Backend", () => {
   describe("CLI args passthrough", () => {
     it("should pass cliArgs to CopilotClient", async () => {
       const mockSDK = injectMockSDK();
-      const CopilotClientCtor = vi.fn(() => mockSDK.client);
+      const CopilotClientCtor = vi.fn(function() { return mockSDK.client; });
       _resetSDK();
       _injectSDK({ CopilotClient: CopilotClientCtor as any });
 
@@ -936,7 +936,7 @@ describe("Copilot Backend", () => {
 
     it("should not include cliArgs when not provided", async () => {
       const mockSDK = injectMockSDK();
-      const CopilotClientCtor = vi.fn(() => mockSDK.client);
+      const CopilotClientCtor = vi.fn(function() { return mockSDK.client; });
       _resetSDK();
       _injectSDK({ CopilotClient: CopilotClientCtor as any });
 

@@ -102,7 +102,7 @@ function createCopilotMock(opts?: { events?: CopilotSessionEvent[] }) {
   };
 
   injectCopilotSDK({
-    CopilotClient: vi.fn(() => client) as any,
+    CopilotClient: vi.fn(function() { return client; }) as any,
   });
 
   return { client, session, eventHandlers };

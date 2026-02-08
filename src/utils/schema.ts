@@ -1,14 +1,21 @@
 import type { z } from "zod";
 
 /** Convert a Zod schema to JSON Schema.
- *  Uses zod's built-in jsonSchema() if available, falls back to _def extraction. */
+ *  Detection order: toJSONSchema() (Zod v4) → jsonSchema() (Zod v3.24+) → _def extraction (Zod v3 legacy). */
 export function zodToJsonSchema(schema: z.ZodType): Record<string, unknown> {
-  // Try zod's built-in jsonSchema() method (available in zod v3.24+)
   const schemaAny = schema as unknown as Record<string, unknown>;
+
+  // Zod v4: toJSONSchema()
+  if ("toJSONSchema" in schema && typeof schemaAny.toJSONSchema === "function") {
+    return (schemaAny.toJSONSchema as () => Record<string, unknown>)();
+  }
+
+  // Zod v3.24+: jsonSchema()
   if ("jsonSchema" in schema && typeof schemaAny.jsonSchema === "function") {
     return (schemaAny.jsonSchema as () => Record<string, unknown>)();
   }
 
+  // Zod v3 legacy: _def.typeName extraction
   return extractSchemaFromDef(schema);
 }
 
