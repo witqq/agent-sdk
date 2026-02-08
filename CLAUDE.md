@@ -10,7 +10,7 @@ Shared interfaces for tools, permissions, streaming, structured output.
 
 ```bash
 npm run build     # tsup → ESM + CJS + DTS
-npm run test      # vitest (311 tests)
+npm run test      # vitest (320 tests)
 npm run typecheck # tsc --noEmit
 ```
 
@@ -21,6 +21,7 @@ API SDKs (Vercel AI) — WE drive the tool loop via generateText().
 
 Key types: `ToolDeclaration` (schema only) / `ToolDefinition` (with execute).
 Permission v3.1: scopes `once | session | project | always`.
+Zod compatibility: v3.23+ and v4.x (peer dep `^3.23.0 || ^4.0.0`).
 Permission store: `IPermissionStore` with `InMemoryPermissionStore`, `FilePermissionStore`, `CompositePermissionStore`.
 
 ### Package Exports
@@ -82,7 +83,7 @@ Backends extend and implement `executeRun`, `executeRunStructured`, `executeStre
 
 ### Utilities
 
-- `zodToJsonSchema()` — Zod schema → JSON Schema
+- `zodToJsonSchema()` — Zod schema → JSON Schema (v4 toJSONSchema → v3.24 jsonSchema → v3 _def fallback)
 - `messagesToPrompt()` — Message[] → flat string
 - `contentToText()` — MessageContent → plain text
 
@@ -96,6 +97,6 @@ Backends extend and implement `executeRun`, `executeRunStructured`, `executeStre
 
 ## Testing
 
-- Unit: vitest (`tests/unit/`), 311 tests
+- Unit: vitest (`tests/unit/`), 320 tests
 - Integration: vitest (`tests/integration/`) — requires real CLI authentication
 - Use cheap models for integration tests (`gpt-4.1`)

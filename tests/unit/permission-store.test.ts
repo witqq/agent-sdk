@@ -547,7 +547,7 @@ describe("Copilot auto-approval with permissionStore", () => {
     };
 
     return {
-      CopilotClient: vi.fn(() => mockClient),
+      CopilotClient: vi.fn(function() { return mockClient; }),
       _client: mockClient,
       _session: mockSession,
       getPermissionHandler: () => permissionHandler,
