@@ -420,13 +420,16 @@ class CopilotAgent extends BaseAgent {
   private readonly getClient: () => Promise<SDKClient>;
   private readonly sdkTools: SDKTool[];
   private readonly sessionConfig: Omit<SDKSessionConfig, "streaming">;
+  private readonly sendAndWaitTimeout: number | undefined;
 
   constructor(
     config: AgentConfig,
     getClient: () => Promise<SDKClient>,
+    sendAndWaitTimeout?: number,
   ) {
     super(config);
     this.getClient = getClient;
+    this.sendAndWaitTimeout = sendAndWaitTimeout;
     this.sdkTools = mapToolsToSDK(config.tools);
     this.sessionConfig = {
       model: config.model,
@@ -497,7 +500,9 @@ class CopilotAgent extends BaseAgent {
     signal.addEventListener("abort", onAbort, { once: true });
 
     try {
-      const response = await session.sendAndWait({ prompt });
+      const response = this.sendAndWaitTimeout !== undefined
+        ? await session.sendAndWait({ prompt }, this.sendAndWaitTimeout)
+        : await session.sendAndWait({ prompt });
       const output = response?.data?.content ?? null;
 
       return {
@@ -723,7 +728,7 @@ class CopilotAgentService implements IAgentService {
 
   createAgent(config: AgentConfig): IAgent {
     if (this.disposed) throw new DisposedError("CopilotAgentService");
-    return new CopilotAgent(config, () => this.ensureClient());
+    return new CopilotAgent(config, () => this.ensureClient(), this.options.timeout);
   }
 
   async listModels(): Promise<ModelInfo[]> {

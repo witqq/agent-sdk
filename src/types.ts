@@ -342,6 +342,8 @@ export interface CopilotBackendOptions {
   useLoggedInUser?: boolean;
   /** Extra CLI arguments passed to the Copilot subprocess (e.g. ["--allow-all"]) */
   cliArgs?: string[];
+  /** Timeout in milliseconds for sendAndWait() calls. When undefined, uses copilot-sdk default (60s). */
+  timeout?: number;
 }
 
 /** Options for Claude CLI backend */
