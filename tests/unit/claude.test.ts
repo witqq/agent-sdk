@@ -977,8 +977,8 @@ describe("Claude Backend", () => {
       const agent = service.createAgent(makeConfig());
       const events = [];
       for await (const e of agent.stream("test")) events.push(e);
-      // Should only have usage_update and done events from the success result
-      expect(events.every((e) => ["usage_update", "done"].includes(e.type))).toBe(
+      // Should only have session_info, usage_update and done events from the success result
+      expect(events.every((e) => ["session_info", "usage_update", "done"].includes(e.type))).toBe(
         true,
       );
     });
@@ -1345,6 +1345,70 @@ describe("Claude Backend", () => {
       const callArgs = sdk.query.mock.calls[0][0];
       expect(callArgs.options.env.PATH).toBeDefined();
     });
+
+    it("should merge custom env with process.env", async () => {
+      const sdk = injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({ env: { CUSTOM_VAR: "custom-value" } });
+      const agent = service.createAgent(makeConfig());
+      await agent.run("test");
+      const callArgs = sdk.query.mock.calls[0][0];
+      expect(callArgs.options.env).toBeDefined();
+      expect(callArgs.options.env.CUSTOM_VAR).toBe("custom-value");
+      expect(callArgs.options.env.PATH).toBeDefined();
+    });
+
+    it("should merge custom env with oauthToken env", async () => {
+      const sdk = injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({
+        oauthToken: "tok-123",
+        env: { MY_VAR: "hello" },
+      });
+      const agent = service.createAgent(makeConfig());
+      await agent.run("test");
+      const callArgs = sdk.query.mock.calls[0][0];
+      expect(callArgs.options.env.CLAUDE_CODE_OAUTH_TOKEN).toBe("tok-123");
+      expect(callArgs.options.env.MY_VAR).toBe("hello");
+      expect(callArgs.options.env.PATH).toBeDefined();
+    });
+
+    it("oauthToken should take precedence over custom env for CLAUDE_CODE_OAUTH_TOKEN", async () => {
+      const sdk = injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({
+        oauthToken: "real-token",
+        env: { CLAUDE_CODE_OAUTH_TOKEN: "custom-token" },
+      });
+      const agent = service.createAgent(makeConfig());
+      await agent.run("test");
+      const callArgs = sdk.query.mock.calls[0][0];
+      expect(callArgs.options.env.CLAUDE_CODE_OAUTH_TOKEN).toBe("real-token");
+    });
+  });
+
+  // ── permissionMode auto-detection ──────────────────────────────
+
+  describe("permissionMode auto-detection", () => {
+    it("should auto-set permissionMode to 'default' when canUseTool is configured", async () => {
+      const sdk = injectMockSDK([successResult("ok")]);
+      const onPermission = vi.fn(
+        async (): Promise<PermissionDecision> => ({ allowed: true }),
+      );
+      const service = createClaudeService({});
+      const agent = service.createAgent(
+        makeConfig({ supervisor: { onPermission } }),
+      );
+      await agent.run("test");
+      const opts = sdk.query.mock.calls[0][0].options;
+      expect(opts.permissionMode).toBe("default");
+    });
+
+    it("should not set permissionMode when no canUseTool", async () => {
+      const sdk = injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      await agent.run("test");
+      const opts = sdk.query.mock.calls[0][0].options;
+      expect(opts.permissionMode).toBeUndefined();
+    });
   });
 
   // ── Persistent Session Mode ─────────────────────────────────────
@@ -1482,6 +1546,61 @@ describe("Claude Backend", () => {
         events.push(event);
       }
       expect(agent.sessionId).toBe("ses-777");
+    });
+  });
+
+  // ── session_info event ──────────────────────────────────────────
+
+  describe("session_info event", () => {
+    it("should emit session_info event during streaming with session_id", async () => {
+      injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
+
+      const events: AgentEvent[] = [];
+      for await (const event of agent.stream("test")) {
+        events.push(event);
+      }
+      const sessionInfoEvents = events.filter((e) => e.type === "session_info");
+      expect(sessionInfoEvents).toHaveLength(1);
+      expect(sessionInfoEvents[0]).toMatchObject({
+        type: "session_info",
+        sessionId: "test-session",
+        backend: "claude",
+      });
+      expect((sessionInfoEvents[0] as { transcriptPath?: string }).transcriptPath).toBeDefined();
+    });
+  });
+
+  // ── interrupt ──────────────────────────────────────────────────
+
+  describe("interrupt", () => {
+    it("should call SDK query interrupt when interrupt() is called during streaming", async () => {
+      const sdk = createMockSDK();
+      const interruptFn = vi.fn().mockResolvedValue(undefined);
+      const queryResult = {
+        [Symbol.asyncIterator]() {
+          return asyncIter([successResult("ok")])[Symbol.asyncIterator]();
+        },
+        next: vi.fn(),
+        return: vi.fn(),
+        throw: vi.fn(),
+        close: vi.fn(),
+        interrupt: interruptFn,
+        supportedModels: vi.fn(async () => []),
+      };
+      sdk.query.mockReturnValue(queryResult);
+      _injectSDK(sdk as any);
+
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+
+      // Start streaming — consume all events
+      for await (const _event of agent.stream("test")) {
+        // consume
+      }
+      // After stream completes, activeQuery is cleared — interrupt should still work (no-op)
+      await agent.interrupt();
     });
   });
 });

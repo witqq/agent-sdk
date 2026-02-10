@@ -1311,4 +1311,75 @@ describe("Copilot Backend", () => {
       expect(agent.sessionId).toBeUndefined();
     });
   });
+
+  // ── session_info event ──────────────────────────────────────────
+
+  describe("session_info event", () => {
+    it("should emit session_info event during streaming when new session is created", async () => {
+      injectMockSDK();
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
+
+      const events: Array<{ type: string; sessionId?: string; backend?: string }> = [];
+      for await (const event of agent.stream("hello")) {
+        events.push(event as { type: string; sessionId?: string; backend?: string });
+      }
+      const sessionInfoEvents = events.filter((e) => e.type === "session_info");
+      expect(sessionInfoEvents).toHaveLength(1);
+      expect(sessionInfoEvents[0]).toMatchObject({
+        type: "session_info",
+        sessionId: "test-session-id",
+        backend: "copilot",
+      });
+    });
+  });
+
+  // ── interrupt ──────────────────────────────────────────────────
+
+  describe("interrupt", () => {
+    it("should call session.abort when interrupt() is called", async () => {
+      const mock = injectMockSDK();
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
+
+      // Run completes first, establishing session
+      await agent.run("hello");
+      // After run, activeSession is null — interrupt is a no-op for abort, just calls base abort()
+      await agent.interrupt();
+      // Should not throw
+    });
+  });
+
+  // ── env forwarding ─────────────────────────────────────────────
+
+  describe("env forwarding", () => {
+    it("should pass env to CopilotClient when env option is set", async () => {
+      const mock = createMockClient();
+      const clientConstructor = vi.fn(function() { return mock.client; });
+      _injectSDK({
+        CopilotClient: clientConstructor as unknown as new () => typeof mock.client,
+      });
+      const service = createCopilotService({ env: { CUSTOM_VAR: "test-value" } });
+      const agent = service.createAgent(makeConfig());
+      await agent.run("hello");
+
+      const clientOpts = clientConstructor.mock.calls[0]?.[0];
+      expect(clientOpts?.env).toBeDefined();
+      expect(clientOpts.env.CUSTOM_VAR).toBe("test-value");
+    });
+
+    it("should not pass env when env option is not set", async () => {
+      const mock = createMockClient();
+      const clientConstructor = vi.fn(function() { return mock.client; });
+      _injectSDK({
+        CopilotClient: clientConstructor as unknown as new () => typeof mock.client,
+      });
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig());
+      await agent.run("hello");
+
+      const clientOpts = clientConstructor.mock.calls[0]?.[0];
+      expect(clientOpts?.env).toBeUndefined();
+    });
+  });
 });

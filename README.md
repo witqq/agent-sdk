@@ -225,6 +225,7 @@ for await (const event of agent.streamWithContext(messages)) {
 | `permission_response` | `toolName`, `decision` | Permission decision made |
 | `ask_user` | `request` | User input requested |
 | `ask_user_response` | `answer` | User response received |
+| `session_info` | `sessionId`, `transcriptPath?`, `backend` | CLI session metadata (streaming only) |
 | `usage_update` | `promptTokens`, `completionTokens`, `model?`, `backend?` | Token usage with metadata |
 | `heartbeat` | — | Keepalive signal during long operations |
 | `error` | `error`, `recoverable` | Error during execution |
@@ -283,6 +284,15 @@ agent.dispose(); // destroys the persistent session
 
 In persistent mode, if a session encounters an error, it is automatically cleared and recreated on the next call. The `sessionId` property exposes the CLI session ID for logging or external storage.
 
+### Interrupting Running Operations
+
+Call `interrupt()` to gracefully stop a running operation. For CLI backends, this calls the SDK's interrupt/abort method on the active session:
+
+```typescript
+// In another context (e.g., timeout handler)
+await agent.interrupt();
+```
+
 Default (`"per-call"`): each call creates and destroys a fresh session. Multi-message context is passed via prompt augmentation through `runWithContext()`/`streamWithContext()`.
 
 API-based backends (Vercel AI) ignore `sessionMode` — they are stateless by design.
@@ -300,6 +310,7 @@ const service = createCopilotService({
   workingDirectory: process.cwd(),
   githubToken: "ghp_...",        // optional, alternative to useLoggedInUser
   cliArgs: ["--allow-all"],      // extra CLI flags for the subprocess
+  env: { PATH: "/custom/bin" },  // custom env vars for subprocess
 });
 ```
 
@@ -328,10 +339,13 @@ const service = createClaudeService({
   cliPath: "/path/to/claude",    // optional custom CLI path
   workingDirectory: process.cwd(),
   maxTurns: 10,
+  env: { CLAUDE_CONFIG_DIR: "/custom/config" }, // custom env vars for subprocess
 });
 ```
 
 `supervisor.onAskUser` is not supported by the Claude backend; a warning is emitted if set.
+
+When `supervisor.onPermission` is set, the Claude backend automatically sets `permissionMode: "default"` so the CLI invokes the callback instead of using built-in rules.
 
 ### Vercel AI (OpenRouter / OpenAI-compatible)
 
