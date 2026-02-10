@@ -191,6 +191,7 @@ describe("Type Consistency", () => {
       { type: "thinking_start" },
       { type: "thinking_end" },
       { type: "usage_update", promptTokens: 100, completionTokens: 50, model: "gpt-4", backend: "vercel-ai" },
+      { type: "session_info", sessionId: "sess-123", transcriptPath: "/tmp/transcript.jsonl", backend: "claude" },
       { type: "heartbeat" },
       { type: "error", error: "oops", recoverable: false },
       { type: "done", finalOutput: "result" },

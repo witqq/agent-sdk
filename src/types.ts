@@ -176,6 +176,7 @@ export type AgentEvent =
       model?: string;
       backend?: string;
     }
+  | { type: "session_info"; sessionId: string; transcriptPath?: string; backend: string }
   | { type: "heartbeat" }
   | { type: "error"; error: string; recoverable: boolean }
   | { type: "done"; finalOutput: string | null; structuredOutput?: unknown };
@@ -308,6 +309,8 @@ export interface IAgent {
   ): AsyncIterable<AgentEvent>;
   /** Abort the current operation. No-op if not running. */
   abort(): void;
+  /** Gracefully interrupt the current operation. Resolves when the backend acknowledges. */
+  interrupt(): Promise<void>;
   /** Get current agent lifecycle state. */
   getState(): AgentState;
   /** Get frozen agent configuration. */
@@ -352,6 +355,8 @@ export interface CopilotBackendOptions {
   cliArgs?: string[];
   /** Timeout in milliseconds for sendAndWait() calls. When undefined, uses copilot-sdk default (60s). */
   timeout?: number;
+  /** Custom environment variables merged into the subprocess env */
+  env?: Record<string, string | undefined>;
 }
 
 /** Options for Claude CLI backend */
@@ -361,6 +366,8 @@ export interface ClaudeBackendOptions {
   maxTurns?: number;
   /** OAuth token for Claude authentication (set as CLAUDE_CODE_OAUTH_TOKEN env var) */
   oauthToken?: string;
+  /** Custom environment variables merged into the subprocess env */
+  env?: Record<string, string | undefined>;
 }
 
 /** Options for Vercel AI SDK backend */

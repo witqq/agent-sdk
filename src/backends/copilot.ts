@@ -36,6 +36,7 @@ interface SDKClientOptions {
   githubToken?: string;
   useLoggedInUser?: boolean;
   cliArgs?: string[];
+  env?: Record<string, string | undefined>;
 }
 
 /** @internal */
@@ -424,6 +425,7 @@ class CopilotAgent extends BaseAgent {
   private readonly isPersistent: boolean;
   private persistentSession: SDKSession | null = null;
   private _sessionId: string | undefined;
+  private activeSession: SDKSession | null = null;
 
   constructor(
     config: AgentConfig,
@@ -450,6 +452,21 @@ class CopilotAgent extends BaseAgent {
 
   override get sessionId(): string | undefined {
     return this._sessionId;
+  }
+
+  override async interrupt(): Promise<void> {
+    if (this.activeSession) {
+      this.activeSession.abort().catch(() => {});
+    }
+    this.abort();
+  }
+
+  private emitSessionInfo(sessionId: string): AgentEvent {
+    const home = process.env.HOME ?? process.env.USERPROFILE ?? "";
+    const transcriptPath = home
+      ? `${home}/.copilot/session-state/${sessionId}/events.jsonl`
+      : undefined;
+    return { type: "session_info", sessionId, transcriptPath, backend: "copilot" };
   }
 
   private clearPersistentSession(): void {
@@ -486,7 +503,7 @@ class CopilotAgent extends BaseAgent {
     this.checkAbort(signal);
 
     const { session, isNew: isNewSession } = await this.getOrCreateSession(false);
-    // In persistent mode, SDK maintains history — send only the last user message.
+    this.activeSession = session;
     // In per-call mode, include conversation context in prompt.
     const prompt = this.isPersistent && !isNewSession
       ? extractLastUserPrompt(messages)
@@ -553,6 +570,7 @@ class CopilotAgent extends BaseAgent {
       this.clearPersistentSession();
       throw error;
     } finally {
+      this.activeSession = null;
       signal.removeEventListener("abort", onAbort);
       unsubscribe();
       tracker.clear();
@@ -620,6 +638,10 @@ class CopilotAgent extends BaseAgent {
     this.checkAbort(signal);
 
     const { session, isNew: isNewSession } = await this.getOrCreateSession(true);
+    this.activeSession = session;
+    if (isNewSession) {
+      yield this.emitSessionInfo(session.sessionId);
+    }
     const prompt = this.isPersistent && !isNewSession
       ? extractLastUserPrompt(messages)
       : buildContextualPrompt(messages);
@@ -690,6 +712,7 @@ class CopilotAgent extends BaseAgent {
       this.clearPersistentSession();
       throw error;
     } finally {
+      this.activeSession = null;
       signal.removeEventListener("abort", onAbort);
       unsubscribe();
       tracker.clear();
@@ -771,6 +794,7 @@ class CopilotAgentService implements IAgentService {
           githubToken: this.options.githubToken,
           useLoggedInUser: this.options.useLoggedInUser ?? true,
           ...(this.options.cliArgs ? { cliArgs: this.options.cliArgs } : {}),
+          ...(this.options.env ? { env: { ...process.env, ...this.options.env } } : {}),
         });
         await client.start();
 

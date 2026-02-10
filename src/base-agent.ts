@@ -146,6 +146,11 @@ export abstract class BaseAgent implements IAgent {
     }
   }
 
+  /** Default interrupt — falls back to abort(). Backends may override with graceful shutdown. */
+  async interrupt(): Promise<void> {
+    this.abort();
+  }
+
   getState(): AgentState {
     return this.state;
   }

@@ -557,6 +557,7 @@ class ClaudeAgent extends BaseAgent {
   private readonly canUseTool: SDKCanUseTool | undefined;
   private readonly isPersistent: boolean;
   private _sessionId: string | undefined;
+  private activeQuery: SDKQuery | null = null;
 
   constructor(config: AgentConfig, options: ClaudeBackendOptions) {
     super(config);
@@ -578,9 +579,29 @@ class ClaudeAgent extends BaseAgent {
     return this._sessionId;
   }
 
+  override async interrupt(): Promise<void> {
+    try {
+      if (this.activeQuery) {
+        await this.activeQuery.interrupt();
+      }
+    } catch {
+      // fire-and-forget: SDK interrupt errors should not prevent abort
+    } finally {
+      this.abort();
+    }
+  }
+
   /** Clear persistent session state after an error so next call starts fresh */
   private clearPersistentSession(): void {
     this._sessionId = undefined;
+  }
+
+  private emitSessionInfo(sessionId: string): AgentEvent {
+    const home = process.env.HOME ?? process.env.USERPROFILE ?? "";
+    const transcriptPath = home
+      ? `${home}/.claude/projects/.session/sessions/${sessionId}/conversation.jsonl`
+      : undefined;
+    return { type: "session_info", sessionId, transcriptPath, backend: "claude" };
   }
 
   private buildQueryOptions(signal: AbortSignal): SDKOptions {
@@ -608,8 +629,20 @@ class ClaudeAgent extends BaseAgent {
       opts.systemPrompt = this.config.systemPrompt;
     }
 
-    if (this.options.oauthToken) {
-      opts.env = { ...process.env, CLAUDE_CODE_OAUTH_TOKEN: this.options.oauthToken };
+    if (this.options.oauthToken || this.options.env) {
+      opts.env = {
+        ...process.env,
+        ...(this.options.env ?? {}),
+        ...(this.options.oauthToken
+          ? { CLAUDE_CODE_OAUTH_TOKEN: this.options.oauthToken }
+          : {}),
+      };
+    }
+
+    // Auto-set permissionMode when canUseTool is configured so Claude CLI
+    // actually invokes the callback instead of using built-in rules.
+    if (opts.canUseTool && !opts.permissionMode) {
+      opts.permissionMode = "default";
     }
 
     return opts;
@@ -650,6 +683,7 @@ class ClaudeAgent extends BaseAgent {
     opts = await this.buildMcpConfig(opts, toolResultCapture);
 
     const q = sdk.query({ prompt, options: opts });
+    this.activeQuery = q;
     const toolCalls: AgentResult["toolCalls"] = [];
     let output: string | null = null;
     let usage: AgentResult["usage"];
@@ -713,6 +747,8 @@ class ClaudeAgent extends BaseAgent {
       if (this.isPersistent) this.clearPersistentSession();
       if (signal.aborted) throw new AbortError();
       throw e;
+    } finally {
+      this.activeQuery = null;
     }
 
     return {
@@ -755,6 +791,7 @@ class ClaudeAgent extends BaseAgent {
     };
 
     const q = sdk.query({ prompt, options: opts });
+    this.activeQuery = q;
     const toolCalls: AgentResult["toolCalls"] = [];
     let output: string | null = null;
     let structuredOutput: T | undefined;
@@ -804,6 +841,8 @@ class ClaudeAgent extends BaseAgent {
       if (this.isPersistent) this.clearPersistentSession();
       if (signal.aborted) throw new AbortError();
       throw e;
+    } finally {
+      this.activeQuery = null;
     }
 
     return {
@@ -838,6 +877,7 @@ class ClaudeAgent extends BaseAgent {
     opts = await this.buildMcpConfig(opts);
 
     const q = sdk.query({ prompt, options: opts });
+    this.activeQuery = q;
     const thinkingBlockIndices = new Set<number>();
     const toolCallTracker = new ClaudeToolCallTracker();
 
@@ -857,8 +897,11 @@ class ClaudeAgent extends BaseAgent {
         // Capture session_id and emit done event on result
         if (msg.type === "result" && msg.subtype === "success") {
           const r = msg as unknown as SDKResultSuccess;
-          if (this.isPersistent && r.session_id) {
-            this._sessionId = r.session_id;
+          if (r.session_id) {
+            if (this.isPersistent) {
+              this._sessionId = r.session_id;
+            }
+            yield this.emitSessionInfo(r.session_id);
           }
           yield { type: "done", finalOutput: r.result };
         }
@@ -867,6 +910,8 @@ class ClaudeAgent extends BaseAgent {
       if (this.isPersistent) this.clearPersistentSession();
       if (signal.aborted) throw new AbortError();
       throw e;
+    } finally {
+      this.activeQuery = null;
     }
   }
 
