@@ -10,7 +10,7 @@ Shared interfaces for tools, permissions, streaming, structured output.
 
 ```bash
 npm run build     # tsup → ESM + CJS + DTS
-npm run test      # vitest (320 tests)
+npm run test      # vitest (406 tests)
 npm run typecheck # tsc --noEmit
 ```
 
@@ -31,6 +31,7 @@ Permission store: `IPermissionStore` with `InMemoryPermissionStore`, `FilePermis
 @witqq/agent-sdk/copilot   → src/backends/copilot.ts
 @witqq/agent-sdk/claude    → src/backends/claude.ts
 @witqq/agent-sdk/vercel-ai → src/backends/vercel-ai.ts
+@witqq/agent-sdk/auth      → src/auth/index.ts (CopilotAuth, ClaudeAuth, token types)
 ```
 
 ### Registry
@@ -50,7 +51,10 @@ Backends extend and implement `executeRun`, `executeRunStructured`, `executeStre
 
 `CopilotAgentService` wraps `@github/copilot-sdk` (optional peer dep).
 - `ensureClient()`: lazy init, explicit `start()`, auth check, caches via promise
-- Session-per-run: fresh `CopilotSession` per `run()`/`stream()`, destroyed in `finally`
+- Session modes: `per-call` (default) creates fresh session per call; `persistent` reuses session across calls
+- `getOrCreateSession()`: session lifecycle — reuse persistent or create new; persistent always streaming=true
+- `clearPersistentSession()`: error recovery — clears broken session so next call creates fresh one
+- `sessionId` getter: exposes CLI session ID for persistent mode tracking
 - `ToolCallTracker`: maps `toolCallId` → `toolName` (SDK's `tool.execution_complete` lacks name)
 - `mapToolsToSDK()`: `ToolDefinition[]` → SDK `Tool[]` with `zodToJsonSchema`
 - `buildPermissionHandler()`: `SupervisorHooks.onPermission` → SDK `onPermissionRequest` (auto-approve default)
@@ -67,6 +71,8 @@ Backends extend and implement `executeRun`, `executeRunStructured`, `executeStre
 - `buildCanUseTool()`: `SupervisorHooks.onPermission` → SDK `canUseTool` callback
 - `buildMcpConfig()` / `buildMcpServer()`: converts ToolDefinitions to MCP tool format
 - Structured output: prompt augmentation + JSON parsing from response text
+- Persistent sessions: `sessionMode: "persistent"` → captures `session_id` from result, passes `resume: sessionId` on subsequent calls, `persistSession: true`
+- Error recovery: `clearPersistentSession()` on errors, next call starts fresh
 - `onAskUser` not supported (warning emitted if set)
 - Test injection: `_injectSDK()` / `_resetSDK()`
 
@@ -79,7 +85,19 @@ Backends extend and implement `executeRun`, `executeRunStructured`, `executeStre
 - `mapToolsToSDK()`: converts ToolDefinitions to Vercel AI tool format
 - `wrapToolExecute()`: permission checks before tool execution
 - `onAskUser` supported via injected `ask_user` tool
+- `listModels()`: tries `/models` endpoint via fetch, falls back to OpenAI presets for `openai.com` base URL, returns empty for unknown providers
 - No subprocess management — pure API calls
+
+### Auth Providers (`src/auth/`)
+
+Programmatic OAuth authentication for Copilot and Claude backends.
+No token storage — returns tokens, app stores them.
+
+- `CopilotAuth` — GitHub Device Flow: `startDeviceFlow()` → `{ userCode, verificationUrl, waitForToken() }`
+- `ClaudeAuth` — OAuth Authorization Code + PKCE: `startOAuthFlow()` → `{ authorizeUrl, completeAuth(codeOrUrl) }`, `refreshToken()`
+- Types: `AuthToken`, `CopilotAuthToken`, `ClaudeAuthToken`, `DeviceFlowResult`, `OAuthFlowResult`
+- Errors: `AuthError`, `DeviceCodeExpiredError`, `AccessDeniedError`, `TokenExchangeError`
+- Dependency injection: `fetch` via constructor for testability
 
 ### Utilities
 
@@ -97,6 +115,6 @@ Backends extend and implement `executeRun`, `executeRunStructured`, `executeStre
 
 ## Testing
 
-- Unit: vitest (`tests/unit/`), 320 tests
+- Unit: vitest (`tests/unit/`), 406 tests
 - Integration: vitest (`tests/integration/`) — requires real CLI authentication
 - Use cheap models for integration tests (`gpt-4.1`)

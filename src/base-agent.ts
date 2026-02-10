@@ -22,6 +22,11 @@ export abstract class BaseAgent implements IAgent {
   /** Backend identifier (e.g. "copilot", "claude", "vercel-ai") */
   protected abstract readonly backendName: string;
 
+  /** CLI session ID for persistent mode. Override in backends that support it. */
+  get sessionId(): string | undefined {
+    return undefined;
+  }
+
   constructor(config: AgentConfig) {
     this.config = Object.freeze({ ...config });
   }

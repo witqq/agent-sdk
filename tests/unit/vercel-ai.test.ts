@@ -191,10 +191,49 @@ describe("VercelAIAgentService", () => {
     expect(result.errors[0]).toContain("apiKey");
   });
 
-  it("should return empty models list", async () => {
+  it("should return empty models list when /models endpoint fails", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 404,
+    });
+    vi.stubGlobal("fetch", mockFetch);
     const service = createVercelAIService(BACKEND_OPTIONS);
     const models = await service.listModels();
     expect(models).toEqual([]);
+    vi.unstubAllGlobals();
+  });
+
+  it("should return empty models list when fetch throws", async () => {
+    const mockFetch = vi.fn().mockRejectedValue(new Error("Network error"));
+    vi.stubGlobal("fetch", mockFetch);
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const models = await service.listModels();
+    expect(models).toEqual([]);
+    vi.unstubAllGlobals();
+  });
+
+  it("should return models from /models endpoint when available", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: [{ id: "custom-model-1" }, { id: "custom-model-2" }],
+      }),
+    });
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = mockFetch;
+    try {
+      const service = createVercelAIService(BACKEND_OPTIONS);
+      const models = await service.listModels();
+      expect(models).toEqual([{ id: "custom-model-1" }, { id: "custom-model-2" }]);
+      expect(mockFetch).toHaveBeenCalledWith(
+        "https://test.example.com/api/v1/models",
+        expect.objectContaining({
+          headers: { Authorization: "Bearer test-api-key" },
+        }),
+      );
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   });
 
   it("should be idempotent on dispose", async () => {

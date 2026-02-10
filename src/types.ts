@@ -248,6 +248,11 @@ export interface AgentConfig {
    *  When set, heartbeat events are emitted to keep the stream alive during
    *  long tool executions. Default: off (no heartbeats). */
   heartbeatInterval?: number;
+  /** Session reuse mode for CLI backends (Copilot, Claude).
+   *  "per-call" (default): creates a fresh CLI session for each run/stream call.
+   *  "persistent": reuses the same CLI session across calls, preserving conversation
+   *  history natively in the CLI backend. Session is destroyed on agent dispose(). */
+  sessionMode?: "per-call" | "persistent";
 }
 
 // ─── Agent Result (Generic) ────────────────────────────────────
@@ -275,6 +280,9 @@ export type AgentState = "idle" | "running" | "streaming" | "disposed";
 
 /** Core agent interface — run prompts, stream events, manage lifecycle */
 export interface IAgent {
+  /** The CLI session ID when using persistent session mode. Undefined in per-call mode
+   *  or before the first call. Can be stored externally for session resume. */
+  readonly sessionId: string | undefined;
   /** Run a single prompt and return the result. Wraps prompt in a user message. */
   run(prompt: MessageContent, options?: RunOptions): Promise<AgentResult>;
   /** Run with full conversation history. Messages are passed directly to the backend. */
@@ -351,6 +359,8 @@ export interface ClaudeBackendOptions {
   cliPath?: string;
   workingDirectory?: string;
   maxTurns?: number;
+  /** OAuth token for Claude authentication (set as CLAUDE_CODE_OAUTH_TOKEN env var) */
+  oauthToken?: string;
 }
 
 /** Options for Vercel AI SDK backend */

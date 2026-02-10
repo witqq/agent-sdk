@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { z } from "zod";
 import type {
   AgentConfig,
+  AgentEvent,
   PermissionRequest,
   PermissionDecision,
 } from "../../src/types.js";
@@ -185,27 +186,53 @@ describe("Claude Backend", () => {
       expect(agent.getState()).toBe("idle");
     });
 
-    it("should list models from static known list", async () => {
+    it("should list models from Anthropic API with oauthToken", async () => {
+      injectMockSDK();
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          data: [
+            { id: "claude-opus-4-6", display_name: "Claude Opus 4.6" },
+            { id: "claude-sonnet-4-20250514", display_name: "Claude Sonnet 4" },
+          ],
+        }),
+      });
+      vi.stubGlobal("fetch", mockFetch);
+      const service = createClaudeService({ oauthToken: "test-token" });
+      const models = await service.listModels();
+      expect(models).toHaveLength(2);
+      expect(models[0]).toEqual({
+        id: "claude-opus-4-6",
+        name: "Claude Opus 4.6",
+        provider: "claude",
+      });
+      expect(models.every((m) => m.provider === "claude")).toBe(true);
+      vi.unstubAllGlobals();
+    });
+
+    it("should return empty list when no oauthToken", async () => {
       injectMockSDK();
       const service = createClaudeService({});
       const models = await service.listModels();
-      expect(models).toHaveLength(4);
-      expect(models[0]).toEqual({
-        id: "claude-sonnet-4-5-20250514",
-        name: "Claude Sonnet 4.5",
-        provider: "claude",
-      });
-      // All models should have provider "claude"
-      expect(models.every((m) => m.provider === "claude")).toBe(true);
+      expect(models).toEqual([]);
     });
 
     it("should cache models after first listModels call", async () => {
       injectMockSDK();
-      const service = createClaudeService({});
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          data: [{ id: "claude-sonnet-4-20250514", display_name: "Claude Sonnet 4" }],
+        }),
+      });
+      vi.stubGlobal("fetch", mockFetch);
+      const service = createClaudeService({ oauthToken: "test-token" });
       const first = await service.listModels();
       const second = await service.listModels();
       // Same reference — cached
       expect(first).toBe(second);
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      vi.unstubAllGlobals();
     });
 
     it("should validate — success when SDK loads", async () => {
@@ -1257,6 +1284,204 @@ describe("Claude Backend", () => {
           prompt: "What is 2+2?",
         }),
       );
+    });
+
+    it("should include conversation history when multiple messages via runWithContext", async () => {
+      const sdk = injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      await agent.runWithContext([
+        { role: "user", content: "My name is Alice" },
+        { role: "assistant", content: "Hello Alice!" },
+        { role: "user", content: "What is my name?" },
+      ]);
+
+      const sentPrompt = sdk.query.mock.calls[0][0].prompt;
+      expect(sentPrompt).toContain("Conversation history:");
+      expect(sentPrompt).toContain("User: My name is Alice");
+      expect(sentPrompt).toContain("Assistant: Hello Alice!");
+      expect(sentPrompt).toContain("User: What is my name?");
+    });
+
+    it("should send plain prompt for single message via runWithContext", async () => {
+      const sdk = injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      await agent.runWithContext([{ role: "user", content: "Hello" }]);
+
+      expect(sdk.query).toHaveBeenCalledWith(
+        expect.objectContaining({ prompt: "Hello" }),
+      );
+    });
+  });
+
+  // ── oauthToken wiring ─────────────────────────────────────────
+
+  describe("oauthToken", () => {
+    it("should pass CLAUDE_CODE_OAUTH_TOKEN env when oauthToken is set", async () => {
+      const sdk = injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({ oauthToken: "sk-ant-oat01-test-token" });
+      const agent = service.createAgent(makeConfig());
+      await agent.run("test");
+      const callArgs = sdk.query.mock.calls[0][0];
+      expect(callArgs.options.env).toBeDefined();
+      expect(callArgs.options.env.CLAUDE_CODE_OAUTH_TOKEN).toBe("sk-ant-oat01-test-token");
+    });
+
+    it("should not set env when oauthToken is not provided", async () => {
+      const sdk = injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      await agent.run("test");
+      const callArgs = sdk.query.mock.calls[0][0];
+      expect(callArgs.options.env).toBeUndefined();
+    });
+
+    it("should include process.env alongside CLAUDE_CODE_OAUTH_TOKEN", async () => {
+      const sdk = injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({ oauthToken: "test-token" });
+      const agent = service.createAgent(makeConfig());
+      await agent.run("test");
+      const callArgs = sdk.query.mock.calls[0][0];
+      expect(callArgs.options.env.PATH).toBeDefined();
+    });
+  });
+
+  // ── Persistent Session Mode ─────────────────────────────────────
+
+  describe("persistent session mode", () => {
+    function successResultWithSessionId(text: string, sessionId: string) {
+      return {
+        ...successResult(text),
+        session_id: sessionId,
+      };
+    }
+
+    function injectMultiCallMockSDK(
+      callResults: Array<Array<Record<string, unknown>>>,
+    ): MockSDKModule {
+      let callIndex = 0;
+      const sdk = createMockSDK();
+      sdk.query.mockImplementation(() => {
+        const msgs = callResults[callIndex] ?? callResults[callResults.length - 1]!;
+        callIndex++;
+        return {
+          [Symbol.asyncIterator]() {
+            return asyncIter(msgs)[Symbol.asyncIterator]();
+          },
+        };
+      });
+      _injectSDK(sdk as any);
+      return sdk;
+    }
+
+    it("should capture session_id from result and expose via sessionId getter", async () => {
+      injectMockSDK([successResultWithSessionId("hello", "ses-abc-123")]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
+      expect(agent.sessionId).toBeUndefined();
+      await agent.run("test");
+      expect(agent.sessionId).toBe("ses-abc-123");
+    });
+
+    it("should pass resume option on subsequent calls in persistent mode", async () => {
+      const sdk = injectMultiCallMockSDK([
+        [successResultWithSessionId("first", "ses-111")],
+        [successResultWithSessionId("second", "ses-111")],
+      ]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
+
+      await agent.run("first message");
+      expect(sdk.query.mock.calls[0][0].options.resume).toBeUndefined();
+
+      await agent.run("second message");
+      expect(sdk.query.mock.calls[1][0].options.resume).toBe("ses-111");
+    });
+
+    it("should send only last user message on subsequent persistent calls", async () => {
+      const sdk = injectMultiCallMockSDK([
+        [successResultWithSessionId("first", "ses-222")],
+        [successResultWithSessionId("second", "ses-222")],
+      ]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
+
+      const result1 = await agent.run("hello");
+      const result2 = await agent.run("follow up", { messages: result1.messages });
+
+      // Second call should send only the last user prompt, not full history
+      const secondPrompt = sdk.query.mock.calls[1][0].prompt;
+      expect(secondPrompt).toBe("follow up");
+      expect(secondPrompt).not.toContain("Conversation history");
+    });
+
+    it("should set persistSession=true in persistent mode", async () => {
+      const sdk = injectMockSDK([successResultWithSessionId("ok", "ses-333")]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
+      await agent.run("test");
+      expect(sdk.query.mock.calls[0][0].options.persistSession).toBe(true);
+    });
+
+    it("should set persistSession=false in per-call mode (default)", async () => {
+      const sdk = injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      await agent.run("test");
+      expect(sdk.query.mock.calls[0][0].options.persistSession).toBe(false);
+    });
+
+    it("should return undefined sessionId in per-call mode", async () => {
+      injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      await agent.run("test");
+      expect(agent.sessionId).toBeUndefined();
+    });
+
+    it("should clear sessionId on error in persistent mode", async () => {
+      const sdk = injectMultiCallMockSDK([
+        [successResultWithSessionId("ok", "ses-444")],
+        [errorResult(["something broke"])],
+        [successResultWithSessionId("recovered", "ses-555")],
+      ]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
+
+      await agent.run("first");
+      expect(agent.sessionId).toBe("ses-444");
+
+      await expect(agent.run("second")).rejects.toThrow("something broke");
+      expect(agent.sessionId).toBeUndefined();
+
+      await agent.run("third");
+      expect(agent.sessionId).toBe("ses-555");
+    });
+
+    it("should clear sessionId on dispose", async () => {
+      injectMockSDK([successResultWithSessionId("ok", "ses-666")]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
+      await agent.run("test");
+      expect(agent.sessionId).toBe("ses-666");
+      agent.dispose();
+      expect(agent.sessionId).toBeUndefined();
+    });
+
+    it("should capture session_id from stream result in persistent mode", async () => {
+      injectMockSDK([
+        assistantMessage("streaming response"),
+        successResultWithSessionId("done", "ses-777"),
+      ]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
+
+      const events: AgentEvent[] = [];
+      for await (const event of agent.stream("test")) {
+        events.push(event);
+      }
+      expect(agent.sessionId).toBe("ses-777");
     });
   });
 });

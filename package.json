@@ -1,6 +1,6 @@
 {
   "name": "@witqq/agent-sdk",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Universal AI agent abstraction layer supporting Copilot CLI, Claude CLI, and Vercel AI SDK backends",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -45,6 +45,16 @@
       "require": {
         "types": "./dist/backends/vercel-ai.d.cts",
         "default": "./dist/backends/vercel-ai.cjs"
+      }
+    },
+    "./auth": {
+      "import": {
+        "types": "./dist/auth/index.d.ts",
+        "default": "./dist/auth/index.js"
+      },
+      "require": {
+        "types": "./dist/auth/index.d.cts",
+        "default": "./dist/auth/index.cjs"
       }
     }
   },

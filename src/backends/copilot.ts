@@ -421,6 +421,9 @@ class CopilotAgent extends BaseAgent {
   private readonly sdkTools: SDKTool[];
   private readonly sessionConfig: Omit<SDKSessionConfig, "streaming">;
   private readonly sendAndWaitTimeout: number | undefined;
+  private readonly isPersistent: boolean;
+  private persistentSession: SDKSession | null = null;
+  private _sessionId: string | undefined;
 
   constructor(
     config: AgentConfig,
@@ -430,6 +433,7 @@ class CopilotAgent extends BaseAgent {
     super(config);
     this.getClient = getClient;
     this.sendAndWaitTimeout = sendAndWaitTimeout;
+    this.isPersistent = config.sessionMode === "persistent";
     this.sdkTools = mapToolsToSDK(config.tools);
     this.sessionConfig = {
       model: config.model,
@@ -444,9 +448,32 @@ class CopilotAgent extends BaseAgent {
     };
   }
 
-  private async createSession(streaming: boolean): Promise<SDKSession> {
+  override get sessionId(): string | undefined {
+    return this._sessionId;
+  }
+
+  private clearPersistentSession(): void {
+    if (this.isPersistent) {
+      this.persistentSession?.destroy().catch(() => {});
+      this.persistentSession = null;
+      this._sessionId = undefined;
+    }
+  }
+
+  private async getOrCreateSession(streaming: boolean): Promise<{ session: SDKSession; isNew: boolean }> {
+    if (this.isPersistent && this.persistentSession) {
+      return { session: this.persistentSession, isNew: false };
+    }
     const client = await this.getClient();
-    return client.createSession({ ...this.sessionConfig, streaming });
+    const session = await client.createSession({
+      ...this.sessionConfig,
+      streaming: this.isPersistent ? true : streaming,
+    });
+    if (this.isPersistent) {
+      this.persistentSession = session;
+      this._sessionId = session.sessionId;
+    }
+    return { session, isNew: true };
   }
 
   // ─── executeRun ─────────────────────────────────────────────────
@@ -458,8 +485,12 @@ class CopilotAgent extends BaseAgent {
   ): Promise<AgentResult> {
     this.checkAbort(signal);
 
-    const session = await this.createSession(false);
-    const prompt = extractLastUserPrompt(messages);
+    const { session, isNew: isNewSession } = await this.getOrCreateSession(false);
+    // In persistent mode, SDK maintains history — send only the last user message.
+    // In per-call mode, include conversation context in prompt.
+    const prompt = this.isPersistent && !isNewSession
+      ? extractLastUserPrompt(messages)
+      : buildContextualPrompt(messages);
     const tracker = new ToolCallTracker();
     const toolCalls: AgentResult["toolCalls"] = [];
     let usage: AgentResult["usage"];
@@ -517,12 +548,18 @@ class CopilotAgent extends BaseAgent {
         ],
         usage,
       };
+    } catch (error) {
+      // Clear broken persistent session so next call creates a fresh one
+      this.clearPersistentSession();
+      throw error;
     } finally {
       signal.removeEventListener("abort", onAbort);
       unsubscribe();
       tracker.clear();
-      // Best-effort cleanup: don't mask the original error from sendAndWait
-      session.destroy().catch(() => {});
+      if (!this.isPersistent) {
+        // Best-effort cleanup: don't mask the original error from sendAndWait
+        session.destroy().catch(() => {});
+      }
     }
   }
 
@@ -582,8 +619,10 @@ class CopilotAgent extends BaseAgent {
   ): AsyncIterable<AgentEvent> {
     this.checkAbort(signal);
 
-    const session = await this.createSession(true);
-    const prompt = extractLastUserPrompt(messages);
+    const { session, isNew: isNewSession } = await this.getOrCreateSession(true);
+    const prompt = this.isPersistent && !isNewSession
+      ? extractLastUserPrompt(messages)
+      : buildContextualPrompt(messages);
     const tracker = new ToolCallTracker();
     const thinkingTracker = new ThinkingTracker();
 
@@ -640,21 +679,35 @@ class CopilotAgent extends BaseAgent {
         while (queue.length === 0) await waitForItem();
         const item = queue.shift()!;
         if ("done" in item) break;
-        if ("error" in item) throw item.error;
+        if ("error" in item) {
+          // Clear broken persistent session so next call creates a fresh one
+          this.clearPersistentSession();
+          throw item.error;
+        }
         yield item.event;
       }
+    } catch (error) {
+      this.clearPersistentSession();
+      throw error;
     } finally {
       signal.removeEventListener("abort", onAbort);
       unsubscribe();
       tracker.clear();
-      // Best-effort cleanup: don't mask errors from the event stream
-      session.destroy().catch(() => {});
+      if (!this.isPersistent) {
+        // Best-effort cleanup: don't mask errors from the event stream
+        session.destroy().catch(() => {});
+      }
     }
   }
 
   // ─── dispose ────────────────────────────────────────────────────
 
   override dispose(): void {
+    if (this.persistentSession) {
+      this.persistentSession.destroy().catch(() => {});
+      this.persistentSession = null;
+      this._sessionId = undefined;
+    }
     super.dispose();
   }
 }
@@ -669,6 +722,22 @@ function extractLastUserPrompt(messages: Message[]): string {
     }
   }
   return "";
+}
+
+/** Build prompt with conversation history for CLI backends that create fresh sessions */
+function buildContextualPrompt(messages: Message[]): string {
+  if (messages.length <= 1) {
+    return extractLastUserPrompt(messages);
+  }
+
+  const history = messages.slice(0, -1).map((msg) => {
+    const text = msg.content ? getTextContent(msg.content) : "";
+    return msg.role === "user" ? `User: ${text}` : `Assistant: ${text}`;
+  }).join("\n");
+
+  const lastPrompt = extractLastUserPrompt(messages);
+
+  return `Conversation history:\n${history}\n\nUser: ${lastPrompt}`;
 }
 
 // ─── CopilotAgentService ────────────────────────────────────────

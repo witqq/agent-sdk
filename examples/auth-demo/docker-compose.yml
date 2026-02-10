@@ -1,0 +1,18 @@
+services:
+  demo:
+    build:
+      context: ../..
+      dockerfile: examples/auth-demo/Dockerfile
+    ports:
+      - "3456:3456"
+    volumes:
+      - demo-tokens:/data
+    environment:
+      - PORT=3456
+      - TOKEN_DIR=/data
+      # For Vercel AI backend (OpenAI-compatible)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - VERCEL_AI_BASE_URL=${VERCEL_AI_BASE_URL:-https://api.openai.com/v1}
+
+volumes:
+  demo-tokens:

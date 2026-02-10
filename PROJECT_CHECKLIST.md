@@ -29,7 +29,7 @@
 - [x] README.md with usage examples for all features
 - [x] DOCUMENTATION-STYLE-GUIDE.md
 - [x] All public types have descriptions
-- [ ] CHANGELOG.md updated before each release
+- [x] CHANGELOG.md updated before each release
 
 ## Architecture
 - [x] ToolDeclaration/ToolDefinition split (B1)

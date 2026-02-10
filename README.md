@@ -263,6 +263,30 @@ for await (const event of agent.stream("Run a long analysis")) {
 
 When `heartbeatInterval` is set, heartbeat events are emitted during streaming gaps (e.g., while a tool executes). No heartbeats are emitted when backend events flow continuously. The timer is cleaned up when the stream completes, errors, or is aborted.
 
+## Persistent Sessions (CLI Backends)
+
+CLI backends (Copilot, Claude) create a fresh subprocess session per `run()`/`stream()` call by default. Set `sessionMode: "persistent"` to reuse the same CLI session across calls — the CLI backend maintains conversation history natively:
+
+```typescript
+const agent = service.createAgent({
+  systemPrompt: "You are a helpful assistant.",
+  sessionMode: "persistent", // reuse CLI session across calls
+});
+
+await agent.run("My name is Alice");
+const result = await agent.run("What is my name?");
+// result.output contains "Alice" — history maintained by CLI
+
+console.log(agent.sessionId); // CLI session ID for external tracking
+agent.dispose(); // destroys the persistent session
+```
+
+In persistent mode, if a session encounters an error, it is automatically cleared and recreated on the next call. The `sessionId` property exposes the CLI session ID for logging or external storage.
+
+Default (`"per-call"`): each call creates and destroys a fresh session. Multi-message context is passed via prompt augmentation through `runWithContext()`/`streamWithContext()`.
+
+API-based backends (Vercel AI) ignore `sessionMode` — they are stateless by design.
+
 ## Backend-Specific Options
 
 ### Copilot
@@ -378,7 +402,7 @@ import { createVercelAIService } from "@witqq/agent-sdk/vercel-ai";
 | Claude | `claude-sonnet-4-5-20250514` | `sonnet` |
 | Vercel AI | `anthropic/claude-sonnet-4-5` | (provider-specific) |
 
-Use `service.listModels()` to get available model IDs for each backend.
+Use `service.listModels()` to get available model IDs for each backend. Copilot lists models from GitHub API. Claude queries the Anthropic `/v1/models` endpoint when `oauthToken` is provided (returns empty list without token). Vercel AI queries the provider's `/models` endpoint (returns empty list on failure).
 
 ## Build
 
@@ -387,6 +411,84 @@ npm run build     # tsup → ESM + CJS
 npm run test      # vitest
 npm run typecheck  # tsc --noEmit
 ```
+
+## Authentication
+
+Programmatic OAuth flows for obtaining tokens without manual terminal interaction.
+
+```typescript
+import { CopilotAuth, ClaudeAuth } from "@witqq/agent-sdk/auth";
+```
+
+### Copilot (GitHub Device Flow)
+
+```typescript
+const auth = new CopilotAuth();
+const { verificationUrl, userCode, waitForToken } = await auth.startDeviceFlow();
+
+// Show the user: open verificationUrl and enter userCode
+console.log(`Open ${verificationUrl} and enter code: ${userCode}`);
+
+const token = await waitForToken(); // polls until authorized
+// token.accessToken = "gho_..." (long-lived, no expiration)
+
+// Use with Copilot backend:
+const service = createCopilotService({ githubToken: token.accessToken });
+```
+
+### Claude (OAuth + PKCE)
+
+```typescript
+const auth = new ClaudeAuth();
+const { authorizeUrl, completeAuth } = auth.startOAuthFlow();
+
+// Open authorizeUrl in browser — user authorizes, gets redirected
+// completeAuth accepts raw code, full redirect URL, or code#state format
+console.log(`Open: ${authorizeUrl}`);
+
+const token = await completeAuth(codeOrUrl);
+// token.accessToken = "sk-ant-oat01-..." (expires in 8h, has refreshToken)
+
+// Refresh before expiry:
+const refreshed = await auth.refreshToken(token.refreshToken);
+
+// Use with Claude backend:
+const service = createClaudeService({ oauthToken: token.accessToken });
+```
+
+### Token Types
+
+```typescript
+interface AuthToken {
+  accessToken: string;
+  tokenType: string;
+  expiresIn?: number;   // seconds until expiry (undefined = long-lived)
+  obtainedAt: number;   // Date.now() when token was obtained
+}
+
+interface ClaudeAuthToken extends AuthToken {
+  refreshToken: string; // for refreshing expired tokens
+  scopes: string[];
+}
+
+interface CopilotAuthToken extends AuthToken {
+  login?: string;       // GitHub username
+}
+```
+
+## Interactive Demo
+
+A web-based interactive demo showcasing all backends with authentication is in `examples/auth-demo/`.
+
+```bash
+# Run in Docker (web UI at http://localhost:3456)
+docker compose -f examples/auth-demo/docker-compose.yml up
+
+# Run locally (CLI mode)
+npx tsx examples/auth-demo/index.ts
+```
+
+Features: provider selection, auth flows (Device Flow, OAuth+PKCE, API key), model selection, streaming chat with conversation history, token persistence across container restarts, and provider switching.
 
 ## License
 
