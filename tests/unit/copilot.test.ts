@@ -393,6 +393,32 @@ describe("Copilot Backend", () => {
 
       expect(session.sendAndWait).toHaveBeenCalledWith({ prompt: "What is 2+2?" });
     });
+
+    it("should include conversation history when multiple messages via runWithContext", async () => {
+      const { session } = injectMockSDK();
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig());
+      await agent.runWithContext([
+        { role: "user", content: "My name is Alice" },
+        { role: "assistant", content: "Hello Alice!" },
+        { role: "user", content: "What is my name?" },
+      ]);
+
+      const sentPrompt = session.sendAndWait.mock.calls[0][0].prompt;
+      expect(sentPrompt).toContain("Conversation history:");
+      expect(sentPrompt).toContain("User: My name is Alice");
+      expect(sentPrompt).toContain("Assistant: Hello Alice!");
+      expect(sentPrompt).toContain("User: What is my name?");
+    });
+
+    it("should send plain prompt for single message", async () => {
+      const { session } = injectMockSDK();
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig());
+      await agent.runWithContext([{ role: "user", content: "Hello" }]);
+
+      expect(session.sendAndWait).toHaveBeenCalledWith({ prompt: "Hello" });
+    });
   });
 
   // ── Permission Handling ────────────────────────────────────────
@@ -1130,6 +1156,159 @@ describe("Copilot Backend", () => {
       // Should still complete (abort is best-effort)
       await agent.run("test", { signal: ac.signal });
       expect(session.abort).toHaveBeenCalled();
+    });
+  });
+
+  // ── Persistent Session Mode ─────────────────────────────────────
+
+  describe("persistent session mode", () => {
+    it("should reuse the same session across multiple run() calls", async () => {
+      const { client, session } = injectMockSDK();
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
+
+      await agent.run("first message");
+      await agent.run("second message");
+
+      // Session created only once
+      expect(client.createSession).toHaveBeenCalledTimes(1);
+      // Both messages sent through the same session
+      expect(session.sendAndWait).toHaveBeenCalledTimes(2);
+      // Session not destroyed between calls
+      expect(session.destroy).not.toHaveBeenCalled();
+
+      agent.dispose();
+      expect(session.destroy).toHaveBeenCalledTimes(1);
+    });
+
+    it("should reuse the same session across multiple stream() calls", async () => {
+      const { client, session } = injectMockSDK({
+        events: [{
+          id: "text-1", timestamp: new Date().toISOString(), parentId: null,
+          type: "assistant.message_delta", data: { content: "hi" },
+        }],
+      });
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
+
+      // Consume first stream
+      for await (const _ of agent.stream("first")) { /* drain */ }
+      // Consume second stream
+      for await (const _ of agent.stream("second")) { /* drain */ }
+
+      expect(client.createSession).toHaveBeenCalledTimes(1);
+      expect(session.send).toHaveBeenCalledTimes(2);
+      expect(session.destroy).not.toHaveBeenCalled();
+
+      agent.dispose();
+      expect(session.destroy).toHaveBeenCalledTimes(1);
+    });
+
+    it("should send only last user message on subsequent persistent calls", async () => {
+      const { session } = injectMockSDK();
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
+
+      // First call (isNew=true): sends via buildContextualPrompt
+      await agent.run("first");
+
+      // Second call (isNew=false): should send only last user message
+      await agent.runWithContext([
+        { role: "user", content: "first" },
+        { role: "assistant", content: "response1" },
+        { role: "user", content: "second" },
+      ]);
+
+      expect(session.sendAndWait).toHaveBeenCalledTimes(2);
+      // First call: single message goes through buildContextualPrompt → plain prompt
+      expect(session.sendAndWait).toHaveBeenNthCalledWith(1, { prompt: "first" });
+      // Second call: persistent mode extracts only last user message
+      expect(session.sendAndWait).toHaveBeenNthCalledWith(2, { prompt: "second" });
+
+      agent.dispose();
+    });
+
+    it("should expose sessionId after first call in persistent mode", async () => {
+      injectMockSDK();
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
+
+      expect(agent.sessionId).toBeUndefined();
+
+      await agent.run("hello");
+
+      // The mock session has sessionId: "test-session-id"
+      expect(agent.sessionId).toBe("test-session-id");
+
+      agent.dispose();
+    });
+
+    it("should return undefined sessionId in per-call mode", async () => {
+      injectMockSDK();
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig()); // default per-call
+
+      await agent.run("hello");
+
+      expect(agent.sessionId).toBeUndefined();
+      agent.dispose();
+    });
+
+    it("should create fresh sessions in per-call mode (default)", async () => {
+      const { client, session } = injectMockSDK();
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig()); // default = per-call
+
+      await agent.run("first");
+      await agent.run("second");
+
+      // Two separate sessions created
+      expect(client.createSession).toHaveBeenCalledTimes(2);
+      // Each session destroyed after use
+      expect(session.destroy).toHaveBeenCalledTimes(2);
+
+      agent.dispose();
+    });
+
+    it("should recover from session errors by creating fresh session", async () => {
+      const { client, session } = injectMockSDK();
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
+
+      // First call succeeds
+      await agent.run("first");
+      expect(client.createSession).toHaveBeenCalledTimes(1);
+
+      // Make session.sendAndWait fail
+      session.sendAndWait = vi.fn(async () => { throw new Error("Session broken"); });
+
+      // Second call fails
+      await expect(agent.run("second")).rejects.toThrow("Session broken");
+
+      // Session should be cleared — next call creates a fresh one
+      session.sendAndWait = vi.fn(async () => ({
+        type: "assistant.message" as const,
+        data: { messageId: "msg-2", content: "recovered" },
+      }));
+
+      const result = await agent.run("third");
+      expect(result.output).toBe("recovered");
+      // Two sessions created total: first + recovery
+      expect(client.createSession).toHaveBeenCalledTimes(2);
+
+      agent.dispose();
+    });
+
+    it("should clear sessionId on dispose", async () => {
+      injectMockSDK();
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
+
+      await agent.run("hello");
+      expect(agent.sessionId).toBe("test-session-id");
+
+      agent.dispose();
+      expect(agent.sessionId).toBeUndefined();
     });
   });
 });

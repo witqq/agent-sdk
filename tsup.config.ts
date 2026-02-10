@@ -22,6 +22,7 @@ export default defineConfig([
       "backends/copilot": "src/backends/copilot.ts",
       "backends/claude": "src/backends/claude.ts",
       "backends/vercel-ai": "src/backends/vercel-ai.ts",
+      "auth/index": "src/auth/index.ts",
     },
     format: ["esm", "cjs"],
     dts: true,

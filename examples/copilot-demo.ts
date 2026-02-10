@@ -19,6 +19,7 @@ async function main() {
   const agent = service.createAgent({
     systemPrompt:
       "You are a helpful assistant. When asked about current events or news, use the search tool. Always respond concisely.",
+    sessionMode: "persistent",
     tools: [
       {
         name: "search_news",

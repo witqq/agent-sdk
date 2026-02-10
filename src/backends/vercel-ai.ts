@@ -601,9 +601,27 @@ class VercelAIAgentService implements IAgentService {
 
   async listModels(): Promise<ModelInfo[]> {
     if (this.disposed) throw new DisposedError("VercelAIAgentService");
-    // API-based backends can't easily enumerate models without provider-specific endpoints.
-    // Return empty array; callers should consult provider documentation.
-    return [];
+
+    const baseUrl = (this.options.baseUrl || "https://api.openai.com/v1").replace(/\/+$/, "");
+
+    try {
+      const res = await globalThis.fetch(`${baseUrl}/models`, {
+        headers: { Authorization: `Bearer ${this.options.apiKey}` },
+      });
+
+      if (!res.ok) {
+        return [];
+      }
+
+      const body = (await res.json()) as { data?: Array<{ id: string }> };
+      if (!body.data || body.data.length === 0) {
+        return [];
+      }
+
+      return body.data.map((m) => ({ id: m.id }));
+    } catch {
+      return [];
+    }
   }
 
   async validate(): Promise<ValidationResult> {

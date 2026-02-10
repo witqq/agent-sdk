@@ -77,6 +77,7 @@ interface SDKOptions {
   canUseTool?: SDKCanUseTool;
   cwd?: string;
   disallowedTools?: string[];
+  env?: { [envVar: string]: string | undefined };
   includePartialMessages?: boolean;
   maxTurns?: number;
   model?: string;
@@ -84,6 +85,8 @@ interface SDKOptions {
   pathToClaudeCodeExecutable?: string;
   permissionMode?: string;
   persistSession?: boolean;
+  resume?: string;
+  sessionId?: string;
   systemPrompt?:
     | string
     | { type: "preset"; preset: "claude_code"; append?: string };
@@ -195,12 +198,9 @@ export function _resetSDK(): void {
 
 // ─── Known Models ───────────────────────────────────────────────
 
-const CLAUDE_KNOWN_MODELS: Array<{ id: string; name: string }> = [
-  { id: "claude-sonnet-4-5-20250514", name: "Claude Sonnet 4.5" },
-  { id: "claude-haiku-3-5-20241022", name: "Claude 3.5 Haiku" },
-  { id: "claude-opus-4-20250514", name: "Claude Opus 4" },
-  { id: "claude-sonnet-4-20250514", name: "Claude Sonnet 4" },
-];
+const ANTHROPIC_MODELS_URL = "https://api.anthropic.com/v1/models";
+const ANTHROPIC_API_VERSION = "2023-06-01";
+const ANTHROPIC_OAUTH_BETA = "oauth-2025-04-20";
 
 // ─── Tool Mapping ───────────────────────────────────────────────
 
@@ -555,12 +555,15 @@ class ClaudeAgent extends BaseAgent {
   private readonly options: ClaudeBackendOptions;
   private readonly tools: ToolDefinition[];
   private readonly canUseTool: SDKCanUseTool | undefined;
+  private readonly isPersistent: boolean;
+  private _sessionId: string | undefined;
 
   constructor(config: AgentConfig, options: ClaudeBackendOptions) {
     super(config);
     this.options = options;
     this.tools = config.tools;
     this.canUseTool = buildCanUseTool(config);
+    this.isPersistent = config.sessionMode === "persistent";
 
     // Warn if onAskUser is set — Claude CLI SDK doesn't support user interaction hooks
     if (config.supervisor?.onAskUser) {
@@ -569,6 +572,15 @@ class ClaudeAgent extends BaseAgent {
         "User interaction requests from the model will not be forwarded.",
       );
     }
+  }
+
+  override get sessionId(): string | undefined {
+    return this._sessionId;
+  }
+
+  /** Clear persistent session state after an error so next call starts fresh */
+  private clearPersistentSession(): void {
+    this._sessionId = undefined;
   }
 
   private buildQueryOptions(signal: AbortSignal): SDKOptions {
@@ -582,13 +594,22 @@ class ClaudeAgent extends BaseAgent {
       maxTurns: this.options.maxTurns,
       cwd: this.options.workingDirectory,
       pathToClaudeCodeExecutable: this.options.cliPath,
-      persistSession: false,
+      persistSession: this.isPersistent,
       includePartialMessages: true,
       canUseTool: this.canUseTool,
     };
 
+    // Resume persistent session on subsequent calls
+    if (this.isPersistent && this._sessionId) {
+      opts.resume = this._sessionId;
+    }
+
     if (this.config.systemPrompt) {
       opts.systemPrompt = this.config.systemPrompt;
+    }
+
+    if (this.options.oauthToken) {
+      opts.env = { ...process.env, CLAUDE_CODE_OAUTH_TOKEN: this.options.oauthToken };
     }
 
     return opts;
@@ -620,7 +641,10 @@ class ClaudeAgent extends BaseAgent {
     this.checkAbort(signal);
 
     const sdk = await loadSDK();
-    const prompt = extractLastUserPrompt(messages);
+    const isResuming = this.isPersistent && this._sessionId !== undefined;
+    const prompt = isResuming
+      ? extractLastUserPrompt(messages)
+      : buildContextualPrompt(messages);
     let opts = this.buildQueryOptions(signal);
     const toolResultCapture = new Map<string, JSONValue>();
     opts = await this.buildMcpConfig(opts, toolResultCapture);
@@ -668,12 +692,15 @@ class ClaudeAgent extends BaseAgent {
           }
         }
 
-        // Capture result
+        // Capture result and session_id
         if (msg.type === "result") {
           if (msg.subtype === "success") {
             const r = msg as unknown as SDKResultSuccess;
             output = r.result;
             usage = aggregateUsage(r.modelUsage);
+            if (this.isPersistent && r.session_id) {
+              this._sessionId = r.session_id;
+            }
           } else if (msg.is_error) {
             const r = msg as unknown as SDKResultError;
             throw new Error(
@@ -683,6 +710,7 @@ class ClaudeAgent extends BaseAgent {
         }
       }
     } catch (e) {
+      if (this.isPersistent) this.clearPersistentSession();
       if (signal.aborted) throw new AbortError();
       throw e;
     }
@@ -712,7 +740,10 @@ class ClaudeAgent extends BaseAgent {
     this.checkAbort(signal);
 
     const sdk = await loadSDK();
-    const prompt = extractLastUserPrompt(messages);
+    const isResuming = this.isPersistent && this._sessionId !== undefined;
+    const prompt = isResuming
+      ? extractLastUserPrompt(messages)
+      : buildContextualPrompt(messages);
     let opts = this.buildQueryOptions(signal);
     opts = await this.buildMcpConfig(opts);
 
@@ -759,6 +790,9 @@ class ClaudeAgent extends BaseAgent {
           }
 
           usage = aggregateUsage(r.modelUsage);
+          if (this.isPersistent && r.session_id) {
+            this._sessionId = r.session_id;
+          }
         } else if (msg.type === "result" && msg.is_error) {
           const r = msg as unknown as SDKResultError;
           throw new Error(
@@ -767,6 +801,7 @@ class ClaudeAgent extends BaseAgent {
         }
       }
     } catch (e) {
+      if (this.isPersistent) this.clearPersistentSession();
       if (signal.aborted) throw new AbortError();
       throw e;
     }
@@ -795,7 +830,10 @@ class ClaudeAgent extends BaseAgent {
     this.checkAbort(signal);
 
     const sdk = await loadSDK();
-    const prompt = extractLastUserPrompt(messages);
+    const isResuming = this.isPersistent && this._sessionId !== undefined;
+    const prompt = isResuming
+      ? extractLastUserPrompt(messages)
+      : buildContextualPrompt(messages);
     let opts = this.buildQueryOptions(signal);
     opts = await this.buildMcpConfig(opts);
 
@@ -816,19 +854,24 @@ class ClaudeAgent extends BaseAgent {
           }
         }
 
-        // Emit done event on result
+        // Capture session_id and emit done event on result
         if (msg.type === "result" && msg.subtype === "success") {
           const r = msg as unknown as SDKResultSuccess;
+          if (this.isPersistent && r.session_id) {
+            this._sessionId = r.session_id;
+          }
           yield { type: "done", finalOutput: r.result };
         }
       }
     } catch (e) {
+      if (this.isPersistent) this.clearPersistentSession();
       if (signal.aborted) throw new AbortError();
       throw e;
     }
   }
 
   override dispose(): void {
+    this._sessionId = undefined;
     super.dispose();
   }
 }
@@ -845,7 +888,21 @@ function extractLastUserPrompt(messages: Message[]): string {
   return "";
 }
 
-// ─── ClaudeAgentService ─────────────────────────────────────────
+/** Build prompt with conversation history for CLI backends that create fresh sessions */
+function buildContextualPrompt(messages: Message[]): string {
+  if (messages.length <= 1) {
+    return extractLastUserPrompt(messages);
+  }
+
+  const history = messages.slice(0, -1).map((msg) => {
+    const text = msg.content ? getTextContent(msg.content) : "";
+    return msg.role === "user" ? `User: ${text}` : `Assistant: ${text}`;
+  }).join("\n");
+
+  const lastPrompt = extractLastUserPrompt(messages);
+
+  return `Conversation history:\n${history}\n\nUser: ${lastPrompt}`;
+}
 
 class ClaudeAgentService implements IAgentService {
   readonly name = "claude";
@@ -866,12 +923,37 @@ class ClaudeAgentService implements IAgentService {
     if (this.disposed) throw new DisposedError("ClaudeAgentService");
     if (this.cachedModels) return this.cachedModels;
 
-    // Return well-known Claude models without spawning a query subprocess.
-    // Claude SDK's supportedModels() requires a live query which costs API credits.
-    // The static list covers all publicly available Claude models.
-    this.cachedModels = CLAUDE_KNOWN_MODELS.map((m) => ({
+    const token = this.options.oauthToken;
+    if (!token) {
+      return [];
+    }
+
+    const res = await globalThis.fetch(
+      `${ANTHROPIC_MODELS_URL}?limit=100`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "anthropic-version": ANTHROPIC_API_VERSION,
+          "anthropic-beta": ANTHROPIC_OAUTH_BETA,
+        },
+      },
+    );
+
+    if (!res.ok) {
+      return [];
+    }
+
+    const body = (await res.json()) as {
+      data?: Array<{ id: string; display_name?: string }>;
+    };
+
+    if (!body.data || body.data.length === 0) {
+      return [];
+    }
+
+    this.cachedModels = body.data.map((m) => ({
       id: m.id,
-      name: m.name,
+      name: m.display_name,
       provider: "claude",
     }));
     return this.cachedModels;
@@ -896,7 +978,7 @@ class ClaudeAgentService implements IAgentService {
       const q = sdk.query({
         prompt: "echo test",
         options: {
-          model: CLAUDE_KNOWN_MODELS[0].id,
+          model: "claude-sonnet-4-20250514",
           pathToClaudeCodeExecutable: this.options.cliPath,
           cwd: this.options.workingDirectory,
           persistSession: false,

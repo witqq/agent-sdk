@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.4.0]
+
+### Auth Providers
+- `CopilotAuth` — programmatic GitHub Device Flow authentication (`startDeviceFlow()`)
+- `ClaudeAuth` — OAuth Authorization Code + PKCE authentication (`startOAuthFlow()`, `refreshToken()`)
+- `ClaudeAuth.extractCode()` — extracts authorization code from raw input, redirect URL, or `code#state` format
+- Auth token types: `AuthToken`, `CopilotAuthToken`, `ClaudeAuthToken`
+- Flow result types: `DeviceFlowResult`, `OAuthFlowResult`, `OAuthFlowOptions`
+- Error classes: `AuthError`, `DeviceCodeExpiredError`, `AccessDeniedError`, `TokenExchangeError`
+- `ClaudeBackendOptions.oauthToken` field for OAuth token passthrough
+- New entry point: `@witqq/agent-sdk/auth`
+
+### Persistent Sessions (CLI Backends)
+- `AgentConfig.sessionMode`: `"per-call"` (default) or `"persistent"`
+- Copilot: reuses `CopilotSession` across `run()`/`stream()` calls
+- Claude: captures `session_id` from events, passes it on subsequent calls
+- `agent.sessionId` getter for external session tracking
+- Auto-recovery: session cleared and recreated on error
+
+### Model Listing
+- Claude `listModels()` queries Anthropic `/v1/models` API with OAuth Bearer token (no more hardcoded models)
+- Vercel AI `listModels()` queries provider `/models` endpoint without hardcoded fallbacks
+- All backends return `[]` when model listing is unavailable
+
+### Interactive Demo
+- Web-based demo app (`examples/auth-demo/server.ts`) with HTTP UI at port 3456
+- CLI demo app (`examples/auth-demo/index.ts`) with interactive terminal prompts
+- Docker support with `docker-compose.yml` and token persistence via volumes
+- Provider selection, auth flows, model selection, streaming chat with conversation history
+- Base URL input for Vercel AI (OpenRouter, etc.)
+
 ## [0.2.0] — 2026-02-07
 
 ### Core
