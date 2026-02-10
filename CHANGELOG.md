@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.5.0]
+
+### Supervisor Migration Gaps
+- `session_info` streaming event: emits `sessionId`, `transcriptPath`, `backend` during streaming
+- Claude transcript path: `~/.claude/projects/.session/sessions/{id}/conversation.jsonl`
+- Copilot transcript path: `~/.copilot/session-state/{id}/events.jsonl`
+- `IAgent.interrupt()` method for graceful operation interruption
+- Claude backend: calls `SDKQuery.interrupt()` on active query
+- Copilot backend: calls `session.abort()` on active session
+- `ClaudeBackendOptions.env` and `CopilotBackendOptions.env` for custom subprocess environment
+- Claude env merge order: `process.env` → custom `env` → `oauthToken`
+- Copilot env forwarded to `CopilotClient` constructor
+- `permissionMode` auto-set to `"default"` when `canUseTool` callback is configured
+
 ## [0.4.0]
 
 ### Auth Providers
