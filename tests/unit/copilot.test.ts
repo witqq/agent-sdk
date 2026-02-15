@@ -834,6 +834,59 @@ describe("Copilot Backend", () => {
       expect(thinkingEnds).toHaveLength(0);
     });
 
+    it("should ignore duplicate reasoning events after thinking completes (SDK replay)", async () => {
+      // Copilot SDK sends reasoning_delta during streaming, then replays
+      // the full reasoning as assistant.reasoning after the response.
+      // We must only emit thinking events once.
+      const events: MockSessionEvent[] = [
+        // Phase 1: streaming reasoning
+        {
+          id: "e1",
+          timestamp: new Date().toISOString(),
+          parentId: null,
+          type: "assistant.reasoning_delta",
+          data: { reasoningId: "r1", deltaContent: "Let me think..." },
+        },
+        // Phase 2: response text (ends thinking)
+        {
+          id: "e2",
+          timestamp: new Date().toISOString(),
+          parentId: null,
+          ephemeral: true,
+          type: "assistant.message_delta",
+          data: { messageId: "m1", deltaContent: "Hello!" },
+        },
+        // Phase 3: SDK replays full reasoning (should be ignored)
+        {
+          id: "e3",
+          timestamp: new Date().toISOString(),
+          parentId: null,
+          type: "assistant.reasoning",
+          data: { reasoningId: "r1", content: "Let me think..." },
+        },
+      ];
+
+      injectMockSDK({ events });
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig());
+
+      const collected: import("../../src/types.js").AgentEvent[] = [];
+      for await (const event of agent.stream("test")) {
+        collected.push(event);
+      }
+
+      // Only one thinking block should be emitted
+      const thinkingStarts = collected.filter((e) => e.type === "thinking_start");
+      const thinkingDeltas = collected.filter((e) => e.type === "thinking_delta");
+      const thinkingEnds = collected.filter((e) => e.type === "thinking_end");
+      const textDeltas = collected.filter((e) => e.type === "text_delta");
+
+      expect(thinkingStarts).toHaveLength(1);
+      expect(thinkingDeltas).toHaveLength(1);
+      expect(thinkingEnds).toHaveLength(1);
+      expect(textDeltas).toHaveLength(1);
+    });
+
     it("should track tool call IDs across start/complete events", async () => {
       const events: MockSessionEvent[] = [
         {

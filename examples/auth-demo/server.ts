@@ -354,23 +354,92 @@ async function selectModel(model) {
 
 async function sendMessage(e) {
   e.preventDefault();
-  const input = document.getElementById('chat-input');
-  const text = input.value.trim();
+  var input = document.getElementById('chat-input');
+  var text = input.value.trim();
   if (!text) return;
   input.value = '';
+  input.disabled = true;
   addMsg('user', 'You: ' + text);
 
-  const result = await api('/agent/chat', { message: text });
-  if (result.error) {
-    addMsg('error', 'Error: ' + result.error);
-  } else {
-    if (result.thinking) {
-      var el = document.getElementById('messages');
-      el.innerHTML += '<div class="msg-thinking"><details><summary>Thinking</summary><pre>' + escapeHtml(result.thinking) + '</pre></details></div>';
-      el.scrollTop = el.scrollHeight;
+  var msgs = document.getElementById('messages');
+  var agentEl = null;
+  var thinkingEl = null;
+  var thinkingPre = null;
+
+  try {
+    var res = await fetch('/api/agent/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text }),
+    });
+
+    var reader = res.body.getReader();
+    var decoder = new TextDecoder();
+    var buffer = '';
+
+    while (true) {
+      var chunk = await reader.read();
+      if (chunk.done) break;
+      buffer += decoder.decode(chunk.value, { stream: true });
+
+      var lines = buffer.split('\\n');
+      buffer = lines.pop() || '';
+
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        if (!line.startsWith('data: ')) continue;
+        var evt;
+        try { evt = JSON.parse(line.slice(6)); } catch(_) { continue; }
+
+        if (evt.type === 'thinking_start') {
+          thinkingEl = document.createElement('div');
+          thinkingEl.className = 'msg-thinking';
+          var details = document.createElement('details');
+          details.open = true;
+          var summary = document.createElement('summary');
+          summary.textContent = 'Thinking...';
+          thinkingPre = document.createElement('pre');
+          details.appendChild(summary);
+          details.appendChild(thinkingPre);
+          thinkingEl.appendChild(details);
+          msgs.appendChild(thinkingEl);
+          msgs.scrollTop = msgs.scrollHeight;
+        } else if (evt.type === 'thinking_delta' && evt.text) {
+          if (thinkingPre) {
+            thinkingPre.textContent += evt.text;
+            msgs.scrollTop = msgs.scrollHeight;
+          }
+        } else if (evt.type === 'thinking_end') {
+          if (thinkingEl) {
+            thinkingEl.querySelector('summary').textContent = 'Thinking';
+            thinkingEl.querySelector('details').open = false;
+          }
+          thinkingEl = null;
+          thinkingPre = null;
+        } else if (evt.type === 'text_delta' && evt.text) {
+          if (!agentEl) {
+            agentEl = document.createElement('div');
+            agentEl.className = 'msg-agent';
+            agentEl.textContent = 'Agent: ';
+            msgs.appendChild(agentEl);
+          }
+          agentEl.textContent += evt.text;
+          msgs.scrollTop = msgs.scrollHeight;
+        } else if (evt.type === 'error') {
+          addMsg('error', 'Error: ' + (evt.text || 'Unknown error'));
+        }
+      }
     }
-    addMsg('agent', 'Agent: ' + (result.response || '(no response)'));
+
+    if (!agentEl && !thinkingEl) {
+      addMsg('agent', 'Agent: (no response)');
+    }
+  } catch (err) {
+    addMsg('error', 'Error: ' + (err.message || String(err)));
   }
+
+  input.disabled = false;
+  input.focus();
 }
 
 async function switchProvider() {
@@ -522,30 +591,47 @@ async function handleAgentCreate(model?: string): Promise<Record<string, unknown
   return { ok: true, provider: state.provider };
 }
 
-async function handleChat(message: string): Promise<Record<string, unknown>> {
-  if (!state.agent) return { error: "No active agent" };
+async function handleChatStream(message: string, res: http.ServerResponse): Promise<void> {
+  if (!state.agent) {
+    res.writeHead(200, {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      "Connection": "keep-alive",
+    });
+    res.write(`data: ${JSON.stringify({ type: "error", text: "No active agent" })}\n\n`);
+    res.end();
+    return;
+  }
 
   state.messages.push({ role: "user", content: message });
 
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    "Connection": "keep-alive",
+  });
+
   let response = "";
-  let thinking = "";
-  let hasThinking = false;
-  for await (const event of state.agent.streamWithContext(state.messages)) {
-    if (event.type === "text_delta" && event.text) {
-      response += event.text;
-    } else if (event.type === "thinking_start") {
-      hasThinking = true;
-      thinking = "";
-    } else if (event.type === "thinking_delta" && event.text) {
-      thinking += event.text;
+  try {
+    for await (const event of state.agent.streamWithContext(state.messages)) {
+      if (event.type === "text_delta" && event.text) {
+        response += event.text;
+        res.write(`data: ${JSON.stringify({ type: "text_delta", text: event.text })}\n\n`);
+      } else if (event.type === "thinking_start") {
+        res.write(`data: ${JSON.stringify({ type: "thinking_start" })}\n\n`);
+      } else if (event.type === "thinking_delta" && event.text) {
+        res.write(`data: ${JSON.stringify({ type: "thinking_delta", text: event.text })}\n\n`);
+      } else if (event.type === "thinking_end") {
+        res.write(`data: ${JSON.stringify({ type: "thinking_end" })}\n\n`);
+      }
     }
+  } catch (err) {
+    res.write(`data: ${JSON.stringify({ type: "error", text: (err as Error).message })}\n\n`);
   }
 
   state.messages.push({ role: "assistant", content: response || "(no response)" });
-  return {
-    response: response || "(no text response)",
-    ...(hasThinking ? { thinking } : {}),
-  };
+  res.write(`data: ${JSON.stringify({ type: "done" })}\n\n`);
+  res.end();
 }
 
 async function handleDispose(): Promise<Record<string, unknown>> {
@@ -613,8 +699,8 @@ const server = http.createServer(async (req, res) => {
           json(res, await handleAgentCreate(body.model));
           break;
         case "/api/agent/chat":
-          json(res, await handleChat(body.message));
-          break;
+          await handleChatStream(body.message, res);
+          return;
         case "/api/agent/dispose":
           json(res, await handleDispose());
           break;
