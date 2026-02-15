@@ -351,12 +351,18 @@ function mapSessionEvent(
     }
 
     case "assistant.reasoning":
-    case "assistant.reasoning_delta":
+    case "assistant.reasoning_delta": {
+      const events: AgentEvent[] = [];
       if (!thinkingTracker.isActive()) {
         thinkingTracker.startThinking();
-        return { type: "thinking_start" };
+        events.push({ type: "thinking_start" });
       }
-      return null;
+      const reasoningText = String(data.deltaContent ?? data.content ?? "");
+      if (reasoningText) {
+        events.push({ type: "thinking_delta", text: reasoningText });
+      }
+      return events.length === 1 ? events[0] : events.length > 1 ? events : null;
+    }
 
     case "tool.execution_start": {
       const toolCallId = String(data.toolCallId ?? "");
@@ -678,6 +684,10 @@ class CopilotAgent extends BaseAgent {
       }
 
       if (event.type === "session.idle") {
+        // Close any open thinking block before completing the stream
+        if (thinkingTracker.endThinking()) {
+          push({ event: { type: "thinking_end" } });
+        }
         push({ done: true });
       } else if (event.type === "session.error") {
         push({

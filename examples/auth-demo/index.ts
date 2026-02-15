@@ -201,6 +201,12 @@ async function chatLoop(agent: IAgent) {
         if (event.type === "text_delta" && event.text) {
           process.stdout.write(event.text);
           hasOutput = true;
+        } else if (event.type === "thinking_start") {
+          process.stdout.write("\n[thinking] ");
+        } else if (event.type === "thinking_delta" && event.text) {
+          process.stdout.write(event.text);
+        } else if (event.type === "thinking_end") {
+          process.stdout.write(" [/thinking]\n");
         }
       }
 

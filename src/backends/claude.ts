@@ -488,11 +488,24 @@ function mapSDKMessage(msg: SDKMessage, thinkingBlockIndices?: Set<number>, tool
       // Partial streaming events — BetaRawMessageStreamEvent
       const event = msg.event as {
         type: string;
-        delta?: { type: string; text?: string };
+        delta?: { type: string; text?: string; thinking?: string };
         content_block?: { type: string; name?: string; id?: string };
         index?: number;
       } | undefined;
       if (!event) return null;
+
+      // Thinking block deltas — emit thinking_delta instead of text_delta
+      if (
+        event.type === "content_block_delta" &&
+        event.index !== undefined &&
+        thinkingBlockIndices?.has(event.index)
+      ) {
+        const thinkingText = String(event.delta?.thinking ?? event.delta?.text ?? "");
+        if (thinkingText) {
+          return { type: "thinking_delta", text: thinkingText };
+        }
+        return null;
+      }
 
       if (
         event.type === "content_block_delta" &&

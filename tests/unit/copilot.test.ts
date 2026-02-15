@@ -704,6 +704,136 @@ describe("Copilot Backend", () => {
       expect(thinkEvents.length).toBeGreaterThanOrEqual(1);
     });
 
+    it("should yield thinking_delta with text from reasoning_delta events", async () => {
+      const events: MockSessionEvent[] = [
+        {
+          id: "e1",
+          timestamp: new Date().toISOString(),
+          parentId: null,
+          type: "assistant.reasoning_delta",
+          data: { reasoningId: "r1", deltaContent: "Let me think about this..." },
+        },
+        {
+          id: "e2",
+          timestamp: new Date().toISOString(),
+          parentId: null,
+          type: "assistant.reasoning_delta",
+          data: { reasoningId: "r1", deltaContent: "The answer is 42." },
+        },
+        {
+          id: "e3",
+          timestamp: new Date().toISOString(),
+          parentId: null,
+          ephemeral: true,
+          type: "assistant.message_delta",
+          data: { messageId: "m1", deltaContent: "The answer is 42." },
+        },
+      ];
+
+      injectMockSDK({ events });
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig());
+
+      const collected: import("../../src/types.js").AgentEvent[] = [];
+      for await (const event of agent.stream("test")) {
+        collected.push(event);
+      }
+
+      // Should have: thinking_start, thinking_delta x2, thinking_end, text_delta
+      const thinkingStarts = collected.filter((e) => e.type === "thinking_start");
+      const thinkingDeltas = collected.filter((e) => e.type === "thinking_delta");
+      const thinkingEnds = collected.filter((e) => e.type === "thinking_end");
+      const textDeltas = collected.filter((e) => e.type === "text_delta");
+
+      expect(thinkingStarts).toHaveLength(1);
+      expect(thinkingDeltas).toHaveLength(2);
+      expect((thinkingDeltas[0] as { text: string }).text).toBe("Let me think about this...");
+      expect((thinkingDeltas[1] as { text: string }).text).toBe("The answer is 42.");
+      expect(thinkingEnds).toHaveLength(1);
+      expect(textDeltas).toHaveLength(1);
+    });
+
+    it("should yield thinking_delta with text from reasoning events (content field)", async () => {
+      const events: MockSessionEvent[] = [
+        {
+          id: "e1",
+          timestamp: new Date().toISOString(),
+          parentId: null,
+          type: "assistant.reasoning",
+          data: { reasoningId: "r1", content: "Full reasoning text" },
+        },
+      ];
+
+      injectMockSDK({ events });
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig());
+
+      const collected: import("../../src/types.js").AgentEvent[] = [];
+      for await (const event of agent.stream("test")) {
+        collected.push(event);
+      }
+
+      const thinkingDeltas = collected.filter((e) => e.type === "thinking_delta");
+      expect(thinkingDeltas).toHaveLength(1);
+      expect((thinkingDeltas[0] as { text: string }).text).toBe("Full reasoning text");
+    });
+
+    it("should emit thinking_end before done on session.idle when thinking is active", async () => {
+      const events: MockSessionEvent[] = [
+        {
+          id: "e1",
+          timestamp: new Date().toISOString(),
+          parentId: null,
+          type: "assistant.reasoning_delta",
+          data: { reasoningId: "r1", deltaContent: "Thinking..." },
+        },
+        // session.idle will be automatically appended by mock send()
+      ];
+
+      injectMockSDK({ events });
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig());
+
+      const collected: import("../../src/types.js").AgentEvent[] = [];
+      for await (const event of agent.stream("test")) {
+        collected.push(event);
+      }
+
+      // thinking_end must appear before done (or before stream ends)
+      const thinkingEndIdx = collected.findIndex((e) => e.type === "thinking_end");
+      expect(thinkingEndIdx).toBeGreaterThanOrEqual(0);
+
+      // Verify thinking_start came first
+      const thinkingStartIdx = collected.findIndex((e) => e.type === "thinking_start");
+      expect(thinkingStartIdx).toBeGreaterThanOrEqual(0);
+      expect(thinkingStartIdx).toBeLessThan(thinkingEndIdx);
+    });
+
+    it("should not emit thinking_end on session.idle when thinking is not active", async () => {
+      const events: MockSessionEvent[] = [
+        {
+          id: "e1",
+          timestamp: new Date().toISOString(),
+          parentId: null,
+          ephemeral: true,
+          type: "assistant.message_delta",
+          data: { messageId: "m1", deltaContent: "Hello" },
+        },
+      ];
+
+      injectMockSDK({ events });
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig());
+
+      const collected: import("../../src/types.js").AgentEvent[] = [];
+      for await (const event of agent.stream("test")) {
+        collected.push(event);
+      }
+
+      const thinkingEnds = collected.filter((e) => e.type === "thinking_end");
+      expect(thinkingEnds).toHaveLength(0);
+    });
+
     it("should track tool call IDs across start/complete events", async () => {
       const events: MockSessionEvent[] = [
         {
