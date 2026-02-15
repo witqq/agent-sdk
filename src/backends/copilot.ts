@@ -313,9 +313,15 @@ class ToolCallTracker {
  */
 class ThinkingTracker {
   private active = false;
+  private completed = false;
 
   isActive(): boolean {
     return this.active;
+  }
+
+  /** Returns true if thinking already completed (should ignore further reasoning events). */
+  isCompleted(): boolean {
+    return this.completed;
   }
 
   startThinking(): void {
@@ -326,7 +332,14 @@ class ThinkingTracker {
   endThinking(): boolean {
     if (!this.active) return false;
     this.active = false;
+    this.completed = true;
     return true;
+  }
+
+  /** Reset for next turn (e.g. after done event). */
+  reset(): void {
+    this.active = false;
+    this.completed = false;
   }
 }
 
@@ -352,6 +365,9 @@ function mapSessionEvent(
 
     case "assistant.reasoning":
     case "assistant.reasoning_delta": {
+      // Skip duplicate reasoning events — SDK replays full reasoning after response
+      if (thinkingTracker.isCompleted()) return null;
+
       const events: AgentEvent[] = [];
       if (!thinkingTracker.isActive()) {
         thinkingTracker.startThinking();
