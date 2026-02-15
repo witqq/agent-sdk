@@ -10,7 +10,7 @@ Shared interfaces for tools, permissions, streaming, structured output.
 
 ```bash
 npm run build     # tsup → ESM + CJS + DTS
-npm run test      # vitest (417 tests)
+npm run test      # vitest (424+ tests)
 npm run typecheck # tsc --noEmit
 ```
 
@@ -56,6 +56,7 @@ Backends extend and implement `executeRun`, `executeRunStructured`, `executeStre
 - `clearPersistentSession()`: error recovery — clears broken session so next call creates fresh one
 - `sessionId` getter: exposes CLI session ID for persistent mode tracking
 - `ToolCallTracker`: maps `toolCallId` → `toolName` (SDK's `tool.execution_complete` lacks name)
+- `ThinkingTracker`: tracks reasoning state, emits `thinking_start`/`thinking_delta`/`thinking_end` from `assistant.reasoning_delta` events
 - `mapToolsToSDK()`: `ToolDefinition[]` → SDK `Tool[]` with `zodToJsonSchema`
 - `buildPermissionHandler()`: `SupervisorHooks.onPermission` → SDK `onPermissionRequest` (auto-approve default)
 - `buildUserInputHandler()`: `SupervisorHooks.onAskUser` → SDK `onUserInputRequest` (auto-answer default)
@@ -73,6 +74,7 @@ Backends extend and implement `executeRun`, `executeRunStructured`, `executeStre
 - Structured output: prompt augmentation + JSON parsing from response text
 - Persistent sessions: `sessionMode: "persistent"` → captures `session_id` from result, passes `resume: sessionId` on subsequent calls, `persistSession: true`
 - Error recovery: `clearPersistentSession()` on errors, next call starts fresh
+- `thinkingBlockIndices`: Set<number> tracks thinking content block indices for `thinking_start`/`thinking_delta`/`thinking_end` emission from stream events
 - `onAskUser` not supported (warning emitted if set)
 - Test injection: `_injectSDK()` / `_resetSDK()`
 
@@ -115,6 +117,6 @@ No token storage — returns tokens, app stores them.
 
 ## Testing
 
-- Unit: vitest (`tests/unit/`), 411 tests
+- Unit: vitest (`tests/unit/`), 424+ tests
 - Integration: vitest (`tests/integration/`) — requires real CLI authentication
 - Use cheap models for integration tests (`gpt-4.1`)

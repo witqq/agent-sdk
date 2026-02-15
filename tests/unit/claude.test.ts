@@ -955,6 +955,145 @@ describe("Claude Backend", () => {
       expect(events.some((e) => e.type === "thinking_start")).toBe(true);
     });
 
+    it("should yield thinking_delta with text from thinking block content_block_delta events", async () => {
+      injectMockSDK([
+        {
+          type: "stream_event",
+          event: {
+            type: "content_block_start",
+            index: 0,
+            content_block: { type: "thinking" },
+          },
+        },
+        {
+          type: "stream_event",
+          event: {
+            type: "content_block_delta",
+            index: 0,
+            delta: { type: "thinking_delta", thinking: "Let me reason" },
+          },
+        },
+        {
+          type: "stream_event",
+          event: {
+            type: "content_block_delta",
+            index: 0,
+            delta: { type: "thinking_delta", thinking: " about this problem" },
+          },
+        },
+        {
+          type: "stream_event",
+          event: {
+            type: "content_block_stop",
+            index: 0,
+          },
+        },
+        successResult("ok"),
+      ]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      const events: AgentEvent[] = [];
+      for await (const e of agent.stream("test")) events.push(e);
+
+      const thinkingDeltas = events.filter((e) => e.type === "thinking_delta");
+      expect(thinkingDeltas).toHaveLength(2);
+      expect((thinkingDeltas[0] as { text: string }).text).toBe("Let me reason");
+      expect((thinkingDeltas[1] as { text: string }).text).toBe(" about this problem");
+    });
+
+    it("should yield full thinking sequence: thinking_start → thinking_delta → thinking_end", async () => {
+      injectMockSDK([
+        {
+          type: "stream_event",
+          event: {
+            type: "content_block_start",
+            index: 0,
+            content_block: { type: "thinking" },
+          },
+        },
+        {
+          type: "stream_event",
+          event: {
+            type: "content_block_delta",
+            index: 0,
+            delta: { type: "thinking_delta", thinking: "reasoning text" },
+          },
+        },
+        {
+          type: "stream_event",
+          event: {
+            type: "content_block_stop",
+            index: 0,
+          },
+        },
+        {
+          type: "stream_event",
+          event: {
+            type: "content_block_start",
+            index: 1,
+            content_block: { type: "text" },
+          },
+        },
+        {
+          type: "stream_event",
+          event: {
+            type: "content_block_delta",
+            index: 1,
+            delta: { type: "text_delta", text: "The answer is 42" },
+          },
+        },
+        successResult("The answer is 42"),
+      ]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      const events: AgentEvent[] = [];
+      for await (const e of agent.stream("test")) events.push(e);
+
+      const thinkingStart = events.findIndex((e) => e.type === "thinking_start");
+      const thinkingDelta = events.findIndex((e) => e.type === "thinking_delta");
+      const thinkingEnd = events.findIndex((e) => e.type === "thinking_end");
+      const textDelta = events.findIndex((e) => e.type === "text_delta");
+
+      expect(thinkingStart).toBeGreaterThanOrEqual(0);
+      expect(thinkingDelta).toBeGreaterThan(thinkingStart);
+      expect(thinkingEnd).toBeGreaterThan(thinkingDelta);
+      expect(textDelta).toBeGreaterThan(thinkingEnd);
+      expect((events[thinkingDelta] as { text: string }).text).toBe("reasoning text");
+      expect((events[textDelta] as { text: string }).text).toBe("The answer is 42");
+    });
+
+    it("should not emit thinking_delta for non-thinking content_block_delta (regression)", async () => {
+      injectMockSDK([
+        {
+          type: "stream_event",
+          event: {
+            type: "content_block_start",
+            index: 0,
+            content_block: { type: "text" },
+          },
+        },
+        {
+          type: "stream_event",
+          event: {
+            type: "content_block_delta",
+            index: 0,
+            delta: { type: "text_delta", text: "regular text" },
+          },
+        },
+        successResult("regular text"),
+      ]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      const events: AgentEvent[] = [];
+      for await (const e of agent.stream("test")) events.push(e);
+
+      expect(events.some((e) => e.type === "thinking_delta")).toBe(false);
+      expect(events.some((e) => e.type === "thinking_start")).toBe(false);
+      const textDeltas = events.filter((e) => e.type === "text_delta");
+      expect(textDeltas).toHaveLength(1);
+      expect((textDeltas[0] as { text: string }).text).toBe("regular text");
+    });
+
     it("should map tool_progress to tool_call_start", async () => {
       injectMockSDK([
         { type: "tool_progress", tool_name: "search" },

@@ -103,6 +103,10 @@ const HTML = `<!DOCTYPE html>
     border: 1px solid #30363d; border-radius: 6px; margin-bottom: 12px; font-family: monospace; font-size: 13px; }
   .msg-user { color: #58a6ff; margin: 8px 0; }
   .msg-agent { color: #c9d1d9; margin: 8px 0; white-space: pre-wrap; }
+  .msg-thinking { margin: 8px 0; }
+  .msg-thinking details { background: #1c2128; border: 1px solid #30363d; border-radius: 6px; padding: 4px 8px; }
+  .msg-thinking summary { color: #8b949e; cursor: pointer; font-size: 12px; padding: 4px 0; }
+  .msg-thinking pre { color: #8b949e; font-size: 12px; white-space: pre-wrap; margin: 4px 0; max-height: 300px; overflow-y: auto; }
   .msg-error { color: #f85149; margin: 8px 0; }
   #chat-form { display: flex; gap: 8px; }
   #chat-form input { flex: 1; }
@@ -360,6 +364,11 @@ async function sendMessage(e) {
   if (result.error) {
     addMsg('error', 'Error: ' + result.error);
   } else {
+    if (result.thinking) {
+      var el = document.getElementById('messages');
+      el.innerHTML += '<div class="msg-thinking"><details><summary>Thinking</summary><pre>' + escapeHtml(result.thinking) + '</pre></details></div>';
+      el.scrollTop = el.scrollHeight;
+    }
     addMsg('agent', 'Agent: ' + (result.response || '(no response)'));
   }
 }
@@ -519,14 +528,24 @@ async function handleChat(message: string): Promise<Record<string, unknown>> {
   state.messages.push({ role: "user", content: message });
 
   let response = "";
+  let thinking = "";
+  let hasThinking = false;
   for await (const event of state.agent.streamWithContext(state.messages)) {
     if (event.type === "text_delta" && event.text) {
       response += event.text;
+    } else if (event.type === "thinking_start") {
+      hasThinking = true;
+      thinking = "";
+    } else if (event.type === "thinking_delta" && event.text) {
+      thinking += event.text;
     }
   }
 
   state.messages.push({ role: "assistant", content: response || "(no response)" });
-  return { response: response || "(no text response)" };
+  return {
+    response: response || "(no text response)",
+    ...(hasThinking ? { thinking } : {}),
+  };
 }
 
 async function handleDispose(): Promise<Record<string, unknown>> {
