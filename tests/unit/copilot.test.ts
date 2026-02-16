@@ -958,6 +958,85 @@ describe("Copilot Backend", () => {
     });
   });
 
+  // ── Done event null behavior ─────────────────────────────────────
+
+  describe("done event null behavior", () => {
+    it("should return null finalOutput when content is absent", async () => {
+      const events: MockSessionEvent[] = [
+        {
+          id: "e1",
+          timestamp: new Date().toISOString(),
+          parentId: null,
+          type: "assistant.message",
+          data: { messageId: "m1", content: null },
+        },
+      ];
+
+      injectMockSDK({ events });
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig());
+
+      const collected: import("../../src/types.js").AgentEvent[] = [];
+      for await (const event of agent.stream("test")) {
+        collected.push(event);
+      }
+
+      const doneEvents = collected.filter((e) => e.type === "done");
+      expect(doneEvents).toHaveLength(1);
+      expect((doneEvents[0] as { finalOutput: string | null }).finalOutput).toBeNull();
+    });
+
+    it("should return null finalOutput when content is empty string", async () => {
+      const events: MockSessionEvent[] = [
+        {
+          id: "e1",
+          timestamp: new Date().toISOString(),
+          parentId: null,
+          type: "assistant.message",
+          data: { messageId: "m1", content: "" },
+        },
+      ];
+
+      injectMockSDK({ events });
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig());
+
+      const collected: import("../../src/types.js").AgentEvent[] = [];
+      for await (const event of agent.stream("test")) {
+        collected.push(event);
+      }
+
+      const doneEvents = collected.filter((e) => e.type === "done");
+      expect(doneEvents).toHaveLength(1);
+      expect((doneEvents[0] as { finalOutput: string | null }).finalOutput).toBeNull();
+    });
+
+    it("should return string finalOutput when content is present", async () => {
+      const events: MockSessionEvent[] = [
+        {
+          id: "e1",
+          timestamp: new Date().toISOString(),
+          parentId: null,
+          type: "assistant.message",
+          data: { messageId: "m1", content: "Hello world" },
+        },
+      ];
+
+      injectMockSDK({ events });
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig());
+
+      const collected: import("../../src/types.js").AgentEvent[] = [];
+      for await (const event of agent.stream("test")) {
+        collected.push(event);
+      }
+
+      const doneEvents = collected.filter((e) => e.type === "done");
+      expect(doneEvents).toHaveLength(1);
+      expect((doneEvents[0] as { finalOutput: string | null }).finalOutput).toBe("Hello world");
+    });
+  });
+
   // ── Structured Output ──────────────────────────────────────────
 
   describe("runStructured()", () => {

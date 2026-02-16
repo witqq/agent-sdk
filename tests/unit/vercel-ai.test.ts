@@ -836,6 +836,234 @@ describe("VercelAIAgent.stream", () => {
     expect(errorEvent!.error).toBe("Something failed");
     expect(errorEvent!.recoverable).toBe(false);
   });
+
+  it("should exclude intermediate reasoning from finalOutput in multi-step stream", async () => {
+    const sdk = createMockSDK({
+      streamParts: [
+        // Step 1: model reasons then calls a tool
+        { type: "text-delta", text: "Let me search for that...", id: "t1" },
+        { type: "tool-call", toolName: "search", toolCallId: "tc-1", input: { q: "news" } },
+        { type: "tool-result", toolName: "search", toolCallId: "tc-1", output: "result-1" },
+        { type: "finish-step", usage: { inputTokens: 50, outputTokens: 20 }, finishReason: "tool-calls" },
+        // Step 2: model reasons again, calls another tool
+        { type: "text-delta", text: "That wasn't great, trying again...", id: "t2" },
+        { type: "tool-call", toolName: "search", toolCallId: "tc-2", input: { q: "latest news" } },
+        { type: "tool-result", toolName: "search", toolCallId: "tc-2", output: "result-2" },
+        { type: "finish-step", usage: { inputTokens: 60, outputTokens: 30 }, finishReason: "tool-calls" },
+        // Step 3: final response
+        { type: "text-delta", text: "Here are the results: ...", id: "t3" },
+        { type: "finish-step", usage: { inputTokens: 40, outputTokens: 25 }, finishReason: "stop" },
+      ],
+    });
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+
+    const events: Array<Record<string, unknown>> = [];
+    for await (const event of agent.stream("Find news")) {
+      events.push(event as Record<string, unknown>);
+    }
+
+    const doneEvent = events.find((e) => e.type === "done");
+    expect(doneEvent).toBeDefined();
+    // Only the last step's text should appear in finalOutput
+    expect(doneEvent!.finalOutput).toBe("Here are the results: ...");
+    // Intermediate reasoning should NOT be in the output
+    expect(doneEvent!.finalOutput).not.toContain("Let me search");
+    expect(doneEvent!.finalOutput).not.toContain("trying again");
+  });
+
+  it("should handle single-step stream without intermediate text issues", async () => {
+    // Default stream parts: single step with text-delta, finish-step (stop)
+    const sdk = createMockSDK();
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+
+    const events: Array<Record<string, unknown>> = [];
+    for await (const event of agent.stream("Hello")) {
+      events.push(event as Record<string, unknown>);
+    }
+
+    const doneEvent = events.find((e) => e.type === "done");
+    expect(doneEvent).toBeDefined();
+    expect(doneEvent!.finalOutput).toBe("Hello world!");
+  });
+
+  it("should handle multi-step stream with empty intermediate text", async () => {
+    const sdk = createMockSDK({
+      streamParts: [
+        // Step 1: no text, just tool call
+        { type: "tool-call", toolName: "search", toolCallId: "tc-1", input: { q: "test" } },
+        { type: "tool-result", toolName: "search", toolCallId: "tc-1", output: "found" },
+        { type: "finish-step", usage: { inputTokens: 30, outputTokens: 10 }, finishReason: "tool-calls" },
+        // Step 2: final text only
+        { type: "text-delta", text: "Final answer", id: "t1" },
+        { type: "finish-step", usage: { inputTokens: 20, outputTokens: 15 }, finishReason: "stop" },
+      ],
+    });
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+
+    const events: Array<Record<string, unknown>> = [];
+    for await (const event of agent.stream("Test")) {
+      events.push(event as Record<string, unknown>);
+    }
+
+    const doneEvent = events.find((e) => e.type === "done");
+    expect(doneEvent).toBeDefined();
+    expect(doneEvent!.finalOutput).toBe("Final answer");
+  });
+
+  it("should fallback to null when last step has no text in stream", async () => {
+    const sdk = createMockSDK({
+      streamParts: [
+        // Step 1: reasoning then tool call
+        { type: "text-delta", text: "Thinking...", id: "t1" },
+        { type: "tool-call", toolName: "action", toolCallId: "tc-1", input: {} },
+        { type: "tool-result", toolName: "action", toolCallId: "tc-1", output: "done" },
+        { type: "finish-step", usage: { inputTokens: 30, outputTokens: 10 }, finishReason: "tool-calls" },
+        // Step 2: no text at all (tool-only)
+        { type: "tool-call", toolName: "action", toolCallId: "tc-2", input: {} },
+        { type: "tool-result", toolName: "action", toolCallId: "tc-2", output: "done2" },
+        { type: "finish-step", usage: { inputTokens: 20, outputTokens: 5 }, finishReason: "tool-calls" },
+      ],
+    });
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+
+    const events: Array<Record<string, unknown>> = [];
+    for await (const event of agent.stream("Test")) {
+      events.push(event as Record<string, unknown>);
+    }
+
+    const doneEvent = events.find((e) => e.type === "done");
+    expect(doneEvent).toBeDefined();
+    // All steps ended with tool-calls, so finalText was reset each time → null
+    expect(doneEvent!.finalOutput).toBeNull();
+  });
+});
+
+// ─── Multi-step run output isolation ────────────────────────────
+
+describe("VercelAIAgent.run multi-step output", () => {
+  it("should use last step text and exclude intermediate reasoning in run", async () => {
+    const sdk = createMockSDK({
+      generateTextResult: {
+        text: "Let me search...Here are the results",
+        toolCalls: [{ toolCallId: "tc-1", toolName: "search", input: { q: "news" } }],
+        toolResults: [{ toolCallId: "tc-1", toolName: "search", output: "result-1" }],
+        steps: [
+          {
+            text: "Let me search...",
+            toolCalls: [{ toolCallId: "tc-1", toolName: "search", input: { q: "news" } }],
+            toolResults: [{ toolCallId: "tc-1", toolName: "search", output: "result-1" }],
+            usage: { inputTokens: 100, outputTokens: 50 },
+            finishReason: "tool-calls",
+          },
+          {
+            text: "Here are the results",
+            toolCalls: [],
+            toolResults: [],
+            usage: { inputTokens: 200, outputTokens: 100 },
+            finishReason: "stop",
+          },
+        ],
+        totalUsage: { inputTokens: 300, outputTokens: 150 },
+        finishReason: "stop",
+        response: { messages: [] },
+      },
+    });
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+    const result = await agent.run("Find news");
+
+    // Should use last step's text, not the concatenated result.text
+    expect(result.output).toBe("Here are the results");
+    expect(result.output).not.toContain("Let me search");
+  });
+
+  it("should return null when last step has no text in run (no fallback to result.text)", async () => {
+    const sdk = createMockSDK({
+      generateTextResult: {
+        text: "Intermediate reasoning that leaked",
+        toolCalls: [],
+        toolResults: [],
+        steps: [
+          {
+            text: "",
+            toolCalls: [],
+            toolResults: [],
+            usage: { inputTokens: 50, outputTokens: 20 },
+            finishReason: "stop",
+          },
+        ],
+        totalUsage: { inputTokens: 50, outputTokens: 20 },
+        finishReason: "stop",
+        response: { messages: [] },
+      },
+    });
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+    const result = await agent.run("Test");
+
+    // Last step text is empty — must return null, NOT fall back to result.text
+    // which contains concatenated intermediate reasoning from all steps
+    expect(result.output).toBeNull();
+  });
+
+  it("should return null when no text available in run", async () => {
+    const sdk = createMockSDK({
+      generateTextResult: {
+        text: "",
+        toolCalls: [],
+        toolResults: [],
+        steps: [
+          {
+            text: "",
+            toolCalls: [],
+            toolResults: [],
+            usage: { inputTokens: 50, outputTokens: 20 },
+            finishReason: "stop",
+          },
+        ],
+        totalUsage: { inputTokens: 50, outputTokens: 20 },
+        finishReason: "stop",
+        response: { messages: [] },
+      },
+    });
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+    const result = await agent.run("Test");
+
+    expect(result.output).toBeNull();
+  });
 });
 
 // ─── Structured Output ──────────────────────────────────────────

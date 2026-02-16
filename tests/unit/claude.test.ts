@@ -568,6 +568,25 @@ describe("Claude Backend", () => {
       });
       expect(result.structuredOutput).toBeUndefined();
     });
+
+    it("should collect tool calls during structured runs", async () => {
+      injectMockSDK([
+        toolUseMessage("search", { q: "news" }),
+        successResult('{"headlines":["Found"]}', {
+          structured_output: { headlines: ["Found"] },
+        }),
+      ]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      const result = await agent.runStructured("Get news", {
+        name: "news",
+        schema: NewsSchema,
+      });
+      expect(result.structuredOutput).toEqual({ headlines: ["Found"] });
+      expect(result.toolCalls).toHaveLength(1);
+      expect(result.toolCalls[0].toolName).toBe("search");
+      expect(result.toolCalls[0].args).toEqual({ q: "news" });
+    });
   });
 
   // ── Streaming ──────────────────────────────────────────────────
