@@ -10,7 +10,7 @@ Shared interfaces for tools, permissions, streaming, structured output.
 
 ```bash
 npm run build     # tsup → ESM + CJS + DTS
-npm run test      # vitest (424+ tests)
+npm run test      # vitest (428+ tests)
 npm run typecheck # tsc --noEmit
 ```
 
@@ -56,6 +56,7 @@ Backends extend and implement `executeRun`, `executeRunStructured`, `executeStre
 - `clearPersistentSession()`: error recovery — clears broken session so next call creates fresh one
 - `sessionId` getter: exposes CLI session ID for persistent mode tracking
 - `ToolCallTracker`: maps `toolCallId` → `toolName` (SDK's `tool.execution_complete` lacks name)
+- Tool event parsing: `tool.execution_start` args parsed from JSON string; `tool.execution_complete` result unwrapped from `{ content: ... }` wrapper
 - `ThinkingTracker`: tracks reasoning state, emits `thinking_start`/`thinking_delta`/`thinking_end` from `assistant.reasoning_delta` events
 - `mapToolsToSDK()`: `ToolDefinition[]` → SDK `Tool[]` with `zodToJsonSchema`
 - `buildPermissionHandler()`: `SupervisorHooks.onPermission` → SDK `onPermissionRequest` (auto-approve default)
@@ -70,7 +71,10 @@ Backends extend and implement `executeRun`, `executeRunStructured`, `executeStre
 `ClaudeAgentService` wraps `@anthropic-ai/claude-agent-sdk` (optional peer dep).
 - `query()` call with async iterator for streaming events
 - `buildCanUseTool()`: `SupervisorHooks.onPermission` → SDK `canUseTool` callback
-- `buildMcpConfig()` / `buildMcpServer()`: converts ToolDefinitions to MCP tool format
+- `buildMcpConfig()` / `buildMcpServer()`: converts ToolDefinitions to MCP tool format (Zod shape, not JSON Schema), auto-populates `allowedTools` with `mcp__agent-sdk-tools__<name>` entries
+- `stripMcpPrefix()`: normalizes MCP tool names (removes `mcp__agent-sdk-tools__` prefix) in all tool events
+- `tool_progress` handling: returns `null` (heartbeat, not a tool call start)
+- `tool_use_summary`: always emits `tool_call_end` even with empty summary
 - Structured output: prompt augmentation + JSON parsing from response text
 - Persistent sessions: `sessionMode: "persistent"` → captures `session_id` from result, passes `resume: sessionId` on subsequent calls, `persistSession: true`
 - Error recovery: `clearPersistentSession()` on errors, next call starts fresh
@@ -81,11 +85,14 @@ Backends extend and implement `executeRun`, `executeRunStructured`, `executeStre
 ### Vercel AI Backend (`src/backends/vercel-ai.ts`)
 
 `VercelAIAgentService` wraps Vercel AI SDK v6 (`ai` + `@ai-sdk/openai-compatible`).
-- `generateText()` for runs with multi-step tool loop
+- Local SDK type definitions match v6 API: `input`/`output` (not v5 `args`/`result`), discriminated `SDKStreamPart` union
+- `generateText()` for runs with multi-step tool loop (`stopWhen: stepCountIs(n)`)
 - `generateObject()` for structured output with Zod schema validation
 - `streamText()` with `fullStream` iteration for streaming
-- `mapToolsToSDK()`: converts ToolDefinitions to Vercel AI tool format
+- `mapStreamPart()`: converts SDK stream parts to `AgentEvent` using `Extract<>` type narrowing
+- `mapToolsToSDK()`: converts ToolDefinitions to Vercel AI tool format (`inputSchema` via `sdk.jsonSchema()`)
 - `wrapToolExecute()`: permission checks before tool execution
+- `providerOptions` passthrough from `AgentConfig` to all SDK calls (e.g. `{ google: { thinkingConfig: { thinkingBudget: 1024 } } }`)
 - `onAskUser` supported via injected `ask_user` tool
 - `listModels()`: tries `/models` endpoint via fetch, falls back to OpenAI presets for `openai.com` base URL, returns empty for unknown providers
 - No subprocess management — pure API calls
@@ -117,6 +124,6 @@ No token storage — returns tokens, app stores them.
 
 ## Testing
 
-- Unit: vitest (`tests/unit/`), 424+ tests
+- Unit: vitest (`tests/unit/`), 428+ tests
 - Integration: vitest (`tests/integration/`) — requires real CLI authentication
 - Use cheap models for integration tests (`gpt-4.1`)

@@ -286,12 +286,10 @@ describe("Copilot Backend", () => {
       expect(sessionConfig.tools).toHaveLength(1);
       expect(sessionConfig.tools[0].name).toBe("search");
       expect(sessionConfig.tools[0].description).toBe("Search the web");
-      // Parameters should be JSON schema (toMatchObject handles Zod v4 extra fields like $schema)
-      expect(sessionConfig.tools[0].parameters).toMatchObject({
-        type: "object",
-        properties: { query: { type: "string" } },
-        required: expect.arrayContaining(["query"]),
-      });
+      // Parameters should be passed as Zod schema directly (SDK accepts ZodSchema natively)
+      const params = sessionConfig.tools[0].parameters;
+      expect(params).toBeDefined();
+      expect(params._zod).toBeDefined(); // Zod schema marker
     });
 
     it("should call tool handler and return stringified result", async () => {

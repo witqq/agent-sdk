@@ -105,11 +105,12 @@ function createMockSDK(opts?: MockSDKOptions) {
     generateObject: vi.fn(async () => opts?.generateObjectResult ?? defaultGenerateObjectResult),
     tool: vi.fn((toolOpts: Record<string, unknown>) => ({
       description: toolOpts.description,
-      parameters: toolOpts.parameters,
+      inputSchema: toolOpts.inputSchema,
       execute: toolOpts.execute,
       needsApproval: toolOpts.needsApproval,
     })),
     jsonSchema: vi.fn((schema: unknown) => schema),
+    stepCountIs: vi.fn((count: number) => ({ type: "stepCount", count })),
   };
 
   return sdk;
@@ -357,13 +358,13 @@ describe("VercelAIAgent.run with tools", () => {
     const sdk = createMockSDK({
       generateTextResult: {
         text: "Done",
-        toolCalls: [{ toolCallId: "tc-1", toolName: "greet", args: { name: "Alice" } }],
-        toolResults: [{ toolCallId: "tc-1", toolName: "greet", result: "Hello Alice!" }],
+        toolCalls: [{ toolCallId: "tc-1", toolName: "greet", input: { name: "Alice" } }],
+        toolResults: [{ toolCallId: "tc-1", toolName: "greet", output: "Hello Alice!" }],
         steps: [
           {
             text: "",
-            toolCalls: [{ toolCallId: "tc-1", toolName: "greet", args: { name: "Alice" } }],
-            toolResults: [{ toolCallId: "tc-1", toolName: "greet", result: "Hello Alice!" }],
+            toolCalls: [{ toolCallId: "tc-1", toolName: "greet", input: { name: "Alice" } }],
+            toolResults: [{ toolCallId: "tc-1", toolName: "greet", output: "Hello Alice!" }],
             usage: { inputTokens: 200, outputTokens: 100 },
             finishReason: "tool-calls",
           },
@@ -675,8 +676,8 @@ describe("VercelAIAgent.stream", () => {
   it("should stream tool events", async () => {
     const sdk = createMockSDK({
       streamParts: [
-        { type: "tool-call", toolName: "greet", toolCallId: "tc-1", args: { name: "Bob" } },
-        { type: "tool-result", toolName: "greet", toolCallId: "tc-1", result: "Hi Bob!" },
+        { type: "tool-call", toolName: "greet", toolCallId: "tc-1", input: { name: "Bob" } },
+        { type: "tool-result", toolName: "greet", toolCallId: "tc-1", output: "Hi Bob!" },
         { type: "text-delta", text: "Done", id: "t1" },
         { type: "finish-step", usage: { inputTokens: 50, outputTokens: 20 }, finishReason: "stop" },
       ],
@@ -780,10 +781,10 @@ describe("VercelAIAgent.stream", () => {
   it("should propagate toolCallId consistently between start and end", async () => {
     const sdk = createMockSDK({
       streamParts: [
-        { type: "tool-call", toolName: "search", toolCallId: "tc-abc", args: { q: "first" } },
-        { type: "tool-result", toolName: "search", toolCallId: "tc-abc", result: "result-1" },
-        { type: "tool-call", toolName: "fetch", toolCallId: "tc-def", args: { url: "http://x" } },
-        { type: "tool-result", toolName: "fetch", toolCallId: "tc-def", result: "result-2" },
+        { type: "tool-call", toolName: "search", toolCallId: "tc-abc", input: { q: "first" } },
+        { type: "tool-result", toolName: "search", toolCallId: "tc-abc", output: "result-1" },
+        { type: "tool-call", toolName: "fetch", toolCallId: "tc-def", input: { url: "http://x" } },
+        { type: "tool-result", toolName: "fetch", toolCallId: "tc-def", output: "result-2" },
         { type: "text-delta", text: "Done", id: "t1" },
         { type: "finish-step", usage: { inputTokens: 50, outputTokens: 20 }, finishReason: "stop" },
       ],

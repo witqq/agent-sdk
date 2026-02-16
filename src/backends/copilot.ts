@@ -1,3 +1,4 @@
+import type { z } from "zod";
 import type {
   IAgent,
   IAgentService,
@@ -43,7 +44,7 @@ interface SDKClientOptions {
 interface SDKTool {
   name: string;
   description?: string;
-  parameters?: Record<string, unknown>;
+  parameters?: z.ZodType | Record<string, unknown>;
   handler: (
     args: unknown,
     invocation: {
@@ -190,7 +191,9 @@ function mapToolsToSDK(tools: ToolDefinition[]): SDKTool[] {
   return tools.map((tool) => ({
     name: tool.name,
     description: tool.description,
-    parameters: zodToJsonSchema(tool.parameters),
+    // Pass Zod schema directly — Copilot SDK accepts ZodSchema natively
+    // and handles conversion internally, avoiding potential schema format issues.
+    parameters: tool.parameters,
     handler: async (args: unknown): Promise<unknown> => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = await tool.execute(args as any);
@@ -383,26 +386,37 @@ function mapSessionEvent(
     case "tool.execution_start": {
       const toolCallId = String(data.toolCallId ?? "");
       const toolName = String(data.toolName ?? "unknown");
-      const args = (data.arguments as JSONValue) ?? {};
+      let args: JSONValue = {};
+      if (typeof data.arguments === "string") {
+        try { args = JSON.parse(data.arguments); } catch { args = data.arguments as JSONValue; }
+      } else if (data.arguments != null) {
+        args = data.arguments as JSONValue;
+      }
       tracker.trackStart(toolCallId, toolName, args);
       const toolStartEvent: AgentEvent = { type: "tool_call_start", toolCallId, toolName, args };
+      const events: AgentEvent[] = [];
       if (thinkingTracker.endThinking()) {
-        return [{ type: "thinking_end" }, toolStartEvent];
+        events.push({ type: "thinking_end" });
       }
-      return toolStartEvent;
+      // Reset completed flag so next turn's thinking is captured
+      thinkingTracker.reset();
+      events.push(toolStartEvent);
+      return events.length === 1 ? events[0] : events;
     }
 
     case "tool.execution_complete": {
       const toolCallId = String(data.toolCallId ?? "");
       const info = tracker.getInfo(toolCallId);
-      const resultContent = (
-        data.result as Record<string, unknown> | undefined
-      )?.content;
+      const rawResult = data.result as Record<string, unknown> | JSONValue | undefined;
+      // Copilot SDK wraps result in { content: ... } — unwrap if present
+      const result = (rawResult && typeof rawResult === "object" && "content" in rawResult
+        ? rawResult.content
+        : rawResult) as JSONValue ?? null;
       return {
         type: "tool_call_end",
         toolCallId,
         toolName: info?.toolName ?? "unknown",
-        result: (resultContent as JSONValue) ?? null,
+        result,
       };
     }
 
@@ -414,6 +428,7 @@ function mapSessionEvent(
       };
 
     case "session.error":
+      console.error("[copilot] mapSessionEvent error:", JSON.stringify(data));
       return {
         type: "error",
         error: String(data.message ?? "Unknown error"),
@@ -706,6 +721,7 @@ class CopilotAgent extends BaseAgent {
         }
         push({ done: true });
       } else if (event.type === "session.error") {
+        console.error("[copilot] session.error:", JSON.stringify(event.data));
         push({
           error: new Error(
             String(event.data.message ?? "Session error"),

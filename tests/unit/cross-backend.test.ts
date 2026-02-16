@@ -224,11 +224,12 @@ function createVercelMock(opts?: {
     })),
     tool: vi.fn((toolOpts: Record<string, unknown>) => ({
       description: toolOpts.description,
-      parameters: toolOpts.parameters,
+      inputSchema: toolOpts.inputSchema,
       execute: toolOpts.execute,
       needsApproval: toolOpts.needsApproval,
     })),
     jsonSchema: vi.fn((schema: unknown) => schema),
+    stepCountIs: vi.fn((count: number) => ({ type: "stepCount", count })),
   };
 
   const compat = {

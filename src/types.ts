@@ -254,6 +254,10 @@ export interface AgentConfig {
    *  "persistent": reuses the same CLI session across calls, preserving conversation
    *  history natively in the CLI backend. Session is destroyed on agent dispose(). */
   sessionMode?: "per-call" | "persistent";
+  /** Provider-specific options passed through to the underlying SDK.
+   *  For Vercel AI: passed as providerOptions to generateText/streamText.
+   *  Example: { google: { thinkingConfig: { thinkingBudget: 1024 } } } */
+  providerOptions?: Record<string, Record<string, unknown>>;
 }
 
 // ─── Agent Result (Generic) ────────────────────────────────────
