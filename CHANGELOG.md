@@ -1,5 +1,100 @@
 # Changelog
 
+## [0.6.0]
+
+### ⚠️ Breaking Changes (Vercel AI Backend)
+
+This release updates the Vercel AI backend to SDK v6. If you use the Vercel AI backend, your code may need changes.
+
+**Vercel AI SDK v6 renamed these APIs:**
+
+| Before (v5) | After (v6) | Where |
+|---|---|---|
+| `parameters` | `inputSchema` | Tool schema registration |
+| `maxSteps` | `stopWhen` + `stepCountIs()` | Multi-step loop control |
+| `args` | `input` | Tool call stream parts, `toolCalls[]` in result |
+| `result` | `output` | Tool result stream parts, `toolResults[]` in result |
+
+**If you access `AgentResult.toolCalls`:** the `args` and `result` fields are unchanged in our public API (`AgentResult` type). No action needed — the rename is internal to the SDK adapter.
+
+**If you use `providerOptions`:** this is a new feature (see below).
+
+**If you mock the SDK in tests:** update mock data to use `input`/`output` instead of `args`/`result`.
+
+Before:
+```typescript
+const mockResult = {
+  toolCalls: [{ toolCallId: "tc-1", toolName: "search", args: { query: "test" } }],
+  toolResults: [{ toolCallId: "tc-1", toolName: "search", result: "found" }],
+};
+const mockStream = [
+  { type: "tool-call", toolCallId: "tc-1", toolName: "search", args: { query: "test" } },
+  { type: "tool-result", toolCallId: "tc-1", toolName: "search", result: "found" },
+];
+```
+
+After:
+```typescript
+const mockResult = {
+  toolCalls: [{ toolCallId: "tc-1", toolName: "search", input: { query: "test" } }],
+  toolResults: [{ toolCallId: "tc-1", toolName: "search", output: "found" }],
+};
+const mockStream = [
+  { type: "tool-call", toolCallId: "tc-1", toolName: "search", input: { query: "test" } },
+  { type: "tool-result", toolCallId: "tc-1", toolName: "search", output: "found" },
+];
+```
+
+### Vercel AI Backend — Type Safety
+
+All internal SDK type definitions rewritten:
+- `SDKStreamPart`: discriminated union with 11 typed variants (was `{ type: string; [key: string]: any }`)
+- `SDKGenerateTextResult`: typed `input`/`output` fields (was `any`)
+- `SDKToolDefinition`: typed `unknown` params (was `any`)
+- `SDKLanguageModel`: `Record<string, unknown>` (was `any`)
+- `mapStreamPart()`: `Extract<>` narrowing per case branch (was untyped property access)
+
+### Vercel AI Backend — `providerOptions`
+
+New `AgentConfig.providerOptions` field passes model-specific options to Vercel AI SDK calls (`generateText`, `streamText`, `generateObject`).
+
+```typescript
+const agent = service.createAgent({
+  model: "google/gemini-2.0-flash",
+  systemPrompt: "Think step by step.",
+  providerOptions: {
+    google: { thinkingConfig: { thinkingBudget: 1024 } },
+  },
+});
+```
+
+Type: `Record<string, Record<string, unknown>>`. Ignored by Copilot and Claude backends.
+
+### Tool Event Normalization
+
+All three backends now emit consistent `tool_call_start` and `tool_call_end` events:
+
+**Copilot:**
+- `tool.execution_start`: `data.arguments` parsed from JSON string when SDK sends string instead of object
+- `tool.execution_complete`: `data.result` unwrapped from `{ content: ... }` wrapper when present
+
+**Claude:**
+- `stripMcpPrefix()`: removes `mcp__agent-sdk-tools__` prefix from tool names in all events (`tool_call_start`, `tool_call_end`, permission requests)
+- `tool_progress`: no longer emits spurious `tool_call_start` with empty args (was a heartbeat, not a tool call)
+- `tool_use_summary`: always emits `tool_call_end` even when summary text is empty (previously dropped the event)
+- `buildMcpServer()`: passes Zod shape (`zodSchema.shape`) instead of JSON Schema to SDK `tool()` — fixes MCP tool handler registration
+
+### Claude Backend — `allowedTools`
+
+`buildMcpConfig()` auto-populates `allowedTools` with MCP-format tool names (`mcp__agent-sdk-tools__<name>`). Without this, Claude Code CLI blocked MCP tools from executing.
+
+### Web Demo
+
+- Filterable model dropdown (text input filters `<select>` options)
+- Vercel AI token persistence includes `baseUrl` for OpenRouter
+- Docker volume: `external: true` with named `agent-sdk-tokens` volume
+- Tool display: shows args and results in UI (previously empty for Vercel AI)
+
 ## [0.5.0]
 
 ### Supervisor Migration Gaps

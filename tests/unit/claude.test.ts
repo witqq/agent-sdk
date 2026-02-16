@@ -77,6 +77,17 @@ function toolUseMessage(name: string, input: Record<string, unknown>) {
   };
 }
 
+/** Stream text via content_block_delta (as real Claude SDK does) */
+function streamTextDelta(text: string) {
+  return {
+    type: "stream_event" as const,
+    event: {
+      type: "content_block_delta",
+      delta: { type: "text_delta", text },
+    },
+  };
+}
+
 interface MockSDKModule {
   query: ReturnType<typeof vi.fn>;
   createSdkMcpServer: ReturnType<typeof vi.fn>;
@@ -658,6 +669,27 @@ describe("Claude Backend", () => {
         args: { query: "ai" },
       });
     });
+
+    it("should strip MCP prefix from tool names in events", async () => {
+      injectMockSDK([
+        toolUseMessage("mcp__agent-sdk-tools__search", { query: "ai" }),
+        successResult("done"),
+      ]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      const events = [];
+      for await (const event of agent.stream("test")) {
+        events.push(event);
+      }
+      const toolEvents = events.filter((e) => e.type === "tool_call_start");
+      expect(toolEvents).toHaveLength(1);
+      expect(toolEvents[0]).toEqual({
+        type: "tool_call_start",
+        toolCallId: "tu-1",
+        toolName: "search",
+        args: { query: "ai" },
+      });
+    });
   });
 
   // ── Tool Mapping ───────────────────────────────────────────────
@@ -692,6 +724,24 @@ describe("Claude Backend", () => {
       const agent = service.createAgent(makeConfig({ tools: [] }));
       await agent.run("test");
       expect(sdk.createSdkMcpServer).not.toHaveBeenCalled();
+    });
+
+    it("should auto-populate allowedTools with MCP tool names", async () => {
+      const sdk = injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      await agent.run("test");
+      const opts = sdk.query.mock.calls[0][0].options;
+      expect(opts.allowedTools).toEqual(["mcp__agent-sdk-tools__search"]);
+    });
+
+    it("should not set allowedTools when no tools", async () => {
+      const sdk = injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig({ tools: [] }));
+      await agent.run("test");
+      const opts = sdk.query.mock.calls[0][0].options;
+      expect(opts.allowedTools).toBeUndefined();
     });
 
     it("should execute tool handler and return text content", async () => {
@@ -927,6 +977,7 @@ describe("Claude Backend", () => {
   describe("Event Mapping", () => {
     it("should map assistant text to text_delta", async () => {
       injectMockSDK([
+        streamTextDelta("Hi there"),
         assistantMessage("Hi there"),
         successResult("Hi there"),
       ]);
@@ -934,7 +985,9 @@ describe("Claude Backend", () => {
       const agent = service.createAgent(makeConfig());
       const events = [];
       for await (const e of agent.stream("test")) events.push(e);
-      expect(events.some((e) => e.type === "text_delta")).toBe(true);
+      const textDeltas = events.filter((e) => e.type === "text_delta");
+      expect(textDeltas).toHaveLength(1);
+      expect((textDeltas[0] as { text: string }).text).toBe("Hi there");
     });
 
     it("should map thinking block to thinking_start", async () => {
@@ -1094,7 +1147,7 @@ describe("Claude Backend", () => {
       expect((textDeltas[0] as { text: string }).text).toBe("regular text");
     });
 
-    it("should map tool_progress to tool_call_start", async () => {
+    it("should ignore tool_progress events (heartbeat, not a tool call)", async () => {
       injectMockSDK([
         { type: "tool_progress", tool_name: "search" },
         successResult("ok"),
@@ -1104,7 +1157,7 @@ describe("Claude Backend", () => {
       const events = [];
       for await (const e of agent.stream("test")) events.push(e);
       const toolEvents = events.filter((e) => e.type === "tool_call_start");
-      expect(toolEvents).toHaveLength(1);
+      expect(toolEvents).toHaveLength(0);
     });
 
     it("should ignore unknown message types", async () => {
@@ -1241,6 +1294,7 @@ describe("Claude Backend", () => {
 
     it("should emit both text_delta and tool_call_start from mixed content", async () => {
       injectMockSDK([
+        streamTextDelta("Let me search for that."),
         {
           type: "assistant",
           message: {

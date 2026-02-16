@@ -370,11 +370,12 @@ describe("VercelAI auto-approval with permissionStore", () => {
       generateObject: vi.fn(async () => ({ object: {}, usage: { inputTokens: 0, outputTokens: 0 } })),
       tool: vi.fn((opts: Record<string, unknown>) => ({
         description: opts.description,
-        parameters: opts.parameters,
+        inputSchema: opts.inputSchema,
         execute: opts.execute,
         needsApproval: opts.needsApproval,
       })),
       jsonSchema: vi.fn((s: unknown) => s),
+      stepCountIs: vi.fn((count: number) => ({ type: "stepCount", count })),
     };
   }
 

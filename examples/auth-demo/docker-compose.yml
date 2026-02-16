@@ -17,3 +17,5 @@ services:
 
 volumes:
   demo-tokens:
+    name: agent-sdk-tokens
+    external: true

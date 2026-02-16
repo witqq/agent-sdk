@@ -367,6 +367,18 @@ const agent = service.createAgent({
 
 Uses `generateText()` for runs, `generateObject()` for structured output, `streamText()` for streaming. Supports `supervisor.onAskUser` via an injected `ask_user` tool.
 
+Pass model-specific options via `providerOptions`:
+
+```typescript
+const agent = service.createAgent({
+  model: "google/gemini-2.0-flash",
+  systemPrompt: "Think step by step.",
+  providerOptions: {
+    google: { thinkingConfig: { thinkingBudget: 1024 } },
+  },
+});
+```
+
 ## Switching Backends
 
 All backends share the same `AgentConfig` and return the same `AgentResult`. To switch backends, change only the service creation:
@@ -492,17 +504,17 @@ interface CopilotAuthToken extends AuthToken {
 
 ## Interactive Demo
 
-A web-based interactive demo showcasing all backends with authentication is in `examples/auth-demo/`.
+An interactive demo for testing multi-turn conversations across all backends is in `examples/auth-demo/`.
 
 ```bash
-# Run in Docker (web UI at http://localhost:3456)
-docker compose -f examples/auth-demo/docker-compose.yml up
-
-# Run locally (CLI mode)
+# CLI mode
 npx tsx examples/auth-demo/index.ts
+
+# Web UI via Docker (http://localhost:3456)
+docker compose -f examples/auth-demo/docker-compose.yml up
 ```
 
-Features: provider selection, auth flows (Device Flow, OAuth+PKCE, API key), model selection, streaming chat with conversation history, token persistence across container restarts, and provider switching.
+Features: backend selection, auth flows (Device Flow, OAuth+PKCE, API key), multi-turn chat with persistent sessions, 7 keyboard shortcuts for common test messages, 3 demo tools (search, calculator, format with approval), streaming event display with ANSI colors, per-turn statistics, and provider switching.
 
 ## License
 

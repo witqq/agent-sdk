@@ -70,6 +70,20 @@ type SDKCanUseTool = (
   },
 ) => Promise<SDKPermissionResult>;
 
+/** @internal MCP server name used when registering agent-sdk tools */
+const MCP_SERVER_NAME = "agent-sdk-tools";
+const MCP_TOOL_PREFIX = `mcp__${MCP_SERVER_NAME}__`;
+
+/** @internal Claude Code MCP tool naming convention: mcp__<server>__<tool> */
+function mcpToolName(toolName: string): string {
+  return `${MCP_TOOL_PREFIX}${toolName}`;
+}
+
+/** @internal Strip MCP prefix to recover original tool name */
+function stripMcpPrefix(name: string): string {
+  return name.startsWith(MCP_TOOL_PREFIX) ? name.slice(MCP_TOOL_PREFIX.length) : name;
+}
+
 /** @internal Claude SDK Options */
 interface SDKOptions {
   abortController?: AbortController;
@@ -211,14 +225,17 @@ function buildMcpServer(
 ): SDKMcpServerConfigWithInstance | undefined {
   if (tools.length === 0) return undefined;
 
-  const mcpTools = tools.map((tool) =>
-    sdk.tool(
+  const mcpTools = tools.map((tool) => {
+    // Claude SDK's tool() expects a Zod raw shape ({key: z.string(), ...}),
+    // not a JSON Schema object. Extract .shape from ZodObject.
+    const zodSchema = tool.parameters as { shape?: Record<string, unknown> };
+    const inputSchema = zodSchema.shape ?? zodToJsonSchema(tool.parameters) as Record<string, unknown>;
+    return sdk.tool(
       tool.name,
       tool.description ?? "",
-      zodToJsonSchema(tool.parameters) as Record<string, unknown>,
+      inputSchema,
       async (args: Record<string, unknown>) => {
         const result = await tool.execute(args);
-        // Capture result for AgentResult.toolCalls
         if (toolResultCapture) {
           toolResultCapture.set(tool.name, result as JSONValue);
         }
@@ -231,11 +248,11 @@ function buildMcpServer(
           ],
         };
       },
-    ),
-  );
+    );
+  });
 
   return sdk.createSdkMcpServer({
-    name: "agent-sdk-tools",
+    name: MCP_SERVER_NAME,
     version: "1.0.0",
     tools: mcpTools,
   });
@@ -289,10 +306,11 @@ function buildCanUseTool(
   const permissionStore = config.permissionStore;
 
   return async (
-    toolName: string,
+    rawToolName: string,
     input: Record<string, unknown>,
     options,
   ): Promise<SDKPermissionResult> => {
+    const toolName = stripMcpPrefix(rawToolName);
     // Check store first — if already approved, skip callback
     if (permissionStore && await permissionStore.isApproved(toolName)) {
       return {
@@ -416,21 +434,15 @@ function mapSDKMessage(msg: SDKMessage, thinkingBlockIndices?: Set<number>, tool
 
       const events: AgentEvent[] = [];
 
-      // Extract text content from the message
-      const textParts = betaMessage.content
-        .filter((b) => b.type === "text" && b.text)
-        .map((b) => b.text!)
-        .join("");
-
-      if (textParts) {
-        events.push({ type: "text_delta", text: textParts });
-      }
-
       // Emit tool_call_start for each tool_use block
+      // NOTE: Text content is NOT extracted here — during streaming it arrives
+      // via content_block_delta events, and during executeRun it comes from
+      // the result message. Emitting text from assistant messages would cause
+      // duplication.
       for (const block of betaMessage.content) {
         if (block.type === "tool_use") {
           const toolCallId = String(block.id ?? "");
-          const toolName = block.name ?? "unknown";
+          const toolName = stripMcpPrefix(block.name ?? "unknown");
           if (toolCallTracker) {
             toolCallTracker.trackStart(toolCallId, toolName);
           }
@@ -461,7 +473,7 @@ function mapSDKMessage(msg: SDKMessage, thinkingBlockIndices?: Set<number>, tool
     case "tool_use_summary": {
       // Emitted after tool execution — contains summary of tool results
       const summary = msg.summary as string | undefined;
-      const toolName = (msg.tool_name as string | undefined) ?? "unknown";
+      const toolName = stripMcpPrefix((msg.tool_name as string | undefined) ?? "unknown");
       // Resolve toolCallId: prefer preceding_tool_use_ids, fall back to tracker
       const precedingIds = msg.preceding_tool_use_ids as string[] | undefined;
       let toolCallId = "";
@@ -472,16 +484,13 @@ function mapSDKMessage(msg: SDKMessage, thinkingBlockIndices?: Set<number>, tool
       } else if (toolCallTracker) {
         toolCallId = toolCallTracker.consumeToolCallId(toolName);
       }
-      // Emit as tool_call_end with summary as result
-      if (summary) {
-        return {
-          type: "tool_call_end",
-          toolCallId,
-          toolName,
-          result: summary as JSONValue,
-        };
-      }
-      return null;
+      // Always emit tool_call_end — summary may be empty
+      return {
+        type: "tool_call_end",
+        toolCallId,
+        toolName,
+        result: (summary ?? null) as JSONValue,
+      };
     }
 
     case "stream_event": {
@@ -531,10 +540,8 @@ function mapSDKMessage(msg: SDKMessage, thinkingBlockIndices?: Set<number>, tool
     }
 
     case "tool_progress": {
-      const toolName = msg.tool_name as string | undefined;
-      if (!toolName) return null;
-      const toolCallId = toolCallTracker?.peekToolCallId(toolName) ?? "";
-      return { type: "tool_call_start", toolCallId, toolName, args: {} };
+      // Heartbeat while tool is executing — not a new tool call
+      return null;
     }
 
     case "result": {
@@ -658,6 +665,12 @@ class ClaudeAgent extends BaseAgent {
       opts.permissionMode = "default";
     }
 
+    // When availableTools is set, restrict to only those tools.
+    // MCP tool names are added later by buildMcpConfig().
+    if (this.config.availableTools) {
+      opts.allowedTools = [...this.config.availableTools];
+    }
+
     return opts;
   }
 
@@ -671,8 +684,12 @@ class ClaudeAgent extends BaseAgent {
     const mcpServer = buildMcpServer(sdk, this.tools, toolResultCapture);
     if (mcpServer) {
       opts.mcpServers = {
-        "agent-sdk-tools": mcpServer,
+        [MCP_SERVER_NAME]: mcpServer,
       };
+      // Auto-allow MCP tools so Claude Code invokes them without blocking.
+      // Claude Code names MCP tools as mcp__<server>__<tool>.
+      const mcpToolNames = this.tools.map((t) => mcpToolName(t.name));
+      opts.allowedTools = [...(opts.allowedTools ?? []), ...mcpToolNames];
     }
     return opts;
   }
@@ -717,7 +734,7 @@ class ClaudeAgent extends BaseAgent {
           if (betaMessage?.content) {
             for (const block of betaMessage.content) {
               if (block.type === "tool_use") {
-                const toolName = block.name ?? "unknown";
+                const toolName = stripMcpPrefix(block.name ?? "unknown");
                 toolCalls.push({
                   toolName,
                   args: (block.input as JSONValue) ?? {},
@@ -898,13 +915,10 @@ class ClaudeAgent extends BaseAgent {
       for await (const msg of q) {
         if (signal.aborted) throw new AbortError();
 
-        const event = mapSDKMessage(msg, thinkingBlockIndices, toolCallTracker);
-        if (event) {
-          if (Array.isArray(event)) {
-            for (const e of event) yield e;
-          } else {
-            yield event;
-          }
+        const events = mapSDKMessage(msg, thinkingBlockIndices, toolCallTracker);
+        if (events) {
+          const mapped = Array.isArray(events) ? events : [events];
+          for (const e of mapped) yield e;
         }
 
         // Capture session_id and emit done event on result

@@ -23,39 +23,37 @@ import type { IPermissionStore } from "../permission-store.js";
 
 export type { VercelAIBackendOptions } from "../types.js";
 
-// ─── Local Type Definitions (matching Vercel AI SDK shapes) ─────
+// ─── Local Type Definitions (matching Vercel AI SDK v6 shapes) ──
 // Avoids requiring the SDK to be installed at compile time.
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 /** @internal Vercel AI SDK tool result */
 interface SDKToolDefinition {
   description: string;
-  parameters: any;
-  execute?: (args: any, options: any) => Promise<any>;
-  needsApproval?: boolean | ((args: any, options: any) => Promise<boolean>);
+  inputSchema: unknown;
+  execute?: (input: unknown, options: unknown) => Promise<unknown>;
+  needsApproval?: boolean | ((input: unknown, options: unknown) => Promise<boolean>);
 }
 
-/** @internal Vercel AI SDK generateText result */
+/** @internal Vercel AI SDK v6 generateText result */
 interface SDKGenerateTextResult {
   text: string;
-  toolCalls: Array<{ toolCallId: string; toolName: string; args: any }>;
-  toolResults: Array<{ toolCallId: string; toolName: string; result: any }>;
+  toolCalls: Array<{ toolCallId: string; toolName: string; input: unknown }>;
+  toolResults: Array<{ toolCallId: string; toolName: string; output: unknown }>;
   steps: Array<{
     text: string;
-    toolCalls: Array<{ toolCallId: string; toolName: string; args: any }>;
-    toolResults: Array<{ toolCallId: string; toolName: string; result: any }>;
+    toolCalls: Array<{ toolCallId: string; toolName: string; input: unknown }>;
+    toolResults: Array<{ toolCallId: string; toolName: string; output: unknown }>;
     usage: { inputTokens?: number; outputTokens?: number };
     finishReason: string;
   }>;
   totalUsage: { inputTokens?: number; outputTokens?: number };
   finishReason: string;
-  response: { messages: any[] };
+  response: { messages: unknown[] };
 }
 
 /** @internal Vercel AI SDK generateObject result */
 interface SDKGenerateObjectResult {
-  object: any;
+  object: unknown;
   usage: { inputTokens?: number; outputTokens?: number };
 }
 
@@ -66,33 +64,40 @@ interface SDKStreamTextResult {
   text: PromiseLike<string>;
 }
 
-/** @internal Vercel AI SDK stream part union */
-interface SDKStreamPart {
-  type: string;
-  [key: string]: any;
-}
+/** @internal Vercel AI SDK v6 stream part union */
+type SDKStreamPart =
+  | { type: "text-delta"; text: string }
+  | { type: "tool-call"; toolCallId: string; toolName: string; input: unknown }
+  | { type: "tool-result"; toolCallId: string; toolName: string; output: unknown }
+  | { type: "tool-error"; toolCallId: string; toolName: string; error: unknown }
+  | { type: "reasoning-start" }
+  | { type: "reasoning-end" }
+  | { type: "reasoning-delta"; text: string }
+  | { type: "finish-step"; usage: { inputTokens?: number; outputTokens?: number }; finishReason: string }
+  | { type: "finish"; finishReason: string; totalUsage: { inputTokens?: number; outputTokens?: number } }
+  | { type: "error"; error: unknown }
+  | { type: string };
 
-/** @internal Vercel AI SDK LanguageModel */
-type SDKLanguageModel = any;
+/** @internal Vercel AI SDK LanguageModel — opaque type from SDK */
+type SDKLanguageModel = Record<string, unknown>;
 
 /** @internal SDK module shape */
 interface SDKModule {
-  generateText: (options: any) => Promise<SDKGenerateTextResult>;
-  streamText: (options: any) => SDKStreamTextResult;
-  generateObject: (options: any) => Promise<SDKGenerateObjectResult>;
-  tool: (options: any) => SDKToolDefinition;
-  jsonSchema: (schema: any) => any;
+  generateText: (options: Record<string, unknown>) => Promise<SDKGenerateTextResult>;
+  streamText: (options: Record<string, unknown>) => SDKStreamTextResult;
+  generateObject: (options: Record<string, unknown>) => Promise<SDKGenerateObjectResult>;
+  tool: (options: Record<string, unknown>) => SDKToolDefinition;
+  jsonSchema: (schema: unknown) => unknown;
+  stepCountIs: (count: number) => unknown;
 }
 
 /** @internal OpenAI-compatible module shape */
 interface SDKCompatModule {
-  createOpenAICompatible: (options: any) => {
+  createOpenAICompatible: (options: Record<string, unknown>) => {
     chatModel: (modelId: string) => SDKLanguageModel;
     languageModel: (modelId: string) => SDKLanguageModel;
   };
 }
-
-/* eslint-enable @typescript-eslint/no-explicit-any */
 
 // ─── Dynamic SDK Loader ─────────────────────────────────────────
 
@@ -161,11 +166,11 @@ function mapToolsToSDK(
 
     toolMap[ourTool.name] = sdk.tool({
       description: ourTool.description,
-      parameters: sdk.jsonSchema(jsonSchema),
+      inputSchema: sdk.jsonSchema(jsonSchema),
       execute: wrapToolExecute(ourTool, supervisor, sessionApprovals, permissionStore, signal),
       ...(ourTool.needsApproval && supervisor?.onPermission
         ? {
-            needsApproval: async (_args: Record<string, unknown>) => {
+            needsApproval: async (_input: Record<string, unknown>) => {
               // If already approved via store, skip
               if (permissionStore && await permissionStore.isApproved(ourTool.name)) return false;
               // If already session-approved, skip
@@ -182,7 +187,7 @@ function mapToolsToSDK(
     const onAskUser = supervisor.onAskUser;
     toolMap["ask_user"] = sdk.tool({
       description: "Ask the user a question and wait for their response",
-      parameters: sdk.jsonSchema({
+      inputSchema: sdk.jsonSchema({
         type: "object",
         properties: {
           question: { type: "string", description: "The question to ask the user" },
@@ -286,33 +291,41 @@ function messagesToSDK(messages: Message[]): Array<Record<string, unknown>> {
 
 function mapStreamPart(part: SDKStreamPart): AgentEvent | null {
   switch (part.type) {
-    case "text-delta":
-      return { type: "text_delta", text: part.text ?? "" };
+    case "text-delta": {
+      const p = part as Extract<SDKStreamPart, { type: "text-delta" }>;
+      return { type: "text_delta", text: p.text ?? "" };
+    }
 
-    case "tool-call":
+    case "tool-call": {
+      const p = part as Extract<SDKStreamPart, { type: "tool-call" }>;
       return {
         type: "tool_call_start",
-        toolCallId: String(part.toolCallId ?? ""),
-        toolName: part.toolName ?? "unknown",
-        args: (part.args as JSONValue) ?? {},
+        toolCallId: String(p.toolCallId ?? ""),
+        toolName: p.toolName ?? "unknown",
+        args: (p.input ?? {}) as JSONValue,
       };
+    }
 
-    case "tool-result":
+    case "tool-result": {
+      const p = part as Extract<SDKStreamPart, { type: "tool-result" }>;
       return {
         type: "tool_call_end",
-        toolCallId: String(part.toolCallId ?? ""),
-        toolName: part.toolName ?? "unknown",
-        result: (part.result as JSONValue) ?? null,
+        toolCallId: String(p.toolCallId ?? ""),
+        toolName: p.toolName ?? "unknown",
+        result: (p.output ?? null) as JSONValue,
       };
+    }
 
-    case "tool-error":
+    case "tool-error": {
+      const p = part as Extract<SDKStreamPart, { type: "tool-error" }>;
       return {
         type: "error",
-        error: part.error instanceof Error
-          ? part.error.message
-          : String(part.error ?? "Tool execution failed"),
+        error: p.error instanceof Error
+          ? p.error.message
+          : String(p.error ?? "Tool execution failed"),
         recoverable: true,
       };
+    }
 
     case "reasoning-start":
       return { type: "thinking_start" };
@@ -320,24 +333,30 @@ function mapStreamPart(part: SDKStreamPart): AgentEvent | null {
     case "reasoning-end":
       return { type: "thinking_end" };
 
-    case "reasoning-delta":
-      return { type: "thinking_delta", text: part.text ?? "" };
+    case "reasoning-delta": {
+      const p = part as Extract<SDKStreamPart, { type: "reasoning-delta" }>;
+      return { type: "thinking_delta", text: p.text ?? "" };
+    }
 
-    case "finish-step":
+    case "finish-step": {
+      const p = part as Extract<SDKStreamPart, { type: "finish-step" }>;
       return {
         type: "usage_update",
-        promptTokens: Number(part.usage?.inputTokens ?? 0),
-        completionTokens: Number(part.usage?.outputTokens ?? 0),
+        promptTokens: Number(p.usage?.inputTokens ?? 0),
+        completionTokens: Number(p.usage?.outputTokens ?? 0),
       };
+    }
 
-    case "error":
+    case "error": {
+      const p = part as Extract<SDKStreamPart, { type: "error" }>;
       return {
         type: "error",
-        error: part.error instanceof Error
-          ? part.error.message
-          : String(part.error ?? "Unknown error"),
+        error: p.error instanceof Error
+          ? p.error.message
+          : String(p.error ?? "Unknown error"),
         recoverable: false,
       };
+    }
 
     default:
       return null;
@@ -402,7 +421,7 @@ class VercelAIAgent extends BaseAgent {
       system: this.config.systemPrompt,
       messages: sdkMessages,
       tools: hasTools ? tools : undefined,
-      maxSteps: maxTurns,
+      stopWhen: sdk.stepCountIs(maxTurns),
       abortSignal: signal,
       ...(this.config.modelParams?.temperature !== undefined && {
         temperature: this.config.modelParams.temperature,
@@ -412,6 +431,9 @@ class VercelAIAgent extends BaseAgent {
       }),
       ...(this.config.modelParams?.topP !== undefined && {
         topP: this.config.modelParams.topP,
+      }),
+      ...(this.config.providerOptions && {
+        providerOptions: this.config.providerOptions,
       }),
     });
 
@@ -424,8 +446,8 @@ class VercelAIAgent extends BaseAgent {
         );
         toolCalls.push({
           toolName: tc.toolName,
-          args: (tc.args as JSONValue) ?? {},
-          result: (matchingResult?.result as JSONValue) ?? null,
+          args: (tc.input ?? {}) as JSONValue,
+          result: (matchingResult?.output ?? null) as JSONValue,
           approved: true,
         });
       }
@@ -480,6 +502,9 @@ class VercelAIAgent extends BaseAgent {
       ...(this.config.modelParams?.maxTokens !== undefined && {
         maxTokens: this.config.modelParams.maxTokens,
       }),
+      ...(this.config.providerOptions && {
+        providerOptions: this.config.providerOptions,
+      }),
     });
 
     // Validate and parse through our zod schema
@@ -531,7 +556,7 @@ class VercelAIAgent extends BaseAgent {
       system: this.config.systemPrompt,
       messages: sdkMessages,
       tools: hasTools ? tools : undefined,
-      maxSteps: maxTurns,
+      stopWhen: sdk.stepCountIs(maxTurns),
       abortSignal: signal,
       ...(this.config.modelParams?.temperature !== undefined && {
         temperature: this.config.modelParams.temperature,
@@ -541,6 +566,9 @@ class VercelAIAgent extends BaseAgent {
       }),
       ...(this.config.modelParams?.topP !== undefined && {
         topP: this.config.modelParams.topP,
+      }),
+      ...(this.config.providerOptions && {
+        providerOptions: this.config.providerOptions,
       }),
     });
 
@@ -554,7 +582,7 @@ class VercelAIAgent extends BaseAgent {
         if (event) yield event;
 
         if ((part as SDKStreamPart).type === "text-delta") {
-          finalText += (part as SDKStreamPart).text ?? "";
+          finalText += (part as Extract<SDKStreamPart, { type: "text-delta" }>).text ?? "";
         }
       }
 

@@ -1,14 +1,18 @@
-# Auth Demo
+# Interactive Demo
 
-Interactive web demo for `@witqq/agent-sdk` showcasing authentication and agent interaction across all backends.
+Interactive demo for `@witqq/agent-sdk` showcasing authentication, multi-turn chat, tool calling, and streaming across all backends.
 
 ## Features
 
 - Provider selection (Copilot, Claude, Vercel AI)
 - Authentication flows (GitHub Device Flow, OAuth+PKCE, API key)
-- Chat with streaming agent responses
+- Multi-turn conversations with persistent sessions
+- 7 keyboard shortcuts for common test messages
+- 3 demo tools: search_news, calculator, format_output (with approval)
+- Streaming event display with ANSI colors (text, tool calls, thinking)
+- Per-turn statistics (tool call count, text chunks, thinking blocks)
 - Provider switching without restart
-- Web UI on http://localhost:3456
+- Web UI on http://localhost:3456 (Docker/server mode)
 
 ## Run in Docker (one command)
 
@@ -33,6 +37,28 @@ npx tsx examples/auth-demo/server.ts
 npx tsx examples/auth-demo/index.ts
 ```
 
+## Keyboard Shortcuts
+
+Type a number during chat to send a preset test message:
+
+| Key | Action | Message |
+|-----|--------|---------|
+| 1 | Use search tool | Search for TypeScript news |
+| 2 | Use calculator | Compute 1337 * 42 + 99 |
+| 3 | Multi-tool chain | Search then calculate |
+| 4 | List tools | Ask what tools are available |
+| 5 | Summarize | Summarize the conversation |
+| 6 | Format output | Create a formatted report |
+| 7 | Follow-up | Ask for more details |
+
+## Commands
+
+- `/help` — show help and shortcuts
+- `/shortcuts` — show shortcut details
+- `/stats` — show session statistics
+- `/switch` — switch to a different provider
+- `/quit` or `/exit` — exit the app
+
 ## Auth Flow Details
 
 ### Copilot (GitHub Device Flow)
@@ -51,8 +77,3 @@ npx tsx examples/auth-demo/index.ts
 ### Vercel AI (API Key)
 1. User provides an OpenAI-compatible API key
 2. Key is used directly for API calls
-
-## Commands in Chat
-
-- `/quit` or `/exit` — exit the app
-- `/switch` — switch to a different provider

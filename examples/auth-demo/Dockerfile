@@ -17,6 +17,7 @@ RUN npm run build
 # Copy demo
 COPY examples/auth-demo/ examples/auth-demo/
 
+VOLUME /data
 EXPOSE 3456
 
 # Web server mode by default, override with CLI_MODE=1 for terminal
