@@ -458,14 +458,19 @@ class VercelAIAgent extends BaseAgent {
       completionTokens: Number(result.totalUsage?.outputTokens ?? 0),
     };
 
+    // In multi-step flows, result.text includes intermediate reasoning from all steps.
+    // Use only the last step's text as the final output.
+    const lastStep = result.steps.length > 0 ? result.steps[result.steps.length - 1] : null;
+    const outputText = lastStep?.text || null;
+
     return {
-      output: result.text || null,
+      output: outputText,
       structuredOutput: undefined as AgentResult["structuredOutput"],
       toolCalls,
       messages: [
         ...messages,
-        ...(result.text
-          ? [{ role: "assistant" as const, content: result.text }]
+        ...(outputText
+          ? [{ role: "assistant" as const, content: outputText }]
           : []),
       ],
       usage,
@@ -583,6 +588,16 @@ class VercelAIAgent extends BaseAgent {
 
         if ((part as SDKStreamPart).type === "text-delta") {
           finalText += (part as Extract<SDKStreamPart, { type: "text-delta" }>).text ?? "";
+        }
+
+        // When a step finishes with tool calls, the text accumulated so far is
+        // intermediate reasoning (e.g. "Let me search..."). Reset so that only
+        // the final step's text becomes the output.
+        if ((part as SDKStreamPart).type === "finish-step") {
+          const p = part as Extract<SDKStreamPart, { type: "finish-step" }>;
+          if (p.finishReason === "tool-calls") {
+            finalText = "";
+          }
         }
       }
 

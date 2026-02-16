@@ -438,7 +438,7 @@ function mapSessionEvent(
     case "assistant.message": {
       const doneEvent: AgentEvent = {
         type: "done",
-        finalOutput: String(data.content ?? ""),
+        finalOutput: data.content ? String(data.content) : null,
       };
       if (thinkingTracker.endThinking()) {
         return [{ type: "thinking_end" }, doneEvent];

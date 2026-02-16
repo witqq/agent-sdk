@@ -811,7 +811,8 @@ class ClaudeAgent extends BaseAgent {
       ? extractLastUserPrompt(messages)
       : buildContextualPrompt(messages);
     let opts = this.buildQueryOptions(signal);
-    opts = await this.buildMcpConfig(opts);
+    const toolResultCapture = new Map<string, JSONValue>();
+    opts = await this.buildMcpConfig(opts, toolResultCapture);
 
     // Claude SDK has native structured output via outputFormat
     const jsonSchema = zodToJsonSchema(schema.schema);
@@ -829,6 +830,42 @@ class ClaudeAgent extends BaseAgent {
 
     try {
       for await (const msg of q) {
+        // Collect tool calls from assistant messages
+        if (msg.type === "assistant") {
+          const betaMessage = msg.message as {
+            content?: Array<{
+              type: string;
+              text?: string;
+              name?: string;
+              input?: unknown;
+              id?: string;
+            }>;
+          } | undefined;
+          if (betaMessage?.content) {
+            for (const block of betaMessage.content) {
+              if (block.type === "tool_use") {
+                const toolName = stripMcpPrefix(block.name ?? "unknown");
+                toolCalls.push({
+                  toolName,
+                  args: (block.input as JSONValue) ?? {},
+                  result: toolResultCapture.get(toolName) ?? null,
+                  approved: true,
+                });
+              }
+            }
+          }
+        }
+
+        // Back-fill results from capture map for previously added tool calls
+        if (msg.type === "tool_use_summary" || msg.type === "result") {
+          for (const tc of toolCalls) {
+            if (tc.result === null) {
+              const captured = toolResultCapture.get(tc.toolName);
+              if (captured !== undefined) tc.result = captured;
+            }
+          }
+        }
+
         if (msg.type === "result" && msg.subtype === "success") {
           const r = msg as unknown as SDKResultSuccess;
           output = r.result;
