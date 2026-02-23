@@ -81,6 +81,23 @@ const writeFileTool: ToolDefinition = {
 
 When `needsApproval: true`, the `supervisor.onPermission` callback is invoked before execution. Without a supervisor, approval-required tools are denied by default.
 
+Runtime-registered tools receive an optional `ToolContext` as their second parameter:
+
+```typescript
+import type { ToolContext } from "@witqq/agent-sdk";
+
+const dbTool: ToolDefinition = {
+  name: "query_db",
+  description: "Query the database",
+  parameters: z.object({ sql: z.string() }),
+  execute: async (params, context?: ToolContext) => {
+    // context.sessionId — current chat session
+    // context.custom — session metadata
+    return db.query(params.sql);
+  },
+};
+```
+
 ## Permission Handling
 
 The `supervisor` hooks intercept permission requests and user-facing questions:
@@ -502,19 +519,429 @@ interface CopilotAuthToken extends AuthToken {
 }
 ```
 
-## Interactive Demo
+### Token Auto-Refresh
 
-An interactive demo for testing multi-turn conversations across all backends is in `examples/auth-demo/`.
+`TokenRefreshManager` schedules background token refresh before expiry:
 
-```bash
-# CLI mode
-npx tsx examples/auth-demo/index.ts
+```typescript
+import { TokenRefreshManager } from "@witqq/agent-sdk/auth";
 
-# Web UI via Docker (http://localhost:3456)
-docker compose -f examples/auth-demo/docker-compose.yml up
+const manager = new TokenRefreshManager({
+  token: authToken,
+  refreshFn: async (token) => claudeAuth.refreshToken(token.refreshToken!),
+  refreshThreshold: 0.8, // refresh at 80% of token lifetime
+});
+
+manager.on("refreshed", (newToken) => { /* update stored token */ });
+manager.on("expired", () => { /* re-authenticate */ });
+manager.start();
 ```
 
-Features: backend selection, auth flows (Device Flow, OAuth+PKCE, API key), multi-turn chat with persistent sessions, 7 keyboard shortcuts for common test messages, 3 demo tools (search, calculator, format with approval), streaming event display with ANSI colors, per-turn statistics, and provider switching.
+## Chat SDK (experimental)
+
+Higher-level primitives for building AI chat applications on top of agent-sdk.
+
+### Barrel Import
+
+For most consumer apps, import common types from a single path:
+
+```typescript
+import {
+  ChatMessage, ChatSession, ChatEvent, IChatRuntime,
+  createChatRuntime, ChatError, classifyError,
+  useChat, useRemoteChat, useRemoteAuth,
+  ChatProvider, Thread, Composer,
+  RemoteChatRuntime, SSEChatTransport,
+} from "@witqq/agent-sdk/chat";
+```
+
+### Individual Module Imports
+
+```typescript
+import { ChatMessage, ChatSession, IChatProvider, isChatMessage } from "@witqq/agent-sdk/chat/core";
+import {
+  classifyError, withRetry, isRetryable,
+  ChatSDKError, NetworkError, RateLimitError,
+  ExponentialBackoffStrategy
+} from "@witqq/agent-sdk/chat/errors";
+import {
+  ChatEventBus, filterEvents, collectText
+} from "@witqq/agent-sdk/chat/events";
+import {
+  InMemoryStorage, FileStorage,
+  type IStorageAdapter, StorageError
+} from "@witqq/agent-sdk/chat/storage";
+import {
+  InMemorySessionStore, FileSessionStore,
+  type IChatSessionStore
+} from "@witqq/agent-sdk/chat/sessions";
+import {
+  ContextWindowManager, estimateTokens
+} from "@witqq/agent-sdk/chat/context";
+import {
+  CopilotChatAdapter, VercelAIChatAdapter, BaseBackendAdapter,
+  SSEChatTransport, WsChatTransport, InProcessChatTransport,
+  streamToTransport, withInterceptors,
+  type IBackendAdapter, type BackendAdapterOptions, type IChatTransport
+} from "@witqq/agent-sdk/chat/backends";
+```
+
+### Error Classification
+
+```typescript
+try {
+  await provider.send(message);
+} catch (err) {
+  const classified = classifyError(err);
+  if (classified instanceof RateLimitError) {
+    console.log(`Rate limited, retry after ${classified.retryAfterSeconds}s`);
+  }
+}
+```
+
+### Retry with Backoff
+
+```typescript
+const result = await withRetry(
+  () => provider.send(message),
+  new ExponentialBackoffStrategy({ maxAttempts: 3 }),
+  { signal: AbortSignal.timeout(30_000) },
+);
+```
+
+### Event Bus with Middleware
+
+```typescript
+const bus = new ChatEventBus();
+
+// Logging middleware
+bus.use((ctx) => {
+  console.log(`[${ctx.event.type}]`);
+  ctx.next();
+});
+
+// Filter out heartbeat events
+bus.use((ctx) => {
+  if (ctx.event.type === "heartbeat") ctx.suppress();
+  else ctx.next();
+});
+
+bus.on("message_delta", (event) => console.log(event.text));
+```
+
+### Storage Adapters
+
+```typescript
+// In-memory (dev/testing)
+const mem = new InMemoryStorage<ChatSession>();
+await mem.create("s1", session);
+const s = await mem.get("s1"); // deep copy, mutation-safe
+
+// File-based (persistence)
+const fs = new FileStorage<ChatSession>({ directory: "./data/sessions" });
+await fs.create("s1", session);
+const items = await fs.query({
+  filter: (s) => s.metadata.tags.includes("important"),
+  sort: (a, b) => b.updatedAt - a.updatedAt,
+  limit: 10,
+});
+```
+
+### Session Store
+
+```typescript
+const store = new InMemorySessionStore();
+// or: new FileSessionStore({ directory: "./data/sessions" })
+
+const session = await store.createSession({
+  config: { model: "gpt-4", backend: "vercel-ai" },
+  title: "Code Review",
+  tags: ["work"],
+});
+
+await store.addMessage(session.id, message);
+const page = await store.getMessages(session.id, { limit: 20, offset: 0 });
+// page.messages, page.total, page.hasMore
+
+const results = await store.searchSessions({ query: "typescript" });
+```
+
+### Context Window Manager
+
+```typescript
+const manager = new ContextWindowManager({
+  maxTokens: 4096,
+  reservedTokens: 500,
+  strategy: "truncate-oldest", // or "sliding-window", "summarize-placeholder"
+});
+
+const result = manager.fitMessages(messages);
+// result.messages — trimmed to fit budget
+// result.wasTruncated — whether messages were removed
+// result.totalTokens — estimated token usage
+// result.removedCount — how many messages were dropped
+
+// Async variant with optional summarizer (summarize-placeholder strategy)
+const asyncManager = new ContextWindowManager({
+  maxTokens: 4096,
+  strategy: "summarize-placeholder",
+  summarizer: async (removed) => {
+    // Call LLM or custom logic to summarize removed messages
+    return `Summary of ${removed.length} messages: ...`;
+  },
+});
+const asyncResult = await asyncManager.fitMessagesAsync(messages);
+
+// Per-message estimation
+const tokens = estimateTokens(message); // ~chars/4
+```
+
+### Backend Adapters
+
+Backend adapters bridge `IAgentService` to `IChatProvider`, adding session management and resume support:
+
+```typescript
+import { CopilotChatAdapter } from "@witqq/agent-sdk/chat/backends";
+
+const adapter = new CopilotChatAdapter({
+  agentConfig: {
+    systemPrompt: "You are a helpful assistant.",
+    model: "gpt-4.1",
+  },
+});
+
+// Stream a message (creates persistent session automatically)
+for await (const event of adapter.streamMessage(session, "Hello")) {
+  // ChatEvent: text_delta, message_start, message_complete, tool_call_start, etc.
+}
+
+// Resume a previous session
+if (adapter.canResume()) {
+  for await (const event of adapter.resume(session, adapter.backendSessionId!)) {
+    // Continues the existing conversation
+  }
+}
+
+adapter.dispose();
+```
+
+`IBackendAdapter` extends `IChatProvider` with `canResume()`, `resume()`, `backendSessionId`, and `agentService` accessor. Built-in adapters: `CopilotChatAdapter`, `ClaudeChatAdapter`, `VercelAIChatAdapter` (stateless, no resume). Create custom adapters by extending `BaseBackendAdapter`.
+
+Service ownership: when `agentService` is passed via options, the adapter does **not** dispose it — the caller retains ownership. When omitted, the adapter creates and owns its service internally.
+
+### Chat Transport
+
+`IChatTransport` abstracts event delivery to clients. Three built-in implementations:
+
+| Transport | Use case |
+|---|---|
+| `SSEChatTransport` | Server-Sent Events over HTTP |
+| `WsChatTransport` | WebSocket via `WebSocketLike` abstraction |
+| `InProcessChatTransport` | Zero-network async iterable for testing/embedded |
+
+`streamToTransport()` pipes adapter events to any transport:
+
+```typescript
+import { SSEChatTransport, WsChatTransport, streamToTransport } from "@witqq/agent-sdk/chat/backends";
+
+const transport = new SSEChatTransport(res);
+await streamToTransport(adapter.streamMessage(session, message), transport);
+```
+
+**Interceptors** wrap any transport with composable hooks (logging, metrics, rate limiting):
+
+```typescript
+import { withInterceptors, type TransportInterceptor } from "@witqq/agent-sdk/chat/backends";
+
+const logger: TransportInterceptor = {
+  beforeSend(event) { console.log("send:", event.type); return event; },
+  onError(err) { console.error(err); },
+};
+const wrapped = withInterceptors(transport, [logger]);
+```
+
+**Stream watchdog** — set `streamTimeoutMs` in runtime options to abort hanging streams:
+
+```typescript
+const runtime = createChatRuntime({
+  streamTimeoutMs: 30_000, // abort after 30s of inactivity
+  // ...
+});
+```
+
+See [Custom Transports](docs/chat-sdk/custom-transports.md) for the implementation guide.
+
+### Chat Runtime
+
+`IChatRuntime<TMetadata>` is the unified facade that orchestrates backend adapters, sessions, context trimming, streaming, and middleware. `createChatRuntime()` builds one from a config:
+
+```typescript
+import { createChatRuntime } from "@witqq/agent-sdk/chat/runtime";
+
+const runtime = createChatRuntime({
+  backends: {
+    copilot: () => new CopilotChatAdapter({ agentService }),
+    claude: () => new ClaudeChatAdapter({ agentService: claudeService }),
+  },
+  defaultBackend: "copilot",
+  sessionStore: new InMemorySessionStore(),
+  contextManager: new ContextWindowManager({ maxTokens: 8000 }),
+});
+
+// Create session, send message, stream events
+const session = await runtime.createSession();
+for await (const event of runtime.send(session.id, "Hello")) {
+  console.log(event.type, event);
+}
+```
+
+Key capabilities: session delegation (create/get/list/delete/archive/switch), backend/model switching with `switchBackend(name)` / `switchModel(model)`, tool registration via `addTool(def)` / `removeTool(name)` (persists across switches), middleware pipeline (`use(middleware)`), state machine (`status` property), abort support (`abort()`), pre-stream retry with `RetryConfig`, generic `<TMetadata>` for typed session metadata, and `dispose()`.
+
+Context monitoring:
+
+```typescript
+// Query context usage after send
+const stats = runtime.getContextStats(session.id);
+// stats: { totalTokens, removedCount, wasTruncated, availableBudget } | null
+
+// Archive trimmed messages via callback
+const runtime = createChatRuntime({
+  // ...backends, sessionStore, contextManager
+  onContextTrimmed: (sessionId, removedMessages) => {
+    db.archiveMessages(sessionId, removedMessages);
+  },
+});
+```
+
+### Server Utilities
+
+Framework-agnostic HTTP handlers for serving `IChatRuntime` over HTTP. Import from `@witqq/agent-sdk/chat/server`.
+
+```typescript
+import {
+  createChatHandler,
+  createAuthHandler,
+  FileTokenStore,
+  corsMiddleware,
+  createChatServer,
+} from "@witqq/agent-sdk/chat/server";
+import { createChatRuntime } from "@witqq/agent-sdk/chat/runtime";
+
+const runtime = createChatRuntime({ /* ... */ });
+
+// Option 1: Compose handlers manually
+const chatHandler = createChatHandler(runtime, { prefix: "/api/chat" });
+const authHandler = createAuthHandler({
+  tokenStore: new FileTokenStore({ directory: "./tokens" }),
+  onAuth: (backend, token) => { /* handle auth */ },
+});
+
+// Option 2: One-call server factory
+const handler = createChatServer({
+  runtime,
+  cors: true,
+  staticDir: "./public",
+});
+```
+
+`createChatHandler` maps all 10 `RemoteChatRuntime` endpoints (session CRUD, send via SSE, abort, models, backend/model switch). `createAuthHandler` handles Copilot Device Flow, Claude OAuth+PKCE, and API key auth with persistent token storage via `ITokenStore`. `corsMiddleware` supports multi-origin configuration.
+
+## Interactive Demo
+
+Single-screen chat UI with inline provider/model selection and auth.
+
+```bash
+npm run demo              # Build & start in Docker (http://localhost:3456)
+npm run demo -- stop      # Stop
+npm run demo -- logs      # Follow logs
+npm run demo -- restart   # Rebuild & restart
+npm run demo -- dev       # Local dev without Docker
+```
+
+Features: inline provider switching, auth via modal dialog (Copilot Device Flow, Claude OAuth+PKCE, Vercel AI API key), model dropdown with search, SSE streaming chat with thinking blocks, tool calls, and error rendering.
+
+## React Bindings
+
+Headless React hooks and components for building chat UIs:
+
+```typescript
+import { useChat, Thread, Composer, ChatProvider } from "@witqq/agent-sdk/chat/react";
+
+function App() {
+  return (
+    <ChatProvider runtime={runtime}>
+      <Thread />
+      <Composer />
+    </ChatProvider>
+  );
+}
+```
+
+For client-server architectures, `useRemoteChat` manages the full auth → runtime → session lifecycle:
+
+```typescript
+import { useRemoteChat, ChatProvider, Thread, Composer } from "@witqq/agent-sdk/chat/react";
+
+function App() {
+  const chat = useRemoteChat({
+    chatBaseUrl: "/api/chat",
+    authBaseUrl: "/api",
+    backend: "copilot",
+  });
+
+  if (chat.phase !== "ready" || !chat.runtime) return <div>Loading...</div>;
+
+  return (
+    <ChatProvider runtime={chat.runtime}>
+      <Thread />
+      <Composer />
+    </ChatProvider>
+  );
+}
+```
+
+Or use `RemoteChatRuntime` directly for lower-level control:
+
+```typescript
+import { RemoteChatRuntime } from "@witqq/agent-sdk/chat/react";
+
+const runtime = new RemoteChatRuntime({ baseUrl: "/api/chat" });
+```
+
+Reactive session list (replaces manual polling):
+
+```typescript
+import { useSessions } from "@witqq/agent-sdk/chat/react";
+
+function SessionList() {
+  const { sessions, loading } = useSessions();
+  // Auto-updates on create, delete, archive, and message send
+  return sessions.map(s => <div key={s.id}>{s.title}</div>);
+}
+```
+
+Server-delegated authentication (no `node:crypto` in browser):
+
+```typescript
+import { useRemoteAuth } from "@witqq/agent-sdk/chat/react";
+
+const auth = useRemoteAuth({ backend: "copilot", baseUrl: "/api" });
+// auth.startDeviceFlow(), auth.startOAuthFlow(), auth.submitApiKey()
+```
+
+See [Chat SDK docs](docs/chat-sdk/README.md) for the full React API reference.
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Chat SDK Modules](docs/chat-sdk/README.md) | Module-by-module API docs for chat primitives |
+| [Chat SDK Architecture](docs/chat-sdk/ARCHITECTURE.md) | Architecture specification and design decisions |
+| [Custom Transports](docs/chat-sdk/custom-transports.md) | Guide to building custom IChatTransport implementations |
+| [Custom Renderers](docs/chat-sdk/custom-renderers.md) | Three approaches to customizing React UI components |
+| [Roadmap](docs/architecture/ROADMAP.md) | Module implementation roadmap (M1-M12) |
+| [Project Checklist](PROJECT_CHECKLIST.md) | Implementation checklist with completion status |
+| [Changelog](CHANGELOG.md) | Release history and breaking changes |
 
 ## License
 

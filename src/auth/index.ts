@@ -18,3 +18,7 @@ export {
 // ─── Auth Providers ────────────────────────────────────────────
 export { CopilotAuth } from "./copilot-auth.js";
 export { ClaudeAuth } from "./claude-auth.js";
+
+// ─── Token Refresh ─────────────────────────────────────────────
+export { TokenRefreshManager } from "./refresh-manager.js";
+export type { TokenRefreshOptions, TokenRefreshEvents } from "./refresh-manager.js";

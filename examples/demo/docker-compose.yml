@@ -1,0 +1,17 @@
+services:
+  demo:
+    build:
+      context: ../..
+      dockerfile: examples/demo/Dockerfile
+    ports:
+      - "3456:3456"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    volumes:
+      - demo-tokens:/data
+      - copilot-config:/root/.copilot
+    restart: unless-stopped
+
+volumes:
+  demo-tokens:
+  copilot-config:

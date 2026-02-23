@@ -275,12 +275,39 @@ function messagesToSDK(messages: Message[]): Array<Record<string, unknown>> {
     switch (msg.role) {
       case "user":
         return { role: "user", content: getTextContent(msg.content) };
-      case "assistant":
-        return { role: "assistant", content: getTextContent(msg.content) };
+      case "assistant": {
+        let content = getTextContent(msg.content);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const thinking = (msg as any).thinking as string | undefined;
+        if (thinking) {
+          content = `[reasoning: ${thinking}]\n${content}`;
+        }
+        const mapped: Record<string, unknown> = { role: "assistant", content };
+        if (msg.toolCalls && msg.toolCalls.length > 0) {
+          mapped.toolCalls = msg.toolCalls.map((tc) => ({
+            id: tc.id,
+            name: tc.name,
+            args: tc.args,
+          }));
+        }
+        return mapped;
+      }
       case "system":
         return { role: "system", content: msg.content };
-      case "tool":
+      case "tool": {
+        if (msg.toolResults && msg.toolResults.length > 0) {
+          return {
+            role: "tool",
+            toolResults: msg.toolResults.map((tr) => ({
+              toolCallId: tr.toolCallId,
+              name: tr.name,
+              result: tr.result,
+              isError: tr.isError ?? false,
+            })),
+          };
+        }
         return { role: "tool", content: msg.content ?? "" };
+      }
       default:
         return { role: "user", content: "" };
     }
@@ -396,7 +423,7 @@ class VercelAIAgent extends BaseAgent {
 
   private async getSDKTools(signal: AbortSignal): Promise<Record<string, SDKToolDefinition>> {
     const sdk = await loadSDK();
-    return mapToolsToSDK(sdk, this.config.tools, this.config, this.sessionApprovals, this.config.permissionStore, signal);
+    return mapToolsToSDK(sdk, this.config.tools ?? [], this.config, this.sessionApprovals, this.config.permissionStore, signal);
   }
 
   // ─── executeRun ─────────────────────────────────────────────────

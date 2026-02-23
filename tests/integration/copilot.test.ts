@@ -22,8 +22,9 @@ try {
   sdkAvailable = false;
 }
 
-// Use a cheap/fast model for integration tests
-const TEST_MODEL = "gpt-4.1";
+// IMPORTANT: Use ONLY free/cheapest models for integration tests!
+// NEVER use paid models (gpt-4.1, gpt-5, claude-sonnet, etc.) — they consume subscription.
+const TEST_MODEL = "gpt-5-mini";
 const TIMEOUT = 120_000;
 
 // Track service for cleanup

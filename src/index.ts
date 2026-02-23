@@ -5,6 +5,7 @@ export type {
   ContentPart,
   ToolDeclaration,
   ToolDefinition,
+  ToolContext,
   ToolCall,
   ToolResult,
   Message,

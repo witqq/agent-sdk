@@ -1,5 +1,7 @@
 // ─── Auth Token Types ──────────────────────────────────────────
 
+import { AgentSDKError } from "../errors.js";
+
 /**
  * Base auth token returned by all auth providers.
  *
@@ -131,7 +133,7 @@ export interface OAuthFlowResult {
  * @param message - Error description
  * @param options - Standard ErrorOptions (e.g. cause)
  */
-export class AuthError extends Error {
+export class AuthError extends AgentSDKError {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
     this.name = "AuthError";
