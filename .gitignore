@@ -3,3 +3,5 @@ dist/
 *.tgz
 .DS_Store
 .supervisor_logs/
+test-results/
+summary.json
