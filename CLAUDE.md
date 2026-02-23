@@ -173,7 +173,7 @@ Activity-based timeout wrapper for async event streams.
 
 Error classification and retry system.
 - `ChatError` extends `AgentSDKError`: single error class with `code: ChatErrorCode`, `retryable`, `timestamp`
-- `ChatErrorCode`: 19-code enum (NETWORK, TIMEOUT, AUTH_EXPIRED, AUTH_INVALID, RATE_LIMIT, PROVIDER_ERROR, MODEL_NOT_FOUND, MODEL_OVERLOADED, CONTEXT_OVERFLOW, INVALID_INPUT, INVALID_RESPONSE, PERMISSION_DENIED, BACKEND_NOT_INSTALLED, SESSION_NOT_FOUND, STORAGE_ERROR, DISPOSED, ABORTED, INVALID_TRANSITION, REENTRANCY)
+- `ChatErrorCode`: 20-code enum (NETWORK, TIMEOUT, AUTH_EXPIRED, AUTH_INVALID, RATE_LIMIT, PROVIDER_ERROR, MODEL_NOT_FOUND, MODEL_OVERLOADED, CONTEXT_OVERFLOW, INVALID_INPUT, INVALID_RESPONSE, PERMISSION_DENIED, BACKEND_NOT_INSTALLED, SESSION_NOT_FOUND, SESSION_EXPIRED, STORAGE_ERROR, DISPOSED, ABORTED, INVALID_TRANSITION, REENTRANCY)
 - `ChatSDKError`: backward compat alias for `ChatError`
 - `classifyError(unknown)`: pattern-matching classifier (network patterns, HTTP status codes, Zod errors, timeouts, context overflow)
 - `ExponentialBackoffStrategy`: configurable `baseMs`, `maxMs`, `maxAttempts`, `jitter`; respects rate limit retry-after
@@ -497,12 +497,7 @@ If you add or modify integration tests — use ONLY the cheapest model for that 
 - `README.md` — public API docs with usage examples
 - `CLAUDE.md` — internal architecture reference (this file)
 - `CHANGELOG.md` — release history
-- `PROJECT_CHECKLIST.md` — implementation checklist (M1-M5 done)
-- `DOCUMENTATION-STYLE-GUIDE.md` — writing standards
-- `docs/architecture/ROADMAP.md` — **active roadmap** (module M1-M12, M1-M5 ✅, M6-M10 ✅, M11-M12 ✅)
-- `docs/architecture/` — design-phase documents (requirements, entity map, competitor analysis, ADRs)
 - `docs/chat-sdk/README.md` — chat SDK module documentation (consumer-facing)
 - `docs/chat-sdk/custom-transports.md` — custom transport implementation guide
 - `docs/chat-sdk/custom-renderers.md` — custom renderer guide (CSS theming, slot overrides, per-tool dispatch)
-- `docs/chat-sdk/` — research docs (project analysis, use case matrix, competitors)
-- `docs/archive/` — superseded documents (original roadmap, architecture review, stale chat SDK architecture)
+- `docs/archive/` — superseded documents (roadmap, architecture review, design-phase docs, research)

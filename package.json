@@ -194,11 +194,11 @@
   ],
   "scripts": {
     "build": "tsup",
-    "test": "vitest run",
-    "test:e2e": "vitest run --config vitest.e2e.config.ts",
+    "test": "testfold unit",
+    "test:e2e": "testfold e2e",
+    "test:all": "testfold",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "lint": "tsc --noEmit",
     "prepublishOnly": "npm run build",
     "demo": "tsx scripts/demo.ts"
   },
@@ -258,7 +258,7 @@
     "drizzle-orm": "^0.45.1",
     "jsdom": "^28.1.0",
     "react-dom": "^19.2.4",
-    "testfold": "^0.2.1",
+    "testfold": "^0.3.0",
     "tsup": "^8.4.0",
     "typescript": "^5.8.0",
     "vitest": "^4.0.18",

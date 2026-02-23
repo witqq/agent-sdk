@@ -543,16 +543,21 @@ Higher-level primitives for building AI chat applications on top of agent-sdk.
 
 ### Barrel Import
 
-For most consumer apps, import common types from a single path:
+For most consumer apps, import common types from the barrel:
 
 ```typescript
+// Core types and runtime (barrel export)
 import {
   ChatMessage, ChatSession, ChatEvent, IChatRuntime,
   createChatRuntime, ChatError, classifyError,
-  useChat, useRemoteChat, useRemoteAuth,
-  ChatProvider, Thread, Composer,
   RemoteChatRuntime, SSEChatTransport,
 } from "@witqq/agent-sdk/chat";
+
+// React hooks and components (separate import — not in barrel)
+import {
+  useChat, useRemoteChat, useRemoteAuth,
+  ChatProvider, Thread, Composer,
+} from "@witqq/agent-sdk/chat/react";
 ```
 
 ### Individual Module Imports
@@ -561,7 +566,7 @@ import {
 import { ChatMessage, ChatSession, IChatProvider, isChatMessage } from "@witqq/agent-sdk/chat/core";
 import {
   classifyError, withRetry, isRetryable,
-  ChatSDKError, NetworkError, RateLimitError,
+  ChatError, ChatErrorCode,
   ExponentialBackoffStrategy
 } from "@witqq/agent-sdk/chat/errors";
 import {
@@ -593,8 +598,8 @@ try {
   await provider.send(message);
 } catch (err) {
   const classified = classifyError(err);
-  if (classified instanceof RateLimitError) {
-    console.log(`Rate limited, retry after ${classified.retryAfterSeconds}s`);
+  if (classified.code === ChatErrorCode.RATE_LIMIT) {
+    console.log(`Rate limited, retry after ${classified.retryAfter}ms`);
   }
 }
 ```
@@ -626,7 +631,7 @@ bus.use((ctx) => {
   else ctx.next();
 });
 
-bus.on("message_delta", (event) => console.log(event.text));
+bus.on("message:delta", (event) => console.log(event.text));
 ```
 
 ### Storage Adapters
