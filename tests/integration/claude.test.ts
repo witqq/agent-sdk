@@ -22,7 +22,9 @@ try {
   sdkAvailable = false;
 }
 
-const TEST_MODEL = "claude-sonnet-4-5-20250514";
+// IMPORTANT: Use ONLY the cheapest models for integration tests!
+// NEVER use paid models (claude-sonnet, claude-opus, etc.) — they consume subscription.
+const TEST_MODEL = "claude-haiku-4-5-20250514";
 const TIMEOUT = 120_000;
 
 let service: ReturnType<typeof createClaudeService> | null = null;

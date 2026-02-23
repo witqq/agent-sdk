@@ -1,8 +1,23 @@
-/** Base error class for agent-sdk */
+/** Base error class for agent-sdk.
+ *
+ * Use `AgentSDKError.is(err)` for reliable cross-module `instanceof` checks
+ * (works across separately bundled entry points where `instanceof` may fail). */
 export class AgentSDKError extends Error {
+  /** @internal Marker for cross-bundle identity checks */
+  readonly _agentSDKError = true as const;
+
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
     this.name = "AgentSDKError";
+  }
+
+  /** Check if an error is an AgentSDKError (works across bundled copies) */
+  static is(error: unknown): error is AgentSDKError {
+    return (
+      error instanceof Error &&
+      "_agentSDKError" in error &&
+      (error as AgentSDKError)._agentSDKError === true
+    );
   }
 }
 

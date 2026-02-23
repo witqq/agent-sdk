@@ -120,4 +120,35 @@ describe("Error Classes", () => {
       expect(err).toBeInstanceOf(Error);
     }
   });
+
+  describe("AgentSDKError.is()", () => {
+    it("returns true for AgentSDKError instances", () => {
+      expect(AgentSDKError.is(new AgentSDKError("test"))).toBe(true);
+    });
+
+    it("returns true for subclass instances", () => {
+      expect(AgentSDKError.is(new ReentrancyError())).toBe(true);
+      expect(AgentSDKError.is(new DisposedError("x"))).toBe(true);
+      expect(AgentSDKError.is(new AbortError())).toBe(true);
+      expect(AgentSDKError.is(new ToolExecutionError("t", "m"))).toBe(true);
+    });
+
+    it("returns false for plain Error", () => {
+      expect(AgentSDKError.is(new Error("test"))).toBe(false);
+    });
+
+    it("returns false for non-error values", () => {
+      expect(AgentSDKError.is(null)).toBe(false);
+      expect(AgentSDKError.is(undefined)).toBe(false);
+      expect(AgentSDKError.is("string")).toBe(false);
+      expect(AgentSDKError.is(42)).toBe(false);
+      expect(AgentSDKError.is({})).toBe(false);
+    });
+
+    it("returns false for Error with _agentSDKError set to non-true", () => {
+      const fake = new Error("fake");
+      (fake as unknown as Record<string, unknown>)._agentSDKError = "yes";
+      expect(AgentSDKError.is(fake)).toBe(false);
+    });
+  });
 });

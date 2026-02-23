@@ -1720,7 +1720,9 @@ describe("Claude Backend", () => {
       const sdk = injectMultiCallMockSDK([
         [successResultWithSessionId("ok", "ses-444")],
         [errorResult(["something broke"])],
+        // Retry after resume failure uses this:
         [successResultWithSessionId("recovered", "ses-555")],
+        [successResultWithSessionId("third", "ses-666")],
       ]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
@@ -1728,11 +1730,13 @@ describe("Claude Backend", () => {
       await agent.run("first");
       expect(agent.sessionId).toBe("ses-444");
 
-      await expect(agent.run("second")).rejects.toThrow("something broke");
-      expect(agent.sessionId).toBeUndefined();
+      // Second call: resume fails → retry with fresh session succeeds
+      const result = await agent.run("second");
+      expect(result.output).toBe("recovered");
+      expect(agent.sessionId).toBe("ses-555");
 
       await agent.run("third");
-      expect(agent.sessionId).toBe("ses-555");
+      expect(agent.sessionId).toBe("ses-666");
     });
 
     it("should clear sessionId on dispose", async () => {

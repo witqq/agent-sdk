@@ -1,5 +1,64 @@
 # Changelog
 
+## [0.8.0]
+
+### New Features
+
+- **WebSocket transport** — `WsChatTransport` implementing `IChatTransport` with heartbeat, reconnection, and binary frame support
+- **In-process transport** — `InProcessChatTransport` for zero-network same-process runtime (testing, CLI, embedded)
+- **Stream watchdog** — `StreamWatchdog` with configurable activity timeout for hanging streams using `CancellableTimeout`
+- **Tool context injection** — `ToolContext` interface for passing runtime context to tools beyond args
+- **Transport interceptors** — composable hook chain (`InterceptorPipeline`) for transport-level event interception
+- **Token auto-refresh** — `TokenRefreshManager` with background scheduling, retry, and jitter
+- **Framework presets** — Express, Hono, and Fastify adapter examples with zero-dependency typing
+- **Usage tracking middleware** — `createUsageMiddleware` for per-session token counting via `ChatMiddleware`
+- **Multi-user runtime manager** — `MultiUserRuntimeManager` with LRU cache, idle timeout, concurrent-safe access, and BYOK pattern
+- **Enhanced NATS transport** — `NatsChatRouter` with subject-based routing, `NatsChatClient` with request-reply and pub/sub streaming
+- **SQLite storage adapter** — `IChatSessionStore` over better-sqlite3 (example)
+- **Drizzle ORM storage adapter** — `IChatSessionStore` over Drizzle (example)
+- **Custom renderer guide** — documentation for CSS theming, ThreadProvider slot overrides, and per-tool dispatch
+
+### Improvements
+
+- Demo app uses `ThreadProvider` with custom tool call renderer (slot override pattern)
+- Custom transport guide in `docs/chat-sdk/custom-transports.md`
+- Custom renderer guide in `docs/chat-sdk/custom-renderers.md`
+- Phase 5 roadmap items (M11 + M12) checked off
+- Project checklist updated with M11 and M12 items
+
+## [0.7.0]
+
+### New Features
+
+- **`useRemoteChat` hook** — one-call React integration for remote chat with built-in auth, session management, and streaming
+- **`RemoteChatRuntime`** — client-side `IChatRuntime` adapter delegating over HTTP/SSE to server
+- **`createChatHandler`** — framework-agnostic HTTP handler mapping all `RemoteChatRuntime` endpoints to `IChatRuntime`
+- **`createAuthHandler`** — server-mediated authentication handler for Copilot, Claude, and Vercel AI
+- **`createChatServer`** — one-call server factory combining chat, auth, static serving, and CORS
+- **`SSEChatTransport`** — Server-Sent Events transport with heartbeat and close detection
+- **Token store** — `ITokenStore` with `InMemoryTokenStore` and `FileTokenStore`
+- **Auth hooks** — `useAuth` (multi-backend), `AuthDialog` (headless UI)
+- **Thread components** — `Thread`, `Composer`, `ThreadList`, `ThreadProvider` with slot-based customization
+- **Model selector** — `useModels`, `ModelSelector` with keyboard navigation and tier badges
+- **SSE hook** — `useSSE` with fetch-based streaming, reconnection, and status tracking
+- **Barrel import** — `@witqq/agent-sdk/chat` re-exports core chat types
+- **Context stats** — `getContextStats()` per session, `onContextTrimmed` callback
+- **Async summarizer** — `ContextWindowManager.fitMessagesAsync()` with `ContextSummarizer`
+
+### Improvements
+
+- `ChatId` accepts `string` in all runtime methods (no more `as ChatId` casts)
+- `/tokens/clear` now invokes `onLogout` callback (auto-dispose on token clear)
+- `MessageAccumulator.snapshot()` shallow-copies parts for React `useSyncExternalStore` compatibility
+- Pre-stream retry in `ChatRuntime.send()` with configurable `RetryConfig`
+- Error auto-recovery: `send()` transitions from `error` → `idle` automatically
+- `corsMiddleware` with multi-origin support and `Vary: Origin`
+
+### Bug Fixes
+
+- `StorageError` and `AuthError` now extend `AgentSDKError`
+- `ModelInfo` type collision between core and react resolved
+
 ## [0.6.0]
 
 ### ⚠️ Breaking Changes (Vercel AI Backend)

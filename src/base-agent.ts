@@ -18,6 +18,7 @@ export abstract class BaseAgent implements IAgent {
   protected state: AgentState = "idle";
   protected abortController: AbortController | null = null;
   protected readonly config: AgentConfig;
+  private _cleanupExternalSignal: (() => void) | null = null;
 
   /** Backend identifier (e.g. "copilot", "claude", "vercel-ai") */
   protected abstract readonly backendName: string;
@@ -49,8 +50,7 @@ export abstract class BaseAgent implements IAgent {
       this.enrichAndNotifyUsage(result);
       return result;
     } finally {
-      this.state = "idle";
-      this.abortController = null;
+      this.cleanupRun();
     }
   }
 
@@ -69,8 +69,7 @@ export abstract class BaseAgent implements IAgent {
       this.enrichAndNotifyUsage(result);
       return result;
     } finally {
-      this.state = "idle";
-      this.abortController = null;
+      this.cleanupRun();
     }
   }
 
@@ -96,8 +95,7 @@ export abstract class BaseAgent implements IAgent {
       this.enrichAndNotifyUsage(result);
       return result;
     } finally {
-      this.state = "idle";
-      this.abortController = null;
+      this.cleanupRun();
     }
   }
 
@@ -116,8 +114,7 @@ export abstract class BaseAgent implements IAgent {
       const enriched = this.enrichStream(this.executeStream(messages, options, ac.signal));
       yield* this.heartbeatStream(enriched);
     } finally {
-      this.state = "idle";
-      this.abortController = null;
+      this.cleanupRun();
     }
   }
 
@@ -135,8 +132,7 @@ export abstract class BaseAgent implements IAgent {
       const enriched = this.enrichStream(this.executeStream(messages, options, ac.signal));
       yield* this.heartbeatStream(enriched);
     } finally {
-      this.state = "idle";
-      this.abortController = null;
+      this.cleanupRun();
     }
   }
 
@@ -161,6 +157,8 @@ export abstract class BaseAgent implements IAgent {
 
   /** Mark agent as disposed. Override to add cleanup. */
   dispose(): void {
+    this._cleanupExternalSignal?.();
+    this._cleanupExternalSignal = null;
     this.abort();
     this.state = "disposed";
   }
@@ -318,17 +316,26 @@ export abstract class BaseAgent implements IAgent {
 
   // ─── Internal Helpers ─────────────────────────────────────────
 
+  /** Clean up after a run completes (success, error, or abort). */
+  private cleanupRun(): void {
+    this._cleanupExternalSignal?.();
+    this._cleanupExternalSignal = null;
+    this.state = "idle";
+    this.abortController = null;
+  }
+
   private createAbortController(externalSignal?: AbortSignal): AbortController {
     const ac = new AbortController();
     this.abortController = ac;
+    this._cleanupExternalSignal = null;
 
     if (externalSignal) {
       if (externalSignal.aborted) {
         ac.abort();
       } else {
-        externalSignal.addEventListener("abort", () => ac.abort(), {
-          once: true,
-        });
+        const listener = () => ac.abort();
+        externalSignal.addEventListener("abort", listener, { once: true });
+        this._cleanupExternalSignal = () => externalSignal.removeEventListener("abort", listener);
       }
     }
 
