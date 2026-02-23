@@ -8,7 +8,7 @@
 - **In-process transport** — `InProcessChatTransport` for zero-network same-process runtime (testing, CLI, embedded)
 - **Stream watchdog** — `StreamWatchdog` with configurable activity timeout for hanging streams using `CancellableTimeout`
 - **Tool context injection** — `ToolContext` interface for passing runtime context to tools beyond args
-- **Transport interceptors** — composable hook chain (`InterceptorPipeline`) for transport-level event interception
+- **Transport interceptors** — composable hook chain (`withInterceptors`) for transport-level event interception
 - **Token auto-refresh** — `TokenRefreshManager` with background scheduling, retry, and jitter
 - **Framework presets** — Express, Hono, and Fastify adapter examples with zero-dependency typing
 - **Usage tracking middleware** — `createUsageMiddleware` for per-session token counting via `ChatMiddleware`
