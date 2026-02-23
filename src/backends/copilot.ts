@@ -147,6 +147,7 @@ interface SDKClient {
   stop(): Promise<Error[]>;
   getState(): string;
   createSession(config?: SDKSessionConfig): Promise<SDKSession>;
+  resumeSession(sessionId: string, config?: SDKSessionConfig): Promise<SDKSession>;
   listModels(): Promise<SDKModelInfo[]>;
   getAuthStatus(): Promise<{ isAuthenticated: boolean }>;
 }
@@ -191,9 +192,32 @@ function mapToolsToSDK(tools: ToolDefinition[]): SDKTool[] {
   return tools.map((tool) => ({
     name: tool.name,
     description: tool.description,
-    // Pass Zod schema directly — Copilot SDK accepts ZodSchema natively
-    // and handles conversion internally, avoiding potential schema format issues.
-    parameters: tool.parameters,
+    parameters: convertParameters(tool.parameters),
+    handler: async (args: unknown): Promise<unknown> => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await tool.execute(args as any);
+      return typeof result === "string" ? result : JSON.stringify(result);
+    },
+  }));
+}
+
+/** Convert Zod schema or JSON Schema to JSON Schema object.
+ *  Zod schemas are converted via zodToJsonSchema; plain objects pass through. */
+function convertParameters(params: unknown): z.ZodType | Record<string, unknown> | undefined {
+  if (!params) return undefined;
+  if (params && typeof params === "object" && "_def" in (params as Record<string, unknown>)) {
+    return zodToJsonSchema(params as Parameters<typeof zodToJsonSchema>[0]);
+  }
+  return params as Record<string, unknown>;
+}
+
+/** Async tool mapping that pre-converts Zod schemas to JSON Schema.
+ *  Handles ESM environments where synchronous Zod import may fail. */
+async function mapToolsToSDKAsync(tools: ToolDefinition[]): Promise<SDKTool[]> {
+  return tools.map((tool) => ({
+    name: tool.name,
+    description: tool.description,
+    parameters: convertParameters(tool.parameters),
     handler: async (args: unknown): Promise<unknown> => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = await tool.execute(args as any);
@@ -456,24 +480,27 @@ function mapSessionEvent(
 class CopilotAgent extends BaseAgent {
   protected readonly backendName = "copilot";
   private readonly getClient: () => Promise<SDKClient>;
-  private readonly sdkTools: SDKTool[];
-  private readonly sessionConfig: Omit<SDKSessionConfig, "streaming">;
+  private sdkTools: SDKTool[];
+  private readonly sessionConfig: Omit<SDKSessionConfig, "streaming"> & { tools?: SDKTool[] };
   private readonly sendAndWaitTimeout: number | undefined;
   private readonly isPersistent: boolean;
   private persistentSession: SDKSession | null = null;
   private _sessionId: string | undefined;
   private activeSession: SDKSession | null = null;
+  private _resumeSessionId: string | undefined;
+  private _toolsReady: Promise<void> | null = null;
 
   constructor(
     config: AgentConfig,
     getClient: () => Promise<SDKClient>,
     sendAndWaitTimeout?: number,
+    resumeSessionId?: string,
   ) {
     super(config);
     this.getClient = getClient;
     this.sendAndWaitTimeout = sendAndWaitTimeout;
     this.isPersistent = config.sessionMode === "persistent";
-    this.sdkTools = mapToolsToSDK(config.tools);
+    this.sdkTools = mapToolsToSDK(config.tools ?? []);
     this.sessionConfig = {
       model: config.model,
       tools: this.sdkTools,
@@ -483,8 +510,19 @@ class CopilotAgent extends BaseAgent {
       },
       onPermissionRequest: buildPermissionHandler(config),
       onUserInputRequest: buildUserInputHandler(config),
-      ...(config.availableTools ? { availableTools: config.availableTools } : {}),
+      ...(config.availableTools?.length ? { availableTools: config.availableTools } : {}),
     };
+    // Start async Zod converter loading — remaps tools with proper JSON Schema before first session
+    this._toolsReady = this._initToolsAsync(config);
+    // Store resume session ID from stored identifier for session recovery after server restart
+    this._resumeSessionId = resumeSessionId;
+  }
+
+  /** Pre-convert Zod schemas to JSON Schema asynchronously.
+   *  Updates sdkTools and sessionConfig.tools before first session creation. */
+  private async _initToolsAsync(config: AgentConfig): Promise<void> {
+    this.sdkTools = await mapToolsToSDKAsync(config.tools ?? []);
+    this.sessionConfig.tools = this.sdkTools;
   }
 
   override get sessionId(): string | undefined {
@@ -518,7 +556,31 @@ class CopilotAgent extends BaseAgent {
     if (this.isPersistent && this.persistentSession) {
       return { session: this.persistentSession, isNew: false };
     }
+    // Wait for async Zod converter initialization before first session creation
+    if (this._toolsReady) {
+      await this._toolsReady;
+      this._toolsReady = null;
+    }
     const client = await this.getClient();
+    // Try to resume a stored session (from DB) before creating a new one.
+    // This enables session recovery after server restart for persistent sessions.
+    if (this._resumeSessionId) {
+      const storedId = this._resumeSessionId;
+      this._resumeSessionId = undefined; // Only attempt once
+      try {
+        const session = await client.resumeSession(storedId, {
+          ...this.sessionConfig,
+          streaming: this.isPersistent ? true : streaming,
+        });
+        if (this.isPersistent) {
+          this.persistentSession = session;
+          this._sessionId = session.sessionId;
+        }
+        return { session, isNew: false };
+      } catch {
+        // Resume failed (session expired, deleted, etc.) — fall through to createSession
+      }
+    }
     const session = await client.createSession({
       ...this.sessionConfig,
       streaming: this.isPersistent ? true : streaming,
@@ -789,6 +851,17 @@ function extractLastUserPrompt(messages: Message[]): string {
   return "";
 }
 
+function serializeToolCall(tc: { name: string; args: JSONValue }): string {
+  const args = typeof tc.args === "string" ? tc.args : JSON.stringify(tc.args);
+  return `  Tool call: ${tc.name}(${args})`;
+}
+
+function serializeToolResult(tr: { name: string; result: JSONValue; isError?: boolean }): string {
+  const result = typeof tr.result === "string" ? tr.result : JSON.stringify(tr.result);
+  const prefix = tr.isError ? "[ERROR] " : "";
+  return `  ${tr.name} → ${prefix}${result}`;
+}
+
 /** Build prompt with conversation history for CLI backends that create fresh sessions */
 function buildContextualPrompt(messages: Message[]): string {
   if (messages.length <= 1) {
@@ -796,13 +869,47 @@ function buildContextualPrompt(messages: Message[]): string {
   }
 
   const history = messages.slice(0, -1).map((msg) => {
+    if (msg.role === "user") {
+      return `User: ${msg.content ? getTextContent(msg.content) : ""}`;
+    }
+    if (msg.role === "tool" && msg.toolResults) {
+      const results = msg.toolResults.map(serializeToolResult).join("\n");
+      return `Tool results:\n${results}`;
+    }
+    if (msg.role === "assistant") {
+      const parts: string[] = [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const thinking = (msg as any).thinking as string | undefined;
+      if (thinking) {
+        parts.push(`[reasoning: ${thinking}]`);
+      }
+      const text = msg.content ? getTextContent(msg.content) : "";
+      if (text) parts.push(text);
+      if (msg.toolCalls && msg.toolCalls.length > 0) {
+        parts.push(msg.toolCalls.map(serializeToolCall).join("\n"));
+      }
+      return `Assistant: ${parts.join("\n")}`;
+    }
     const text = msg.content ? getTextContent(msg.content) : "";
-    return msg.role === "user" ? `User: ${text}` : `Assistant: ${text}`;
+    return `${msg.role}: ${text}`;
   }).join("\n");
 
   const lastPrompt = extractLastUserPrompt(messages);
 
   return `Conversation history:\n${history}\n\nUser: ${lastPrompt}`;
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────
+
+/** Race a promise against a timeout. Rejects with SubprocessError on timeout. */
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new SubprocessError(message)), ms);
+    promise.then(
+      (val) => { clearTimeout(timer); resolve(val); },
+      (err) => { clearTimeout(timer); reject(err); },
+    );
+  });
 }
 
 // ─── CopilotAgentService ────────────────────────────────────────
@@ -834,14 +941,20 @@ class CopilotAgentService implements IAgentService {
           autoRestart: true,
           logLevel: "error",
           githubToken: this.options.githubToken,
-          useLoggedInUser: this.options.useLoggedInUser ?? true,
+          useLoggedInUser: this.options.useLoggedInUser ?? !this.options.githubToken,
           ...(this.options.cliArgs ? { cliArgs: this.options.cliArgs } : {}),
           ...(this.options.env ? { env: { ...process.env, ...this.options.env } } : {}),
         });
-        await client.start();
+
+        const startupTimeout = this.options.startupTimeoutMs ?? 30_000;
+        await withTimeout(client.start(), startupTimeout, "CLI startup timed out");
 
         // Verify authentication early to fail fast instead of hanging
-        const auth = await client.getAuthStatus();
+        const auth = await withTimeout(
+          client.getAuthStatus(),
+          startupTimeout,
+          "Auth status check timed out — token may be expired",
+        );
         if (!auth.isAuthenticated) {
           await client.stop();
           throw new SubprocessError(
@@ -863,7 +976,7 @@ class CopilotAgentService implements IAgentService {
 
   createAgent(config: AgentConfig): IAgent {
     if (this.disposed) throw new DisposedError("CopilotAgentService");
-    return new CopilotAgent(config, () => this.ensureClient(), this.options.timeout);
+    return new CopilotAgent(config, () => this.ensureClient(), this.options.timeout, this.options.resumeSessionId);
   }
 
   async listModels(): Promise<ModelInfo[]> {

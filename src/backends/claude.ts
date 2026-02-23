@@ -104,6 +104,7 @@ interface SDKOptions {
   systemPrompt?:
     | string
     | { type: "preset"; preset: "claude_code"; append?: string };
+  tools?: string[];
   mcpServers?: Record<string, unknown>;
 }
 
@@ -582,9 +583,15 @@ class ClaudeAgent extends BaseAgent {
   constructor(config: AgentConfig, options: ClaudeBackendOptions) {
     super(config);
     this.options = options;
-    this.tools = config.tools;
+    this.tools = config.tools ?? [];
     this.canUseTool = buildCanUseTool(config);
     this.isPersistent = config.sessionMode === "persistent";
+
+    // Restore session ID from stored identifier for session resume after server restart.
+    // buildQueryOptions() uses _sessionId to set opts.resume when isPersistent.
+    if (options.resumeSessionId) {
+      this._sessionId = options.resumeSessionId;
+    }
 
     // Warn if onAskUser is set — Claude CLI SDK doesn't support user interaction hooks
     if (config.supervisor?.onAskUser) {
@@ -665,10 +672,12 @@ class ClaudeAgent extends BaseAgent {
       opts.permissionMode = "default";
     }
 
-    // When availableTools is set, restrict to only those tools.
-    // MCP tool names are added later by buildMcpConfig().
+    // When availableTools is set, restrict built-in tool availability.
+    // opts.tools controls which tools are available (Bash, Read, Edit, etc.).
+    // opts.allowedTools only auto-approves permissions but does NOT restrict availability.
+    // MCP tool names are added to allowedTools later by buildMcpConfig().
     if (this.config.availableTools) {
-      opts.allowedTools = [...this.config.availableTools];
+      opts.tools = [...this.config.availableTools];
     }
 
     return opts;
@@ -774,8 +783,87 @@ class ClaudeAgent extends BaseAgent {
         }
       }
     } catch (e) {
-      if (this.isPersistent) this.clearPersistentSession();
       if (signal.aborted) throw new AbortError();
+      // Single retry on resume failure: clear session, rebuild with full history
+      if (isResuming && this.isPersistent) {
+        this.clearPersistentSession();
+        const retryPrompt = buildContextualPrompt(messages);
+        let retryOpts = this.buildQueryOptions(signal);
+        toolResultCapture.clear();
+        retryOpts = await this.buildMcpConfig(retryOpts, toolResultCapture);
+        const retryQ = sdk.query({ prompt: retryPrompt, options: retryOpts });
+        this.activeQuery = retryQ;
+        toolCalls.length = 0;
+        output = null;
+        try {
+          for await (const msg of retryQ) {
+            if (msg.type === "assistant") {
+              const betaMessage = msg.message as {
+                content?: Array<{
+                  type: string;
+                  name?: string;
+                  input?: unknown;
+                }>;
+              } | undefined;
+              if (betaMessage?.content) {
+                for (const block of betaMessage.content) {
+                  if (block.type === "tool_use") {
+                    const toolName = stripMcpPrefix(block.name ?? "unknown");
+                    toolCalls.push({
+                      toolName,
+                      args: (block.input as JSONValue) ?? {},
+                      result: toolResultCapture.get(toolName) ?? null,
+                      approved: true,
+                    });
+                  }
+                }
+              }
+            }
+            if (msg.type === "tool_use_summary" || msg.type === "result") {
+              for (const tc of toolCalls) {
+                if (tc.result === null) {
+                  const captured = toolResultCapture.get(tc.toolName);
+                  if (captured !== undefined) tc.result = captured;
+                }
+              }
+            }
+            if (msg.type === "result") {
+              if (msg.subtype === "success") {
+                const r = msg as unknown as SDKResultSuccess;
+                output = r.result;
+                usage = aggregateUsage(r.modelUsage);
+                if (this.isPersistent && r.session_id) {
+                  this._sessionId = r.session_id;
+                }
+              } else if (msg.is_error) {
+                const r = msg as unknown as SDKResultError;
+                throw new Error(
+                  `Claude query failed: ${r.errors?.join("; ") ?? "unknown error"}`,
+                );
+              }
+            }
+          }
+        } catch (retryError) {
+          if (this.isPersistent) this.clearPersistentSession();
+          if (signal.aborted) throw new AbortError();
+          throw retryError;
+        } finally {
+          this.activeQuery = null;
+        }
+        return {
+          output,
+          structuredOutput: undefined as AgentResult["structuredOutput"],
+          toolCalls,
+          messages: [
+            ...messages,
+            ...(output !== null
+              ? [{ role: "assistant" as const, content: output }]
+              : []),
+          ],
+          usage,
+        };
+      }
+      if (this.isPersistent) this.clearPersistentSession();
       throw e;
     } finally {
       this.activeQuery = null;
@@ -905,8 +993,105 @@ class ClaudeAgent extends BaseAgent {
         }
       }
     } catch (e) {
-      if (this.isPersistent) this.clearPersistentSession();
       if (signal.aborted) throw new AbortError();
+      // Single retry on resume failure: clear session, rebuild with full history
+      if (isResuming && this.isPersistent) {
+        this.clearPersistentSession();
+        const retryPrompt = buildContextualPrompt(messages);
+        let retryOpts = this.buildQueryOptions(signal);
+        toolResultCapture.clear();
+        retryOpts = await this.buildMcpConfig(retryOpts, toolResultCapture);
+        retryOpts.outputFormat = {
+          type: "json_schema",
+          schema: jsonSchema as Record<string, unknown>,
+        };
+        const retryQ = sdk.query({ prompt: retryPrompt, options: retryOpts });
+        this.activeQuery = retryQ;
+        toolCalls.length = 0;
+        output = null;
+        structuredOutput = undefined;
+        try {
+          for await (const msg of retryQ) {
+            if (msg.type === "assistant") {
+              const betaMessage = msg.message as {
+                content?: Array<{
+                  type: string;
+                  name?: string;
+                  input?: unknown;
+                }>;
+              } | undefined;
+              if (betaMessage?.content) {
+                for (const block of betaMessage.content) {
+                  if (block.type === "tool_use") {
+                    const toolName = stripMcpPrefix(block.name ?? "unknown");
+                    toolCalls.push({
+                      toolName,
+                      args: (block.input as JSONValue) ?? {},
+                      result: toolResultCapture.get(toolName) ?? null,
+                      approved: true,
+                    });
+                  }
+                }
+              }
+            }
+            if (msg.type === "tool_use_summary" || msg.type === "result") {
+              for (const tc of toolCalls) {
+                if (tc.result === null) {
+                  const captured = toolResultCapture.get(tc.toolName);
+                  if (captured !== undefined) tc.result = captured;
+                }
+              }
+            }
+            if (msg.type === "result" && msg.subtype === "success") {
+              const r = msg as unknown as SDKResultSuccess;
+              output = r.result;
+              if (r.structured_output !== undefined) {
+                try { structuredOutput = schema.schema.parse(r.structured_output); } catch {
+                  try { structuredOutput = schema.schema.parse(JSON.parse(r.result)); } catch {
+                    // Leave undefined
+                  }
+                }
+              } else if (r.result) {
+                try {
+                  const jsonMatch = r.result.match(/```(?:json)?\s*([\s\S]*?)```/);
+                  const raw = jsonMatch ? jsonMatch[1]!.trim() : r.result.trim();
+                  structuredOutput = schema.schema.parse(JSON.parse(raw));
+                } catch {
+                  // Leave undefined
+                }
+              }
+              usage = aggregateUsage(r.modelUsage);
+              if (this.isPersistent && r.session_id) {
+                this._sessionId = r.session_id;
+              }
+            } else if (msg.type === "result" && msg.is_error) {
+              const r = msg as unknown as SDKResultError;
+              throw new Error(
+                `Claude query failed: ${r.errors?.join("; ") ?? "unknown error"}`,
+              );
+            }
+          }
+        } catch (retryError) {
+          if (this.isPersistent) this.clearPersistentSession();
+          if (signal.aborted) throw new AbortError();
+          throw retryError;
+        } finally {
+          this.activeQuery = null;
+        }
+        return {
+          output,
+          structuredOutput: structuredOutput as AgentResult<T>["structuredOutput"],
+          toolCalls,
+          messages: [
+            ...messages,
+            ...(output !== null
+              ? [{ role: "assistant" as const, content: output }]
+              : []),
+          ],
+          usage,
+        };
+      }
+      if (this.isPersistent) this.clearPersistentSession();
       throw e;
     } finally {
       this.activeQuery = null;
@@ -941,12 +1126,16 @@ class ClaudeAgent extends BaseAgent {
       ? extractLastUserPrompt(messages)
       : buildContextualPrompt(messages);
     let opts = this.buildQueryOptions(signal);
-    opts = await this.buildMcpConfig(opts);
+    // Capture actual tool results from MCP handler execution
+    const toolResultCapture = new Map<string, JSONValue>();
+    opts = await this.buildMcpConfig(opts, toolResultCapture);
 
     const q = sdk.query({ prompt, options: opts });
     this.activeQuery = q;
     const thinkingBlockIndices = new Set<number>();
     const toolCallTracker = new ClaudeToolCallTracker();
+    // Track pending tool calls to emit tool_call_end for tools without tool_use_summary
+    const pendingStreamToolCalls = new Map<string, string>();
 
     try {
       for await (const msg of q) {
@@ -955,12 +1144,39 @@ class ClaudeAgent extends BaseAgent {
         const events = mapSDKMessage(msg, thinkingBlockIndices, toolCallTracker);
         if (events) {
           const mapped = Array.isArray(events) ? events : [events];
-          for (const e of mapped) yield e;
+          for (const e of mapped) {
+            // Track tool_call_start for fallback emission
+            if (e.type === "tool_call_start") {
+              pendingStreamToolCalls.set(e.toolCallId, e.toolName);
+            }
+            // Enrich tool_call_end with captured actual result instead of summary text
+            if (e.type === "tool_call_end" && toolResultCapture.has(e.toolName)) {
+              e.result = toolResultCapture.get(e.toolName)!;
+              toolResultCapture.delete(e.toolName);
+              pendingStreamToolCalls.delete(e.toolCallId);
+            } else if (e.type === "tool_call_end") {
+              pendingStreamToolCalls.delete(e.toolCallId);
+            }
+            yield e;
+          }
         }
 
         // Capture session_id and emit done event on result
         if (msg.type === "result" && msg.subtype === "success") {
           const r = msg as unknown as SDKResultSuccess;
+          // Emit tool_call_end for any tools that executed but never got tool_use_summary
+          for (const [toolCallId, toolName] of pendingStreamToolCalls) {
+            if (toolResultCapture.has(toolName)) {
+              yield {
+                type: "tool_call_end" as const,
+                toolCallId,
+                toolName,
+                result: toolResultCapture.get(toolName)!,
+              };
+              toolResultCapture.delete(toolName);
+            }
+          }
+          pendingStreamToolCalls.clear();
           if (r.session_id) {
             if (this.isPersistent) {
               this._sessionId = r.session_id;
@@ -971,8 +1187,72 @@ class ClaudeAgent extends BaseAgent {
         }
       }
     } catch (e) {
-      if (this.isPersistent) this.clearPersistentSession();
       if (signal.aborted) throw new AbortError();
+      // Single retry on resume failure: clear session, rebuild with full history
+      if (isResuming && this.isPersistent) {
+        this.clearPersistentSession();
+        const retryPrompt = buildContextualPrompt(messages);
+        let retryOpts = this.buildQueryOptions(signal);
+        toolResultCapture.clear();
+        retryOpts = await this.buildMcpConfig(retryOpts, toolResultCapture);
+        const retryQ = sdk.query({ prompt: retryPrompt, options: retryOpts });
+        this.activeQuery = retryQ;
+        const retryThinkingBlockIndices = new Set<number>();
+        const retryToolCallTracker = new ClaudeToolCallTracker();
+        const retryPendingToolCalls = new Map<string, string>();
+        try {
+          for await (const msg of retryQ) {
+            if (signal.aborted) throw new AbortError();
+            const retryEvents = mapSDKMessage(msg, retryThinkingBlockIndices, retryToolCallTracker);
+            if (retryEvents) {
+              const mapped = Array.isArray(retryEvents) ? retryEvents : [retryEvents];
+              for (const ev of mapped) {
+                if (ev.type === "tool_call_start") {
+                  retryPendingToolCalls.set(ev.toolCallId, ev.toolName);
+                }
+                if (ev.type === "tool_call_end" && toolResultCapture.has(ev.toolName)) {
+                  ev.result = toolResultCapture.get(ev.toolName)!;
+                  toolResultCapture.delete(ev.toolName);
+                  retryPendingToolCalls.delete(ev.toolCallId);
+                } else if (ev.type === "tool_call_end") {
+                  retryPendingToolCalls.delete(ev.toolCallId);
+                }
+                yield ev;
+              }
+            }
+            if (msg.type === "result" && msg.subtype === "success") {
+              const r = msg as unknown as SDKResultSuccess;
+              for (const [toolCallId, toolName] of retryPendingToolCalls) {
+                if (toolResultCapture.has(toolName)) {
+                  yield {
+                    type: "tool_call_end" as const,
+                    toolCallId,
+                    toolName,
+                    result: toolResultCapture.get(toolName)!,
+                  };
+                  toolResultCapture.delete(toolName);
+                }
+              }
+              retryPendingToolCalls.clear();
+              if (r.session_id) {
+                if (this.isPersistent) {
+                  this._sessionId = r.session_id;
+                }
+                yield this.emitSessionInfo(r.session_id);
+              }
+              yield { type: "done", finalOutput: r.result };
+            }
+          }
+        } catch (retryError) {
+          if (this.isPersistent) this.clearPersistentSession();
+          if (signal.aborted) throw new AbortError();
+          throw retryError;
+        } finally {
+          this.activeQuery = null;
+        }
+        return;
+      }
+      if (this.isPersistent) this.clearPersistentSession();
       throw e;
     } finally {
       this.activeQuery = null;
@@ -997,6 +1277,17 @@ function extractLastUserPrompt(messages: Message[]): string {
   return "";
 }
 
+function serializeToolCall(tc: { name: string; args: JSONValue }): string {
+  const args = typeof tc.args === "string" ? tc.args : JSON.stringify(tc.args);
+  return `  Tool call: ${tc.name}(${args})`;
+}
+
+function serializeToolResult(tr: { name: string; result: JSONValue; isError?: boolean }): string {
+  const result = typeof tr.result === "string" ? tr.result : JSON.stringify(tr.result);
+  const prefix = tr.isError ? "[ERROR] " : "";
+  return `  ${tr.name} → ${prefix}${result}`;
+}
+
 /** Build prompt with conversation history for CLI backends that create fresh sessions */
 function buildContextualPrompt(messages: Message[]): string {
   if (messages.length <= 1) {
@@ -1004,8 +1295,29 @@ function buildContextualPrompt(messages: Message[]): string {
   }
 
   const history = messages.slice(0, -1).map((msg) => {
+    if (msg.role === "user") {
+      return `User: ${msg.content ? getTextContent(msg.content) : ""}`;
+    }
+    if (msg.role === "tool" && msg.toolResults) {
+      const results = msg.toolResults.map(serializeToolResult).join("\n");
+      return `Tool results:\n${results}`;
+    }
+    if (msg.role === "assistant") {
+      const parts: string[] = [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const thinking = (msg as any).thinking as string | undefined;
+      if (thinking) {
+        parts.push(`[reasoning: ${thinking}]`);
+      }
+      const text = msg.content ? getTextContent(msg.content) : "";
+      if (text) parts.push(text);
+      if (msg.toolCalls && msg.toolCalls.length > 0) {
+        parts.push(msg.toolCalls.map(serializeToolCall).join("\n"));
+      }
+      return `Assistant: ${parts.join("\n")}`;
+    }
     const text = msg.content ? getTextContent(msg.content) : "";
-    return msg.role === "user" ? `User: ${text}` : `Assistant: ${text}`;
+    return `${msg.role}: ${text}`;
   }).join("\n");
 
   const lastPrompt = extractLastUserPrompt(messages);

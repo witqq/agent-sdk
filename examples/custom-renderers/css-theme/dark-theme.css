@@ -1,0 +1,276 @@
+/**
+ * CSS-Only Theming
+ *
+ * SDK headless components use data-* attributes for styling.
+ * Override these selectors to match your design system — no React code needed.
+ *
+ * Import this CSS file to apply a dark theme to all SDK components.
+ */
+
+/* ============================================================
+ * Thread container
+ * ============================================================ */
+
+[data-thread] {
+  background: #1a1a2e;
+  color: #e0e0e0;
+  font-family: 'Inter', -apple-system, sans-serif;
+  padding: 16px;
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+/* ============================================================
+ * Messages
+ * ============================================================ */
+
+[data-thread-message] {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  line-height: 1.6;
+}
+
+[data-role="user"] {
+  background: #16213e;
+  border: 1px solid #0f3460;
+  margin-left: 48px;
+}
+
+[data-role="assistant"] {
+  background: #0f0f23;
+  border: 1px solid #1a1a3e;
+  margin-right: 48px;
+}
+
+/* ============================================================
+ * Thinking / Reasoning blocks
+ * ============================================================ */
+
+[data-thinking] {
+  background: #1a1a2e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 8px 0;
+  font-size: 14px;
+  color: #888;
+}
+
+[data-thinking] summary {
+  cursor: pointer;
+  color: #aaa;
+  font-style: italic;
+}
+
+[data-streaming="true"] {
+  border-color: #6366f1;
+}
+
+/* ============================================================
+ * Tool calls
+ * ============================================================ */
+
+[data-tool-status] {
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+
+[data-tool-name]::before {
+  content: '🔧 ';
+}
+
+[data-tool-status="pending"] {
+  border-color: #f59e0b;
+}
+
+[data-tool-status="complete"] {
+  border-color: #22c55e;
+}
+
+[data-tool-status="error"] {
+  border-color: #ef4444;
+}
+
+[data-tool-status="requires_approval"] {
+  border-color: #8b5cf6;
+  background: #1a1130;
+}
+
+/* Approval buttons */
+[data-tool-status="requires_approval"] button {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  margin: 4px;
+}
+
+/* ============================================================
+ * Markdown content
+ * ============================================================ */
+
+[data-md-heading] {
+  color: #e0e0e0;
+  margin: 16px 0 8px;
+}
+
+[data-md-code-block] {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 12px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 13px;
+}
+
+[data-md-inline-code] {
+  background: #21262d;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 13px;
+}
+
+[data-md-blockquote] {
+  border-left: 3px solid #6366f1;
+  padding-left: 12px;
+  color: #aaa;
+  margin: 8px 0;
+}
+
+[data-md-link] {
+  color: #818cf8;
+  text-decoration: none;
+}
+
+[data-md-link]:hover {
+  text-decoration: underline;
+}
+
+/* ============================================================
+ * Composer (input area)
+ * ============================================================ */
+
+[aria-label="Message input"] {
+  background: #16213e;
+  color: #e0e0e0;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: none;
+}
+
+[aria-label="Message input"]:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+[data-action="send"] {
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 20px;
+  cursor: pointer;
+}
+
+[data-action="send"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+[data-action="stop"] {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 20px;
+  cursor: pointer;
+}
+
+/* ============================================================
+ * Thread list (sidebar)
+ * ============================================================ */
+
+[data-session-item] {
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+[data-session-item]:hover {
+  background: #16213e;
+}
+
+[data-session-active="true"] {
+  background: #1a1a3e;
+  border-left: 3px solid #6366f1;
+}
+
+[data-action="create-session"] {
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px;
+  width: 100%;
+  cursor: pointer;
+}
+
+/* ============================================================
+ * Model selector
+ * ============================================================ */
+
+[data-model-selector-trigger] {
+  background: #16213e;
+  color: #e0e0e0;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+[data-model-selector-dropdown] {
+  background: #1a1a2e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+[data-model-selector-item] {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+[data-model-selector-item]:hover {
+  background: #16213e;
+}
+
+/* ============================================================
+ * Loading indicator
+ * ============================================================ */
+
+[data-thread-loading]::after {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6366f1;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}

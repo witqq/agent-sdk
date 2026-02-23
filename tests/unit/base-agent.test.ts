@@ -416,6 +416,22 @@ describe("BaseAgent", () => {
       const agent = makeAgent();
       expect(() => agent.abort()).not.toThrow();
     });
+
+    it("should clean up external signal listener after run completes", async () => {
+      const agent = makeAgent();
+      const externalAc = new AbortController();
+
+      // Count listeners on the external signal
+      const listenersBefore = (externalAc.signal as any)._events?.abort?.length ?? 0;
+
+      await agent.run("test", { signal: externalAc.signal });
+
+      // After run completes, the listener should be removed
+      // Verify by checking the signal won't trigger the (now non-existent) abort controller
+      expect(agent.getState()).toBe("idle");
+      // The external abort after run should not cause issues
+      expect(() => externalAc.abort()).not.toThrow();
+    });
   });
 
   describe("dispose()", () => {

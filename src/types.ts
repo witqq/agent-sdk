@@ -38,10 +38,21 @@ export interface ToolDeclaration<TParams = unknown> {
 }
 
 /** Full tool with execute function. Required for API-based backends.
- *  CLI backends extract declaration; execute map held internally. */
+ *  CLI backends extract declaration; execute map held internally.
+ *  The optional second parameter receives request-scoped context
+ *  when invoked through ChatRuntime (session ID, user data, custom metadata). */
 export interface ToolDefinition<TParams = unknown>
   extends ToolDeclaration<TParams> {
-  execute: (params: TParams) => Promise<JSONValue> | JSONValue;
+  execute: (params: TParams, context?: ToolContext) => Promise<JSONValue> | JSONValue;
+}
+
+/** Request-scoped context passed to tool execute functions via ChatRuntime.
+ *  Contains session identity and user-defined metadata from the current session. */
+export interface ToolContext {
+  /** Active chat session ID */
+  sessionId: string;
+  /** Custom metadata from the session (e.g. user ID, tenant, permissions) */
+  custom?: Record<string, unknown>;
 }
 
 // ─── Tool Calls / Results ──────────────────────────────────────
@@ -359,8 +370,13 @@ export interface CopilotBackendOptions {
   cliArgs?: string[];
   /** Timeout in milliseconds for sendAndWait() calls. When undefined, uses copilot-sdk default (60s). */
   timeout?: number;
+  /** Timeout in milliseconds for CLI startup and auth check (default: 30000). */
+  startupTimeoutMs?: number;
   /** Custom environment variables merged into the subprocess env */
   env?: Record<string, string | undefined>;
+  /** Session ID to resume after server restart. On startup, the backend attempts
+   *  to resume this session before creating a new one. */
+  resumeSessionId?: string;
 }
 
 /** Options for Claude CLI backend */
@@ -372,6 +388,9 @@ export interface ClaudeBackendOptions {
   oauthToken?: string;
   /** Custom environment variables merged into the subprocess env */
   env?: Record<string, string | undefined>;
+  /** Session ID to resume after server restart. On startup, the backend attempts
+   *  to resume this session before creating a new one. */
+  resumeSessionId?: string;
 }
 
 /** Options for Vercel AI SDK backend */

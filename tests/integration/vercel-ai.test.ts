@@ -14,7 +14,9 @@ import { createVercelAIService } from "../../src/backends/vercel-ai.js";
 import type { AgentConfig, AgentEvent } from "../../src/types.js";
 
 const API_KEY = process.env.OPENROUTER_API_KEY ?? "";
-const TEST_MODEL = "anthropic/claude-haiku";
+// IMPORTANT: Use ONLY the cheapest models for integration tests!
+// NEVER use paid models — they consume subscription.
+const TEST_MODEL = "openai/gpt-4.1-mini";
 const TIMEOUT = 60_000;
 
 let service: ReturnType<typeof createVercelAIService> | null = null;
