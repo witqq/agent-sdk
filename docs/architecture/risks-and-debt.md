@@ -1,185 +1,194 @@
 ---
 title: Risks and Technical Debt
 project: "@witqq/agent-sdk"
+verified: 2026-03-02
 ---
 
 # Risks and Technical Debt
 
-## Stateful Violations (RESOLVED in v0.7.0)
-
-All 7 stateful violations (STAT-01 through STAT-07) identified in the pre-v0.7 architecture review have been resolved:
-
-| ID | Issue | Resolution |
-|----|-------|-----------|
-| STAT-01 | `HandlerState.currentModel` shared mutable state | Kept as single-user convenience; multi-user resolves from `providerId` per-request |
-| STAT-02 | `session.config.model` writeback in `send()` | Removed — model is per-request via `RuntimeSendOptions` |
-| STAT-03 | `session.config.backend` writeback in `loadAndSyncSession()` | Removed — backend is per-request |
-| STAT-04 | `_cachedModel` in `BaseBackendAdapter` | Removed — model flows through `RunOptions` per-call |
-| STAT-05 | `_toolsOverride` in `BaseBackendAdapter` | Removed — tools flow via `SendMessageOptions.tools` |
-| STAT-06 | `_activeSessionId` in `ChatRuntime` | Removed — client-only concern in `RemoteChatClient` |
-| STAT-07 | `_defaultBackend` fallback in `createSession()` | Kept for convenience — `defaultBackend` used when caller doesn't specify |
+Single source of truth for all open tech debt items. Each item verified against source code.
 
 ---
 
-## Resolved Gaps (Previous Version)
+## P1 — MAJOR
 
-### Gap 1: Dead `onRuntimeChange` Infrastructure (CRITICAL)
-**Status**: ✅ RESOLVED (commit a6cbde7) — `_notifyRuntimeChange()` now fires events.
+### M1: CopilotChatAdapter ≡ ClaudeChatAdapter Duplication
 
-### Gap 2: `getContextStats` Interface Violation (CRITICAL)
-**Status**: ✅ RESOLVED (commit a6cbde7) — added to `IChatClient`, cast removed.
-
-### Gap 3: Duplicated Listener Management (MAJOR)
-**Status**: ✅ RESOLVED (commit a2ad205) — extracted `ListenerSet<T>`.
-
-### Gap 4: CLAUDE.md Architecture Drift (MAJOR)
-**Status**: ✅ RESOLVED — CLAUDE.md describes actual interfaces.
-
-### Gap 5: Type Assertions (MINOR)
-**Status**: 34 boundary casts remain — all benign. Potential reduction via upstream SDK type guard contributions.
-
-### Gap 6: `node:crypto` in Auth (MINOR)
-**Status**: ✅ MITIGATED — `useRemoteAuth` per [ADR-0004](./adr/0004-server-mediated-auth.md).
+**Status**: OPEN
+**Files**: `src/chat/backends/copilot.ts`, `src/chat/backends/claude.ts` (108 lines each, 97% identical)
+**Description**: Both adapters extend `BaseBackendAdapter`, differ only in class name, backend name string (`"copilot"` vs `"claude"`), and options field name (`copilotOptions` vs `claudeOptions`). Bug fixes must be applied twice.
+**Remediation**: Extract parameterized `CLIChatAdapter` base or factory function.
 
 ---
 
-## Open Technical Debt (from SDK Feedback Audit)
+### M3: `mapToolsToSDKAsync` Declared Async With No Await
 
-Cross-referenced with [moira-ws/sdk-feedback-audit-20260227-2101/all-items.md](../../moira-ws/sdk-feedback-audit-20260227-2101/all-items.md) (78 items, 43 resolved, 35 open) and [action plan](../../moira-ws/sdk-feedback-audit-20250301-0700/step-4/action-plan.md) (27 findings).
-
-### API Surface — Still Open
-
-#### IMP-03: JSONValue Strictness for Tool Returns (F-009)
-
-**Evidence**: `ToolDefinition.execute` returns `Promise<JSONValue> | JSONValue` (`src/types/tools.ts:23`). Every consumer tool returning typed objects must cast to `JSONValue`.
-
-**Impact**: 34 `as any`/`as unknown` casts across consumer codebases.
-
-**Remediation**: Widen execute return type to `Promise<unknown> | unknown`. Let backends serialize.
-
-**Files**: `src/types/tools.ts`, `src/types/json.ts`
-
-**Priority**: HIGH (Tier 1)
+**Status**: OPEN
+**File**: `src/backends/copilot.ts:224-235`
+**Description**: Function is `async` but body is `return tools.map(...)` — no `await` anywhere. The async keyword wraps the return in a Promise for no benefit. Called at `copilot.ts:541`.
+**Remediation**: Remove `async` keyword or document why it's needed for ESM environment handling.
 
 ---
 
-#### IMP-04: ToolDefinitionLike Type Missing (F-008)
+### M5: FileStorage Uses Synchronous `node:fs`
 
-**Evidence**: No `ToolDefinitionLike` type exists. Consumers using different Zod versions or returning non-JSONValue fail type checking.
-
-**Remediation**: Export `ToolDefinitionLike` accepting `z.ZodType<any> | Record<string, unknown>` and `execute: (...) => Promise<unknown>`. Accept in `ChatRuntime.registerTool()`.
-
-**Files**: `src/types/tools.ts`, `src/chat/runtime.ts`
-
-**Priority**: HIGH — depends on IMP-03.
+**Status**: OPEN
+**File**: `src/chat/storage.ts` (lines 275–404)
+**Description**: `FileStorage` class uses `readFileSync`, `writeFileSync`, `mkdirSync`, `existsSync`, `readdirSync`, `unlinkSync` in methods declared `async`. Blocks the event loop under load.
+**Remediation**: Replace with `fs/promises` equivalents.
 
 ---
 
-#### IMP-05: useSSE Doesn't Support POST (F-041)
+### MAJOR-10: FilePermissionStore Uses Synchronous I/O
 
-**Evidence**: `UseSSEOptions` has no `method` or `body` fields. Uses GET-only `fetch()`.
-
-**Remediation**: Add `method?: string` and `body?: string | Record<string, unknown>` to `UseSSEOptions`.
-
-**Files**: `src/chat/react/useSSE.ts`
-
-**Priority**: MEDIUM
+**Status**: OPEN
+**File**: `src/permission-store.ts:66-117`
+**Description**: Same class of issue as M5. `readFile()` uses `fs.readFileSync` (line 101), `writeFileAtomic()` uses `fs.writeFileSync` and `fs.mkdirSync` (lines 112-115). All wrapped in `async` interface methods.
+**Remediation**: Replace with `fs/promises` equivalents.
 
 ---
 
-### Documentation — Still Open
+### M6: `(msg as any).thinking` Casts
 
-#### IMP-06: No Server Quickstart Guide (F-032)
-
-**Evidence**: `docs/chat-sdk/server-quickstart.md` does not exist. Server-only consumers have no clear starting point.
-
-**Remediation**: Create quickstart with minimal `createChatServer` setup (~20 lines), Express adapter example, auth handler setup.
-
-**Files**: `docs/chat-sdk/server-quickstart.md` (new)
-
-**Priority**: HIGH
+**Status**: PARTIAL — reduced from 7 to 2 locations after `shared.ts` extraction
+**Files**:
+- `src/backends/shared.ts:47` — `(msg as any).thinking`
+- `src/backends/vercel-ai.ts:283` — `(msg as any).thinking`
+**Description**: `Message` type lacks a `thinking` field. Two remaining casts in backend code. The `tool.execute(args as any)` casts (copilot.ts:206,231 and vercel-ai.ts:261) are separate — caused by generic `TParams`.
+**Remediation**: Add optional `thinking?: string` to `Message` type.
 
 ---
 
-#### IMP-07: WritableResponse Compatibility Underdocumented (F-033)
+### M4: Dual Backend Naming
 
-**Evidence**: One-line mention in docs. No dedicated framework compatibility section.
-
-**Remediation**: Add "Framework Compatibility" section to `docs/chat-sdk/README.md`.
-
-**Priority**: LOW
-
----
-
-#### IMP-08: ChatSessionMetadata Required Fields Undocumented (F-035)
-
-**Evidence**: No JSDoc on `ChatSessionMetadata` fields in types.ts.
-
-**Remediation**: Add JSDoc documenting required fields and defaults.
-
-**Files**: `src/chat/types.ts`
-
-**Priority**: LOW
+**Status**: OPEN (by design, but underdocumented)
+**Dirs**: `src/backends/` (raw agent services: copilot.ts, claude.ts, vercel-ai.ts, shared.ts) and `src/chat/backends/` (chat adapters: copilot.ts, claude.ts, vercel-ai.ts, base.ts, transport.ts, etc.)
+**Description**: Both directories called "backends" with identically named files. Clear separation exists (agent services vs chat adapters) but naming causes confusion for new contributors.
+**Remediation**: Document the distinction. Consider renaming in next major.
 
 ---
 
-#### IMP-09: fromAgentMessage() Not Discoverable (F-034)
+## P2 — MINOR
 
-**Evidence**: No `ChatMessage.fromText()` convenience factory. Only standalone `fromAgentMessage()` in conversion.ts.
+### m1: ContextWindowManager Created Per-Send
 
-**Remediation**: Add `createTextMessage(role, text)` factory. Document message conversion in README.
-
-**Files**: `src/chat/conversion.ts`, `docs/chat-sdk/README.md`
-
-**Priority**: LOW
-
----
-
-#### IMP-10: useAuth Removal (F-037) — ✅ RESOLVED
-
-`useAuth` has been removed from the codebase. `useRemoteAuth` is the only auth hook.
+**Status**: OPEN
+**File**: `src/chat/runtime.ts:494`
+**Description**: `new ContextWindowManager(this._contextConfig)` on every `trimSessionContext()` call. The manager is stateless after construction — could be cached as instance field.
+**Remediation**: Create once in constructor, reuse in `trimSessionContext()`.
 
 ---
 
-### Infrastructure — Still Open
+### m4: `isChatEvent` Allocates Array on Every Call
 
-#### IMP-11: No SQLite Schema Versioning (F-036)
+**Status**: OPEN
+**File**: `src/chat/guards.ts:93-104`
+**Description**: `validTypes` array created on every invocation, searched with `.includes()`. On hot paths this is wasteful.
+**Remediation**: Hoist to module-level `Set<string>` constant.
 
-**Evidence**: No `SCHEMA_VERSION` constant in sqlite module. Tables use `CREATE TABLE IF NOT EXISTS` pattern — no incremental migration.
+---
 
-**Current approach**: Schema is auto-created on store construction. This works for initial deployments but provides no migration path when schema evolves.
+### m5: `streamToTransport` Accumulates Full Response Text
 
-**Remediation**: Document current approach. Add `SCHEMA_VERSION` and `migrate()` when schema changes are needed.
+**Status**: OPEN
+**File**: `src/chat/backends/transport.ts:151-163`
+**Description**: `accumulatedText` string grows with every `message:delta` event, used only for `done` event's `finalOutput`. Doubles memory for large responses.
+**Remediation**: Make `finalOutput` optional or stream it from the transport consumer.
 
+---
+
+### IMP-11: No SQLite Schema Versioning
+
+**Status**: OPEN
+**File**: `src/chat/sqlite/` (no `SCHEMA_VERSION` constant found)
+**Description**: Tables use `CREATE TABLE IF NOT EXISTS` — no incremental migration. Works for initial deployments but no migration path when schema evolves.
+**Remediation**: Add `SCHEMA_VERSION` and `migrate()` when schema changes needed.
 **Priority**: LOW (no schema changes planned)
 
 ---
 
-### Strategic Concern
+### Validation-m1: No Message List Virtualization
 
-#### IMP-12: Chat SDK Adoption — Only Demo Uses It (ITEM-72)
+**Status**: OPEN (design gap)
+**File**: `src/chat/react/` (no `@tanstack/react-virtual` or equivalent)
+**Description**: `Thread` component renders all messages. Large conversations will cause performance issues.
+**Remediation**: Add virtualization when performance becomes a concern.
 
-**Evidence**: Only internal demo uses Chat SDK. Real consumer (claude-supervisor) uses agent abstraction layer only (1400+ lines of glue). Consumer satisfaction: Chat SDK 4/10 overall.
+---
 
-**Impact**: Chat SDK may not serve real consumer needs (multi-user NATS, permission supervision, custom event routing).
+### Validation-m2: No PermissionPrompt Component
 
-**Remediation**: Add extension points: pluggable session manager, optional middleware, custom transport factories. Document agent-layer-only usage as first-class pattern.
+**Status**: OPEN (design gap)
+**Description**: `useToolApproval` hook exists but no standalone `PermissionPrompt`/`PermissionDialog` component exported. Consumers must build their own UI.
+**Remediation**: Export a headless `PermissionDialog` component.
 
-**Priority**: STRATEGIC — affects SDK direction.
+---
+
+### IMP-07: WritableResponse Docs
+
+**Status**: OPEN
+**File**: `docs/chat-sdk/README.md:810` (one-line mention only)
+**Description**: No dedicated framework compatibility section with examples.
+**Remediation**: Add "Framework Compatibility" section showing Express/Fastify/Hono setup.
+
+---
+
+### IMP-08: ChatSessionMetadata JSDoc
+
+**Status**: RESOLVED
+**File**: `src/chat/types.ts:127-136`
+**Description**: All fields now have JSDoc comments: `messageCount`, `totalTokens`, `tags`, `custom`.
+
+---
+
+## DOCUMENTATION GAPS
+
+### IMP-06: No Server Quickstart Guide
+
+**Status**: OPEN
+**File**: `docs/chat-sdk/server-quickstart.md` does not exist
+**Description**: Server-only consumers have no clear starting point. Demo exists but is not a quickstart guide.
+**Remediation**: Create minimal guide (~20 lines `createChatServer` setup).
+
+---
+
+## STRATEGIC
+
+### IMP-12: Chat SDK Adoption
+
+**Status**: OPEN
+**Description**: Only internal demo uses Chat SDK. Real consumer (claude-supervisor) uses agent abstraction layer only (1400+ lines of glue). Chat SDK may not serve real consumer needs (multi-user NATS, permission supervision, custom event routing).
+**Remediation**: Add extension points. Document agent-layer-only usage as first-class pattern.
+
+---
+
+## RESOLVED (for reference)
+
+| ID | Description | Resolution |
+|----|-------------|-----------|
+| B1 | Event listener leak in `BaseAgent.createAbortController()` | RESOLVED — `cleanupRun()` (base-agent.ts:509-513) calls `_cleanupExternalSignal()` which does `removeEventListener`. Listener uses `{ once: true }`. Cleanup on all paths (success, error, abort). |
+| B2 | `readBody()` silently swallows errors | RESOLVED — moved to `src/chat/server/utils.ts:21-56`. Now throws `BodyParseError` with status codes (413 oversized, 400 invalid JSON, 500 request error). |
+| M2 | Utility function duplication across backends | RESOLVED — extracted to `src/backends/shared.ts`. `extractLastUserPrompt`, `serializeToolCall`, `serializeToolResult`, `buildContextualPrompt` all in shared module. Both copilot.ts and claude.ts import from shared.ts. |
+| m2 | Deprecated method aliases (`addMessage`, `getMessages`) in IChatSessionStore | RESOLVED — no deprecated aliases found in `src/chat/sessions.ts`. Interface has clean `appendMessage`/`loadMessages` API only. |
+| m3 | ChatSession mixes data and behavior (SRP) | RESOLVED — `ChatSession` (types.ts:139) is pure data interface. `ObservableSession` (types.ts:156) is a separate interface extending `ChatSession` with `subscribe()`/`getSnapshot()`. Clean separation. |
+| IMP-03 | JSONValue strictness for tool returns | RESOLVED — `ToolDefinition.execute` now returns `Promise<unknown> \| unknown` (tools.ts:23). |
+| IMP-04 | ToolDefinitionLike type missing | RESOLVED — exported at `src/types/tools.ts:52`: `type ToolDefinitionLike<TParams> = ToolDeclaration<TParams> \| ToolDefinition<TParams>`. |
+| IMP-05 | useSSE doesn't support POST | RESOLVED — `UseSSEOptions` has `method?: "GET" \| "POST"` (useSSE.ts:9-10) and `body?: unknown` (useSSE.ts:12). POST with JSON body handled at lines 76-86. |
+| IMP-09 | fromAgentMessage() not discoverable | RESOLVED — `createTextMessage()` exists (exported from core.ts:42). `fromAgentMessage()` exported from core.ts:62. Both discoverable from main chat entry point. |
+| IMP-10 | useAuth removal | RESOLVED — no `useAuth` references (only `useRemoteAuth`). |
+| MINOR-4 | listModels hardcoded fallback for openai.com | RESOLVED — `vercel-ai.ts:688-736` queries `/models` endpoint via fetch. No hardcoded preset list. Returns `[]` on failure. |
+| Validation-M5 | ChatSDKError deprecated alias | RESOLVED — `ChatSDKError` no longer exists in `src/chat/errors.ts`. Only `ChatError` class remains. |
+| Validation-m3 | saveMessages() JSDoc | PARTIAL — method exists at `sessions.ts:89,190` but no JSDoc specifying upsert-by-ID semantics. Current implementation appends (not upserts). Behavior is clear from code; JSDoc is nice-to-have. |
+| Validation-M7 | No ProviderRegistry | OPEN (deferred) — no `ProviderRegistry` in codebase. String-based backend selection (`"copilot"`, `"claude"`, `"vercel-ai"`) works for 3 backends. Registry may be needed as ecosystem grows. |
 
 ---
 
 ## Summary
 
-| Status | Count |
-|--------|-------|
-| Resolved stateful violations | 7 (STAT-01 through STAT-07) |
-| Resolved gaps | 6 (Gap 1–6) |
-| Resolved documentation | 1 (IMP-10) |
-| Open — API Surface | 3 (IMP-03, IMP-04, IMP-05) |
-| Open — Documentation | 4 (IMP-06 through IMP-09) |
-| Open — Infrastructure | 1 (IMP-11, LOW) |
-| Strategic | 1 (IMP-12) |
-| **Total open** | **9** |
-
-Source: [SDK Feedback Audit — All Items](../../moira-ws/sdk-feedback-audit-20260227-2101/all-items.md) (78 items), [Action Plan](../../moira-ws/sdk-feedback-audit-20250301-0700/step-4/action-plan.md) (27 findings, Tiers 1–4).
+| Severity | Open | Resolved |
+|----------|------|----------|
+| P1/MAJOR | 6 (M1, M3, M4, M5, M6, MAJOR-10) | 3 (B1, B2, M2) |
+| P2/MINOR | 7 (m1, m4, m5, IMP-11, Val-m1, Val-m2, IMP-07) | 6 (m2, m3, IMP-03, IMP-04, IMP-05, IMP-09) |
+| DOC | 1 (IMP-06) | 2 (IMP-08, IMP-10) |
+| STRATEGIC | 1 (IMP-12) | — |
+| **Total** | **15 open** | **11 resolved** |
