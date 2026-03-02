@@ -18,6 +18,7 @@ import type Database from "better-sqlite3";
 import { SQLiteSessionStore } from "./session-store.js";
 import { SQLiteProviderStore } from "./provider-store.js";
 import { SQLiteTokenStore } from "./token-store.js";
+import { runMigrations } from "./migrations.js";
 import type { IChatSessionStore } from "../sessions.js";
 import type { IProviderStore } from "../provider-types.js";
 import type { ITokenStore } from "../server/token-store.js";
@@ -69,6 +70,9 @@ export function createSQLiteStorage(pathOrOptions: string | SQLiteStorageOptions
   // Enable WAL + foreign keys once for the shared connection
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");
+
+  // Run schema migrations (creates/updates tables)
+  runMigrations(db);
 
   return {
     db,

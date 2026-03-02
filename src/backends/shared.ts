@@ -43,8 +43,7 @@ export function buildContextualPrompt(messages: Message[]): string {
     }
     if (msg.role === "assistant") {
       const parts: string[] = [];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const thinking = (msg as any).thinking as string | undefined;
+      const thinking = msg.thinking;
       if (thinking) {
         parts.push(`[reasoning: ${thinking}]`);
       }

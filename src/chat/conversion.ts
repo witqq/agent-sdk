@@ -7,27 +7,48 @@ import type { ChatId, ChatMessage, ChatRole, MessagePart } from "./types.js";
 import { createChatId, getMessageText, getMessageToolCalls } from "./chat-utils.js";
 
 /**
- * Convert a ChatMessage to agent-sdk Message format
+ * Convert a ChatMessage to agent-sdk Message format.
+ * @deprecated Use toAgentMessages() which correctly handles tool results.
+ * This function drops tool results for assistant messages with completed tool calls.
  */
 export function toAgentMessage(message: ChatMessage): Message {
+  return toAgentMessages(message)[0];
+}
+
+/**
+ * Convert a ChatMessage to one or more agent-sdk Messages.
+ * For assistant messages with completed tool calls, emits both:
+ * 1. {role: "assistant", toolCalls: [...]} — the tool invocation
+ * 2. {role: "tool", toolResults: [...]} — the tool results
+ * This preserves tool results when replaying conversation history to backends.
+ */
+export function toAgentMessages(message: ChatMessage): Message[] {
   const textContent = getMessageText(message);
   const toolCallParts = getMessageToolCalls(message);
 
   switch (message.role) {
     case "user":
-      return { role: "user", content: textContent };
+      return [{ role: "user", content: textContent }];
     case "assistant": {
       const toolCalls: ToolCall[] | undefined = toolCallParts.length > 0
         ? toolCallParts.map((p) => ({ id: p.toolCallId, name: p.name, args: p.args as JSONValue }))
         : undefined;
-      return {
+      const assistantMsg: Message = {
         role: "assistant",
         content: textContent,
         toolCalls,
       };
+
+      // Emit tool results as a separate message if any tool calls have results
+      const toolResults = extractToolResults(message);
+      if (toolResults.length > 0) {
+        return [assistantMsg, { role: "tool", toolResults }];
+      }
+
+      return [assistantMsg];
     }
     case "system":
-      return { role: "system", content: textContent };
+      return [{ role: "system", content: textContent }];
   }
 }
 

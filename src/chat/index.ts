@@ -69,6 +69,7 @@ export {
   agentEventToChatEvent,
   adaptAgentEvents,
   toAgentMessage,
+  toAgentMessages,
   fromAgentMessage,
 } from "./core.js";
 

@@ -35,3 +35,5 @@ export type { SQLiteStorage, SQLiteStorageOptions } from "./factory.js";
 export { SQLiteSessionStore } from "./session-store.js";
 export { SQLiteProviderStore } from "./provider-store.js";
 export { SQLiteTokenStore } from "./token-store.js";
+export { runMigrations, getSchemaVersion, migrations } from "./migrations.js";
+export type { Migration } from "./migrations.js";

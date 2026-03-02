@@ -81,6 +81,13 @@ export { UsageBadge } from "./UsageBadge.js";
 export type { UsageBadgeProps } from "./UsageBadge.js";
 export { ContextStatsDisplay } from "./ContextStatsDisplay.js";
 export type { ContextStatsDisplayProps } from "./ContextStatsDisplay.js";
+export { PermissionDialog } from "./PermissionDialog.js";
+export type { PermissionDialogProps } from "./PermissionDialog.js";
+export { useVirtualMessages } from "./useVirtualMessages.js";
+export type {
+  VirtualizeOptions,
+  VirtualMessagesResult,
+} from "./useVirtualMessages.js";
 export { RemoteChatClient } from "./RemoteChatClient.js";
 export type { RemoteChatClientOptions } from "./RemoteChatClient.js";
 export { useCopilotAuth } from "./auth/useCopilotAuth.js";

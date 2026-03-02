@@ -33,6 +33,7 @@ describe("chat barrel export", () => {
     expect(barrel.agentEventToChatEvent).toBeTypeOf("function");
     expect(barrel.adaptAgentEvents).toBeTypeOf("function");
     expect(barrel.toAgentMessage).toBeTypeOf("function");
+    expect(barrel.toAgentMessages).toBeTypeOf("function");
     expect(barrel.fromAgentMessage).toBeTypeOf("function");
   });
 

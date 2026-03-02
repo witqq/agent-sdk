@@ -473,3 +473,87 @@ describe("createSQLiteStorage", () => {
     expect(loadedSession!.config.model).toBe("gpt-5-mini");
   });
 });
+
+// ─── Schema Migrations ─────────────────────────────────────────
+
+describe("Schema Migrations", () => {
+  let db: Database.Database;
+
+  beforeEach(() => {
+    db = new Database(":memory:");
+    db.pragma("journal_mode = WAL");
+    db.pragma("foreign_keys = ON");
+  });
+
+  it("creates schema_version table on fresh database", async () => {
+    const { getSchemaVersion } = await import("../../../src/chat/sqlite/migrations.js");
+    const version = getSchemaVersion(db);
+    expect(version).toBe(0);
+
+    const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='schema_version'").all();
+    expect(tables).toHaveLength(1);
+  });
+
+  it("runMigrations creates all tables on fresh database", async () => {
+    const { runMigrations, getSchemaVersion } = await import("../../../src/chat/sqlite/migrations.js");
+    runMigrations(db);
+
+    expect(getSchemaVersion(db)).toBe(1);
+
+    const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all() as { name: string }[];
+    const names = tables.map((t) => t.name).sort();
+    expect(names).toContain("sessions");
+    expect(names).toContain("messages");
+    expect(names).toContain("providers");
+    expect(names).toContain("tokens");
+    expect(names).toContain("schema_version");
+  });
+
+  it("runMigrations is idempotent — second call is a no-op", async () => {
+    const { runMigrations, getSchemaVersion } = await import("../../../src/chat/sqlite/migrations.js");
+    runMigrations(db);
+    runMigrations(db);
+
+    expect(getSchemaVersion(db)).toBe(1);
+
+    const versions = db.prepare("SELECT * FROM schema_version").all();
+    expect(versions).toHaveLength(1);
+  });
+
+  it("detects pre-existing database and fast-forwards to v1", async () => {
+    const { runMigrations, getSchemaVersion } = await import("../../../src/chat/sqlite/migrations.js");
+
+    // Simulate a pre-migration database (tables exist but no schema_version)
+    db.exec("CREATE TABLE sessions (id TEXT PRIMARY KEY)");
+    db.exec("CREATE TABLE messages (id TEXT PRIMARY KEY)");
+
+    runMigrations(db);
+
+    expect(getSchemaVersion(db)).toBe(1);
+    const row = db.prepare("SELECT description FROM schema_version WHERE version = 1").get() as { description: string };
+    expect(row.description).toContain("pre-existing");
+  });
+
+  it("records applied_at timestamp for each migration", async () => {
+    const { runMigrations } = await import("../../../src/chat/sqlite/migrations.js");
+    runMigrations(db);
+
+    const row = db.prepare("SELECT applied_at FROM schema_version WHERE version = 1").get() as { applied_at: string };
+    expect(row.applied_at).toBeTruthy();
+    expect(new Date(row.applied_at).getTime()).not.toBeNaN();
+  });
+
+  it("factory createSQLiteStorage runs migrations automatically", async () => {
+    const { getSchemaVersion } = await import("../../../src/chat/sqlite/migrations.js");
+    const storage = createSQLiteStorage({ db });
+
+    expect(getSchemaVersion(storage.db)).toBe(1);
+  });
+
+  it("migrations array versions are sequential", async () => {
+    const { migrations } = await import("../../../src/chat/sqlite/migrations.js");
+    for (let i = 0; i < migrations.length; i++) {
+      expect(migrations[i].version).toBe(i + 1);
+    }
+  });
+});

@@ -240,6 +240,7 @@ class ChatRuntime<TMetadata extends Record<string, unknown> = Record<string, unk
   private readonly _backends: Record<string, BackendAdapterFactory>;
   private readonly _sessionStore: IChatSessionStore;
   private readonly _contextConfig?: ContextWindowConfig;
+  private readonly _ctxManager?: ContextWindowManager;
   private readonly _middleware: ChatMiddleware[];
   private readonly _tools = new Map<string, ToolDefinition>();
   private readonly _retryConfig?: StreamRetryConfig;
@@ -261,6 +262,9 @@ class ChatRuntime<TMetadata extends Record<string, unknown> = Record<string, unk
     this._defaultBackend = options.defaultBackend;
     this._sessionStore = options.sessionStore;
     this._contextConfig = options.context;
+    if (this._contextConfig) {
+      this._ctxManager = new ContextWindowManager(this._contextConfig);
+    }
     this._middleware = [...(options.middleware ?? [])];
     this._retryConfig = options.retryConfig;
     this._onContextTrimmed = options.onContextTrimmed;
@@ -489,9 +493,9 @@ class ChatRuntime<TMetadata extends Record<string, unknown> = Record<string, unk
 
   /** Stage 5: Auto-trim context window if configured. Returns session snapshot for adapter. */
   private async trimSessionContext(cid: ChatId, session: ChatSession, model?: string): Promise<ChatSession> {
-    if (!this._contextConfig) return session;
+    if (!this._ctxManager) return session;
 
-    const ctxManager = new ContextWindowManager(this._contextConfig);
+    const ctxManager = this._ctxManager;
     const lastUsage = this._sessionUsage.get(cid);
     const modelContextWindow = model ? this._modelContextWindows.get(model) : undefined;
 

@@ -14,7 +14,7 @@ import type {
 import {
   createChatId,
   adaptAgentEvents,
-  toAgentMessage,
+  toAgentMessages,
 } from "../core.js";
 import { ChatError, ErrorCode } from "../errors.js";
 import type {
@@ -131,7 +131,7 @@ export abstract class BaseBackendAdapter implements IChatBackend {
     const agent = this.getOrCreateAgent(options);
 
     // Convert session messages to agent format + new user message
-    const messages: Message[] = session.messages.map(toAgentMessage);
+    const messages: Message[] = session.messages.flatMap(toAgentMessages);
     messages.push({ role: "user", content: message });
 
     yield* this.streamAgentEvents(agent, messages, options);

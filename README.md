@@ -593,6 +593,45 @@ Modules: core types, events, errors, storage, sessions, context window, accumula
 
 **→ Full module docs: [docs/chat-sdk/README.md](docs/chat-sdk/README.md)**
 **→ API surface & exports: [docs/architecture/api-surface.md](docs/architecture/api-surface.md)**
+**→ Server setup: [docs/chat-sdk/server-quickstart.md](docs/chat-sdk/server-quickstart.md)**
+
+### Agent-Layer-Only Usage
+
+The agent abstraction layer (`@witqq/agent-sdk`, `@witqq/agent-sdk/{copilot,claude,vercel-ai}`) is a first-class consumption pattern. Consumers that need custom event routing, multi-user orchestration, or permission supervision can use the agent layer directly without the Chat SDK:
+
+```typescript
+import { createAgentService } from "@witqq/agent-sdk";
+
+const service = await createAgentService("copilot", { githubToken: token });
+const agent = service.createAgent({
+  systemPrompt: "You are a coding assistant.",
+  tools: [searchTool, editTool],
+  supervisorHooks: {
+    onPermission: async (tool, args) => {
+      // Custom permission logic (NATS-based approval, role checks, etc.)
+      return { allow: true };
+    },
+  },
+});
+
+// Stream events for custom processing
+for await (const event of agent.stream("Fix the auth bug", { model: "gpt-5-mini" })) {
+  switch (event.type) {
+    case "text_delta": myTransport.send(event.text); break;
+    case "tool_call_start": myLogger.log(event.name, event.args); break;
+    case "usage": myMetrics.record(event); break;
+  }
+}
+```
+
+Extension points at the agent layer:
+- **`supervisorHooks.onPermission`** — custom tool approval logic per-call
+- **`supervisorHooks.onAskUser`** — intercept user-input requests (Copilot backend)
+- **`AgentEvent` stream** — consume events directly for custom UIs, NATS routing, logging
+- **`ToolDefinition.execute`** — per-tool execution with arbitrary return types
+- **`ToolContext`** — request-scoped session data injected into tool execute functions
+
+See `examples/multi-user-runtime/` for per-user runtime management and `examples/custom-transport/` for NATS-based event routing.
 
 ## Interactive Demo
 
@@ -628,6 +667,7 @@ const client = new RemoteChatClient({ baseUrl: "/api/chat" });
 | Document | Description |
 |----------|-------------|
 | [Chat SDK Modules](docs/chat-sdk/README.md) | Module-by-module API docs for chat primitives |
+| [Server Quickstart](docs/chat-sdk/server-quickstart.md) | Standalone server setup with framework integration |
 | [API Surface](docs/architecture/api-surface.md) | Complete export inventory by entry point |
 | [Custom Transports](docs/chat-sdk/custom-transports.md) | Guide to building custom IChatTransport implementations |
 | [Custom Renderers](docs/chat-sdk/custom-renderers.md) | Three approaches to customizing React UI components |
