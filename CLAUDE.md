@@ -10,7 +10,7 @@ Shared interfaces for tools, permissions, streaming, structured output.
 
 ```bash
 npm run build     # tsup → ESM + CJS + DTS
-npm run test      # vitest (2365 tests)
+npm run test      # vitest
 npm run typecheck # tsc --noEmit
 ```
 
@@ -555,7 +555,7 @@ Mock factories for SDK consumers (`@witqq/agent-sdk/testing` entry point).
 
 ## Testing
 
-- Unit: vitest (`tests/unit/`), 2365 tests
+- Unit: vitest (`tests/unit/`)
 - Integration: vitest (`tests/integration/`) — requires real CLI authentication
 - E2E: vitest (`tests/e2e/`) — tests against running demo server, requires authenticated backend
 - Chat SDK integration: `tests/unit/chat/integration-phase2.test.ts` — storage → sessions → context pipeline
