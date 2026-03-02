@@ -31,7 +31,7 @@ import type {
   SessionSearchOptions,
 } from "@witqq/agent-sdk/chat/sessions";
 import { StorageError } from "@witqq/agent-sdk/chat/storage";
-import { ErrorCode } from "../../src/types/errors.js";
+import { ErrorCode } from "@witqq/agent-sdk";
 
 // ─── Schema ────────────────────────────────────────────────────
 

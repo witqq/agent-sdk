@@ -24,7 +24,7 @@ const toolRenderers: Record<string, (part: ToolCallPart) => ReturnType<typeof cr
 
 /** Main dispatcher: routes to tool-specific renderer or generic fallback */
 export function PerToolRenderer({ part }: { part: ToolCallPart }) {
-  const renderer = toolRenderers[part.toolName];
+  const renderer = toolRenderers[part.name];
   if (renderer) return renderer(part);
   return renderGenericTool(part);
 }
@@ -136,7 +136,7 @@ function renderGenericTool(part: ToolCallPart) {
       style: { background: '#374151', color: '#d1d5db', padding: '6px 12px', fontSize: '13px' },
     },
       createElement('span', null, '🔧 '),
-      createElement('strong', null, part.toolName),
+      createElement('strong', null, part.name),
     ),
     part.args && createElement('details', { style: { padding: '8px 12px', fontSize: '12px' } },
       createElement('summary', { style: { cursor: 'pointer', color: '#9ca3af' } }, 'Arguments'),

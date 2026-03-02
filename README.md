@@ -458,7 +458,7 @@ import { createVercelAIService } from "@witqq/agent-sdk/vercel-ai";
 
 ## Model Names
 
-`AgentConfig.model` accepts both full model IDs and short names:
+The `model` parameter (in `RunOptions` or `CallDefaults`) accepts both full model IDs and short names:
 
 | Backend | Full ID example | Short name |
 |---|---|---|
@@ -549,7 +549,7 @@ import { TokenRefreshManager } from "@witqq/agent-sdk/auth";
 
 const manager = new TokenRefreshManager({
   token: authToken,
-  refreshFn: async (token) => claudeAuth.refreshToken(token.refreshToken!),
+  refresh: async (token) => claudeAuth.refreshToken(token.refreshToken!),
   refreshThreshold: 0.8, // refresh at 80% of token lifetime
 });
 

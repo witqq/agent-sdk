@@ -146,12 +146,11 @@ export function createUsageMiddleware(store: IUsageStore): ChatMiddleware {
       currentSessionId = context.sessionId;
 
       if (event.type === "usage") {
-        const usage = event as { type: "usage"; promptTokens?: number; completionTokens?: number; model?: string; backend?: string };
+        const usage = event as { type: "usage"; promptTokens?: number; completionTokens?: number; model?: string };
         pendingUsage = {
           promptTokens: usage.promptTokens ?? 0,
           completionTokens: usage.completionTokens ?? 0,
           model: usage.model,
-          backend: usage.backend,
         };
       }
 
