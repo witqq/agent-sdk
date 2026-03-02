@@ -268,11 +268,6 @@ export class SQLiteSessionStore implements IChatSessionStore {
     this.db.exec("DELETE FROM sessions");
   }
 
-  // Deprecated aliases
-  async addMessage(sessionId: ChatId, message: ChatMessage): Promise<void> {
-    return this.appendMessage(sessionId, message);
-  }
-
   async getMessages(
     sessionId: ChatId,
     options?: { limit?: number; offset?: number },
