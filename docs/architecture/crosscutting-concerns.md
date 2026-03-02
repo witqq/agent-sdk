@@ -21,9 +21,9 @@ Adapter receives: SendMessageOptions { model: string }
 Agent receives:   RunOptions { model: string }
 ```
 
-**Key type**: `RuntimeSendOptions` (`src/chat/types.ts:263-276`) — requires `model`, `backend`, `credentials`. Runtime validates all three at `runtime.ts:412-438`.
+**Key type**: `RuntimeSendOptions` (`src/chat/types.ts:273-289`) — requires `model`, `backend`, `credentials`. Runtime validates all three at `runtime.ts:428-458`.
 
-**Key function**: `resolveRequestContext()` (`src/chat/server/request-context.ts:56`) — resolves `providerId → { backend, credentials, model }` from stores on every request.
+**Key function**: `resolveRequestContext()` (`src/chat/server/request-context.ts`) — resolves `providerId → { backend, credentials, model }` from stores on every request.
 
 ### Client State (acceptable)
 
@@ -67,7 +67,7 @@ All server-side state violations identified pre-v0.7 have been resolved:
 
 ## Error Handling
 
-**Approach**: `AgentSDKError` base with `_agentSDKError` marker for cross-bundle instanceof. `ChatError` with 20-code `ChatErrorCode` enum. `classifyError(unknown)` maps any error to ChatError. `ExponentialBackoffStrategy` for retry with jitter. `withRetry()` respects AbortSignal and rate-limit headers.
+**Approach**: `AgentSDKError` base with `_agentSDKError` marker for cross-bundle instanceof. `ChatError` with 28-code `ErrorCode` enum. `classifyError(unknown)` maps any error to ChatError. `ExponentialBackoffStrategy` for retry with jitter. `withRetry()` respects AbortSignal and rate-limit headers.
 
 **Affected**: All containers
 
@@ -75,7 +75,7 @@ All server-side state violations identified pre-v0.7 have been resolved:
 
 ## Data Validation
 
-**Approach**: Tool input via Zod schemas in `ToolDefinition.inputSchema`. Message validation at `runtime.send()`: whitespace check (current), maxLength planned. HTTP body via `readBody()` with configurable maxBodySize (default 1MB). `RuntimeSendOptions` requires `model`, `backend`, `credentials` — validated in `validateSendInput()` at `runtime.ts:412`.
+**Approach**: Tool input via Zod schemas in `ToolDefinition.inputSchema`. Message validation at `runtime.send()`: whitespace check (current), maxLength planned. HTTP body via `readBody()` with configurable maxBodySize (default 1MB). `RuntimeSendOptions` requires `model`, `backend`, `credentials` — validated in `validateSendInput()` at `runtime.ts:428`.
 
 **Affected**: Core (Zod), chat, chat/server
 
@@ -107,7 +107,7 @@ All server-side state violations identified pre-v0.7 have been resolved:
 
 ## Context Window Management
 
-**Approach**: `ContextWindowManager` trims messages before each `send()` call. Stateless — instantiated per-send at `runtime.ts:482`, configured via `ChatRuntimeOptions.context`. Stats stored per-session in `_contextStats` Map (acceptable: it's a read-only cache, not routing state).
+**Approach**: `ContextWindowManager` trims messages before each `send()` call. Stateless — instantiated per-send at `runtime.ts:494`, configured via `ChatRuntimeOptions.context`. Stats stored per-session in `_contextStats` Map (acceptable: it's a read-only cache, not routing state).
 
 **Strategies**: `truncate-oldest`, `sliding-window`, `summarize-placeholder` (async summarizer).
 
@@ -115,7 +115,7 @@ All server-side state violations identified pre-v0.7 have been resolved:
 
 ## Logging & Observability
 
-**Current**: `console.warn` for deprecation warnings only. 20 `ChatErrorCode` values with `classifyError()`.
+**Current**: `console.warn` for deprecation warnings only. 28 `ErrorCode` values with `classifyError()`.
 
 **Target**: `ILogger` interface injectable via options. Correlation IDs per `send()`. Replace `console.*` calls.
 

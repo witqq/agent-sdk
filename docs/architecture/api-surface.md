@@ -97,6 +97,7 @@ Public exports inventory grouped by entry point.
 | Export | Kind | Stability | Description |
 |--------|------|-----------|-------------|
 | `IChatBackend` | interface | Stable | Backend adapter: streamMessage, sendMessage, resume, listModels |
+| `IResumableBackend` | interface | Stable | Extends IChatBackend with session resume support |
 | `BaseBackendAdapter` | abstract class | Stable | Base adapter with service lifecycle |
 | `CopilotChatAdapter` | class | Stable | Copilot adapter (persistent session) |
 | `ClaudeChatAdapter` | class | Stable | Claude adapter (persistent session) |
@@ -118,6 +119,9 @@ Representative exports (see `src/chat/server/index.ts` for complete list):
 | `createChatServer` | function | Stable | One-call server factory combining all handlers |
 | `createProviderHandler` | function | Stable | CRUD handler for provider configurations |
 | `corsMiddleware` | function | Stable | Standalone CORS middleware |
+| `ServiceManager` | class | Stable | IAgentService lifecycle management (create, cache, dispose) |
+| `AdapterPool` | class | Stable | Adapter pool with credential-based keying |
+| `resolveRequestContext` | function | Stable | Resolves providerId → { backend, credentials, model } per-request |
 | `ITokenStore` | interface | Stable | Token persistence: save, load, clear, list |
 | `IProviderStore` | interface | Stable | Provider CRUD: create, get, update, delete, list |
 
@@ -144,7 +148,7 @@ Representative exports (see `src/chat/server/index.ts` for complete list):
 | Export | Kind | Stability | Description |
 |--------|------|-----------|-------------|
 | `ChatError` | class | Stable | Error with ChatErrorCode, retryable flag, timestamp |
-| `ErrorCode` | enum | Stable | 20 error codes (NETWORK, TIMEOUT, AUTH_EXPIRED, etc.) |
+| `ErrorCode` | enum | Stable | 28 error codes (NETWORK, TIMEOUT, AUTH_EXPIRED, TOOL_EXECUTION, PROVIDER_NOT_FOUND, etc.) |
 | `classifyError` | function | Stable | Maps unknown error → ChatError via pattern matching |
 | `ExponentialBackoffStrategy` | class | Stable | Retry with jitter, rate-limit respect |
 | `withRetry` | function | Stable | Async retry wrapper with AbortSignal support |
@@ -218,6 +222,21 @@ Representative exports (see `src/chat/react/index.ts` for complete list):
 | `ProviderModelSelector` | component | Stable | Unified provider/model selector (auto-detects mode) |
 | `useRemoteAuth` | hook | Stable | Server-delegated auth (Copilot Device Flow, Claude OAuth, API key) |
 | `useRemoteChat` | hook | Stable | Lifecycle orchestrator: auth→runtime→session |
+| `BackendSelector` | component | Stable | Backend selection dropdown |
+| `useBackends` | hook | Stable | Backend list hook |
+| `useProviders` | hook | Stable | Provider list hook with CRUD |
+| `ChatLayout` | component | Stable | Layout container with sidebar + main column |
+| `ChatHeader` | component | Stable | Header with backend/model selectors |
+| `ChatInputArea` | component | Stable | Input area with provider selector + composer |
+| `ChatSettingsOverlay` | component | Stable | Modal overlay for provider settings |
+| `UsageBadge` | component | Stable | Token usage display badge |
+| `ContextStatsDisplay` | component | Stable | Context window stats display |
+| `CopilotAuthForm` | component | Stable | Copilot Device Flow auth form |
+| `ClaudeAuthForm` | component | Stable | Claude OAuth auth form |
+| `VercelAIAuthForm` | component | Stable | API key auth form |
+| `useCopilotAuth` | hook | Stable | Copilot-specific auth hook |
+| `useClaudeAuth` | hook | Stable | Claude-specific auth hook |
+| `useApiKeyAuth` | hook | Stable | API key auth hook |
 | `RemoteChatClient` | class | Stable | HTTP/SSE proxy implementing IChatClient |
 
 ### `@witqq/agent-sdk/chat/react/theme.css`
