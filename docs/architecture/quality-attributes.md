@@ -44,7 +44,7 @@ project: "@witqq/agent-sdk"
 | Environment | TypeScript strict mode |
 | Response | Fix architectural gap, review unsafe assertions |
 | Measure | 0 architecturally-caused assertions; total unsafe (as any/unknown) categorized and justified |
-| Current | 0 architecturally-caused (resolved in commit a6cbde7); 34 total unsafe (8 `as any` + 26 `as unknown`), all at SDK/external type boundaries — see risks-and-debt.md Gap 5 for full categorization |
+| Current | 0 architecturally-caused; 34 total unsafe (8 `as any` + 26 `as unknown`), all at SDK/external type boundaries |
 
 ### QA-4: Testability — Mock-Interface Parity (Priority 4)
 

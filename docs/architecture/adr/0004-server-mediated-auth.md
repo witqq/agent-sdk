@@ -38,4 +38,3 @@ All authentication flows execute on the server. The browser uses `useRemoteAuth`
 
 ## Related
 - [ADR-0003](./0003-cli-subprocess-backends.md) — CLI backends already require server
-- [Gap #6](../risks-and-debt.md) — node:crypto in auth (this ADR documents the mitigation)

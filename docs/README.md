@@ -9,7 +9,6 @@ Detailed architecture reference including C4 diagrams, ADRs, API surface, and qu
 Key documents:
 - [API Surface & Exports](architecture/api-surface.md) — all package entry points
 - [Architecture Overview](architecture/overview.md) — system layers and design
-- [Risks & Technical Debt](architecture/risks-and-debt.md) — known issues and priorities
 
 ## Chat SDK
 

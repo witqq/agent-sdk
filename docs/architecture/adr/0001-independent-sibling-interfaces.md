@@ -41,4 +41,3 @@ IChatClient and IChatRuntime are independent sibling interfaces with NO shared b
 
 ## Related
 - [ADR-0002](./0002-stateless-runtime.md) — Stateless runtime (different send signatures are a consequence)
-- [Gap #3](../risks-and-debt.md) — Listener duplication (direct consequence of this decision)
