@@ -540,11 +540,11 @@ Headless React hooks wrapping `IChatClient`. React 18+ as optional peer dependen
 
 ```typescript
 import { ChatProvider, useChat, useMessages } from "@witqq/agent-sdk/chat/react";
-import { createChatRuntime } from "@witqq/agent-sdk/chat/runtime";
+import { RemoteChatClient } from "@witqq/agent-sdk/chat/react";
 
-// Wrap your app with ChatProvider
+// Wrap your app with ChatProvider (expects IChatClient)
 function App() {
-  const runtime = useMemo(() => createChatRuntime(options), []);
+  const runtime = useMemo(() => new RemoteChatClient({ baseUrl: "/api/chat" }), []);
   return createElement(ChatProvider, { runtime }, createElement(Chat));
 }
 
@@ -665,10 +665,12 @@ createElement(ModelSelector, { models, selected: currentModel, onSelect: setMode
 | Component/Hook | Purpose |
 |----------------|---------|
 | `useRemoteAuth({ backend, baseUrl })` | Server-delegated auth state machine (Copilot Device Flow, Claude OAuth+PKCE, API key) |
-| `AuthDialog` | Headless multi-backend auth dialog with render props |
+| `CopilotAuthForm` | Copilot device flow auth form |
+| `ClaudeAuthForm` | Claude OAuth auth form |
+| `VercelAIAuthForm` | API key input form |
 
 ```typescript
-import { useRemoteAuth, AuthDialog } from "@witqq/agent-sdk/chat/react";
+import { useRemoteAuth } from "@witqq/agent-sdk/chat/react";
 import type { RemoteAuthBackend } from "@witqq/agent-sdk/chat/react";
 
 // Auth hook with Copilot Device Flow (delegated to server)
@@ -679,14 +681,6 @@ const { status, startDeviceFlow, token, loadSavedTokens } = useRemoteAuth({
 
 // Unified start — auto-dispatches to correct auth flow per backend
 const { start } = useRemoteAuth({ backend: "claude", baseUrl: "/api" });
-
-// Multi-backend auth dialog
-createElement(AuthDialog, {
-  backends: ["copilot", "claude", "vercel-ai"] as RemoteAuthBackend[],
-  onAuthenticated: handleAuth,
-  renderCopilotFlow: ({ deviceCode, verificationUrl }) =>
-    createElement("div", null, `Code: ${deviceCode}, URL: ${verificationUrl}`),
-});
 ```
 
 ### Token Auto-Refresh

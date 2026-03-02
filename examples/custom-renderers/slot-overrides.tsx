@@ -89,7 +89,7 @@ interface CustomToolCallProps {
  * Different tools get different UI treatments.
  */
 function CustomToolCall({ part, onApprove, onDeny }: CustomToolCallProps) {
-  const { toolName, args, result, status } = part;
+  const { name: toolName, args, result, status } = part;
 
   // Choose icon and color based on tool type
   const toolConfig: Record<string, { icon: string; color: string }> = {
