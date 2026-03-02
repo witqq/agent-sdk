@@ -21,6 +21,7 @@ export interface ThreadProps {
 /**
  * Headless thread component wrapping a scrollable message list.
  * Auto-scrolls to bottom when new messages arrive unless user has scrolled up.
+ * Shows a scroll-to-bottom button when scrolled up and an empty state when no messages.
  */
 export function Thread({
   messages,
@@ -31,12 +32,22 @@ export function Thread({
   const sentinelRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [userScrolledUp, setUserScrolledUp] = useState(false);
+  const isScrollingProgrammatically = useRef(false);
 
   const handleScroll = useCallback(() => {
+    if (isScrollingProgrammatically.current) return;
     const el = containerRef.current;
     if (!el) return;
     const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 1;
     setUserScrolledUp(!atBottom);
+  }, []);
+
+  const scrollToBottom = useCallback(() => {
+    isScrollingProgrammatically.current = true;
+    sentinelRef.current?.scrollIntoView({ behavior: "smooth" });
+    setUserScrolledUp(false);
+    // Reset guard after smooth scroll completes
+    setTimeout(() => { isScrollingProgrammatically.current = false; }, 500);
   }, []);
 
   useEffect(() => {
@@ -53,7 +64,20 @@ export function Thread({
   attrs.ref = containerRef;
   attrs.onScroll = handleScroll;
 
-  const children: ReactNode[] = messages.map((msg, i) => {
+  const children: ReactNode[] = [];
+
+  // Empty state when no messages
+  if (messages.length === 0 && !isGenerating) {
+    children.push(
+      createElement("div", { key: "__empty", "data-thread-empty": "true" },
+        "Start a conversation",
+      ),
+    );
+  }
+
+  // Message list
+  for (let i = 0; i < messages.length; i++) {
+    const msg = messages[i];
     const content = slots?.renderMessage
       ? slots.renderMessage(msg, i)
       : createElement(Message, {
@@ -65,15 +89,41 @@ export function Thread({
             : undefined,
         });
 
-    return createElement(
-      "div",
-      { key: msg.id, "data-thread-message": "true", "data-role": msg.role },
-      content,
+    children.push(
+      createElement(
+        "div",
+        { key: msg.id, "data-thread-message": "true", "data-role": msg.role },
+        content,
+      ),
     );
-  });
+  }
+
+  // Loading indicator — bouncing dots shown during generation
+  if (isGenerating) {
+    children.push(
+      createElement("div", { key: "__loading", "data-thread-loading-indicator": "true" },
+        createElement("span", null),
+        createElement("span", null),
+        createElement("span", null),
+      ),
+    );
+  }
 
   // Sentinel element for auto-scroll anchoring
   children.push(createElement("div", { key: "__sentinel", ref: sentinelRef }));
+
+  // Scroll-to-bottom button — shown when user scrolled up
+  if (userScrolledUp) {
+    children.push(
+      createElement("button", {
+        key: "__scroll-to-bottom",
+        "data-action": "scroll-to-bottom",
+        type: "button",
+        onClick: scrollToBottom,
+        "aria-label": "Scroll to bottom",
+      }),
+    );
+  }
 
   return createElement("div", attrs, ...children);
 }

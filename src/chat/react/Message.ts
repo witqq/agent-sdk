@@ -8,6 +8,9 @@ import type {
   SourcePart,
   FilePart,
 } from "../core.js";
+import { MarkdownRenderer } from "./MarkdownRenderer.js";
+import { ThinkingBlock } from "./ThinkingBlock.js";
+import { ToolCallView } from "./ToolCallView.js";
 
 /** Props for the Message component. */
 export interface MessageProps {
@@ -20,15 +23,23 @@ export interface MessageProps {
 }
 
 function defaultRenderText(part: TextPart, index: number): ReactNode {
-  return createElement("span", { key: index, "data-part": "text" }, part.text);
+  return createElement("div", { key: index, "data-part": "text" },
+    createElement(MarkdownRenderer, { content: part.text }),
+  );
 }
 
 function defaultRenderReasoning(part: ReasoningPart, index: number): ReactNode {
-  return createElement("span", { key: index, "data-part": "reasoning" }, part.text);
+  return createElement(ThinkingBlock, {
+    key: index,
+    text: part.text,
+    isStreaming: part.status === "streaming",
+  });
 }
 
 function defaultRenderToolCall(part: ToolCallPart, index: number): ReactNode {
-  return createElement("span", { key: index, "data-part": "tool_call", "data-tool-name": part.name }, part.name);
+  return createElement("div", { key: index, "data-part": "tool_call" },
+    createElement(ToolCallView, { part }),
+  );
 }
 
 function defaultRenderSource(part: SourcePart, index: number): ReactNode {

@@ -545,4 +545,68 @@ describe("ContextWindowManager", () => {
       expect(summarizer).not.toHaveBeenCalled();
     });
   });
+
+  // ─── fitMessagesWithUsage (real-data-based trimming) ─────────
+
+  describe("fitMessagesWithUsage", () => {
+    it("returns all messages when usage is within budget", () => {
+      const mgr = new ContextWindowManager({ maxTokens: 8000 });
+      const messages = [userMsg("Hello"), assistantMsg("Hi there")];
+      const result = mgr.fitMessagesWithUsage(messages, 3000, 8000);
+      expect(result.messages).toHaveLength(2);
+      expect(result.wasTruncated).toBe(false);
+      expect(result.totalTokens).toBe(3000);
+      expect(result.removedCount).toBe(0);
+    });
+
+    it("removes oldest non-system messages when over budget", () => {
+      const mgr = new ContextWindowManager({ maxTokens: 4000 });
+      const messages = [
+        userMsg("First"),
+        assistantMsg("Response 1"),
+        userMsg("Second"),
+        assistantMsg("Response 2"),
+        userMsg("Third"),
+        assistantMsg("Response 3"),
+      ];
+      // 5000 tokens with 4000 context window → needs to free 1000 tokens
+      // avg = 5000/6 ≈ 833 per message → need to remove ceil(1000/833) = 2 messages
+      const result = mgr.fitMessagesWithUsage(messages, 5000, 4000);
+      expect(result.wasTruncated).toBe(true);
+      expect(result.removedCount).toBe(2);
+      expect(result.messages).toHaveLength(4);
+    });
+
+    it("preserves system messages during trim", () => {
+      const mgr = new ContextWindowManager({ maxTokens: 4000 });
+      const messages = [
+        systemMsg("System prompt"),
+        userMsg("First"),
+        assistantMsg("Response 1"),
+        userMsg("Second"),
+      ];
+      // 5000 tokens, need to free 1000, avg = 5000/4 = 1250, remove 1 non-system
+      const result = mgr.fitMessagesWithUsage(messages, 5000, 4000);
+      expect(result.messages[0].role).toBe("system");
+      expect(result.removedCount).toBe(1);
+    });
+
+    it("respects reservedTokens", () => {
+      const mgr = new ContextWindowManager({ maxTokens: 4000, reservedTokens: 500 });
+      const messages = [
+        userMsg("First"),
+        assistantMsg("Response"),
+      ];
+      // 3600 tokens, budget = 4000-500 = 3500 → needs trim
+      const result = mgr.fitMessagesWithUsage(messages, 3600, 4000);
+      expect(result.wasTruncated).toBe(true);
+    });
+
+    it("returns empty array for empty messages", () => {
+      const mgr = new ContextWindowManager({ maxTokens: 4000 });
+      const result = mgr.fitMessagesWithUsage([], 0, 4000);
+      expect(result.messages).toHaveLength(0);
+      expect(result.wasTruncated).toBe(false);
+    });
+  });
 });

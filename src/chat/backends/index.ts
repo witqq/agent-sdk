@@ -5,9 +5,12 @@
  */
 
 export type {
-  IBackendAdapter,
+  IChatBackend,
+  IResumableBackend,
   BackendAdapterOptions,
 } from "./types.js";
+
+export { isResumableBackend } from "./types.js";
 
 export { BaseBackendAdapter } from "./base.js";
 

@@ -1,7 +1,7 @@
 import type {
   IAgent,
   IAgentService,
-  AgentConfig,
+  FullAgentConfig,
   AgentResult,
   AgentEvent,
   Message,
@@ -15,7 +15,7 @@ import type {
   PermissionRequest as UnifiedPermissionRequest,
   PermissionDecision,
 } from "../types.js";
-import { getTextContent } from "../types.js";
+import { getTextContent, ErrorCode, classifyAgentError, isRecoverableErrorCode } from "../types.js";
 import { BaseAgent } from "../base-agent.js";
 import { DisposedError, DependencyError, AbortError, ToolExecutionError } from "../errors.js";
 import { zodToJsonSchema } from "../utils/schema.js";
@@ -101,26 +101,27 @@ interface SDKCompatModule {
 
 // ─── Dynamic SDK Loader ─────────────────────────────────────────
 
-let sdkModule: SDKModule | null = null;
-let compatModule: SDKCompatModule | null = null;
+/** Module-level mocks set by _injectSDK()/_injectCompat() for testing */
+let _sdkMock: SDKModule | null = null;
+let _compatMock: SDKCompatModule | null = null;
 
+/** Load the Vercel AI SDK. Checks module-level mock first, then dynamic import. */
 async function loadSDK(): Promise<SDKModule> {
-  if (sdkModule) return sdkModule;
+  if (_sdkMock) return _sdkMock;
   try {
     // @ts-ignore — peer dependency, not present at compile time
-    sdkModule = (await import("ai")) as SDKModule;
-    return sdkModule!;
+    return (await import("ai")) as SDKModule;
   } catch {
     throw new DependencyError("ai");
   }
 }
 
+/** Load the OpenAI-compatible module. Checks module-level mock first, then dynamic import. */
 async function loadCompat(): Promise<SDKCompatModule> {
-  if (compatModule) return compatModule;
+  if (_compatMock) return _compatMock;
   try {
     // @ts-ignore — peer dependency, not present at compile time
-    compatModule = (await import("@ai-sdk/openai-compatible")) as SDKCompatModule;
-    return compatModule!;
+    return (await import("@ai-sdk/openai-compatible")) as SDKCompatModule;
   } catch {
     throw new DependencyError("@ai-sdk/openai-compatible");
   }
@@ -128,18 +129,18 @@ async function loadCompat(): Promise<SDKCompatModule> {
 
 /** @internal For testing: inject mock SDK module */
 export function _injectSDK(mock: SDKModule | null): void {
-  sdkModule = mock;
+  _sdkMock = mock;
 }
 
 /** @internal For testing: inject mock compat module */
 export function _injectCompat(mock: SDKCompatModule | null): void {
-  compatModule = mock;
+  _compatMock = mock;
 }
 
 /** @internal For testing: reset injected SDK */
 export function _resetSDK(): void {
-  sdkModule = null;
-  compatModule = null;
+  _sdkMock = null;
+  _compatMock = null;
 }
 
 // ─── Constants ──────────────────────────────────────────────────
@@ -153,7 +154,7 @@ const DEFAULT_MAX_TURNS = 10;
 function mapToolsToSDK(
   sdk: SDKModule,
   tools: ToolDefinition[],
-  config: AgentConfig,
+  config: FullAgentConfig,
   sessionApprovals: Set<string>,
   permissionStore: IPermissionStore | undefined,
   signal: AbortSignal,
@@ -209,12 +210,12 @@ function mapToolsToSDK(
 
 function wrapToolExecute(
   ourTool: ToolDefinition,
-  supervisor: AgentConfig["supervisor"],
+  supervisor: FullAgentConfig["supervisor"],
   sessionApprovals: Set<string>,
   permissionStore: IPermissionStore | undefined,
   signal: AbortSignal,
-): (args: unknown) => Promise<JSONValue> {
-  return async (args: unknown): Promise<JSONValue> => {
+): (args: unknown, options?: { toolCallId?: string }) => Promise<JSONValue> {
+  return async (args: unknown, options?: { toolCallId?: string }): Promise<JSONValue> => {
     // Permission check for tools with needsApproval
     if (ourTool.needsApproval && supervisor?.onPermission) {
       // Check store first, then fall back to sessionApprovals set
@@ -223,6 +224,7 @@ function wrapToolExecute(
         const request: UnifiedPermissionRequest = {
           toolName: ourTool.name,
           toolArgs: (args ?? {}) as Record<string, unknown>,
+          toolCallId: options?.toolCallId,
         };
 
         const decision: PermissionDecision = await supervisor.onPermission(
@@ -242,7 +244,7 @@ function wrapToolExecute(
           await permissionStore.approve(ourTool.name, decision.scope);
         }
 
-        // Also keep sessionApprovals for backward compat
+        // Cache session-scoped approvals in memory
         if (decision.scope === "session" || decision.scope === "always" || decision.scope === "project") {
           sessionApprovals.add(ourTool.name);
         }
@@ -351,6 +353,7 @@ function mapStreamPart(part: SDKStreamPart): AgentEvent | null {
           ? p.error.message
           : String(p.error ?? "Tool execution failed"),
         recoverable: true,
+        code: ErrorCode.TOOL_EXECUTION,
       };
     }
 
@@ -376,12 +379,15 @@ function mapStreamPart(part: SDKStreamPart): AgentEvent | null {
 
     case "error": {
       const p = part as Extract<SDKStreamPart, { type: "error" }>;
+      const errorMsg = p.error instanceof Error
+        ? p.error.message
+        : String(p.error ?? "Unknown error");
+      const code = classifyAgentError(errorMsg);
       return {
         type: "error",
-        error: p.error instanceof Error
-          ? p.error.message
-          : String(p.error ?? "Unknown error"),
-        recoverable: false,
+        error: errorMsg,
+        recoverable: isRecoverableErrorCode(code),
+        code,
       };
     }
 
@@ -399,15 +405,19 @@ class VercelAIAgent extends BaseAgent {
   private model: SDKLanguageModel | null = null;
 
   constructor(
-    config: AgentConfig,
+    config: FullAgentConfig,
     backendOptions: VercelAIBackendOptions,
   ) {
     super(config);
     this.backendOptions = backendOptions;
   }
 
-  private async getModel(): Promise<SDKLanguageModel> {
-    if (this.model) return this.model;
+  private async getModel(options: RunOptions): Promise<SDKLanguageModel> {
+    const requestedModel = options.model;
+    const defaultModel = this.config.model;
+
+    // If same as default/cached, reuse
+    if (requestedModel === defaultModel && this.model) return this.model;
 
     const compat = await loadCompat();
     const provider = compat.createOpenAICompatible({
@@ -416,28 +426,32 @@ class VercelAIAgent extends BaseAgent {
       apiKey: this.backendOptions.apiKey,
     });
 
-    const modelId = this.config.model ?? "anthropic/claude-sonnet-4-5";
-    this.model = provider.chatModel(modelId);
-    return this.model;
+    const model = provider.chatModel(requestedModel);
+    // Cache only when using default model
+    if (requestedModel === defaultModel) {
+      this.model = model;
+    }
+    return model;
   }
 
-  private async getSDKTools(signal: AbortSignal): Promise<Record<string, SDKToolDefinition>> {
+  private async getSDKTools(signal: AbortSignal, options?: RunOptions): Promise<Record<string, SDKToolDefinition>> {
     const sdk = await loadSDK();
-    return mapToolsToSDK(sdk, this.config.tools ?? [], this.config, this.sessionApprovals, this.config.permissionStore, signal);
+    const tools = this.resolveTools(options);
+    return mapToolsToSDK(sdk, tools, this.config, this.sessionApprovals, this.config.permissionStore, signal);
   }
 
   // ─── executeRun ─────────────────────────────────────────────────
 
   protected async executeRun(
     messages: Message[],
-    _options: RunOptions | undefined,
+    options: RunOptions,
     signal: AbortSignal,
   ): Promise<AgentResult> {
     this.checkAbort(signal);
 
     const sdk = await loadSDK();
-    const model = await this.getModel();
-    const tools = await this.getSDKTools(signal);
+    const model = await this.getModel(options);
+    const tools = await this.getSDKTools(signal, options);
     const maxTurns = this.config.maxTurns ?? DEFAULT_MAX_TURNS;
 
     const sdkMessages = messagesToSDK(messages);
@@ -509,13 +523,13 @@ class VercelAIAgent extends BaseAgent {
   protected async executeRunStructured<T>(
     messages: Message[],
     schema: StructuredOutputConfig<T>,
-    _options: RunOptions | undefined,
+    options: RunOptions,
     signal: AbortSignal,
   ): Promise<AgentResult<T>> {
     this.checkAbort(signal);
 
     const sdk = await loadSDK();
-    const model = await this.getModel();
+    const model = await this.getModel(options);
 
     const sdkMessages = messagesToSDK(messages);
     const jsonSchema = zodToJsonSchema(schema.schema);
@@ -570,14 +584,14 @@ class VercelAIAgent extends BaseAgent {
 
   protected async *executeStream(
     messages: Message[],
-    _options: RunOptions | undefined,
+    options: RunOptions,
     signal: AbortSignal,
   ): AsyncIterable<AgentEvent> {
     this.checkAbort(signal);
 
     const sdk = await loadSDK();
-    const model = await this.getModel();
-    const tools = await this.getSDKTools(signal);
+    const model = await this.getModel(options);
+    const tools = await this.getSDKTools(signal, options);
     const maxTurns = this.config.maxTurns ?? DEFAULT_MAX_TURNS;
 
     const sdkMessages = messagesToSDK(messages);
@@ -636,9 +650,11 @@ class VercelAIAgent extends BaseAgent {
         completionTokens: Number(totalUsage?.outputTokens ?? 0),
       };
 
+      const hasStreamed = finalText.length > 0;
       yield {
         type: "done",
-        finalOutput: finalText || null,
+        finalOutput: hasStreamed ? null : (finalText || null),
+        ...(hasStreamed ? { streamed: true } : {}),
       };
     } catch (e) {
       if (signal.aborted) throw new AbortError();
@@ -664,7 +680,7 @@ class VercelAIAgentService implements IAgentService {
     this.options = options;
   }
 
-  createAgent(config: AgentConfig): IAgent {
+  createAgent(config: FullAgentConfig): IAgent {
     if (this.disposed) throw new DisposedError("VercelAIAgentService");
     return new VercelAIAgent(config, this.options);
   }
@@ -676,19 +692,44 @@ class VercelAIAgentService implements IAgentService {
 
     try {
       const res = await globalThis.fetch(`${baseUrl}/models`, {
-        headers: { Authorization: `Bearer ${this.options.apiKey}` },
+        headers: {
+          Authorization: `Bearer ${this.options.apiKey}`,
+          // OpenRouter requires HTTP-Referer for API access
+          "HTTP-Referer": "https://github.com/nicepkg/agent-sdk",
+        },
       });
 
       if (!res.ok) {
         return [];
       }
 
-      const body = (await res.json()) as { data?: Array<{ id: string }> };
-      if (!body.data || body.data.length === 0) {
-        return [];
+      const body = await res.json() as Record<string, unknown>;
+
+      // OpenAI-compatible format: { data: [{ id, name?, description?, context_length? }] }
+      if (body.data && Array.isArray(body.data)) {
+        return (body.data as Array<Record<string, unknown>>)
+          .filter((m) => typeof m.id === "string")
+          .map((m) => ({
+            id: m.id as string,
+            ...(typeof m.name === "string" && { name: m.name }),
+            ...(typeof m.description === "string" && { description: m.description }),
+            ...(typeof m.context_length === "number" && { contextWindow: m.context_length }),
+          }));
       }
 
-      return body.data.map((m) => ({ id: m.id }));
+      // Some providers return a flat array of model objects
+      if (Array.isArray(body)) {
+        return (body as Array<Record<string, unknown>>)
+          .filter((m) => typeof m.id === "string")
+          .map((m) => ({
+            id: m.id as string,
+            ...(typeof m.name === "string" && { name: m.name }),
+            ...(typeof m.description === "string" && { description: m.description }),
+            ...(typeof m.context_length === "number" && { contextWindow: m.context_length }),
+          }));
+      }
+
+      return [];
     } catch {
       return [];
     }

@@ -6,6 +6,10 @@ export type SSEStatus = "idle" | "connecting" | "open" | "closed" | "error";
 
 /** Options for the useSSE hook. */
 export interface UseSSEOptions {
+  /** HTTP method (default: "GET") */
+  method?: "GET" | "POST";
+  /** Request body for POST requests (JSON-serialized automatically) */
+  body?: unknown;
   headers?: Record<string, string>;
   onEvent?: (event: ChatEvent) => void;
   onError?: (error: Error) => void;
@@ -68,13 +72,21 @@ export function useSSE(
 
     (async () => {
       try {
-        const response = await fetch(url, {
+        const fetchInit: RequestInit = {
+          method: optionsRef.current.method ?? "GET",
           headers: {
             Accept: "text/event-stream",
             ...optionsRef.current.headers,
           },
           signal: controller.signal,
-        });
+        };
+
+        if (fetchInit.method === "POST" && optionsRef.current.body !== undefined) {
+          (fetchInit.headers as Record<string, string>)["Content-Type"] = "application/json";
+          fetchInit.body = JSON.stringify(optionsRef.current.body);
+        }
+
+        const response = await fetch(url, fetchInit);
 
         if (!response.ok) {
           throw new Error(`SSE request failed: ${response.status}`);

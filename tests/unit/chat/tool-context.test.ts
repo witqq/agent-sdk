@@ -9,7 +9,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createChatRuntime } from "../../../src/chat/runtime.js";
 import type { ChatRuntimeOptions } from "../../../src/chat/runtime.js";
 import type { IChatSessionStore } from "../../../src/chat/sessions.js";
-import type { IBackendAdapter } from "../../../src/chat/backends/types.js";
+import type { IResumableBackend } from "../../../src/chat/backends/types.js";
 import type { ChatSession, ChatEvent, ChatMessage, ChatId } from "../../../src/chat/core.js";
 import { createChatId } from "../../../src/chat/core.js";
 import type { ToolDefinition, ToolContext } from "../../../src/types.js";
@@ -59,13 +59,11 @@ function createMockSessionStore(): IChatSessionStore {
     }),
     saveMessages: vi.fn(async () => {}),
     loadMessages: vi.fn(async () => ({ messages: [], total: 0, hasMore: false })),
-    archiveSession: vi.fn(async () => {}),
-    unarchiveSession: vi.fn(async () => {}),
+
     searchSessions: vi.fn(async () => []),
     count: vi.fn(async () => sessions.size),
     clear: vi.fn(async () => sessions.clear()),
-    addMessage: vi.fn(async () => {}),
-    getMessages: vi.fn(async () => ({ messages: [], total: 0, hasMore: false })),
+
   };
 }
 
@@ -74,17 +72,18 @@ function createMockSessionStore(): IChatSessionStore {
  * This lets us inspect how runtime wraps tools with context injection.
  */
 function createCapturingAdapter(): {
-  adapter: IBackendAdapter;
+  adapter: IResumableBackend;
   getCapturedTools: () => ToolDefinition[] | undefined;
 } {
   let capturedTools: ToolDefinition[] | undefined;
 
-  const adapter: IBackendAdapter = {
+  const adapter = {
     name: "mock",
     canResume: () => false,
     resume: vi.fn(),
     backendSessionId: null,
     agentService: {} as any,
+    currentModel: undefined,
     sendMessage: vi.fn(async () => ({
       id: createChatId(),
       role: "assistant" as const,
@@ -118,11 +117,11 @@ function createCapturingAdapter(): {
 }
 
 function createOptions(
-  adapter: IBackendAdapter,
+  adapter: IResumableBackend,
   store?: IChatSessionStore,
 ): ChatRuntimeOptions {
   return {
-    backends: { mock: () => adapter },
+    backends: { mock: (_creds: any) => adapter },
     defaultBackend: "mock",
     sessionStore: store ?? createMockSessionStore(),
   };
@@ -154,7 +153,7 @@ describe("ToolContext injection", () => {
     runtime.registerTool(tool);
 
     const session = await runtime.createSession({ config: { model: "m", backend: "mock" } });
-    await drain(runtime.send(session.id, "hello"));
+    await drain(runtime.send(session.id, "hello", { model: "test-model", backend: "mock", credentials: { accessToken: "test-token", tokenType: "bearer", obtainedAt: Date.now() } }));
 
     // The adapter should receive tools with context-injecting wrappers
     const tools = getCapturedTools();
@@ -190,7 +189,7 @@ describe("ToolContext injection", () => {
       config: { model: "m", backend: "mock" },
       custom: { userId: "u-123", tenantId: "t-456" },
     });
-    await drain(runtime.send(session.id, "hello"));
+    await drain(runtime.send(session.id, "hello", { model: "test-model", backend: "mock", credentials: { accessToken: "test-token", tokenType: "bearer", obtainedAt: Date.now() } }));
 
     const tools = getCapturedTools();
     await tools![0].execute({});
@@ -211,7 +210,7 @@ describe("ToolContext injection", () => {
     runtime.registerTool(tool);
 
     const session = await runtime.createSession({ config: { model: "m", backend: "mock" } });
-    await drain(runtime.send(session.id, "hello"));
+    await drain(runtime.send(session.id, "hello", { model: "test-model", backend: "mock", credentials: { accessToken: "test-token", tokenType: "bearer", obtainedAt: Date.now() } }));
 
     const tools = getCapturedTools();
     const result = await tools![0].execute({ input: "data" });
@@ -246,12 +245,12 @@ describe("ToolContext injection", () => {
     });
 
     // Send to session 1
-    await drain(runtime.send(session1.id, "hello"));
+    await drain(runtime.send(session1.id, "hello", { model: "test-model", backend: "mock", credentials: { accessToken: "test-token", tokenType: "bearer", obtainedAt: Date.now() } }));
     const tools1 = getCapturedTools();
     await tools1![0].execute({});
 
     // Send to session 2
-    await drain(runtime.send(session2.id, "world"));
+    await drain(runtime.send(session2.id, "world", { model: "test-model", backend: "mock", credentials: { accessToken: "test-token", tokenType: "bearer", obtainedAt: Date.now() } }));
     const tools2 = getCapturedTools();
     await tools2![0].execute({});
 
@@ -280,7 +279,7 @@ describe("ToolContext injection", () => {
 
     // Create session without custom metadata
     const session = await runtime.createSession({ config: { model: "m", backend: "mock" } });
-    await drain(runtime.send(session.id, "hello"));
+    await drain(runtime.send(session.id, "hello", { model: "test-model", backend: "mock", credentials: { accessToken: "test-token", tokenType: "bearer", obtainedAt: Date.now() } }));
 
     const tools = getCapturedTools();
     await tools![0].execute({});
@@ -294,7 +293,7 @@ describe("ToolContext injection", () => {
     const runtime = createChatRuntime(createOptions(adapter));
 
     const session = await runtime.createSession({ config: { model: "m", backend: "mock" } });
-    await drain(runtime.send(session.id, "hello"));
+    await drain(runtime.send(session.id, "hello", { model: "test-model", backend: "mock", credentials: { accessToken: "test-token", tokenType: "bearer", obtainedAt: Date.now() } }));
 
     // No tools registered — adapter should receive undefined tools
     expect(getCapturedTools()).toBeUndefined();
@@ -313,7 +312,7 @@ describe("ToolContext injection", () => {
     runtime.registerTool(tool);
 
     const session = await runtime.createSession({ config: { model: "m", backend: "mock" } });
-    await drain(runtime.send(session.id, "hello"));
+    await drain(runtime.send(session.id, "hello", { model: "test-model", backend: "mock", credentials: { accessToken: "test-token", tokenType: "bearer", obtainedAt: Date.now() } }));
 
     const tools = getCapturedTools();
     expect(tools![0].name).toBe("full_tool");

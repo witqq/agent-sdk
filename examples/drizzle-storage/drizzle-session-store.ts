@@ -34,6 +34,7 @@ import type {
   SessionSearchOptions,
 } from "@witqq/agent-sdk/chat/sessions";
 import { StorageError } from "@witqq/agent-sdk/chat/storage";
+import { ErrorCode } from "../../src/types/errors.js";
 
 // ─── Drizzle Schema ────────────────────────────────────────────
 
@@ -162,12 +163,12 @@ export class DrizzleSessionStore implements IChatSessionStore {
       .set({ title, updatedAt: new Date().toISOString() })
       .where(eq(sessions.id, id))
       .run();
-    if (result.changes === 0) throw new StorageError(`Session not found: ${id}`, "NOT_FOUND");
+    if (result.changes === 0) throw new StorageError(`Session not found: ${id}`, ErrorCode.STORAGE_NOT_FOUND);
   }
 
   async updateConfig(id: ChatId, config: Partial<ChatSessionConfig>): Promise<void> {
     const rows = this.db.select({ config: sessions.config }).from(sessions).where(eq(sessions.id, id)).all();
-    if (rows.length === 0) throw new StorageError(`Session not found: ${id}`, "NOT_FOUND");
+    if (rows.length === 0) throw new StorageError(`Session not found: ${id}`, ErrorCode.STORAGE_NOT_FOUND);
 
     const merged = { ...JSON.parse(rows[0].config), ...config };
     this.db.update(sessions)
@@ -180,12 +181,12 @@ export class DrizzleSessionStore implements IChatSessionStore {
     // Delete messages first (foreign key may not cascade in all SQLite configs)
     this.db.delete(messages).where(eq(messages.sessionId, id)).run();
     const result = this.db.delete(sessions).where(eq(sessions.id, id)).run();
-    if (result.changes === 0) throw new StorageError(`Session not found: ${id}`, "NOT_FOUND");
+    if (result.changes === 0) throw new StorageError(`Session not found: ${id}`, ErrorCode.STORAGE_NOT_FOUND);
   }
 
   async appendMessage(sessionId: ChatId, message: ChatMessage): Promise<void> {
     const sessionExists = this.db.select({ id: sessions.id }).from(sessions).where(eq(sessions.id, sessionId)).all();
-    if (sessionExists.length === 0) throw new StorageError(`Session not found: ${sessionId}`, "NOT_FOUND");
+    if (sessionExists.length === 0) throw new StorageError(`Session not found: ${sessionId}`, ErrorCode.STORAGE_NOT_FOUND);
 
     const position = this.getNextPosition(sessionId);
 
@@ -208,7 +209,7 @@ export class DrizzleSessionStore implements IChatSessionStore {
     if (msgs.length === 0) return;
 
     const sessionExists = this.db.select({ id: sessions.id }).from(sessions).where(eq(sessions.id, sessionId)).all();
-    if (sessionExists.length === 0) throw new StorageError(`Session not found: ${sessionId}`, "NOT_FOUND");
+    if (sessionExists.length === 0) throw new StorageError(`Session not found: ${sessionId}`, ErrorCode.STORAGE_NOT_FOUND);
 
     this.db.transaction((tx) => {
       let pos = this.getNextPosition(sessionId);
@@ -243,7 +244,7 @@ export class DrizzleSessionStore implements IChatSessionStore {
     options?: { limit?: number; offset?: number },
   ): Promise<PaginatedMessages> {
     const sessionExists = this.db.select({ id: sessions.id }).from(sessions).where(eq(sessions.id, sessionId)).all();
-    if (sessionExists.length === 0) throw new StorageError(`Session not found: ${sessionId}`, "NOT_FOUND");
+    if (sessionExists.length === 0) throw new StorageError(`Session not found: ${sessionId}`, ErrorCode.STORAGE_NOT_FOUND);
 
     const countResult = this.db.select({ cnt: sql<number>`COUNT(*)` })
       .from(messages)
@@ -266,22 +267,6 @@ export class DrizzleSessionStore implements IChatSessionStore {
       total,
       hasMore: offset + limit < total,
     };
-  }
-
-  async archiveSession(id: ChatId): Promise<void> {
-    const result = this.db.update(sessions)
-      .set({ status: "archived", updatedAt: new Date().toISOString() })
-      .where(eq(sessions.id, id))
-      .run();
-    if (result.changes === 0) throw new StorageError(`Session not found: ${id}`, "NOT_FOUND");
-  }
-
-  async unarchiveSession(id: ChatId): Promise<void> {
-    const result = this.db.update(sessions)
-      .set({ status: "active", updatedAt: new Date().toISOString() })
-      .where(eq(sessions.id, id))
-      .run();
-    if (result.changes === 0) throw new StorageError(`Session not found: ${id}`, "NOT_FOUND");
   }
 
   async searchSessions(options: SessionSearchOptions): Promise<ChatSession[]> {
@@ -380,7 +365,7 @@ function rowToSession(row: SessionRow, msgs: ChatMessage[]): ChatSession {
     row.title,
     JSON.parse(row.config),
     JSON.parse(row.metadata),
-    row.status as "active" | "archived",
+    row.status as "active",
     row.createdAt,
     row.updatedAt,
     msgs,
@@ -392,7 +377,7 @@ function buildSession(
   title: string | undefined | null,
   config: ChatSessionConfig,
   metadata: ChatSession["metadata"],
-  status: "active" | "archived",
+  status: "active",
   createdAt: string,
   updatedAt: string,
   msgs: ChatMessage[],

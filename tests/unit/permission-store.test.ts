@@ -416,7 +416,7 @@ describe("VercelAI auto-approval with permissionStore", () => {
       permissionStore: store,
     });
 
-    await agent.run("Read file");
+    await agent.run("Read file", { model: "test-model" });
     const toolDef = sdk.tool.mock.results[0].value;
     await toolDef.execute({ path: "a.txt" });
 
@@ -452,7 +452,7 @@ describe("VercelAI auto-approval with permissionStore", () => {
       permissionStore: store,
     });
 
-    await agent.run("Write file");
+    await agent.run("Write file", { model: "test-model" });
     const toolDef = sdk.tool.mock.results[0].value;
 
     // First call — asks permission, persists to store
@@ -491,7 +491,7 @@ describe("VercelAI auto-approval with permissionStore", () => {
       permissionStore: store,
     });
 
-    await agent.run("Run command");
+    await agent.run("Run command", { model: "test-model" });
     const toolDef = sdk.tool.mock.results[0].value;
 
     await toolDef.execute({ cmd: "ls" });
@@ -574,7 +574,7 @@ describe("Copilot auto-approval with permissionStore", () => {
       permissionStore: store,
     });
 
-    await agent.run("Test");
+    await agent.run("Test", { model: "test-model" });
 
     // Get the permission handler that was passed to createSession
     const handler = sdk.getPermissionHandler();
@@ -604,7 +604,7 @@ describe("Copilot auto-approval with permissionStore", () => {
       permissionStore: store,
     });
 
-    await agent.run("Test");
+    await agent.run("Test", { model: "test-model" });
     const handler = sdk.getPermissionHandler()!;
 
     // First call — asks permission
@@ -701,7 +701,7 @@ describe("Claude auto-approval with permissionStore", () => {
       permissionStore: store,
     });
 
-    await agent.run("Test");
+    await agent.run("Test", { model: "test-model" });
 
     const canUseTool = sdk.getCanUseTool();
     expect(canUseTool).toBeDefined();
@@ -735,7 +735,7 @@ describe("Claude auto-approval with permissionStore", () => {
       permissionStore: store,
     });
 
-    await agent.run("Test");
+    await agent.run("Test", { model: "test-model" });
     const canUseTool = sdk.getCanUseTool()!;
     const signal = new AbortController().signal;
 

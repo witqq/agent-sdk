@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { RemoteChatRuntime } from "../../../src/chat/react/RemoteChatRuntime.js";
+import { RemoteChatClient } from "../../../src/chat/react/RemoteChatClient.js";
 import type { ChatSession, ChatId, ChatEvent } from "../../../src/chat/core.js";
 import type { ModelInfo } from "../../../src/types.js";
 
@@ -42,13 +42,13 @@ function jsonResponse(body: unknown, status = 200): Response {
 
 // ─── Tests ────────────────────────────────────────────────────
 
-describe("RemoteChatRuntime", () => {
+describe("RemoteChatClient", () => {
   let fetchMock: ReturnType<typeof vi.fn>;
-  let runtime: RemoteChatRuntime;
+  let runtime: RemoteChatClient;
 
   beforeEach(() => {
     fetchMock = vi.fn();
-    runtime = new RemoteChatRuntime({
+    runtime = new RemoteChatClient({
       baseUrl: "https://api.test",
       headers: { Authorization: "Bearer token" },
       fetch: fetchMock,
@@ -82,11 +82,7 @@ describe("RemoteChatRuntime", () => {
         .rejects.toThrow("Runtime is disposed");
       await expect(runtime.deleteSession("s1" as unknown as ChatId))
         .rejects.toThrow("Runtime is disposed");
-      await expect(runtime.archiveSession("s1" as unknown as ChatId))
-        .rejects.toThrow("Runtime is disposed");
       await expect(runtime.switchSession("s1" as unknown as ChatId))
-        .rejects.toThrow("Runtime is disposed");
-      await expect(runtime.switchBackend("claude"))
         .rejects.toThrow("Runtime is disposed");
       await expect(runtime.listModels())
         .rejects.toThrow("Runtime is disposed");
@@ -179,16 +175,6 @@ describe("RemoteChatRuntime", () => {
       expect(runtime.activeSessionId).toBe("keep-1");
     });
 
-    it("archiveSession posts to archive endpoint", async () => {
-      fetchMock.mockResolvedValue(jsonResponse({}));
-      await runtime.archiveSession("arch-1" as unknown as ChatId);
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        "https://api.test/sessions/arch-1/archive",
-        expect.objectContaining({ method: "POST" }),
-      );
-    });
-
     it("switchSession sets active session", async () => {
       const session = mockSession("switch-1");
       fetchMock.mockResolvedValue(jsonResponse(session));
@@ -204,6 +190,24 @@ describe("RemoteChatRuntime", () => {
       await expect(
         runtime.switchSession("missing" as unknown as ChatId),
       ).rejects.toThrow("Session not found");
+    });
+
+    it("getContextStats fetches from server", async () => {
+      const stats = { totalTokens: 200, removedCount: 1, wasTruncated: true, availableBudget: 7800 };
+      fetchMock.mockResolvedValue(jsonResponse(stats));
+
+      const result = await runtime.getContextStats("s1" as unknown as ChatId);
+      expect(fetchMock).toHaveBeenCalledWith(
+        "https://api.test/sessions/s1/context-stats",
+        expect.objectContaining({ method: "GET" }),
+      );
+      expect(result).toEqual(stats);
+    });
+
+    it("getContextStats returns null when server returns null", async () => {
+      fetchMock.mockResolvedValue(jsonResponse(null));
+      const result = await runtime.getContextStats("s1" as unknown as ChatId);
+      expect(result).toBeNull();
     });
   });
 
@@ -361,35 +365,9 @@ describe("RemoteChatRuntime", () => {
     });
   });
 
-  // ─── Backend / Model ──────────────────────────────────────
+  // ─── Discovery ────────────────────────────────────────────
 
-  describe("backend and model", () => {
-    it("switchBackend posts and updates local state", async () => {
-      fetchMock.mockResolvedValue(jsonResponse({}));
-      await runtime.switchBackend("claude");
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        "https://api.test/backend/switch",
-        expect.objectContaining({
-          body: JSON.stringify({ backend: "claude" }),
-        }),
-      );
-      expect(runtime.currentBackend).toBe("claude");
-    });
-
-    it("switchModel updates local state and notifies server", () => {
-      fetchMock.mockResolvedValue(jsonResponse({}));
-      runtime.switchModel("gpt-5");
-
-      expect(runtime.currentModel).toBe("gpt-5");
-      expect(fetchMock).toHaveBeenCalledWith(
-        "https://api.test/model/switch",
-        expect.objectContaining({
-          body: JSON.stringify({ model: "gpt-5" }),
-        }),
-      );
-    });
-
+  describe("discovery", () => {
     it("listModels returns model list", async () => {
       const models: ModelInfo[] = [
         { id: "gpt-4.1", name: "GPT 4.1" },
@@ -401,50 +379,15 @@ describe("RemoteChatRuntime", () => {
       expect(result).toEqual(models);
     });
 
-    it("currentBackend defaults to 'default'", () => {
-      expect(runtime.currentBackend).toBe("default");
-    });
+    it("listBackends returns backend list", async () => {
+      const backends = [
+        { name: "copilot" },
+        { name: "claude" },
+      ];
+      fetchMock.mockResolvedValue(jsonResponse(backends));
 
-    it("currentModel defaults to undefined", () => {
-      expect(runtime.currentModel).toBeUndefined();
-    });
-  });
-
-  // ─── Tools ────────────────────────────────────────────────
-
-  describe("tools", () => {
-    it("registerTool and removeTool manage local registry", () => {
-      const tool = { name: "my-tool", description: "test", parameters: {} } as unknown as import("../../../src/types.js").ToolDefinition;
-      runtime.registerTool(tool);
-
-      expect(runtime.registeredTools.has("my-tool")).toBe(true);
-      expect(runtime.registeredTools.get("my-tool")).toBe(tool);
-
-      runtime.removeTool("my-tool");
-      expect(runtime.registeredTools.has("my-tool")).toBe(false);
-    });
-
-    it("registeredTools starts empty", () => {
-      expect(runtime.registeredTools.size).toBe(0);
-    });
-  });
-
-  // ─── Middleware ────────────────────────────────────────────
-
-  describe("middleware", () => {
-    it("use and removeMiddleware manage middleware list", () => {
-      const mw = { name: "test-mw" } as unknown as import("../../../src/chat/core.js").ChatMiddleware;
-      runtime.use(mw);
-      runtime.removeMiddleware(mw);
-      // No throw = success (middleware list is internal)
-    });
-  });
-
-  // ─── Context ──────────────────────────────────────────────
-
-  describe("context", () => {
-    it("getContextStats returns null (server-side concern)", () => {
-      expect(runtime.getContextStats("s1" as unknown as ChatId)).toBeNull();
+      const result = await runtime.listBackends();
+      expect(result).toEqual(backends);
     });
   });
 
@@ -470,11 +413,6 @@ describe("RemoteChatRuntime", () => {
       ).rejects.toThrow("DELETE /sessions/s1 failed: 500");
     });
 
-    it("switchBackend throws on server error", async () => {
-      fetchMock.mockResolvedValue(new Response("error", { status: 400, statusText: "Bad Request" }));
-      await expect(runtime.switchBackend("invalid")).rejects.toThrow("POST /backend/switch failed: 400");
-    });
-
     it("listModels throws on server error", async () => {
       fetchMock.mockResolvedValue(new Response("error", { status: 502, statusText: "Bad Gateway" }));
       await expect(runtime.listModels()).rejects.toThrow("GET /models failed: 502");
@@ -498,7 +436,7 @@ describe("RemoteChatRuntime", () => {
 
   describe("url handling", () => {
     it("strips trailing slash from baseUrl", async () => {
-      const rt = new RemoteChatRuntime({
+      const rt = new RemoteChatClient({
         baseUrl: "https://api.test/",
         fetch: fetchMock,
       });
@@ -565,6 +503,66 @@ describe("RemoteChatRuntime", () => {
         events.push(e);
       }
       expect(events).toHaveLength(0);
+    });
+  });
+
+  describe("selectProvider", () => {
+    it("selectedProviderId defaults to null", () => {
+      expect(runtime.selectedProviderId).toBeNull();
+    });
+
+    it("selectProvider sets selectedProviderId", () => {
+      runtime.selectProvider("p1");
+      expect(runtime.selectedProviderId).toBe("p1");
+    });
+
+    it("selectProvider fires onSelectionChange listeners", () => {
+      const callback = vi.fn();
+      runtime.onSelectionChange(callback);
+      runtime.selectProvider("p1");
+      expect(callback).toHaveBeenCalledWith("p1");
+    });
+
+    it("onSelectionChange returns unsubscribe function", () => {
+      const callback = vi.fn();
+      const unsub = runtime.onSelectionChange(callback);
+      unsub();
+      runtime.selectProvider("p1");
+      expect(callback).not.toHaveBeenCalled();
+    });
+
+    it("selectProvider throws when disposed", async () => {
+      await runtime.dispose();
+      expect(() => runtime.selectProvider("p1")).toThrow("disposed");
+    });
+
+    it("send includes selectedProviderId in request body", async () => {
+      runtime.selectProvider("p1");
+      fetchMock.mockResolvedValue(sseResponse([{ type: "done", finalOutput: "" } as ChatEvent]));
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      for await (const _event of runtime.send("s1" as unknown as ChatId, "Hello")) {
+        // consume
+      }
+
+      const sendCall = fetchMock.mock.calls.find(
+        (call) => typeof call[0] === "string" && (call[0] as string).includes("/send"),
+      );
+      expect(sendCall).toBeDefined();
+      const body = JSON.parse((sendCall![1] as { body: string }).body);
+      expect(body.providerId).toBe("p1");
+    });
+
+    it("send omits providerId when not selected", async () => {
+      fetchMock.mockResolvedValue(sseResponse([{ type: "done", finalOutput: "" } as ChatEvent]));
+      for await (const _event of runtime.send("s1" as unknown as ChatId, "Hello", { model: "gpt-5" })) {
+        // consume
+      }
+
+      const sendCall = fetchMock.mock.calls.find(
+        (call) => typeof call[0] === "string" && (call[0] as string).includes("/send"),
+      );
+      const body = JSON.parse((sendCall![1] as { body: string }).body);
+      expect(body.providerId).toBeUndefined();
     });
   });
 });

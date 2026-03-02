@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   registerBackend,
   unregisterBackend,
@@ -6,6 +6,8 @@ import {
   listBackends,
   resetRegistry,
   createAgentService,
+  disposeBackend,
+  listConfigs,
 } from "../../src/registry.js";
 import type { IAgentService } from "../../src/types.js";
 import {
@@ -166,6 +168,169 @@ describe("Backend Registry", () => {
       // Second call should use cached factory — won't throw import error
       try { await createAgentService("copilot", {}); } catch { /* expected */ }
       // If we got here without import errors, caching works
+    });
+  });
+
+  describe("multi-config per provider", () => {
+    it("should cache and reuse service instance with configId", async () => {
+      let callCount = 0;
+      registerBackend("test", () => {
+        callCount++;
+        return makeMockService();
+      });
+
+      const svc1 = await createAgentService("test", {}, "alpha");
+      const svc2 = await createAgentService("test", {}, "alpha");
+      expect(svc1).toBe(svc2);
+      expect(callCount).toBe(1);
+    });
+
+    it("should create separate instances for different configIds", async () => {
+      registerBackend("test", () => makeMockService());
+
+      const svc1 = await createAgentService("test", {}, "alpha");
+      const svc2 = await createAgentService("test", {}, "beta");
+      expect(svc1).not.toBe(svc2);
+    });
+
+    it("should create fresh instance every call without configId (backward compat)", async () => {
+      registerBackend("test", () => makeMockService());
+
+      const svc1 = await createAgentService("test", {});
+      const svc2 = await createAgentService("test", {});
+      expect(svc1).not.toBe(svc2);
+    });
+
+    it("should isolate configs across different backend names", async () => {
+      registerBackend("a", () => makeMockService());
+      registerBackend("b", () => makeMockService());
+
+      const svcA = await createAgentService("a", {}, "shared-id");
+      const svcB = await createAgentService("b", {}, "shared-id");
+      expect(svcA).not.toBe(svcB);
+    });
+  });
+
+  describe("disposeBackend", () => {
+    it("should dispose all configs for a backend", async () => {
+      const disposeFn = vi.fn(async () => {});
+      registerBackend("test", () => ({
+        ...makeMockService(),
+        dispose: disposeFn,
+      }));
+
+      await createAgentService("test", {}, "alpha");
+      await createAgentService("test", {}, "beta");
+      const count = await disposeBackend("test");
+      expect(count).toBe(2);
+      expect(disposeFn).toHaveBeenCalledTimes(2);
+    });
+
+    it("should dispose a single named config", async () => {
+      const disposeA = vi.fn(async () => {});
+      const disposeB = vi.fn(async () => {});
+      let call = 0;
+      registerBackend("test", () => ({
+        ...makeMockService(),
+        dispose: call++ === 0 ? disposeA : disposeB,
+      }));
+
+      await createAgentService("test", {}, "alpha");
+      await createAgentService("test", {}, "beta");
+      const count = await disposeBackend("test", "alpha");
+      expect(count).toBe(1);
+      expect(disposeA).toHaveBeenCalledTimes(1);
+      expect(disposeB).not.toHaveBeenCalled();
+    });
+
+    it("should return 0 for non-existent config", async () => {
+      const count = await disposeBackend("test", "nope");
+      expect(count).toBe(0);
+    });
+
+    it("should allow re-creating a disposed config", async () => {
+      let callCount = 0;
+      registerBackend("test", () => {
+        callCount++;
+        return makeMockService();
+      });
+
+      await createAgentService("test", {}, "alpha");
+      await disposeBackend("test", "alpha");
+      const svc = await createAgentService("test", {}, "alpha");
+      expect(svc).toBeDefined();
+      expect(callCount).toBe(2);
+    });
+  });
+
+  describe("listConfigs", () => {
+    it("should return empty array when no configs exist", () => {
+      expect(listConfigs("test")).toEqual([]);
+    });
+
+    it("should list active config IDs for a backend", async () => {
+      registerBackend("test", () => makeMockService());
+      await createAgentService("test", {}, "alpha");
+      await createAgentService("test", {}, "beta");
+      const configs = listConfigs("test");
+      expect(configs).toHaveLength(2);
+      expect(configs).toContain("alpha");
+      expect(configs).toContain("beta");
+    });
+
+    it("should not include configs from other backends", async () => {
+      registerBackend("a", () => makeMockService());
+      registerBackend("b", () => makeMockService());
+      await createAgentService("a", {}, "cfg1");
+      await createAgentService("b", {}, "cfg2");
+      expect(listConfigs("a")).toEqual(["cfg1"]);
+      expect(listConfigs("b")).toEqual(["cfg2"]);
+    });
+
+    it("should update after dispose", async () => {
+      registerBackend("test", () => makeMockService());
+      await createAgentService("test", {}, "alpha");
+      await createAgentService("test", {}, "beta");
+      await disposeBackend("test", "alpha");
+      expect(listConfigs("test")).toEqual(["beta"]);
+    });
+  });
+
+  describe("resetRegistry with service cache", () => {
+    it("should clear service cache on reset", async () => {
+      registerBackend("test", () => makeMockService());
+      await createAgentService("test", {}, "alpha");
+      expect(listConfigs("test")).toHaveLength(1);
+      resetRegistry();
+      expect(listConfigs("test")).toHaveLength(0);
+    });
+  });
+
+  describe("registerLazyBackend", () => {
+    it("should register and lazily load a backend", async () => {
+      const { registerLazyBackend } = await import("../../src/registry.js");
+      const mockService = makeMockService();
+      registerLazyBackend("lazy-test", async () => () => mockService);
+
+      expect(hasBackend("lazy-test")).toBe(true);
+      expect(listBackends()).toContain("lazy-test");
+
+      const svc = await createAgentService("lazy-test", {});
+      expect(svc).toBe(mockService);
+    });
+
+    it("should cache factory after first load", async () => {
+      const { registerLazyBackend } = await import("../../src/registry.js");
+      let loadCount = 0;
+      const mockService = makeMockService();
+      registerLazyBackend("lazy-cached", async () => {
+        loadCount++;
+        return () => mockService;
+      });
+
+      await createAgentService("lazy-cached", {});
+      await createAgentService("lazy-cached", {});
+      expect(loadCount).toBe(1);
     });
   });
 });

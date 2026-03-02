@@ -27,11 +27,10 @@ function createMockRuntime(userId?: string): IChatRuntime & { disposed: boolean;
     getSession: vi.fn(),
     listSessions: vi.fn(),
     deleteSession: vi.fn(),
-    archiveSession: vi.fn(),
     switchSession: vi.fn(),
-    switchBackend: vi.fn(),
     switchModel: vi.fn(),
     listModels: vi.fn(),
+    listBackends: vi.fn(() => [{ name: "test" }]),
     registerTool: vi.fn(),
     removeTool: vi.fn(),
     use: vi.fn(),
@@ -39,7 +38,6 @@ function createMockRuntime(userId?: string): IChatRuntime & { disposed: boolean;
     onSessionChange: vi.fn(() => () => {}),
     getContextStats: vi.fn(),
     activeSessionId: null,
-    currentBackend: "test",
     currentModel: undefined,
   } as unknown as IChatRuntime & { disposed: boolean; userId?: string };
   return runtime;

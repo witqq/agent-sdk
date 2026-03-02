@@ -16,10 +16,13 @@ export interface ModelSelectorProps {
   onSelect: (modelId: string) => void;
   placeholder?: string;
   className?: string;
+  /** Allow free-text model input when models list is empty. Default: true. */
+  allowFreeText?: boolean;
 }
 
 /**
  * Dropdown model selector with search and keyboard navigation.
+ * Falls back to a free-text input when models list is empty.
  */
 export function ModelSelector({
   models,
@@ -27,10 +30,12 @@ export function ModelSelector({
   onSelect,
   placeholder = "Select model",
   className,
+  allowFreeText = true,
 }: ModelSelectorProps): ReactNode {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [highlightIndex, setHighlightIndex] = useState(0);
+  const [freeText, setFreeText] = useState(selectedModel ?? "");
   const containerRef = useRef<HTMLDivElement>(null);
 
   const filtered = useMemo(() => {
@@ -39,7 +44,6 @@ export function ModelSelector({
     return models.filter((m) => m.name.toLowerCase().includes(q));
   }, [models, search]);
 
-  // Reset highlight when filter changes
   useEffect(() => {
     setHighlightIndex(0);
   }, [filtered.length]);
@@ -93,6 +97,44 @@ export function ModelSelector({
     [filtered, highlightIndex, handleSelect],
   );
 
+  // Free-text mode when no models available and allowFreeText is true
+  if (models.length === 0 && allowFreeText) {
+    return createElement(
+      "div",
+      {
+        "data-model-selector": "true",
+        "data-model-selector-freetext": "true",
+        className,
+        ref: containerRef,
+      },
+      createElement("input", {
+        "data-model-input": "true",
+        value: freeText,
+        placeholder: "Enter model name...",
+        onChange: (e: Event) => setFreeText((e.target as HTMLInputElement).value),
+        onKeyDown: (e: KeyboardEvent) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            const val = freeText.trim();
+            if (val) onSelect(val);
+          }
+        },
+      }),
+      createElement(
+        "button",
+        {
+          type: "button",
+          "data-action": "apply-model",
+          onClick: () => {
+            const val = freeText.trim();
+            if (val) onSelect(val);
+          },
+        },
+        "Apply",
+      ),
+    );
+  }
+
   const children: ReactNode[] = [];
 
   // Trigger button
@@ -127,6 +169,7 @@ export function ModelSelector({
     );
 
     // Model options
+    const hasMultipleProviders = new Set(filtered.map((m) => m.provider).filter(Boolean)).size > 1;
     filtered.forEach((model, idx) => {
       const isSelected = model.id === selectedModel;
       const isHighlighted = idx === highlightIndex;
@@ -138,13 +181,19 @@ export function ModelSelector({
       if (model.tier) {
         attrs["data-tier"] = model.tier;
       }
+      if (model.provider && hasMultipleProviders) {
+        attrs["data-model-provider"] = model.provider;
+      }
       if (isSelected) {
         attrs["data-model-selected"] = "true";
       }
       if (isHighlighted) {
         attrs["data-model-highlighted"] = "true";
       }
-      dropdownChildren.push(createElement("div", attrs, model.name));
+      const label = model.provider && hasMultipleProviders
+        ? `${model.name} (${model.provider})`
+        : model.name;
+      dropdownChildren.push(createElement("div", attrs, label));
     });
 
     children.push(

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 import type { ChatMessage, ChatSession } from "../core.js";
+import { isObservableSession } from "../core.js";
 import { useChatRuntime } from "./ChatProvider.js";
 
 /** Options for the useMessages hook. */
@@ -83,10 +84,10 @@ export function useMessages(options: UseMessagesOptions): UseMessagesReturn {
       isLoadedRef.current = true;
       emitChange();
 
-      // If session supports reactive API, use it
-      if (session.subscribe && session.getSnapshot) {
+      // If session supports reactive API (ObservableSession), use it
+      if (isObservableSession(session)) {
         unsubscribe = session.subscribe(() => {
-          const snapshot = session.getSnapshot!();
+          const snapshot = session.getSnapshot();
           messagesRef.current = snapshot.messages;
           emitChange();
         });

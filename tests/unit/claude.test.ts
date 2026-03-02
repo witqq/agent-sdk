@@ -203,8 +203,8 @@ describe("Claude Backend", () => {
         ok: true,
         json: async () => ({
           data: [
-            { id: "claude-opus-4-6", display_name: "Claude Opus 4.6" },
-            { id: "claude-sonnet-4-20250514", display_name: "Claude Sonnet 4" },
+            { id: "claude-opus-4-6", display_name: "Claude Opus 4.6", max_input_tokens: 200000 },
+            { id: "claude-sonnet-4-20250514", display_name: "Claude Sonnet 4", max_input_tokens: 200000 },
           ],
         }),
       });
@@ -216,6 +216,7 @@ describe("Claude Backend", () => {
         id: "claude-opus-4-6",
         name: "Claude Opus 4.6",
         provider: "claude",
+        contextWindow: 200000,
       });
       expect(models.every((m) => m.provider === "claude")).toBe(true);
       vi.unstubAllGlobals();
@@ -332,7 +333,7 @@ describe("Claude Backend", () => {
       ]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
-      const result = await agent.run("Say hello");
+      const result = await agent.run("Say hello", { model: "test-model" });
       expect(result.output).toBe("Hello!");
       expect(result.messages.length).toBeGreaterThan(0);
     });
@@ -343,7 +344,7 @@ describe("Claude Backend", () => {
       const agent = service.createAgent(
         makeConfig({ systemPrompt: "Be concise." }),
       );
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       expect(sdk.query).toHaveBeenCalledWith(
         expect.objectContaining({
           options: expect.objectContaining({
@@ -359,7 +360,7 @@ describe("Claude Backend", () => {
       const agent = service.createAgent(
         makeConfig({ model: "claude-opus-4-20250514" }),
       );
-      await agent.run("test");
+      await agent.run("test", { model: "claude-opus-4-20250514" });
       expect(sdk.query).toHaveBeenCalledWith(
         expect.objectContaining({
           options: expect.objectContaining({
@@ -376,7 +377,7 @@ describe("Claude Backend", () => {
         workingDirectory: "/tmp/test",
       });
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       expect(sdk.query).toHaveBeenCalledWith(
         expect.objectContaining({
           options: expect.objectContaining({
@@ -394,7 +395,7 @@ describe("Claude Backend", () => {
       ]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
-      const result = await agent.run("Search for news");
+      const result = await agent.run("Search for news", { model: "test-model" });
       expect(result.toolCalls).toHaveLength(1);
       expect(result.toolCalls[0].toolName).toBe("search");
       expect(result.toolCalls[0].args).toEqual({ query: "news" });
@@ -406,11 +407,11 @@ describe("Claude Backend", () => {
       ]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
-      const result = await agent.run("test");
+      const result = await agent.run("test", { model: "test-model" });
       expect(result.usage).toEqual({
         promptTokens: 100,
         completionTokens: 50,
-        model: undefined,
+        model: "test-model",
         backend: "claude",
       });
     });
@@ -421,14 +422,14 @@ describe("Claude Backend", () => {
       ]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
-      await expect(agent.run("test")).rejects.toThrow("Rate limit exceeded");
+      await expect(agent.run("test", { model: "test-model" })).rejects.toThrow("Rate limit exceeded");
     });
 
     it("should set persistSession to false", async () => {
       const sdk = injectMockSDK([successResult("ok")]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       expect(sdk.query).toHaveBeenCalledWith(
         expect.objectContaining({
           options: expect.objectContaining({
@@ -442,7 +443,7 @@ describe("Claude Backend", () => {
       const sdk = injectMockSDK([successResult("ok")]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       expect(sdk.query).toHaveBeenCalledWith(
         expect.objectContaining({
           options: expect.objectContaining({
@@ -460,7 +461,7 @@ describe("Claude Backend", () => {
       _injectSDK(sdk as any);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig({ tools: [] }));
-      await expect(agent.run("test")).rejects.toThrow("Claude CLI not found");
+      await expect(agent.run("test", { model: "test-model" })).rejects.toThrow("Claude CLI not found");
     });
 
     it("should guard re-entrancy", async () => {
@@ -485,9 +486,9 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig({ tools: [] }));
 
-      const p1 = agent.run("first");
+      const p1 = agent.run("first", { model: "test-model" });
       // Second run should fail
-      await expect(agent.run("second")).rejects.toThrow("already running");
+      await expect(agent.run("second", { model: "test-model" })).rejects.toThrow("already running");
       resolveQuery();
       await p1;
     });
@@ -497,7 +498,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
       agent.dispose();
-      await expect(agent.run("test")).rejects.toThrow(DisposedError);
+      await expect(agent.run("test", { model: "test-model" })).rejects.toThrow(DisposedError);
     });
   });
 
@@ -519,7 +520,7 @@ describe("Claude Backend", () => {
       const result = await agent.runStructured("Get news", {
         name: "news",
         schema: NewsSchema,
-      });
+      }, { model: "test-model" });
       expect(result.structuredOutput).toEqual({ headlines: ["A", "B"] });
       expect(sdk.query).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -541,7 +542,7 @@ describe("Claude Backend", () => {
       const result = await agent.runStructured("Get news", {
         name: "news",
         schema: NewsSchema,
-      });
+      }, { model: "test-model" });
       expect(result.structuredOutput).toEqual({ headlines: ["C", "D"] });
     });
 
@@ -554,7 +555,7 @@ describe("Claude Backend", () => {
       const result = await agent.runStructured("Get news", {
         name: "news",
         schema: NewsSchema,
-      });
+      }, { model: "test-model" });
       expect(result.structuredOutput).toEqual({ headlines: ["E"] });
     });
 
@@ -565,7 +566,7 @@ describe("Claude Backend", () => {
       const result = await agent.runStructured("test", {
         name: "test",
         schema: NewsSchema,
-      });
+      }, { model: "test-model" });
       expect(result.structuredOutput).toBeUndefined();
     });
 
@@ -581,7 +582,7 @@ describe("Claude Backend", () => {
       const result = await agent.runStructured("Get news", {
         name: "news",
         schema: NewsSchema,
-      });
+      }, { model: "test-model" });
       expect(result.structuredOutput).toEqual({ headlines: ["Found"] });
       expect(result.toolCalls).toHaveLength(1);
       expect(result.toolCalls[0].toolName).toBe("search");
@@ -613,7 +614,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
       const events = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         events.push(event);
       }
       const textEvents = events.filter((e) => e.type === "text_delta");
@@ -626,7 +627,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
       const events = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         events.push(event);
       }
       const doneEvents = events.filter((e) => e.type === "done");
@@ -642,7 +643,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
       const events = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         events.push(event);
       }
       const usageEvents = events.filter((e) => e.type === "usage_update");
@@ -651,7 +652,7 @@ describe("Claude Backend", () => {
         type: "usage_update",
         promptTokens: 100,
         completionTokens: 50,
-        model: undefined,
+        model: "test-model",
         backend: "claude",
       });
     });
@@ -661,11 +662,43 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
       const events = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         events.push(event);
       }
       const errorEvents = events.filter((e) => e.type === "error");
       expect(errorEvents).toHaveLength(1);
+    });
+
+    it("should classify error events with error code", async () => {
+      injectMockSDK([errorResult(["Rate limit exceeded"])]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      const events = [];
+      for await (const event of agent.stream("test", { model: "test-model" })) {
+        events.push(event);
+      }
+      const err = events.find((e) => e.type === "error");
+      expect(err).toBeDefined();
+      expect(err!.type).toBe("error");
+      if (err!.type === "error") {
+        expect(err!.code).toBe("RATE_LIMIT");
+        expect(err!.recoverable).toBe(true);
+      }
+    });
+
+    it("should mark unknown errors as non-recoverable", async () => {
+      injectMockSDK([errorResult(["Something went wrong"])]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      const events = [];
+      for await (const event of agent.stream("test", { model: "test-model" })) {
+        events.push(event);
+      }
+      const err = events.find((e) => e.type === "error");
+      if (err!.type === "error") {
+        expect(err!.code).toBe("PROVIDER_ERROR");
+        expect(err!.recoverable).toBe(true);
+      }
     });
 
     it("should yield tool_call_start from assistant tool_use", async () => {
@@ -676,7 +709,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
       const events = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         events.push(event);
       }
       const toolEvents = events.filter((e) => e.type === "tool_call_start");
@@ -697,7 +730,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
       const events = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         events.push(event);
       }
       const toolEvents = events.filter((e) => e.type === "tool_call_start");
@@ -718,7 +751,7 @@ describe("Claude Backend", () => {
       const sdk = injectMockSDK([successResult("ok")]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       // tool() should have been called for each tool
       expect(sdk.tool).toHaveBeenCalledTimes(1);
@@ -741,7 +774,7 @@ describe("Claude Backend", () => {
       const sdk = injectMockSDK([successResult("ok")]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig({ tools: [] }));
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       expect(sdk.createSdkMcpServer).not.toHaveBeenCalled();
     });
 
@@ -749,7 +782,7 @@ describe("Claude Backend", () => {
       const sdk = injectMockSDK([successResult("ok")]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       const opts = sdk.query.mock.calls[0][0].options;
       expect(opts.allowedTools).toEqual(["mcp__agent-sdk-tools__search"]);
     });
@@ -758,7 +791,7 @@ describe("Claude Backend", () => {
       const sdk = injectMockSDK([successResult("ok")]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig({ tools: [] }));
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       const opts = sdk.query.mock.calls[0][0].options;
       expect(opts.allowedTools).toBeUndefined();
     });
@@ -779,7 +812,7 @@ describe("Claude Backend", () => {
           ],
         }),
       );
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       // Get the handler that was passed to sdk.tool
       const handler = sdk.tool.mock.calls[0][3];
@@ -803,7 +836,7 @@ describe("Claude Backend", () => {
           ],
         }),
       );
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       const handler = sdk.tool.mock.calls[0][3];
       const result = await handler({}, {});
@@ -828,7 +861,7 @@ describe("Claude Backend", () => {
           supervisor: { onPermission },
         }),
       );
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       expect(sdk.query).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -843,7 +876,7 @@ describe("Claude Backend", () => {
       const sdk = injectMockSDK([successResult("ok")]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       const opts = sdk.query.mock.calls[0][0].options;
       expect(opts.canUseTool).toBeUndefined();
@@ -864,7 +897,7 @@ describe("Claude Backend", () => {
           supervisor: { onPermission },
         }),
       );
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       // Extract the canUseTool callback
       const canUseTool = sdk.query.mock.calls[0][0].options.canUseTool;
@@ -897,7 +930,7 @@ describe("Claude Backend", () => {
           supervisor: { onPermission },
         }),
       );
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       const canUseTool = sdk.query.mock.calls[0][0].options.canUseTool;
       const result = await canUseTool!("bash", { cmd: "rm -rf /" }, {
@@ -924,7 +957,7 @@ describe("Claude Backend", () => {
           supervisor: { onPermission },
         }),
       );
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       const canUseTool = sdk.query.mock.calls[0][0].options.canUseTool;
       const result = await canUseTool!("bash", {}, {
@@ -952,7 +985,7 @@ describe("Claude Backend", () => {
           supervisor: { onPermission },
         }),
       );
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       const canUseTool = sdk.query.mock.calls[0][0].options.canUseTool;
       const result = await canUseTool!("bash", {}, {
@@ -978,7 +1011,7 @@ describe("Claude Backend", () => {
       const agent = service.createAgent(
         makeConfig({ tools: [], supervisor: { onPermission } }),
       );
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       const canUseTool = sdk.query.mock.calls[0][0].options.canUseTool;
       const result = await canUseTool!("bash", { cmd: "ls" }, {
@@ -1003,7 +1036,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
       const events = [];
-      for await (const e of agent.stream("test")) events.push(e);
+      for await (const e of agent.stream("test", { model: "test-model" })) events.push(e);
       const textDeltas = events.filter((e) => e.type === "text_delta");
       expect(textDeltas).toHaveLength(1);
       expect((textDeltas[0] as { text: string }).text).toBe("Hi there");
@@ -1023,7 +1056,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
       const events = [];
-      for await (const e of agent.stream("test")) events.push(e);
+      for await (const e of agent.stream("test", { model: "test-model" })) events.push(e);
       expect(events.some((e) => e.type === "thinking_start")).toBe(true);
     });
 
@@ -1065,7 +1098,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
       const events: AgentEvent[] = [];
-      for await (const e of agent.stream("test")) events.push(e);
+      for await (const e of agent.stream("test", { model: "test-model" })) events.push(e);
 
       const thinkingDeltas = events.filter((e) => e.type === "thinking_delta");
       expect(thinkingDeltas).toHaveLength(2);
@@ -1119,7 +1152,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
       const events: AgentEvent[] = [];
-      for await (const e of agent.stream("test")) events.push(e);
+      for await (const e of agent.stream("test", { model: "test-model" })) events.push(e);
 
       const thinkingStart = events.findIndex((e) => e.type === "thinking_start");
       const thinkingDelta = events.findIndex((e) => e.type === "thinking_delta");
@@ -1157,7 +1190,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
       const events: AgentEvent[] = [];
-      for await (const e of agent.stream("test")) events.push(e);
+      for await (const e of agent.stream("test", { model: "test-model" })) events.push(e);
 
       expect(events.some((e) => e.type === "thinking_delta")).toBe(false);
       expect(events.some((e) => e.type === "thinking_start")).toBe(false);
@@ -1174,7 +1207,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
       const events = [];
-      for await (const e of agent.stream("test")) events.push(e);
+      for await (const e of agent.stream("test", { model: "test-model" })) events.push(e);
       const toolEvents = events.filter((e) => e.type === "tool_call_start");
       expect(toolEvents).toHaveLength(0);
     });
@@ -1187,7 +1220,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
       const events = [];
-      for await (const e of agent.stream("test")) events.push(e);
+      for await (const e of agent.stream("test", { model: "test-model" })) events.push(e);
       // Should only have session_info, usage_update and done events from the success result
       expect(events.every((e) => ["session_info", "usage_update", "done"].includes(e.type))).toBe(
         true,
@@ -1221,7 +1254,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
       const events = [];
-      for await (const e of agent.stream("test")) events.push(e);
+      for await (const e of agent.stream("test", { model: "test-model" })) events.push(e);
 
       const toolStart = events.find((e) => e.type === "tool_call_start");
       const toolEnd = events.find((e) => e.type === "tool_call_end");
@@ -1249,7 +1282,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
       const events = [];
-      for await (const e of agent.stream("test")) events.push(e);
+      for await (const e of agent.stream("test", { model: "test-model" })) events.push(e);
 
       const starts = events.filter((e) => e.type === "tool_call_start");
       expect(starts).toHaveLength(2);
@@ -1291,7 +1324,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
       const events = [];
-      for await (const e of agent.stream("test")) events.push(e);
+      for await (const e of agent.stream("test", { model: "test-model" })) events.push(e);
 
       const starts = events.filter((e) => e.type === "tool_call_start") as Array<{
         toolCallId: string; toolName: string;
@@ -1328,7 +1361,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
       const events = [];
-      for await (const e of agent.stream("test")) events.push(e);
+      for await (const e of agent.stream("test", { model: "test-model" })) events.push(e);
 
       const text = events.find((e) => e.type === "text_delta");
       const tool = events.find((e) => e.type === "tool_call_start");
@@ -1357,7 +1390,7 @@ describe("Claude Backend", () => {
       ]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
-      const result = await agent.run("search");
+      const result = await agent.run("search", { model: "test-model" });
 
       expect(result.toolCalls).toHaveLength(1);
       expect(result.toolCalls[0].toolName).toBe("search");
@@ -1368,8 +1401,8 @@ describe("Claude Backend", () => {
 
   // ── onAskUser warning (M2 fix) ────────────────────────────────
 
-  describe("onAskUser warning", () => {
-    it("should warn when onAskUser is set in config", async () => {
+  describe("onAskUser via MCP tool", () => {
+    it("should not warn when onAskUser is set (supported via MCP ask_user tool)", async () => {
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       try {
         injectMockSDK();
@@ -1380,7 +1413,7 @@ describe("Claude Backend", () => {
             onAskUser: async () => "yes",
           },
         });
-        expect(warnSpy).toHaveBeenCalledWith(
+        expect(warnSpy).not.toHaveBeenCalledWith(
           expect.stringContaining("onAskUser is not supported"),
         );
       } finally {
@@ -1399,6 +1432,69 @@ describe("Claude Backend", () => {
         warnSpy.mockRestore();
       }
     });
+    it("should register ask_user MCP tool when onAskUser is configured", async () => {
+      const sdk = injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({});
+      const onAskUser = vi.fn(async () => ({ answer: "yes" }));
+      const agent = service.createAgent({
+        ...makeConfig({
+          tools: [{ name: "search", description: "Search", parameters: z.object({}), execute: async () => "ok" }],
+        }),
+        supervisor: { onAskUser },
+      });
+      await agent.run("test", { model: "test-model" });
+      // sdk.tool should have been called for ask_user
+      expect(sdk.tool).toHaveBeenCalledWith(
+        "ask_user",
+        expect.any(String),
+        expect.any(Object),
+        expect.any(Function),
+      );
+    });
+
+    it("should add AskUserQuestion to disallowedTools when onAskUser is configured", async () => {
+      const sdk = injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({});
+      const onAskUser = vi.fn(async () => ({ answer: "yes" }));
+      const agent = service.createAgent({
+        ...makeConfig({
+          tools: [{ name: "search", description: "Search", parameters: z.object({}), execute: async () => "ok" }],
+        }),
+        supervisor: { onAskUser },
+      });
+      await agent.run("test", { model: "test-model" });
+      const opts = sdk.query.mock.calls[0][0].options;
+      expect(opts.disallowedTools).toContain("AskUserQuestion");
+    });
+
+    it("should include ask_user in allowedTools when onAskUser is configured", async () => {
+      const sdk = injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({});
+      const onAskUser = vi.fn(async () => ({ answer: "yes" }));
+      const agent = service.createAgent({
+        ...makeConfig({
+          tools: [{ name: "search", description: "Search", parameters: z.object({}), execute: async () => "ok" }],
+        }),
+        supervisor: { onAskUser },
+      });
+      await agent.run("test", { model: "test-model" });
+      const opts = sdk.query.mock.calls[0][0].options;
+      expect(opts.allowedTools).toContain("mcp__agent-sdk-tools__ask_user");
+    });
+
+    it("should create MCP server even with no tools when onAskUser is configured", async () => {
+      const sdk = injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({});
+      const onAskUser = vi.fn(async () => ({ answer: "yes" }));
+      const agent = service.createAgent({
+        ...makeConfig({ tools: [] }),
+        supervisor: { onAskUser },
+      });
+      await agent.run("test", { model: "test-model" });
+      expect(sdk.createSdkMcpServer).toHaveBeenCalled();
+      const opts = sdk.query.mock.calls[0][0].options;
+      expect(opts.disallowedTools).toContain("AskUserQuestion");
+    });
   });
 
   // ── Usage Metadata & onUsage Callback ────────────────────────
@@ -1408,7 +1504,7 @@ describe("Claude Backend", () => {
       injectMockSDK([successResult("ok")]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig({ model: "claude-opus-4-20250514" }));
-      const result = await agent.run("test");
+      const result = await agent.run("test", { model: "claude-opus-4-20250514" });
 
       expect(result.usage?.model).toBe("claude-opus-4-20250514");
       expect(result.usage?.backend).toBe("claude");
@@ -1420,7 +1516,7 @@ describe("Claude Backend", () => {
       const agent = service.createAgent(makeConfig({ model: "claude-sonnet" }));
 
       const events = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "claude-sonnet" })) {
         events.push(event);
       }
 
@@ -1436,7 +1532,7 @@ describe("Claude Backend", () => {
       const onUsage = vi.fn();
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig({ model: "claude-sonnet", onUsage }));
-      await agent.run("test");
+      await agent.run("test", { model: "claude-sonnet" });
 
       expect(onUsage).toHaveBeenCalledOnce();
       expect(onUsage).toHaveBeenCalledWith({
@@ -1453,7 +1549,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig({ model: "claude-sonnet", onUsage }));
 
-      for await (const _event of agent.stream("test")) {
+      for await (const _event of agent.stream("test", { model: "claude-sonnet" })) {
         // consume
       }
 
@@ -1472,7 +1568,7 @@ describe("Claude Backend", () => {
       const onUsage = vi.fn(() => { throw new Error("boom"); });
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig({ onUsage }));
-      const result = await agent.run("test");
+      const result = await agent.run("test", { model: "test-model" });
 
       expect(result.output).toBe("ok");
       expect(warnSpy).toHaveBeenCalledWith(
@@ -1490,7 +1586,7 @@ describe("Claude Backend", () => {
       const sdk = injectMockSDK([successResult("ok")]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("What is 2+2?");
+      await agent.run("What is 2+2?", { model: "test-model" });
       expect(sdk.query).toHaveBeenCalledWith(
         expect.objectContaining({
           prompt: "What is 2+2?",
@@ -1506,7 +1602,7 @@ describe("Claude Backend", () => {
         { role: "user", content: "My name is Alice" },
         { role: "assistant", content: "Hello Alice!" },
         { role: "user", content: "What is my name?" },
-      ]);
+      ], { model: "test-model" });
 
       const sentPrompt = sdk.query.mock.calls[0][0].prompt;
       expect(sentPrompt).toContain("Conversation history:");
@@ -1519,7 +1615,7 @@ describe("Claude Backend", () => {
       const sdk = injectMockSDK([successResult("ok")]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
-      await agent.runWithContext([{ role: "user", content: "Hello" }]);
+      await agent.runWithContext([{ role: "user", content: "Hello" }], { model: "test-model" });
 
       expect(sdk.query).toHaveBeenCalledWith(
         expect.objectContaining({ prompt: "Hello" }),
@@ -1534,7 +1630,7 @@ describe("Claude Backend", () => {
       const sdk = injectMockSDK([successResult("ok")]);
       const service = createClaudeService({ oauthToken: "sk-ant-oat01-test-token" });
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       const callArgs = sdk.query.mock.calls[0][0];
       expect(callArgs.options.env).toBeDefined();
       expect(callArgs.options.env.CLAUDE_CODE_OAUTH_TOKEN).toBe("sk-ant-oat01-test-token");
@@ -1544,7 +1640,7 @@ describe("Claude Backend", () => {
       const sdk = injectMockSDK([successResult("ok")]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       const callArgs = sdk.query.mock.calls[0][0];
       expect(callArgs.options.env).toBeUndefined();
     });
@@ -1553,7 +1649,7 @@ describe("Claude Backend", () => {
       const sdk = injectMockSDK([successResult("ok")]);
       const service = createClaudeService({ oauthToken: "test-token" });
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       const callArgs = sdk.query.mock.calls[0][0];
       expect(callArgs.options.env.PATH).toBeDefined();
     });
@@ -1562,7 +1658,7 @@ describe("Claude Backend", () => {
       const sdk = injectMockSDK([successResult("ok")]);
       const service = createClaudeService({ env: { CUSTOM_VAR: "custom-value" } });
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       const callArgs = sdk.query.mock.calls[0][0];
       expect(callArgs.options.env).toBeDefined();
       expect(callArgs.options.env.CUSTOM_VAR).toBe("custom-value");
@@ -1576,7 +1672,7 @@ describe("Claude Backend", () => {
         env: { MY_VAR: "hello" },
       });
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       const callArgs = sdk.query.mock.calls[0][0];
       expect(callArgs.options.env.CLAUDE_CODE_OAUTH_TOKEN).toBe("tok-123");
       expect(callArgs.options.env.MY_VAR).toBe("hello");
@@ -1590,7 +1686,7 @@ describe("Claude Backend", () => {
         env: { CLAUDE_CODE_OAUTH_TOKEN: "custom-token" },
       });
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       const callArgs = sdk.query.mock.calls[0][0];
       expect(callArgs.options.env.CLAUDE_CODE_OAUTH_TOKEN).toBe("real-token");
     });
@@ -1608,7 +1704,7 @@ describe("Claude Backend", () => {
       const agent = service.createAgent(
         makeConfig({ supervisor: { onPermission } }),
       );
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       const opts = sdk.query.mock.calls[0][0].options;
       expect(opts.permissionMode).toBe("default");
     });
@@ -1617,7 +1713,7 @@ describe("Claude Backend", () => {
       const sdk = injectMockSDK([successResult("ok")]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       const opts = sdk.query.mock.calls[0][0].options;
       expect(opts.permissionMode).toBeUndefined();
     });
@@ -1656,7 +1752,7 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
       expect(agent.sessionId).toBeUndefined();
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       expect(agent.sessionId).toBe("ses-abc-123");
     });
 
@@ -1668,10 +1764,10 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
 
-      await agent.run("first message");
+      await agent.run("first message", { model: "test-model" });
       expect(sdk.query.mock.calls[0][0].options.resume).toBeUndefined();
 
-      await agent.run("second message");
+      await agent.run("second message", { model: "test-model" });
       expect(sdk.query.mock.calls[1][0].options.resume).toBe("ses-111");
     });
 
@@ -1683,8 +1779,8 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
 
-      const result1 = await agent.run("hello");
-      const result2 = await agent.run("follow up", { messages: result1.messages });
+      const result1 = await agent.run("hello", { model: "test-model" });
+      const result2 = await agent.run("follow up", { model: "test-model", messages: result1.messages });
 
       // Second call should send only the last user prompt, not full history
       const secondPrompt = sdk.query.mock.calls[1][0].prompt;
@@ -1696,7 +1792,7 @@ describe("Claude Backend", () => {
       const sdk = injectMockSDK([successResultWithSessionId("ok", "ses-333")]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       expect(sdk.query.mock.calls[0][0].options.persistSession).toBe(true);
     });
 
@@ -1704,7 +1800,7 @@ describe("Claude Backend", () => {
       const sdk = injectMockSDK([successResult("ok")]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       expect(sdk.query.mock.calls[0][0].options.persistSession).toBe(false);
     });
 
@@ -1712,7 +1808,7 @@ describe("Claude Backend", () => {
       injectMockSDK([successResult("ok")]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       expect(agent.sessionId).toBeUndefined();
     });
 
@@ -1727,15 +1823,15 @@ describe("Claude Backend", () => {
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
 
-      await agent.run("first");
+      await agent.run("first", { model: "test-model" });
       expect(agent.sessionId).toBe("ses-444");
 
       // Second call: resume fails → retry with fresh session succeeds
-      const result = await agent.run("second");
+      const result = await agent.run("second", { model: "test-model" });
       expect(result.output).toBe("recovered");
       expect(agent.sessionId).toBe("ses-555");
 
-      await agent.run("third");
+      await agent.run("third", { model: "test-model" });
       expect(agent.sessionId).toBe("ses-666");
     });
 
@@ -1743,7 +1839,7 @@ describe("Claude Backend", () => {
       injectMockSDK([successResultWithSessionId("ok", "ses-666")]);
       const service = createClaudeService({});
       const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       expect(agent.sessionId).toBe("ses-666");
       agent.dispose();
       expect(agent.sessionId).toBeUndefined();
@@ -1758,10 +1854,45 @@ describe("Claude Backend", () => {
       const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
 
       const events: AgentEvent[] = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         events.push(event);
       }
       expect(agent.sessionId).toBe("ses-777");
+    });
+  });
+
+  // ── model resolution ─────────────────────────────────────────────
+
+  describe("model resolution", () => {
+    it("should use per-call model override", async () => {
+      const sdk = injectMockSDK([successResult("ok")]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig({ model: "claude-base" }));
+      await agent.run("test", { model: "claude-per-call" });
+      expect(sdk.query.mock.calls[0][0].options.model).toBe("claude-per-call");
+    });
+
+    it("should use per-call model even with persistent session resume", async () => {
+      let callIndex = 0;
+      const sdk = createMockSDK();
+      sdk.query.mockImplementation(() => {
+        const msgs = callIndex === 0
+          ? [{ ...successResult("first"), session_id: "ses-model-test" }]
+          : [{ ...successResult("second"), session_id: "ses-model-test" }];
+        callIndex++;
+        return { [Symbol.asyncIterator]() { return asyncIter(msgs)[Symbol.asyncIterator](); } };
+      });
+      _injectSDK(sdk as any);
+
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig({ model: "claude-base", sessionMode: "persistent" }));
+
+      await agent.run("first", { model: "claude-base" });
+      expect(sdk.query.mock.calls[0][0].options.model).toBe("claude-base");
+
+      await agent.run("second", { model: "claude-new-model" });
+      expect(sdk.query.mock.calls[1][0].options.model).toBe("claude-new-model");
+      expect(sdk.query.mock.calls[1][0].options.resume).toBe("ses-model-test");
     });
   });
 
@@ -1774,7 +1905,7 @@ describe("Claude Backend", () => {
       const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
 
       const events: AgentEvent[] = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         events.push(event);
       }
       const sessionInfoEvents = events.filter((e) => e.type === "session_info");
@@ -1812,11 +1943,182 @@ describe("Claude Backend", () => {
       const agent = service.createAgent(makeConfig());
 
       // Start streaming — consume all events
-      for await (const _event of agent.stream("test")) {
+      for await (const _event of agent.stream("test", { model: "test-model" })) {
         // consume
       }
       // After stream completes, activeQuery is cleared — interrupt should still work (no-op)
       await agent.interrupt();
+    });
+  });
+
+  // ── ask_user tool filtering ──────────────────────────────────────
+
+  describe("ask_user tool filtering", () => {
+    it("should filter AskUserQuestion tool_call_start from stream events", async () => {
+      injectMockSDK([
+        {
+          type: "assistant",
+          message: {
+            content: [
+              { type: "tool_use", name: "AskUserQuestion", input: { questions: [] }, id: "tu_ask" },
+            ],
+          },
+        },
+        {
+          type: "tool_use_summary",
+          summary: "User answered",
+          tool_name: "AskUserQuestion",
+          preceding_tool_use_ids: ["tu_ask"],
+          uuid: "u1",
+          session_id: "s1",
+        },
+        successResult("done"),
+      ]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      const events: AgentEvent[] = [];
+      for await (const e of agent.stream("test", { model: "test-model" })) events.push(e);
+
+      const toolStarts = events.filter((e) => e.type === "tool_call_start");
+      const toolEnds = events.filter((e) => e.type === "tool_call_end");
+      expect(toolStarts).toHaveLength(0);
+      expect(toolEnds).toHaveLength(0);
+    });
+
+    it("should pass through non-internal tool events alongside filtered AskUserQuestion", async () => {
+      injectMockSDK([
+        {
+          type: "assistant",
+          message: {
+            content: [
+              { type: "tool_use", name: "search", input: { q: "test" }, id: "tu_1" },
+              { type: "tool_use", name: "AskUserQuestion", input: { questions: [] }, id: "tu_ask" },
+            ],
+          },
+        },
+        {
+          type: "tool_use_summary",
+          summary: "User answered",
+          tool_name: "AskUserQuestion",
+          preceding_tool_use_ids: ["tu_ask"],
+          uuid: "u2",
+          session_id: "s1",
+        },
+        {
+          type: "tool_use_summary",
+          summary: "Found results",
+          tool_name: "search",
+          preceding_tool_use_ids: ["tu_1"],
+          uuid: "u3",
+          session_id: "s1",
+        },
+        successResult("done"),
+      ]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      const events: AgentEvent[] = [];
+      for await (const e of agent.stream("test", { model: "test-model" })) events.push(e);
+
+      const toolStarts = events.filter((e) => e.type === "tool_call_start");
+      const toolEnds = events.filter((e) => e.type === "tool_call_end");
+      expect(toolStarts).toHaveLength(1);
+      expect(toolStarts[0].type === "tool_call_start" && toolStarts[0].toolName).toBe("search");
+      expect(toolEnds).toHaveLength(1);
+      expect(toolEnds[0].type === "tool_call_end" && toolEnds[0].toolName).toBe("search");
+    });
+
+    it("should filter AskUserQuestion with MCP prefix from tool events", async () => {
+      injectMockSDK([
+        {
+          type: "assistant",
+          message: {
+            content: [
+              { type: "tool_use", name: "mcp__agent-sdk-tools__AskUserQuestion", input: {}, id: "tu_ask" },
+            ],
+          },
+        },
+        successResult("done"),
+      ]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      const events: AgentEvent[] = [];
+      for await (const e of agent.stream("test", { model: "test-model" })) events.push(e);
+
+      const toolStarts = events.filter((e) => e.type === "tool_call_start");
+      expect(toolStarts).toHaveLength(0);
+    });
+
+    it("should filter AskUserQuestion from executeRun toolCalls", async () => {
+      injectMockSDK([
+        {
+          type: "assistant",
+          message: {
+            content: [
+              { type: "tool_use", name: "search", input: { q: "test" }, id: "tu_1" },
+              { type: "tool_use", name: "AskUserQuestion", input: { questions: [] }, id: "tu_ask" },
+            ],
+          },
+        },
+        successResult("done"),
+      ]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      const result = await agent.run("test", { model: "test-model" });
+
+      expect(result.toolCalls).toHaveLength(1);
+      expect(result.toolCalls[0].toolName).toBe("search");
+    });
+  });
+
+  // ── done event streamed flag ─────────────────────────────────────
+
+  describe("done event streamed flag", () => {
+    it("should set streamed: true on done event when text_delta was emitted", async () => {
+      injectMockSDK([
+        streamTextDelta("Hello "),
+        streamTextDelta("world"),
+        successResult("Hello world"),
+      ]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      const events: AgentEvent[] = [];
+      for await (const e of agent.stream("test", { model: "test-model" })) events.push(e);
+
+      const done = events.find((e) => e.type === "done");
+      expect(done).toBeDefined();
+      expect(done!.type === "done" && done!.streamed).toBe(true);
+      expect(done!.type === "done" && done!.finalOutput).toBeNull();
+    });
+
+    it("should not set streamed flag on done event when no text_delta was emitted", async () => {
+      injectMockSDK([
+        toolUseMessage("search", { query: "test" }),
+        successResult("result"),
+      ]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      const events: AgentEvent[] = [];
+      for await (const e of agent.stream("test", { model: "test-model" })) events.push(e);
+
+      const done = events.find((e) => e.type === "done");
+      expect(done).toBeDefined();
+      expect(done!.type === "done" && done!.streamed).toBeUndefined();
+    });
+
+    it("should set streamed: true even with mixed text and tool events", async () => {
+      injectMockSDK([
+        streamTextDelta("Starting..."),
+        toolUseMessage("search", { query: "test" }),
+        streamTextDelta("Done."),
+        successResult("Starting... Done."),
+      ]);
+      const service = createClaudeService({});
+      const agent = service.createAgent(makeConfig());
+      const events: AgentEvent[] = [];
+      for await (const e of agent.stream("test", { model: "test-model" })) events.push(e);
+
+      const done = events.find((e) => e.type === "done");
+      expect(done!.type === "done" && done!.streamed).toBe(true);
     });
   });
 });

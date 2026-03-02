@@ -53,8 +53,7 @@ describe("chat barrel export", () => {
     const barrel = await import("../../../src/chat/index.js");
 
     expect(barrel.ChatError).toBeTypeOf("function");
-    expect(barrel.ChatSDKError).toBeTypeOf("function");
-    expect(barrel.ChatErrorCode).toBeDefined();
+    expect(barrel.ErrorCode).toBeDefined();
     expect(barrel.classifyError).toBeTypeOf("function");
     expect(barrel.isRetryable).toBeTypeOf("function");
     expect(barrel.withRetry).toBeTypeOf("function");

@@ -72,47 +72,41 @@ export function Composer({
   );
 
   const children: ReactNode[] = [
-    createElement("textarea", {
-      key: "textarea",
-      ref: textareaRef,
-      value,
-      onChange: handleChange,
-      onKeyDown: handleKeyDown,
-      placeholder,
-      disabled: disabled || false,
-      "aria-label": "Message input",
-      rows: 1,
-    }),
+    createElement("div", { key: "input-wrapper", "data-input": "" },
+      createElement("textarea", {
+        ref: textareaRef,
+        value,
+        onChange: handleChange,
+        onKeyDown: handleKeyDown,
+        placeholder,
+        disabled: disabled || false,
+        "aria-label": "Message input",
+        rows: 1,
+      }),
+      isGenerating
+        ? createElement(
+            "button",
+            {
+              key: "stop",
+              "data-action": "stop",
+              onClick: onStop,
+              type: "button",
+            },
+            "Stop",
+          )
+        : createElement(
+            "button",
+            {
+              key: "send",
+              "data-action": "send",
+              onClick: handleSend,
+              disabled: !value.trim() || isGenerating,
+              type: "button",
+            },
+            "Send",
+          ),
+    ),
   ];
-
-  if (isGenerating) {
-    children.push(
-      createElement(
-        "button",
-        {
-          key: "stop",
-          "data-action": "stop",
-          onClick: onStop,
-          type: "button",
-        },
-        "Stop",
-      ),
-    );
-  } else {
-    children.push(
-      createElement(
-        "button",
-        {
-          key: "send",
-          "data-action": "send",
-          onClick: handleSend,
-          disabled: !value.trim() || isGenerating,
-          type: "button",
-        },
-        "Send",
-      ),
-    );
-  }
 
   return createElement(
     "div",

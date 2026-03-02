@@ -334,20 +334,6 @@ describe("useRemoteAuth", () => {
   });
 });
 
-// ─── Deprecation ───────────────────────────────────────────
-
-describe("useAuth deprecation", () => {
-  it("useAuth has @deprecated JSDoc tag", async () => {
-    const fs = await import("node:fs");
-    const path = await import("node:path");
-    const content = fs.readFileSync(
-      path.resolve("src/chat/react/useAuth.ts"),
-      "utf-8",
-    );
-    expect(content).toContain("@deprecated");
-    expect(content).toContain("useRemoteAuth");
-  });
-});
 
 // ─── Crypto Isolation ──────────────────────────────────────
 
@@ -372,9 +358,12 @@ describe("crypto isolation", () => {
       path.resolve("src/chat/react/useRemoteAuth.ts"),
       "utf-8",
     );
-    // Should not import CopilotAuth or ClaudeAuth classes
-    expect(content).not.toContain("CopilotAuth");
-    expect(content).not.toContain("ClaudeAuth");
+    // Should not import CopilotAuth or ClaudeAuth classes (which pull in node:crypto)
+    // Note: useCopilotAuth/useClaudeAuth hooks are fine — they are browser-safe React hooks
+    expect(content).not.toMatch(/import\s+\{[^}]*\bCopilotAuth\b/);
+    expect(content).not.toMatch(/import\s+\{[^}]*\bClaudeAuth\b/);
+    expect(content).not.toMatch(/from\s+["']\.\.\/\.\.\/auth\/copilot/);
+    expect(content).not.toMatch(/from\s+["']\.\.\/\.\.\/auth\/claude[^/]/);
     // Only type imports from auth/types.ts
     expect(content).toContain("from \"../../auth/types.js\"");
   });

@@ -6,10 +6,9 @@ export interface ModelOption {
   id: string;
   name: string;
   tier?: string;
+  /** Provider/backend name for multi-provider context. */
+  provider?: string;
 }
-
-/** @deprecated Use ModelOption instead — renamed to avoid collision with core ModelInfo */
-export type ModelInfo = ModelOption;
 
 /** Return type for the useModels hook. */
 export interface UseModelsReturn {
@@ -40,6 +39,7 @@ export function useModels(): UseModelsReturn {
         id: m.id,
         name: m.name ?? m.id,
         tier: m.provider,
+        provider: m.provider,
       }));
       setModels(mapped);
     } catch (err) {

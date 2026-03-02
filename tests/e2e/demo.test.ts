@@ -183,4 +183,80 @@ describe("Demo E2E", () => {
       expect(result.error).toBeUndefined();
     });
   });
+
+  // 5. Backend switching (removed — backend is now per-request)
+  describe("backend switching (removed route)", () => {
+    it("returns 404 for /backend/switch (removed route)", async () => {
+      const res = await fetch(`${DEMO_URL}/api/chat/backend/switch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ backend: "copilot" }),
+      });
+      expect(res.status).toBe(404);
+    });
+  });
+
+  // 6. Provider CRUD
+  describe("providers", () => {
+    let providerId: string;
+
+    it("lists providers (initially may be empty or have auto-created)", async () => {
+      const providers = await api.listProviders();
+      expect(Array.isArray(providers)).toBe(true);
+    });
+
+    it("creates a provider", async () => {
+      const provider = await api.createProvider({
+        backend: "copilot",
+        model: "gpt-5-mini",
+        label: "E2E Test Provider",
+      });
+      expect(provider.id).toBeDefined();
+      expect(provider.backend).toBe("copilot");
+      expect(provider.model).toBe("gpt-5-mini");
+      expect(provider.label).toBe("E2E Test Provider");
+      providerId = provider.id;
+    });
+
+    it("retrieves the created provider", async () => {
+      const provider = await api.getProvider(providerId);
+      expect(provider.id).toBe(providerId);
+      expect(provider.label).toBe("E2E Test Provider");
+    });
+
+    it("lists providers includes the created one", async () => {
+      const providers = await api.listProviders();
+      expect(providers.some(p => p.id === providerId)).toBe(true);
+    });
+
+    it("updates provider label", async () => {
+      const updated = await api.updateProvider(providerId, { label: "Updated Provider" });
+      expect(updated.label).toBe("Updated Provider");
+      expect(updated.model).toBe("gpt-5-mini");
+    });
+
+    it("switches to the provider", async () => {
+      const result = await api.switchProvider(providerId);
+      expect(result.ok).toBe(true);
+    });
+
+    it("rejects create without required fields", async () => {
+      const res = await fetch(`${DEMO_URL}/api/chat/providers`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ backend: "copilot" }),
+      });
+      expect(res.status).toBe(400);
+    });
+
+    it("deletes the provider", async () => {
+      const result = await api.deleteProvider(providerId);
+      expect(result.ok).toBe(true);
+    });
+
+    it("get deleted provider returns 404", async () => {
+      const res = await fetch(`${DEMO_URL}/api/chat/providers/${providerId}`);
+      expect(res.status).toBe(404);
+    });
+  });
 });

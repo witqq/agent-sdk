@@ -6,7 +6,7 @@
  * Timer resets on each received event.
  */
 
-import { ChatError, ChatErrorCode } from "./errors.js";
+import { ChatError, ErrorCode } from "./errors.js";
 
 // ─── Configuration ─────────────────────────────────────────────
 
@@ -102,7 +102,7 @@ class CancellableTimeout<T> {
           reject(
             new ChatError(
               `Stream timed out after ${ms}ms of inactivity`,
-              { code: ChatErrorCode.TIMEOUT },
+              { code: ErrorCode.TIMEOUT },
             ),
           );
         }

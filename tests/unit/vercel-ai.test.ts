@@ -217,7 +217,7 @@ describe("VercelAIAgentService", () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
-        data: [{ id: "custom-model-1" }, { id: "custom-model-2" }],
+        data: [{ id: "custom-model-1", context_length: 128000 }, { id: "custom-model-2" }],
       }),
     });
     const originalFetch = globalThis.fetch;
@@ -225,13 +225,61 @@ describe("VercelAIAgentService", () => {
     try {
       const service = createVercelAIService(BACKEND_OPTIONS);
       const models = await service.listModels();
-      expect(models).toEqual([{ id: "custom-model-1" }, { id: "custom-model-2" }]);
+      expect(models).toEqual([{ id: "custom-model-1", contextWindow: 128000 }, { id: "custom-model-2" }]);
       expect(mockFetch).toHaveBeenCalledWith(
         "https://test.example.com/api/v1/models",
         expect.objectContaining({
-          headers: { Authorization: "Bearer test-api-key" },
+          headers: expect.objectContaining({ Authorization: "Bearer test-api-key" }),
         }),
       );
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it("should extract name and description from model objects", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: [
+          { id: "gpt-4", name: "GPT-4", description: "Large model", context_length: 128000 },
+          { id: "gpt-3.5", name: "GPT-3.5" },
+          { id: "gpt-mini" },
+        ],
+      }),
+    });
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = mockFetch;
+    try {
+      const service = createVercelAIService(BACKEND_OPTIONS);
+      const models = await service.listModels();
+      expect(models).toEqual([
+        { id: "gpt-4", name: "GPT-4", description: "Large model", contextWindow: 128000 },
+        { id: "gpt-3.5", name: "GPT-3.5" },
+        { id: "gpt-mini" },
+      ]);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it("should handle flat array format from providers", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [
+        { id: "model-a", name: "Model A", context_length: 64000 },
+        { id: "model-b" },
+      ],
+    });
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = mockFetch;
+    try {
+      const service = createVercelAIService(BACKEND_OPTIONS);
+      const models = await service.listModels();
+      expect(models).toEqual([
+        { id: "model-a", name: "Model A", contextWindow: 64000 },
+        { id: "model-b" },
+      ]);
     } finally {
       globalThis.fetch = originalFetch;
     }
@@ -256,7 +304,7 @@ describe("VercelAIAgent.run", () => {
     const service = createVercelAIService(BACKEND_OPTIONS);
     const agent = service.createAgent(baseConfig());
 
-    const result = await agent.run("Hello");
+    const result = await agent.run("Hello", { model: "test/model" });
 
     expect(result.output).toBe("Hello from Vercel AI!");
     expect(result.toolCalls).toEqual([]);
@@ -284,7 +332,7 @@ describe("VercelAIAgent.run", () => {
       }),
     );
 
-    await agent.run("Test");
+    await agent.run("Test", { model: "test-model" });
 
     const callArgs = sdk.generateText.mock.calls[0][0];
     expect(callArgs.temperature).toBe(0.5);
@@ -310,7 +358,7 @@ describe("VercelAIAgent.run", () => {
 
     const service = createVercelAIService(BACKEND_OPTIONS);
     const agent = service.createAgent(baseConfig());
-    const result = await agent.run("Hello");
+    const result = await agent.run("Hello", { model: "test-model" });
 
     expect(result.output).toBeNull();
     expect(result.messages).toHaveLength(1); // only user
@@ -324,7 +372,7 @@ describe("VercelAIAgent.run", () => {
 
     const service = createVercelAIService(BACKEND_OPTIONS);
     const agent = service.createAgent(baseConfig());
-    await agent.run("Test");
+    await agent.run("Test", { model: "test-model" });
 
     expect(compat.createOpenAICompatible).toHaveBeenCalledWith({
       name: "test-provider",
@@ -341,7 +389,7 @@ describe("VercelAIAgent.run", () => {
 
     const service = createVercelAIService({ apiKey: "key-123" });
     const agent = service.createAgent(baseConfig());
-    await agent.run("Test");
+    await agent.run("Test", { model: "test-model" });
 
     expect(compat.createOpenAICompatible).toHaveBeenCalledWith({
       name: "openrouter",
@@ -394,7 +442,7 @@ describe("VercelAIAgent.run with tools", () => {
 
     const service = createVercelAIService(BACKEND_OPTIONS);
     const agent = service.createAgent(baseConfig({ tools: [greetTool] }));
-    const result = await agent.run("Greet Alice");
+    const result = await agent.run("Greet Alice", { model: "test-model" });
 
     expect(result.output).toBe("Done");
     expect(result.toolCalls).toHaveLength(1);
@@ -424,7 +472,7 @@ describe("VercelAIAgent.run with tools", () => {
 
     const service = createVercelAIService(BACKEND_OPTIONS);
     const agent = service.createAgent(baseConfig({ tools: [tool] }));
-    await agent.run("Test");
+    await agent.run("Test", { model: "test-model" });
 
     const callArgs = sdk.generateText.mock.calls[0][0];
     expect(callArgs.tools).toBeDefined();
@@ -469,7 +517,7 @@ describe("VercelAIAgent permission handling", () => {
     expect(sdk.tool).not.toHaveBeenCalled(); // not yet — agent created but tools mapped lazily
 
     // Trigger tool mapping by running
-    await agent.run("Delete test.txt");
+    await agent.run("Delete test.txt", { model: "test-model" });
 
     // The tool was mapped
     expect(sdk.tool).toHaveBeenCalledOnce();
@@ -512,7 +560,7 @@ describe("VercelAIAgent permission handling", () => {
       }),
     );
 
-    await agent.run("Do something dangerous");
+    await agent.run("Do something dangerous", { model: "test-model" });
 
     const toolDef = sdk.tool.mock.results[0].value;
     await expect(toolDef.execute({ x: "test" })).rejects.toThrow(ToolExecutionError);
@@ -549,7 +597,7 @@ describe("VercelAIAgent permission handling", () => {
       }),
     );
 
-    await agent.run("Write file");
+    await agent.run("Write file", { model: "test-model" });
 
     const toolDef = sdk.tool.mock.results[0].value;
     const result = await toolDef.execute({ path: "/dangerous/path.txt" });
@@ -590,7 +638,7 @@ describe("VercelAIAgent session auto-approve", () => {
     );
 
     // First run — triggers tool mapping
-    await agent.run("Read file");
+    await agent.run("Read file", { model: "test-model" });
     const toolDef = sdk.tool.mock.results[0].value;
 
     // First call — should ask permission
@@ -631,7 +679,7 @@ describe("VercelAIAgent session auto-approve", () => {
       }),
     );
 
-    await agent.run("Run commands");
+    await agent.run("Run commands", { model: "test-model" });
     const toolDef = sdk.tool.mock.results[0].value;
 
     await toolDef.execute({ cmd: "ls" });
@@ -639,6 +687,81 @@ describe("VercelAIAgent session auto-approve", () => {
 
     await toolDef.execute({ cmd: "pwd" });
     expect(onPermission).toHaveBeenCalledTimes(2); // called again
+  });
+
+  it("should pass toolCallId to PermissionRequest when provided in execute options", async () => {
+    const sdk = createMockSDK();
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const onPermission = vi.fn(
+      async (req: PermissionRequest): Promise<PermissionDecision> => ({
+        allowed: true,
+        scope: "once",
+      }),
+    );
+
+    const tool = {
+      name: "write-file",
+      description: "Write a file",
+      parameters: z.object({ path: z.string() }),
+      needsApproval: true,
+      execute: vi.fn(async (args: { path: string }) => `Wrote ${args.path}`),
+    };
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(
+      baseConfig({
+        tools: [tool],
+        supervisor: { onPermission },
+      }),
+    );
+
+    await agent.run("Write test", { model: "test-model" });
+    const toolDef = sdk.tool.mock.results[0].value;
+
+    await toolDef.execute({ path: "/tmp/test" }, { toolCallId: "tc-123" });
+    expect(onPermission).toHaveBeenCalledOnce();
+    expect(onPermission.mock.calls[0][0].toolCallId).toBe("tc-123");
+  });
+
+  it("should handle missing toolCallId in execute options gracefully", async () => {
+    const sdk = createMockSDK();
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const onPermission = vi.fn(
+      async (): Promise<PermissionDecision> => ({
+        allowed: true,
+        scope: "once",
+      }),
+    );
+
+    const tool = {
+      name: "read-file",
+      description: "Read a file",
+      parameters: z.object({ path: z.string() }),
+      needsApproval: true,
+      execute: vi.fn(async (args: { path: string }) => `Read ${args.path}`),
+    };
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(
+      baseConfig({
+        tools: [tool],
+        supervisor: { onPermission },
+      }),
+    );
+
+    await agent.run("Read test", { model: "test-model" });
+    const toolDef = sdk.tool.mock.results[0].value;
+
+    // Called without options — should still work
+    await toolDef.execute({ path: "/tmp/test" });
+    expect(onPermission).toHaveBeenCalledOnce();
+    expect(onPermission.mock.calls[0][0].toolCallId).toBeUndefined();
   });
 });
 
@@ -655,7 +778,7 @@ describe("VercelAIAgent.stream", () => {
     const agent = service.createAgent(baseConfig());
 
     const events: Array<Record<string, unknown>> = [];
-    for await (const event of agent.stream("Hello")) {
+    for await (const event of agent.stream("Hello", { model: "test-model" })) {
       events.push(event as Record<string, unknown>);
     }
 
@@ -666,7 +789,7 @@ describe("VercelAIAgent.stream", () => {
 
     const doneEvents = events.filter((e) => e.type === "done");
     expect(doneEvents).toHaveLength(1);
-    expect(doneEvents[0].finalOutput).toBe("Hello world!");
+    expect(doneEvents[0].finalOutput).toBeNull();
 
     // Should have usage update events
     const usageEvents = events.filter((e) => e.type === "usage_update");
@@ -690,7 +813,7 @@ describe("VercelAIAgent.stream", () => {
     const agent = service.createAgent(baseConfig());
 
     const events: Array<Record<string, unknown>> = [];
-    for await (const event of agent.stream("Greet Bob")) {
+    for await (const event of agent.stream("Greet Bob", { model: "test-model" })) {
       events.push(event as Record<string, unknown>);
     }
 
@@ -723,7 +846,7 @@ describe("VercelAIAgent.stream", () => {
     const agent = service.createAgent(baseConfig());
 
     const events: Array<Record<string, unknown>> = [];
-    for await (const event of agent.stream("Think")) {
+    for await (const event of agent.stream("Think", { model: "test-model" })) {
       events.push(event as Record<string, unknown>);
     }
 
@@ -757,7 +880,7 @@ describe("VercelAIAgent.stream", () => {
     const agent = service.createAgent(baseConfig());
 
     const events: Array<Record<string, unknown>> = [];
-    for await (const event of agent.stream("What is the meaning of life?")) {
+    for await (const event of agent.stream("What is the meaning of life?", { model: "test-model" })) {
       events.push(event as Record<string, unknown>);
     }
 
@@ -797,7 +920,7 @@ describe("VercelAIAgent.stream", () => {
     const agent = service.createAgent(baseConfig());
 
     const events: Array<Record<string, unknown>> = [];
-    for await (const event of agent.stream("Test tools")) {
+    for await (const event of agent.stream("Test tools", { model: "test-model" })) {
       events.push(event as Record<string, unknown>);
     }
 
@@ -827,14 +950,62 @@ describe("VercelAIAgent.stream", () => {
     const agent = service.createAgent(baseConfig());
 
     const events: Array<Record<string, unknown>> = [];
-    for await (const event of agent.stream("Test")) {
+    for await (const event of agent.stream("Test", { model: "test-model" })) {
       events.push(event as Record<string, unknown>);
     }
 
     const errorEvent = events.find((e) => e.type === "error");
     expect(errorEvent).toBeDefined();
     expect(errorEvent!.error).toBe("Something failed");
-    expect(errorEvent!.recoverable).toBe(false);
+    expect(errorEvent!.recoverable).toBe(true);
+  });
+
+  it("should classify error events with error code", async () => {
+    const sdk = createMockSDK({
+      streamParts: [
+        { type: "error", error: new Error("429 Too Many Requests") },
+      ],
+    });
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+
+    const events: Array<Record<string, unknown>> = [];
+    for await (const event of agent.stream("Test", { model: "test-model" })) {
+      events.push(event as Record<string, unknown>);
+    }
+
+    const errorEvent = events.find((e) => e.type === "error");
+    expect(errorEvent).toBeDefined();
+    expect(errorEvent!.code).toBe("RATE_LIMIT");
+    expect(errorEvent!.recoverable).toBe(true);
+  });
+
+  it("should classify tool errors with TOOL_EXECUTION code", async () => {
+    const sdk = createMockSDK({
+      streamParts: [
+        { type: "tool-error", toolName: "search", toolCallId: "tc-1", error: new Error("Tool failed") },
+      ],
+    });
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+
+    const events: Array<Record<string, unknown>> = [];
+    for await (const event of agent.stream("Test", { model: "test-model" })) {
+      events.push(event as Record<string, unknown>);
+    }
+
+    const errorEvent = events.find((e) => e.type === "error");
+    expect(errorEvent).toBeDefined();
+    expect(errorEvent!.code).toBe("TOOL_EXECUTION");
+    expect(errorEvent!.recoverable).toBe(true);
   });
 
   it("should exclude intermediate reasoning from finalOutput in multi-step stream", async () => {
@@ -863,17 +1034,15 @@ describe("VercelAIAgent.stream", () => {
     const agent = service.createAgent(baseConfig());
 
     const events: Array<Record<string, unknown>> = [];
-    for await (const event of agent.stream("Find news")) {
+    for await (const event of agent.stream("Find news", { model: "test-model" })) {
       events.push(event as Record<string, unknown>);
     }
 
     const doneEvent = events.find((e) => e.type === "done");
     expect(doneEvent).toBeDefined();
-    // Only the last step's text should appear in finalOutput
-    expect(doneEvent!.finalOutput).toBe("Here are the results: ...");
-    // Intermediate reasoning should NOT be in the output
-    expect(doneEvent!.finalOutput).not.toContain("Let me search");
-    expect(doneEvent!.finalOutput).not.toContain("trying again");
+    // finalOutput is null when text was streamed (dedup)
+    expect(doneEvent!.finalOutput).toBeNull();
+    expect(doneEvent!.streamed).toBe(true);
   });
 
   it("should handle single-step stream without intermediate text issues", async () => {
@@ -887,13 +1056,13 @@ describe("VercelAIAgent.stream", () => {
     const agent = service.createAgent(baseConfig());
 
     const events: Array<Record<string, unknown>> = [];
-    for await (const event of agent.stream("Hello")) {
+    for await (const event of agent.stream("Hello", { model: "test-model" })) {
       events.push(event as Record<string, unknown>);
     }
 
     const doneEvent = events.find((e) => e.type === "done");
     expect(doneEvent).toBeDefined();
-    expect(doneEvent!.finalOutput).toBe("Hello world!");
+    expect(doneEvent!.finalOutput).toBeNull();
   });
 
   it("should handle multi-step stream with empty intermediate text", async () => {
@@ -916,13 +1085,13 @@ describe("VercelAIAgent.stream", () => {
     const agent = service.createAgent(baseConfig());
 
     const events: Array<Record<string, unknown>> = [];
-    for await (const event of agent.stream("Test")) {
+    for await (const event of agent.stream("Test", { model: "test-model" })) {
       events.push(event as Record<string, unknown>);
     }
 
     const doneEvent = events.find((e) => e.type === "done");
     expect(doneEvent).toBeDefined();
-    expect(doneEvent!.finalOutput).toBe("Final answer");
+    expect(doneEvent!.finalOutput).toBeNull();
   });
 
   it("should fallback to null when last step has no text in stream", async () => {
@@ -947,7 +1116,7 @@ describe("VercelAIAgent.stream", () => {
     const agent = service.createAgent(baseConfig());
 
     const events: Array<Record<string, unknown>> = [];
-    for await (const event of agent.stream("Test")) {
+    for await (const event of agent.stream("Test", { model: "test-model" })) {
       events.push(event as Record<string, unknown>);
     }
 
@@ -994,7 +1163,7 @@ describe("VercelAIAgent.run multi-step output", () => {
 
     const service = createVercelAIService(BACKEND_OPTIONS);
     const agent = service.createAgent(baseConfig());
-    const result = await agent.run("Find news");
+    const result = await agent.run("Find news", { model: "test-model" });
 
     // Should use last step's text, not the concatenated result.text
     expect(result.output).toBe("Here are the results");
@@ -1027,7 +1196,7 @@ describe("VercelAIAgent.run multi-step output", () => {
 
     const service = createVercelAIService(BACKEND_OPTIONS);
     const agent = service.createAgent(baseConfig());
-    const result = await agent.run("Test");
+    const result = await agent.run("Test", { model: "test-model" });
 
     // Last step text is empty — must return null, NOT fall back to result.text
     // which contains concatenated intermediate reasoning from all steps
@@ -1060,7 +1229,7 @@ describe("VercelAIAgent.run multi-step output", () => {
 
     const service = createVercelAIService(BACKEND_OPTIONS);
     const agent = service.createAgent(baseConfig());
-    const result = await agent.run("Test");
+    const result = await agent.run("Test", { model: "test-model" });
 
     expect(result.output).toBeNull();
   });
@@ -1092,7 +1261,7 @@ describe("VercelAIAgent.runStructured", () => {
       schema,
       name: "city-info",
       description: "City information",
-    });
+    }, { model: "test/model" });
 
     expect(result.structuredOutput).toEqual({ city: "Paris", population: 2161000 });
     expect(result.usage).toEqual({ promptTokens: 60, completionTokens: 30, model: "test/model", backend: "vercel-ai" });
@@ -1123,7 +1292,7 @@ describe("VercelAIAgent.runStructured", () => {
 
     const service = createVercelAIService(BACKEND_OPTIONS);
     const agent = service.createAgent(baseConfig());
-    const result = await agent.runStructured("Test", { schema });
+    const result = await agent.runStructured("Test", { schema }, { model: "test/model" });
 
     // structuredOutput should be undefined because zod validation fails
     expect(result.structuredOutput).toBeUndefined();
@@ -1144,7 +1313,7 @@ describe("VercelAIAgent lifecycle", () => {
     const agent = service.createAgent(baseConfig());
     agent.dispose();
 
-    await expect(agent.run("Hello")).rejects.toThrow("disposed");
+    await expect(agent.run("Hello", { model: "test-model" })).rejects.toThrow("disposed");
   });
 
   it("should not allow concurrent runs", async () => {
@@ -1168,14 +1337,14 @@ describe("VercelAIAgent lifecycle", () => {
     const service = createVercelAIService(BACKEND_OPTIONS);
     const agent = service.createAgent(baseConfig());
 
-    const p1 = agent.run("First");
+    const p1 = agent.run("First", { model: "test-model" });
     expect(() => {
       // synchronous check — state is "running" before await
       // We need a tiny delay to let the state update
     }).not.toThrow();
 
     // The second run should throw reentrancy
-    await expect(agent.run("Second")).rejects.toThrow("already running");
+    await expect(agent.run("Second", { model: "test-model" })).rejects.toThrow("already running");
     await p1;
   });
 
@@ -1191,7 +1360,7 @@ describe("VercelAIAgent lifecycle", () => {
     const service = createVercelAIService(BACKEND_OPTIONS);
     const agent = service.createAgent(baseConfig());
 
-    await expect(agent.run("Hello", { signal: ac.signal })).rejects.toThrow("aborted");
+    await expect(agent.run("Hello", { model: "test-model", signal: ac.signal })).rejects.toThrow("aborted");
   });
 
   it("should return to idle state after run", async () => {
@@ -1204,7 +1373,7 @@ describe("VercelAIAgent lifecycle", () => {
     const agent = service.createAgent(baseConfig());
 
     expect(agent.getState()).toBe("idle");
-    await agent.run("Hello");
+    await agent.run("Hello", { model: "test-model" });
     expect(agent.getState()).toBe("idle");
   });
 
@@ -1241,7 +1410,7 @@ describe("VercelAIAgent lifecycle", () => {
       }),
     );
 
-    await agent.run("Ask the user something");
+    await agent.run("Ask the user something", { model: "test-model" });
     expect(onAskUser).toHaveBeenCalledOnce();
     expect(onAskUser.mock.calls[0][0]).toEqual({
       question: "What is the answer?",
@@ -1266,7 +1435,7 @@ describe("VercelAIAgent.runWithContext", () => {
       { role: "user", content: "Hello" },
       { role: "assistant", content: "Hi there!" },
       { role: "user", content: "How are you?" },
-    ]);
+    ], { model: "test-model" });
 
     const callArgs = sdk.generateText.mock.calls[0][0];
     expect(callArgs.messages).toHaveLength(3);
@@ -1284,7 +1453,7 @@ describe("Usage metadata and onUsage callback", () => {
 
     const service = createVercelAIService(BACKEND_OPTIONS);
     const agent = service.createAgent(baseConfig({ model: "my-model" }));
-    const result = await agent.run("Hello");
+    const result = await agent.run("Hello", { model: "my-model" });
 
     expect(result.usage?.model).toBe("my-model");
     expect(result.usage?.backend).toBe("vercel-ai");
@@ -1300,7 +1469,7 @@ describe("Usage metadata and onUsage callback", () => {
     const agent = service.createAgent(baseConfig({ model: "stream-model" }));
 
     const events: Array<Record<string, unknown>> = [];
-    for await (const event of agent.stream("Hello")) {
+    for await (const event of agent.stream("Hello", { model: "stream-model" })) {
       events.push(event as Record<string, unknown>);
     }
 
@@ -1321,7 +1490,7 @@ describe("Usage metadata and onUsage callback", () => {
     const onUsage = vi.fn();
     const service = createVercelAIService(BACKEND_OPTIONS);
     const agent = service.createAgent(baseConfig({ model: "cb-model", onUsage }));
-    await agent.run("Hello");
+    await agent.run("Hello", { model: "cb-model" });
 
     expect(onUsage).toHaveBeenCalledOnce();
     expect(onUsage).toHaveBeenCalledWith({
@@ -1342,7 +1511,7 @@ describe("Usage metadata and onUsage callback", () => {
     const service = createVercelAIService(BACKEND_OPTIONS);
     const agent = service.createAgent(baseConfig({ model: "s-model", onUsage }));
 
-    for await (const _event of agent.stream("Hello")) {
+    for await (const _event of agent.stream("Hello", { model: "s-model" })) {
       // consume
     }
 
@@ -1364,7 +1533,7 @@ describe("Usage metadata and onUsage callback", () => {
     const onUsage = vi.fn(() => { throw new Error("callback boom"); });
     const service = createVercelAIService(BACKEND_OPTIONS);
     const agent = service.createAgent(baseConfig({ onUsage }));
-    const result = await agent.run("Hello");
+    const result = await agent.run("Hello", { model: "test-model" });
 
     // Run should succeed despite callback error
     expect(result.output).toBe("Hello from Vercel AI!");
@@ -1396,7 +1565,7 @@ describe("VercelAIAgent tool error handling", () => {
 
     const service = createVercelAIService(BACKEND_OPTIONS);
     const agent = service.createAgent(baseConfig({ tools: [failingTool] }));
-    await agent.run("Test");
+    await agent.run("Test", { model: "test-model" });
 
     const toolDef = sdk.tool.mock.results[0].value;
     await expect(toolDef.execute({})).rejects.toThrow(ToolExecutionError);

@@ -7,7 +7,7 @@
  *   npm run demo -- stop     # Stop containers
  *   npm run demo -- logs     # Follow logs
  *   npm run demo -- restart  # Stop → build → start
- *   npm run demo -- dev      # Local dev without Docker (npx tsx server.ts)
+ *   npm run demo -- help      # Show help
  */
 
 import { execSync } from "node:child_process";
@@ -125,11 +125,6 @@ async function restart(): Promise<void> {
   await start();
 }
 
-function dev(): void {
-  log("Starting local dev server...");
-  exec("npx tsx examples/demo/server.ts");
-}
-
 function showHelp(): void {
   console.log(`
   agent-sdk Demo
@@ -139,7 +134,6 @@ function showHelp(): void {
     npm run demo -- stop      Stop Docker containers
     npm run demo -- logs      Follow Docker logs
     npm run demo -- restart   Rebuild and restart
-    npm run demo -- dev       Local dev without Docker
     npm run demo -- help      Show this help
 `);
 }
@@ -161,9 +155,6 @@ async function main(): Promise<void> {
       break;
     case "restart":
       await restart();
-      break;
-    case "dev":
-      dev();
       break;
     case "help":
     case "--help":

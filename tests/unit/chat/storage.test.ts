@@ -11,6 +11,7 @@ import {
   type StorageErrorCode,
   type FileStorageOptions,
 } from "../../../src/chat/storage.js";
+import { ErrorCode } from "../../../src/types/errors.js";
 
 // ─── Test data type ────────────────────────────────────────────
 
@@ -51,7 +52,7 @@ function runStorageAdapterTests(
           await adapter.create("k1", { name: "Bob", value: 2 });
         } catch (e) {
           expect(e).toBeInstanceOf(StorageError);
-          expect((e as StorageError).code).toBe("DUPLICATE_KEY");
+          expect((e as StorageError).code).toBe(ErrorCode.STORAGE_DUPLICATE_KEY);
         }
       });
     });
@@ -99,7 +100,7 @@ function runStorageAdapterTests(
         try {
           await adapter.update("missing", { name: "X", value: 0 });
         } catch (e) {
-          expect((e as StorageError).code).toBe("NOT_FOUND");
+          expect((e as StorageError).code).toBe(ErrorCode.STORAGE_NOT_FOUND);
         }
       });
     });
@@ -120,7 +121,7 @@ function runStorageAdapterTests(
         try {
           await adapter.delete("missing");
         } catch (e) {
-          expect((e as StorageError).code).toBe("NOT_FOUND");
+          expect((e as StorageError).code).toBe(ErrorCode.STORAGE_NOT_FOUND);
         }
       });
     });
@@ -316,7 +317,7 @@ describe("FileStorage", () => {
       expect.fail("should have thrown");
     } catch (e) {
       expect(e).toBeInstanceOf(StorageError);
-      expect((e as StorageError).code).toBe("SERIALIZATION_ERROR");
+      expect((e as StorageError).code).toBe(ErrorCode.STORAGE_SERIALIZATION_ERROR);
     }
   });
 });
@@ -325,23 +326,23 @@ describe("FileStorage", () => {
 
 describe("StorageError", () => {
   it("has correct name and code", () => {
-    const err = new StorageError("test msg", "NOT_FOUND");
+    const err = new StorageError("test msg", ErrorCode.STORAGE_NOT_FOUND);
     expect(err.name).toBe("StorageError");
-    expect(err.code).toBe("NOT_FOUND");
+    expect(err.code).toBe(ErrorCode.STORAGE_NOT_FOUND);
     expect(err.message).toBe("test msg");
   });
 
   it("is instanceof Error", () => {
-    const err = new StorageError("fail", "IO_ERROR");
+    const err = new StorageError("fail", ErrorCode.STORAGE_IO_ERROR);
     expect(err).toBeInstanceOf(Error);
   });
 
   it("supports all error codes", () => {
     const codes: StorageErrorCode[] = [
-      "NOT_FOUND",
-      "DUPLICATE_KEY",
-      "IO_ERROR",
-      "SERIALIZATION_ERROR",
+      ErrorCode.STORAGE_NOT_FOUND,
+      ErrorCode.STORAGE_DUPLICATE_KEY,
+      ErrorCode.STORAGE_IO_ERROR,
+      ErrorCode.STORAGE_SERIALIZATION_ERROR,
     ];
     for (const code of codes) {
       const err = new StorageError("msg", code);

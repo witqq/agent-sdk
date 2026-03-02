@@ -33,6 +33,7 @@ export {
   type ChatRole,
   // Session types
   type ChatSession,
+  type ObservableSession,
   type SessionInfo,
   type ChatSessionConfig,
   type SessionStatus,
@@ -41,10 +42,12 @@ export {
   type ChatEvent,
   type ChatEventType,
   // Provider interface
+  /** @deprecated Use IChatBackend from "@witqq/agent-sdk/chat/backends" */
   type IChatProvider,
   type ChatMiddleware,
   type ChatMiddlewareContext,
   type SendMessageOptions,
+  type RuntimeSendOptions,
   // Type guards
   isChatMessage,
   isChatSession,
@@ -59,6 +62,9 @@ export {
   getMessageText,
   getMessageToolCalls,
   getMessageReasoning,
+  // Factories
+  createTextMessage,
+  isObservableSession,
   // Bridge
   agentEventToChatEvent,
   adaptAgentEvents,
@@ -69,16 +75,23 @@ export {
 // ─── Runtime ───────────────────────────────────────────────────
 
 export {
+  type IChatClient,
   type IChatRuntime,
+  type IProviderClient,
   type ChatRuntimeOptions,
   type BackendAdapterFactory,
+  type BackendInfo,
   type RetryConfig,
+  type StreamRetryConfig,
+  type SelectionChangeCallback,
   createChatRuntime,
 } from "./runtime.js";
 
 // ─── Session stores ────────────────────────────────────────────
 
 export {
+  type ISessionReader,
+  type ISessionWriter,
   type IChatSessionStore,
   type PaginatedMessages,
   type CreateSessionOptions,
@@ -90,19 +103,24 @@ export {
 
 export {
   ChatError,
-  ChatSDKError,
-  ChatErrorCode,
+  ErrorCode,
   classifyError,
   isRetryable,
   withRetry,
   ExponentialBackoffStrategy,
 } from "./errors.js";
 
+// ─── Utilities ─────────────────────────────────────────────────
+
+export { ListenerSet } from "./listener-set.js";
+
 // ─── Backend adapters ──────────────────────────────────────────
 
 export {
-  type IBackendAdapter,
+  type IChatBackend,
+  type IResumableBackend,
   type BackendAdapterOptions,
+  isResumableBackend,
   BaseBackendAdapter,
   CopilotChatAdapter,
   ClaudeChatAdapter,
@@ -137,3 +155,10 @@ export {
   TypedEventEmitter,
   ChatEventBus,
 } from "./events.js";
+
+// ─── Provider types ────────────────────────────────────────────
+
+export type {
+  ProviderConfig,
+  IProviderStore,
+} from "./provider-types.js";
