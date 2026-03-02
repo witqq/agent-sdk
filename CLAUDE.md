@@ -10,7 +10,7 @@ Shared interfaces for tools, permissions, streaming, structured output.
 
 ```bash
 npm run build     # tsup → ESM + CJS + DTS
-npm run test      # vitest (2010+ tests)
+npm run test      # vitest (2365+ tests)
 npm run typecheck # tsc --noEmit
 ```
 
@@ -50,7 +50,7 @@ Error hierarchy: `AgentSDKError` base class with `_agentSDKError` marker and `Ag
 @witqq/agent-sdk/chat/react     → src/chat/react/index.ts (ChatProvider, useChatRuntime, useChat, useMessages, useSessions, useToolApproval, useSSE, useModels, useBackends, useProviders, useRemoteAuth, useRemoteChat, Message, ThinkingBlock, ToolCallView, MarkdownRenderer, Thread, Composer, ThreadSlots, ThreadList, ModelSelector, BackendSelector, ProviderSelector, ProviderModelSelector, ProviderSettings, AuthDialog, ChatUI, RemoteChatClient)
 @witqq/agent-sdk/chat/react/theme.css → src/chat/react/theme.css (default CSS theme with custom properties, light/dark mode)
 @witqq/agent-sdk/chat/sqlite  → src/chat/sqlite/index.ts (SQLiteSessionStore, SQLiteProviderStore, SQLiteTokenStore, createSQLiteStorage factory — unified single-DB storage, better-sqlite3 optional peer dep)
-@witqq/agent-sdk/chat/server   → src/chat/server/index.ts (createChatHandler, createAuthHandler, createChatServer, createProviderHandler, corsMiddleware, ServiceManager, ServiceManagerOptions, ManagedService, DEFAULT_PROVIDER_MODELS, ITokenStore, InMemoryTokenStore, FileTokenStore, IProviderStore, ProviderConfig, InMemoryProviderStore, FileProviderStore, ProviderHandlerOptions, AuthHandlerOptions, OnAuthCallback, ChatHandlerOptions, ChatServerHooks, ChatServerOptions, ChatRuntimeConfig, RequestHandler, CorsOptions, ReadableRequest, WritableResponse, readBody, json, BodyParseError)
+@witqq/agent-sdk/chat/server   → src/chat/server/index.ts (createChatHandler, createAuthHandler, createChatServer, createProviderHandler, corsMiddleware, ServiceManager, ServiceManagerOptions, ManagedService, RefreshFactory, DEFAULT_PROVIDER_MODELS, ITokenStore, InMemoryTokenStore, FileTokenStore, FileTokenStoreOptions, IProviderStore, ProviderConfig, InMemoryProviderStore, FileProviderStore, FileProviderStoreOptions, ProviderHandlerOptions, AuthHandlerOptions, OnAuthCallback, ChatHandlerOptions, ChatServerHooks, ChatServerOptions, ChatRuntimeConfig, RequestHandler, TransportFactory, RouteContext, RouteHandler, HandlerState, CorsOptions, ReadableRequest, WritableResponse, readBody, json, BodyParseError, AdapterPool, AdapterPoolOptions, AdapterFactory, PooledAdapter, resolveRequestContext, RequestContext, RequestContextDeps, sessionRoutes, messageRoutes, configRoutes, providerRoutes)
 @witqq/agent-sdk/testing       → src/testing/index.ts (createMockSession, createMockMessage, createMockAgentService, createMockRuntime, createMockChatClient — mock factories for testing SDK consumers)
 ```
 
@@ -525,7 +525,6 @@ npm run demo              # Build & start in Docker (port 3456) — единст
 npm run demo -- stop      # Stop Docker container
 npm run demo -- logs      # Follow Docker logs
 npm run demo -- restart   # Rebuild & restart
-npm run demo -- dev       # Local dev without Docker
 ```
 
 ### Utilities
@@ -553,7 +552,7 @@ Mock factories for SDK consumers (`@witqq/agent-sdk/testing` entry point).
 
 ## Testing
 
-- Unit: vitest (`tests/unit/`), 2010+ tests
+- Unit: vitest (`tests/unit/`), 2365+ tests
 - Integration: vitest (`tests/integration/`) — requires real CLI authentication
 - E2E: vitest (`tests/e2e/`) — tests against running demo server, requires authenticated backend
 - Chat SDK integration: `tests/unit/chat/integration-phase2.test.ts` — storage → sessions → context pipeline
@@ -565,7 +564,7 @@ npm run test:e2e  # demo server E2E tests (requires running demo)
 
 ### E2E Test Infrastructure (`tests/e2e/`)
 
-Tests against a running demo server (`npm run demo` or `npm run demo -- dev`).
+Tests against a running demo server (`npm run demo`).
 Requires authenticated backend (Copilot device flow, Vercel AI key, etc.).
 Set `DEMO_URL` env var to override default `http://localhost:3456`.
 
@@ -575,7 +574,7 @@ Set `DEMO_URL` env var to override default `http://localhost:3456`.
 - `demo.test.ts`: 11 scenarios — health, session CRUD, full SSE chat stream, model allowlist enforcement
 - `vitest.e2e.config.ts`: separate config with 120s timeout
 
-Prerequisite: `npm run demo -- dev` and authenticate in browser before running tests.
+Prerequisite: `npm run demo` and authenticate in browser before running tests.
 
 ### ⛔ CRITICAL: Model usage in tests
 
