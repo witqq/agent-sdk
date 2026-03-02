@@ -52,9 +52,7 @@ async function waitForHealth(): Promise<boolean> {
   const start = Date.now();
   while (Date.now() - start < HEALTH_TIMEOUT) {
     try {
-      const result = execQuiet(
-        `curl -sf -X POST -H "Content-Type: application/json" -d '{}' "${HEALTH_URL}"`,
-      );
+      const result = execQuiet(`curl -sf "${HEALTH_URL}"`);
       if (result.includes('"ok":true')) return true;
     } catch {
       // retry
