@@ -46,7 +46,7 @@ const agent = service.createAgent({
   ],
 });
 
-const result = await agent.run("Find news about AI");
+const result = await agent.run("Find news about AI", { model: "gpt-5-mini" });
 console.log(result.output);
 
 agent.dispose();
@@ -199,6 +199,7 @@ const result = await agent.runStructured(
     name: "city_info",           // optional, helps the LLM
     description: "City details", // optional
   },
+  { model: "gpt-5-mini" },
 );
 
 console.log(result.structuredOutput);
@@ -212,7 +213,7 @@ The Vercel AI backend uses `generateObject()` for structured output. Copilot and
 All backends emit the same event types:
 
 ```typescript
-for await (const event of agent.stream("Tell me a story")) {
+for await (const event of agent.stream("Tell me a story", { model: "gpt-5-mini" })) {
   switch (event.type) {
     case "text_delta":
       process.stdout.write(event.text);
@@ -245,7 +246,7 @@ const messages = [
   { role: "user" as const, content: "What is 2+2?" },
 ];
 
-for await (const event of agent.streamWithContext(messages)) {
+for await (const event of agent.streamWithContext(messages, { model: "gpt-5-mini" })) {
   if (event.type === "text_delta") process.stdout.write(event.text);
 }
 ```
@@ -293,7 +294,7 @@ const agent = service.createAgent({
   heartbeatInterval: 15000, // emit heartbeat every 15s during gaps
 });
 
-for await (const event of agent.stream("Run a long analysis")) {
+for await (const event of agent.stream("Run a long analysis", { model: "gpt-5-mini" })) {
   if (event.type === "heartbeat") continue; // ignore keepalive
   // handle other events...
 }
@@ -311,8 +312,8 @@ const agent = service.createAgent({
   sessionMode: "persistent", // reuse CLI session across calls
 });
 
-await agent.run("My name is Alice");
-const result = await agent.run("What is my name?");
+await agent.run("My name is Alice", { model: "gpt-5-mini" });
+const result = await agent.run("What is my name?", { model: "gpt-5-mini" });
 // result.output contains "Alice" — history maintained by CLI
 
 console.log(agent.sessionId); // CLI session ID for external tracking
@@ -444,7 +445,7 @@ const service = await createAgentService("copilot", { useLoggedInUser: true });
 // const service = await createAgentService("vercel-ai", { apiKey: "..." });
 
 const agent = service.createAgent(config);
-const result = await agent.run("Greet Alice");
+const result = await agent.run("Greet Alice", { model: "gpt-5-mini" });
 ```
 
 Or use direct backend imports to avoid lazy loading:
@@ -571,7 +572,7 @@ The SDK is layered — use only what you need:
 import { createAgentService } from "@witqq/agent-sdk";
 const service = await createAgentService("copilot", { useLoggedInUser: true });
 const agent = service.createAgent({ systemPrompt: "You are helpful." });
-const result = await agent.run("Hello");
+const result = await agent.run("Hello", { model: "gpt-5-mini" });
 ```
 
 **Server with runtime** (add HTTP layer):
