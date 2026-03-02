@@ -1,7 +1,7 @@
 import type {
   IAgent,
   IAgentService,
-  AgentConfig,
+  FullAgentConfig,
   AgentResult,
   AgentEvent,
   Message,
@@ -15,11 +15,15 @@ import type {
   PermissionRequest as UnifiedPermissionRequest,
   PermissionDecision,
   PermissionScope,
+  UserInputRequest,
+  UserInputResponse,
+  SupervisorHooks,
 } from "../types.js";
-import { getTextContent } from "../types.js";
+import { classifyAgentError, isRecoverableErrorCode } from "../types.js";
 import { BaseAgent } from "../base-agent.js";
 import { DisposedError, SubprocessError, AbortError } from "../errors.js";
 import { zodToJsonSchema } from "../utils/schema.js";
+import { extractLastUserPrompt, buildContextualPrompt } from "./shared.js";
 
 export type { ClaudeBackendOptions } from "../types.js";
 
@@ -83,6 +87,13 @@ function mcpToolName(toolName: string): string {
 function stripMcpPrefix(name: string): string {
   return name.startsWith(MCP_TOOL_PREFIX) ? name.slice(MCP_TOOL_PREFIX.length) : name;
 }
+
+/**
+ * Claude CLI built-in tool names that should be filtered from AgentEvent stream.
+ * These are internal tools handled by the CLI runtime, not user-registered tools.
+ * Matches Copilot behavior where ask_user is callback-only, never exposed as tool events.
+ */
+const CLAUDE_INTERNAL_TOOL_NAMES = new Set(["AskUserQuestion"]);
 
 /** @internal Claude SDK Options */
 interface SDKOptions {
@@ -186,14 +197,15 @@ type SDKModule = {
 
 // ─── Dynamic SDK Loader ─────────────────────────────────────────
 
-let sdkModule: SDKModule | null = null;
+/** Module-level mock set by _injectSDK() for testing */
+let _sdkMock: SDKModule | null = null;
 
+/** Load the Claude SDK. Checks module-level mock first, then dynamic import. */
 async function loadSDK(): Promise<SDKModule> {
-  if (sdkModule) return sdkModule;
+  if (_sdkMock) return _sdkMock;
   try {
     // @ts-ignore — peer dependency, not present at compile time
-    sdkModule = (await import("@anthropic-ai/claude-agent-sdk")) as SDKModule;
-    return sdkModule!;
+    return (await import("@anthropic-ai/claude-agent-sdk")) as SDKModule;
   } catch {
     throw new SubprocessError(
       "@anthropic-ai/claude-agent-sdk is not installed. Install it: npm install @anthropic-ai/claude-agent-sdk",
@@ -203,12 +215,12 @@ async function loadSDK(): Promise<SDKModule> {
 
 /** @internal For testing: inject mock SDK module */
 export function _injectSDK(mock: SDKModule | null): void {
-  sdkModule = mock;
+  _sdkMock = mock;
 }
 
 /** @internal For testing: reset injected SDK */
 export function _resetSDK(): void {
-  sdkModule = null;
+  _sdkMock = null;
 }
 
 // ─── Known Models ───────────────────────────────────────────────
@@ -219,12 +231,47 @@ const ANTHROPIC_OAUTH_BETA = "oauth-2025-04-20";
 
 // ─── Tool Mapping ───────────────────────────────────────────────
 
+/**
+ * Normalize Claude's AskUserQuestion input format to UserInputRequest.
+ * Claude sends: { questions: [{ question, options?: [{ label }] }] }
+ * SDK expects: { question, choices?, allowFreeform? }
+ */
+function normalizeAskUserInput(args: Record<string, unknown>): UserInputRequest {
+  // Direct format (already normalized or simple question)
+  if (typeof args.question === "string") {
+    return {
+      question: args.question,
+      choices: Array.isArray(args.choices) ? args.choices as string[] : undefined,
+      allowFreeform: args.allowFreeform !== false,
+    };
+  }
+
+  // Claude's nested format: { questions: [{ question, options?: [{ label }] }] }
+  const questions = args.questions as Array<{
+    question: string;
+    options?: Array<{ label: string }>;
+  }> | undefined;
+
+  if (questions && questions.length > 0) {
+    const first = questions[0];
+    return {
+      question: first.question,
+      choices: first.options?.map((o) => o.label),
+      allowFreeform: true,
+    };
+  }
+
+  // Fallback: stringify the entire input as the question
+  return { question: JSON.stringify(args), allowFreeform: true };
+}
+
 function buildMcpServer(
   sdk: SDKModule,
   tools: ToolDefinition[],
   toolResultCapture?: Map<string, JSONValue>,
+  onAskUser?: SupervisorHooks["onAskUser"],
 ): SDKMcpServerConfigWithInstance | undefined {
-  if (tools.length === 0) return undefined;
+  if (tools.length === 0 && !onAskUser) return undefined;
 
   const mcpTools = tools.map((tool) => {
     // Claude SDK's tool() expects a Zod raw shape ({key: z.string(), ...}),
@@ -251,6 +298,42 @@ function buildMcpServer(
       },
     );
   });
+
+  // Inject ask_user MCP tool when onAskUser callback is configured
+  if (onAskUser) {
+    const askUserTool = sdk.tool(
+      "ask_user",
+      "Ask the user a question and wait for their response",
+      {
+        question: { type: "string", description: "The question to ask the user" },
+        choices: {
+          type: "array",
+          items: { type: "string" },
+          description: "Optional list of choices for multiple choice",
+        },
+        questions: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              question: { type: "string" },
+              options: { type: "array", items: { type: "object", properties: { label: { type: "string" } } } },
+            },
+          },
+          description: "Alternative nested question format",
+        },
+      },
+      async (args: Record<string, unknown>) => {
+        const normalized = normalizeAskUserInput(args);
+        // No parent signal available in MCP tool context; provide a standalone controller
+        const response: UserInputResponse = await onAskUser(normalized, AbortSignal.timeout(300_000));
+        return {
+          content: [{ type: "text" as const, text: response.answer }],
+        };
+      },
+    );
+    mcpTools.push(askUserTool);
+  }
 
   return sdk.createSdkMcpServer({
     name: MCP_SERVER_NAME,
@@ -299,7 +382,7 @@ function extractSuggestedScope(
 }
 
 function buildCanUseTool(
-  config: AgentConfig,
+  config: FullAgentConfig,
 ): SDKCanUseTool | undefined {
   const onPermission = config.supervisor?.onPermission;
   if (!onPermission) return undefined;
@@ -323,6 +406,7 @@ function buildCanUseTool(
     const unifiedRequest: UnifiedPermissionRequest = {
       toolName,
       toolArgs: input,
+      toolCallId: options.toolUseID,
       suggestedScope: extractSuggestedScope(options.suggestions),
       rawSDKRequest: { toolName, input, ...options },
     };
@@ -444,6 +528,8 @@ function mapSDKMessage(msg: SDKMessage, thinkingBlockIndices?: Set<number>, tool
         if (block.type === "tool_use") {
           const toolCallId = String(block.id ?? "");
           const toolName = stripMcpPrefix(block.name ?? "unknown");
+          // Filter out internal Claude CLI tools (e.g. AskUserQuestion)
+          if (CLAUDE_INTERNAL_TOOL_NAMES.has(toolName)) continue;
           if (toolCallTracker) {
             toolCallTracker.trackStart(toolCallId, toolName);
           }
@@ -475,6 +561,8 @@ function mapSDKMessage(msg: SDKMessage, thinkingBlockIndices?: Set<number>, tool
       // Emitted after tool execution — contains summary of tool results
       const summary = msg.summary as string | undefined;
       const toolName = stripMcpPrefix((msg.tool_name as string | undefined) ?? "unknown");
+      // Filter out internal Claude CLI tools (e.g. AskUserQuestion)
+      if (CLAUDE_INTERNAL_TOOL_NAMES.has(toolName)) return null;
       // Resolve toolCallId: prefer preceding_tool_use_ids, fall back to tracker
       const precedingIds = msg.preceding_tool_use_ids as string[] | undefined;
       let toolCallId = "";
@@ -555,10 +643,13 @@ function mapSDKMessage(msg: SDKMessage, thinkingBlockIndices?: Set<number>, tool
       }
       if (msg.is_error) {
         const r = msg as unknown as SDKResultError;
+        const errorMsg = r.errors?.join("; ") ?? "Unknown error";
+        const code = classifyAgentError(errorMsg);
         return {
           type: "error",
-          error: r.errors?.join("; ") ?? "Unknown error",
-          recoverable: false,
+          error: errorMsg,
+          recoverable: isRecoverableErrorCode(code),
+          code,
         };
       }
       return null;
@@ -580,7 +671,7 @@ class ClaudeAgent extends BaseAgent {
   private _sessionId: string | undefined;
   private activeQuery: SDKQuery | null = null;
 
-  constructor(config: AgentConfig, options: ClaudeBackendOptions) {
+  constructor(config: FullAgentConfig, options: ClaudeBackendOptions) {
     super(config);
     this.options = options;
     this.tools = config.tools ?? [];
@@ -591,14 +682,6 @@ class ClaudeAgent extends BaseAgent {
     // buildQueryOptions() uses _sessionId to set opts.resume when isPersistent.
     if (options.resumeSessionId) {
       this._sessionId = options.resumeSessionId;
-    }
-
-    // Warn if onAskUser is set — Claude CLI SDK doesn't support user interaction hooks
-    if (config.supervisor?.onAskUser) {
-      console.warn(
-        "[agent-sdk/claude] supervisor.onAskUser is not supported by the Claude CLI backend. " +
-        "User interaction requests from the model will not be forwarded.",
-      );
     }
   }
 
@@ -631,14 +714,14 @@ class ClaudeAgent extends BaseAgent {
     return { type: "session_info", sessionId, transcriptPath, backend: "claude" };
   }
 
-  private buildQueryOptions(signal: AbortSignal): SDKOptions {
+  private buildQueryOptions(signal: AbortSignal, options: RunOptions): SDKOptions {
     const ac = new AbortController();
     // Link external signal → SDK's abort controller
     signal.addEventListener("abort", () => ac.abort(), { once: true });
 
     const opts: SDKOptions = {
       abortController: ac,
-      model: this.config.model,
+      model: options.model,
       maxTurns: this.options.maxTurns,
       cwd: this.options.workingDirectory,
       pathToClaudeCodeExecutable: this.options.cliPath,
@@ -687,10 +770,11 @@ class ClaudeAgent extends BaseAgent {
     opts: SDKOptions,
     toolResultCapture?: Map<string, JSONValue>,
   ): Promise<SDKOptions> {
-    if (this.tools.length === 0) return opts;
+    const onAskUser = this.config.supervisor?.onAskUser;
+    if (this.tools.length === 0 && !onAskUser) return opts;
 
     const sdk = await loadSDK();
-    const mcpServer = buildMcpServer(sdk, this.tools, toolResultCapture);
+    const mcpServer = buildMcpServer(sdk, this.tools, toolResultCapture, onAskUser);
     if (mcpServer) {
       opts.mcpServers = {
         [MCP_SERVER_NAME]: mcpServer,
@@ -698,16 +782,103 @@ class ClaudeAgent extends BaseAgent {
       // Auto-allow MCP tools so Claude Code invokes them without blocking.
       // Claude Code names MCP tools as mcp__<server>__<tool>.
       const mcpToolNames = this.tools.map((t) => mcpToolName(t.name));
+      if (onAskUser) {
+        mcpToolNames.push(mcpToolName("ask_user"));
+      }
       opts.allowedTools = [...(opts.allowedTools ?? []), ...mcpToolNames];
     }
+
+    // When onAskUser is configured, block built-in AskUserQuestion so Claude uses our MCP tool
+    if (onAskUser) {
+      opts.disallowedTools = [...(opts.disallowedTools ?? []), "AskUserQuestion"];
+    }
+
     return opts;
+  }
+
+  // ─── Retry Helpers (shared across executeRun/RunStructured/Stream) ──
+
+  /** Setup a retry query: clear session, rebuild with full history */
+  private async prepareRetryQuery(
+    sdk: SDKModule,
+    messages: Message[],
+    signal: AbortSignal,
+    options: RunOptions,
+    toolResultCapture: Map<string, JSONValue>,
+    modifyOpts?: (opts: SDKOptions) => void,
+  ): Promise<SDKQuery> {
+    this.clearPersistentSession();
+    const retryPrompt = buildContextualPrompt(messages);
+    let retryOpts = this.buildQueryOptions(signal, options);
+    toolResultCapture.clear();
+    retryOpts = await this.buildMcpConfig(retryOpts, toolResultCapture);
+    modifyOpts?.(retryOpts);
+    const retryQ = sdk.query({ prompt: retryPrompt, options: retryOpts });
+    this.activeQuery = retryQ;
+    return retryQ;
+  }
+
+  /** Extract tool_use blocks from an assistant SDK message into toolCalls array */
+  private collectToolCallsFromMessage(
+    msg: SDKMessage,
+    toolCalls: AgentResult["toolCalls"],
+    toolResultCapture: Map<string, JSONValue>,
+  ): void {
+    if (msg.type !== "assistant") return;
+    const betaMessage = msg.message as {
+      content?: Array<{ type: string; name?: string; input?: unknown }>;
+    } | undefined;
+    if (!betaMessage?.content) return;
+    for (const block of betaMessage.content) {
+      if (block.type === "tool_use") {
+        const toolName = stripMcpPrefix(block.name ?? "unknown");
+        if (CLAUDE_INTERNAL_TOOL_NAMES.has(toolName)) continue;
+        toolCalls.push({
+          toolName,
+          args: (block.input as JSONValue) ?? {},
+          result: toolResultCapture.get(toolName) ?? null,
+          approved: true,
+        });
+      }
+    }
+  }
+
+  /** Back-fill tool results from capture map on summary/result messages */
+  private backfillToolResults(
+    msg: SDKMessage,
+    toolCalls: AgentResult["toolCalls"],
+    toolResultCapture: Map<string, JSONValue>,
+  ): void {
+    if (msg.type !== "tool_use_summary" && msg.type !== "result") return;
+    for (const tc of toolCalls) {
+      if (tc.result === null) {
+        const captured = toolResultCapture.get(tc.toolName);
+        if (captured !== undefined) tc.result = captured;
+      }
+    }
+  }
+
+  /** Wrap retry inner loop with shared error handling */
+  private async withRetryErrorHandling<T>(
+    signal: AbortSignal,
+    fn: () => Promise<T>,
+  ): Promise<T> {
+    try {
+      return await fn();
+    } catch (retryError) {
+      if (this.isPersistent) this.clearPersistentSession();
+      if (signal.aborted) throw new AbortError();
+      throw retryError;
+    } finally {
+      this.activeQuery = null;
+    }
   }
 
   // ─── executeRun ─────────────────────────────────────────────────
 
   protected async executeRun(
     messages: Message[],
-    _options: RunOptions | undefined,
+    options: RunOptions,
     signal: AbortSignal,
   ): Promise<AgentResult> {
     this.checkAbort(signal);
@@ -717,7 +888,7 @@ class ClaudeAgent extends BaseAgent {
     const prompt = isResuming
       ? extractLastUserPrompt(messages)
       : buildContextualPrompt(messages);
-    let opts = this.buildQueryOptions(signal);
+    let opts = this.buildQueryOptions(signal, options);
     const toolResultCapture = new Map<string, JSONValue>();
     opts = await this.buildMcpConfig(opts, toolResultCapture);
 
@@ -729,41 +900,8 @@ class ClaudeAgent extends BaseAgent {
 
     try {
       for await (const msg of q) {
-        // Collect tool calls from assistant messages
-        if (msg.type === "assistant") {
-          const betaMessage = msg.message as {
-            content?: Array<{
-              type: string;
-              text?: string;
-              name?: string;
-              input?: unknown;
-              id?: string;
-            }>;
-          } | undefined;
-          if (betaMessage?.content) {
-            for (const block of betaMessage.content) {
-              if (block.type === "tool_use") {
-                const toolName = stripMcpPrefix(block.name ?? "unknown");
-                toolCalls.push({
-                  toolName,
-                  args: (block.input as JSONValue) ?? {},
-                  result: toolResultCapture.get(toolName) ?? null,
-                  approved: true,
-                });
-              }
-            }
-          }
-        }
-
-        // Back-fill results from capture map for previously added tool calls
-        if (msg.type === "tool_use_summary" || msg.type === "result") {
-          for (const tc of toolCalls) {
-            if (tc.result === null) {
-              const captured = toolResultCapture.get(tc.toolName);
-              if (captured !== undefined) tc.result = captured;
-            }
-          }
-        }
+        this.collectToolCallsFromMessage(msg, toolCalls, toolResultCapture);
+        this.backfillToolResults(msg, toolCalls, toolResultCapture);
 
         // Capture result and session_id
         if (msg.type === "result") {
@@ -784,49 +922,14 @@ class ClaudeAgent extends BaseAgent {
       }
     } catch (e) {
       if (signal.aborted) throw new AbortError();
-      // Single retry on resume failure: clear session, rebuild with full history
       if (isResuming && this.isPersistent) {
-        this.clearPersistentSession();
-        const retryPrompt = buildContextualPrompt(messages);
-        let retryOpts = this.buildQueryOptions(signal);
-        toolResultCapture.clear();
-        retryOpts = await this.buildMcpConfig(retryOpts, toolResultCapture);
-        const retryQ = sdk.query({ prompt: retryPrompt, options: retryOpts });
-        this.activeQuery = retryQ;
+        const retryQ = await this.prepareRetryQuery(sdk, messages, signal, options, toolResultCapture);
         toolCalls.length = 0;
         output = null;
-        try {
+        return this.withRetryErrorHandling(signal, async () => {
           for await (const msg of retryQ) {
-            if (msg.type === "assistant") {
-              const betaMessage = msg.message as {
-                content?: Array<{
-                  type: string;
-                  name?: string;
-                  input?: unknown;
-                }>;
-              } | undefined;
-              if (betaMessage?.content) {
-                for (const block of betaMessage.content) {
-                  if (block.type === "tool_use") {
-                    const toolName = stripMcpPrefix(block.name ?? "unknown");
-                    toolCalls.push({
-                      toolName,
-                      args: (block.input as JSONValue) ?? {},
-                      result: toolResultCapture.get(toolName) ?? null,
-                      approved: true,
-                    });
-                  }
-                }
-              }
-            }
-            if (msg.type === "tool_use_summary" || msg.type === "result") {
-              for (const tc of toolCalls) {
-                if (tc.result === null) {
-                  const captured = toolResultCapture.get(tc.toolName);
-                  if (captured !== undefined) tc.result = captured;
-                }
-              }
-            }
+            this.collectToolCallsFromMessage(msg, toolCalls, toolResultCapture);
+            this.backfillToolResults(msg, toolCalls, toolResultCapture);
             if (msg.type === "result") {
               if (msg.subtype === "success") {
                 const r = msg as unknown as SDKResultSuccess;
@@ -843,25 +946,19 @@ class ClaudeAgent extends BaseAgent {
               }
             }
           }
-        } catch (retryError) {
-          if (this.isPersistent) this.clearPersistentSession();
-          if (signal.aborted) throw new AbortError();
-          throw retryError;
-        } finally {
-          this.activeQuery = null;
-        }
-        return {
-          output,
-          structuredOutput: undefined as AgentResult["structuredOutput"],
-          toolCalls,
-          messages: [
-            ...messages,
-            ...(output !== null
-              ? [{ role: "assistant" as const, content: output }]
-              : []),
-          ],
-          usage,
-        };
+          return {
+            output,
+            structuredOutput: undefined as AgentResult["structuredOutput"],
+            toolCalls,
+            messages: [
+              ...messages,
+              ...(output !== null
+                ? [{ role: "assistant" as const, content: output }]
+                : []),
+            ],
+            usage,
+          };
+        });
       }
       if (this.isPersistent) this.clearPersistentSession();
       throw e;
@@ -888,7 +985,7 @@ class ClaudeAgent extends BaseAgent {
   protected async executeRunStructured<T>(
     messages: Message[],
     schema: StructuredOutputConfig<T>,
-    _options: RunOptions | undefined,
+    options: RunOptions,
     signal: AbortSignal,
   ): Promise<AgentResult<T>> {
     this.checkAbort(signal);
@@ -898,7 +995,7 @@ class ClaudeAgent extends BaseAgent {
     const prompt = isResuming
       ? extractLastUserPrompt(messages)
       : buildContextualPrompt(messages);
-    let opts = this.buildQueryOptions(signal);
+    let opts = this.buildQueryOptions(signal, options);
     const toolResultCapture = new Map<string, JSONValue>();
     opts = await this.buildMcpConfig(opts, toolResultCapture);
 
@@ -918,41 +1015,8 @@ class ClaudeAgent extends BaseAgent {
 
     try {
       for await (const msg of q) {
-        // Collect tool calls from assistant messages
-        if (msg.type === "assistant") {
-          const betaMessage = msg.message as {
-            content?: Array<{
-              type: string;
-              text?: string;
-              name?: string;
-              input?: unknown;
-              id?: string;
-            }>;
-          } | undefined;
-          if (betaMessage?.content) {
-            for (const block of betaMessage.content) {
-              if (block.type === "tool_use") {
-                const toolName = stripMcpPrefix(block.name ?? "unknown");
-                toolCalls.push({
-                  toolName,
-                  args: (block.input as JSONValue) ?? {},
-                  result: toolResultCapture.get(toolName) ?? null,
-                  approved: true,
-                });
-              }
-            }
-          }
-        }
-
-        // Back-fill results from capture map for previously added tool calls
-        if (msg.type === "tool_use_summary" || msg.type === "result") {
-          for (const tc of toolCalls) {
-            if (tc.result === null) {
-              const captured = toolResultCapture.get(tc.toolName);
-              if (captured !== undefined) tc.result = captured;
-            }
-          }
-        }
+        this.collectToolCallsFromMessage(msg, toolCalls, toolResultCapture);
+        this.backfillToolResults(msg, toolCalls, toolResultCapture);
 
         if (msg.type === "result" && msg.subtype === "success") {
           const r = msg as unknown as SDKResultSuccess;
@@ -994,54 +1058,18 @@ class ClaudeAgent extends BaseAgent {
       }
     } catch (e) {
       if (signal.aborted) throw new AbortError();
-      // Single retry on resume failure: clear session, rebuild with full history
       if (isResuming && this.isPersistent) {
-        this.clearPersistentSession();
-        const retryPrompt = buildContextualPrompt(messages);
-        let retryOpts = this.buildQueryOptions(signal);
-        toolResultCapture.clear();
-        retryOpts = await this.buildMcpConfig(retryOpts, toolResultCapture);
-        retryOpts.outputFormat = {
-          type: "json_schema",
-          schema: jsonSchema as Record<string, unknown>,
-        };
-        const retryQ = sdk.query({ prompt: retryPrompt, options: retryOpts });
-        this.activeQuery = retryQ;
+        const retryQ = await this.prepareRetryQuery(
+          sdk, messages, signal, options, toolResultCapture,
+          (opts) => { opts.outputFormat = { type: "json_schema", schema: jsonSchema as Record<string, unknown> }; },
+        );
         toolCalls.length = 0;
         output = null;
         structuredOutput = undefined;
-        try {
+        return this.withRetryErrorHandling(signal, async () => {
           for await (const msg of retryQ) {
-            if (msg.type === "assistant") {
-              const betaMessage = msg.message as {
-                content?: Array<{
-                  type: string;
-                  name?: string;
-                  input?: unknown;
-                }>;
-              } | undefined;
-              if (betaMessage?.content) {
-                for (const block of betaMessage.content) {
-                  if (block.type === "tool_use") {
-                    const toolName = stripMcpPrefix(block.name ?? "unknown");
-                    toolCalls.push({
-                      toolName,
-                      args: (block.input as JSONValue) ?? {},
-                      result: toolResultCapture.get(toolName) ?? null,
-                      approved: true,
-                    });
-                  }
-                }
-              }
-            }
-            if (msg.type === "tool_use_summary" || msg.type === "result") {
-              for (const tc of toolCalls) {
-                if (tc.result === null) {
-                  const captured = toolResultCapture.get(tc.toolName);
-                  if (captured !== undefined) tc.result = captured;
-                }
-              }
-            }
+            this.collectToolCallsFromMessage(msg, toolCalls, toolResultCapture);
+            this.backfillToolResults(msg, toolCalls, toolResultCapture);
             if (msg.type === "result" && msg.subtype === "success") {
               const r = msg as unknown as SDKResultSuccess;
               output = r.result;
@@ -1071,25 +1099,19 @@ class ClaudeAgent extends BaseAgent {
               );
             }
           }
-        } catch (retryError) {
-          if (this.isPersistent) this.clearPersistentSession();
-          if (signal.aborted) throw new AbortError();
-          throw retryError;
-        } finally {
-          this.activeQuery = null;
-        }
-        return {
-          output,
-          structuredOutput: structuredOutput as AgentResult<T>["structuredOutput"],
-          toolCalls,
-          messages: [
-            ...messages,
-            ...(output !== null
-              ? [{ role: "assistant" as const, content: output }]
-              : []),
-          ],
-          usage,
-        };
+          return {
+            output,
+            structuredOutput: structuredOutput as AgentResult<T>["structuredOutput"],
+            toolCalls,
+            messages: [
+              ...messages,
+              ...(output !== null
+                ? [{ role: "assistant" as const, content: output }]
+                : []),
+            ],
+            usage,
+          };
+        });
       }
       if (this.isPersistent) this.clearPersistentSession();
       throw e;
@@ -1115,7 +1137,7 @@ class ClaudeAgent extends BaseAgent {
 
   protected async *executeStream(
     messages: Message[],
-    _options: RunOptions | undefined,
+    options: RunOptions,
     signal: AbortSignal,
   ): AsyncIterable<AgentEvent> {
     this.checkAbort(signal);
@@ -1125,7 +1147,7 @@ class ClaudeAgent extends BaseAgent {
     const prompt = isResuming
       ? extractLastUserPrompt(messages)
       : buildContextualPrompt(messages);
-    let opts = this.buildQueryOptions(signal);
+    let opts = this.buildQueryOptions(signal, options);
     // Capture actual tool results from MCP handler execution
     const toolResultCapture = new Map<string, JSONValue>();
     opts = await this.buildMcpConfig(opts, toolResultCapture);
@@ -1136,6 +1158,7 @@ class ClaudeAgent extends BaseAgent {
     const toolCallTracker = new ClaudeToolCallTracker();
     // Track pending tool calls to emit tool_call_end for tools without tool_use_summary
     const pendingStreamToolCalls = new Map<string, string>();
+    let hasStreamedText = false;
 
     try {
       for await (const msg of q) {
@@ -1157,6 +1180,7 @@ class ClaudeAgent extends BaseAgent {
             } else if (e.type === "tool_call_end") {
               pendingStreamToolCalls.delete(e.toolCallId);
             }
+            if (e.type === "text_delta") hasStreamedText = true;
             yield e;
           }
         }
@@ -1183,23 +1207,22 @@ class ClaudeAgent extends BaseAgent {
             }
             yield this.emitSessionInfo(r.session_id);
           }
-          yield { type: "done", finalOutput: r.result };
+          yield {
+            type: "done",
+            finalOutput: hasStreamedText ? null : r.result,
+            ...(hasStreamedText ? { streamed: true } : {}),
+          };
         }
       }
     } catch (e) {
       if (signal.aborted) throw new AbortError();
       // Single retry on resume failure: clear session, rebuild with full history
       if (isResuming && this.isPersistent) {
-        this.clearPersistentSession();
-        const retryPrompt = buildContextualPrompt(messages);
-        let retryOpts = this.buildQueryOptions(signal);
-        toolResultCapture.clear();
-        retryOpts = await this.buildMcpConfig(retryOpts, toolResultCapture);
-        const retryQ = sdk.query({ prompt: retryPrompt, options: retryOpts });
-        this.activeQuery = retryQ;
+        const retryQ = await this.prepareRetryQuery(sdk, messages, signal, options, toolResultCapture);
         const retryThinkingBlockIndices = new Set<number>();
         const retryToolCallTracker = new ClaudeToolCallTracker();
         const retryPendingToolCalls = new Map<string, string>();
+        let retryHasStreamedText = false;
         try {
           for await (const msg of retryQ) {
             if (signal.aborted) throw new AbortError();
@@ -1217,6 +1240,7 @@ class ClaudeAgent extends BaseAgent {
                 } else if (ev.type === "tool_call_end") {
                   retryPendingToolCalls.delete(ev.toolCallId);
                 }
+                if (ev.type === "text_delta") retryHasStreamedText = true;
                 yield ev;
               }
             }
@@ -1240,7 +1264,11 @@ class ClaudeAgent extends BaseAgent {
                 }
                 yield this.emitSessionInfo(r.session_id);
               }
-              yield { type: "done", finalOutput: r.result };
+              yield {
+                type: "done",
+                finalOutput: retryHasStreamedText ? null : r.result,
+                ...(retryHasStreamedText ? { streamed: true } : {}),
+              };
             }
           }
         } catch (retryError) {
@@ -1267,64 +1295,6 @@ class ClaudeAgent extends BaseAgent {
 
 // ─── Helpers ────────────────────────────────────────────────────
 
-function extractLastUserPrompt(messages: Message[]): string {
-  for (let i = messages.length - 1; i >= 0; i--) {
-    const msg = messages[i];
-    if (msg.role === "user") {
-      return getTextContent(msg.content);
-    }
-  }
-  return "";
-}
-
-function serializeToolCall(tc: { name: string; args: JSONValue }): string {
-  const args = typeof tc.args === "string" ? tc.args : JSON.stringify(tc.args);
-  return `  Tool call: ${tc.name}(${args})`;
-}
-
-function serializeToolResult(tr: { name: string; result: JSONValue; isError?: boolean }): string {
-  const result = typeof tr.result === "string" ? tr.result : JSON.stringify(tr.result);
-  const prefix = tr.isError ? "[ERROR] " : "";
-  return `  ${tr.name} → ${prefix}${result}`;
-}
-
-/** Build prompt with conversation history for CLI backends that create fresh sessions */
-function buildContextualPrompt(messages: Message[]): string {
-  if (messages.length <= 1) {
-    return extractLastUserPrompt(messages);
-  }
-
-  const history = messages.slice(0, -1).map((msg) => {
-    if (msg.role === "user") {
-      return `User: ${msg.content ? getTextContent(msg.content) : ""}`;
-    }
-    if (msg.role === "tool" && msg.toolResults) {
-      const results = msg.toolResults.map(serializeToolResult).join("\n");
-      return `Tool results:\n${results}`;
-    }
-    if (msg.role === "assistant") {
-      const parts: string[] = [];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const thinking = (msg as any).thinking as string | undefined;
-      if (thinking) {
-        parts.push(`[reasoning: ${thinking}]`);
-      }
-      const text = msg.content ? getTextContent(msg.content) : "";
-      if (text) parts.push(text);
-      if (msg.toolCalls && msg.toolCalls.length > 0) {
-        parts.push(msg.toolCalls.map(serializeToolCall).join("\n"));
-      }
-      return `Assistant: ${parts.join("\n")}`;
-    }
-    const text = msg.content ? getTextContent(msg.content) : "";
-    return `${msg.role}: ${text}`;
-  }).join("\n");
-
-  const lastPrompt = extractLastUserPrompt(messages);
-
-  return `Conversation history:\n${history}\n\nUser: ${lastPrompt}`;
-}
-
 class ClaudeAgentService implements IAgentService {
   readonly name = "claude";
   private disposed = false;
@@ -1335,7 +1305,7 @@ class ClaudeAgentService implements IAgentService {
     this.options = options;
   }
 
-  createAgent(config: AgentConfig): IAgent {
+  createAgent(config: FullAgentConfig): IAgent {
     if (this.disposed) throw new DisposedError("ClaudeAgentService");
     return new ClaudeAgent(config, this.options);
   }
@@ -1365,7 +1335,7 @@ class ClaudeAgentService implements IAgentService {
     }
 
     const body = (await res.json()) as {
-      data?: Array<{ id: string; display_name?: string }>;
+      data?: Array<{ id: string; display_name?: string; max_input_tokens?: number }>;
     };
 
     if (!body.data || body.data.length === 0) {
@@ -1376,6 +1346,7 @@ class ClaudeAgentService implements IAgentService {
       id: m.id,
       name: m.display_name,
       provider: "claude",
+      ...(m.max_input_tokens != null && { contextWindow: m.max_input_tokens }),
     }));
     return this.cachedModels;
   }

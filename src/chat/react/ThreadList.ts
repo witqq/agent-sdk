@@ -9,6 +9,22 @@ function isFullSession(item: SessionItem): item is ChatSession {
   return "messages" in item && Array.isArray((item as ChatSession).messages);
 }
 
+/** Format a Date to a short relative time string (e.g. "2m", "3h", "5d"). */
+function formatRelativeTime(date: Date): string {
+  const now = Date.now();
+  const diff = now - date.getTime();
+  const seconds = Math.floor(diff / 1000);
+  if (seconds < 60) return "now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d`;
+  const months = Math.floor(days / 30);
+  return `${months}mo`;
+}
+
 /** Normalize any session item to SessionInfo for display. */
 function normalizeSession(item: SessionItem): SessionInfo {
   if (isFullSession(item)) {
@@ -67,28 +83,24 @@ export function ThreadList({
 
   const children: ReactNode[] = [];
 
-  // Search input
+  // Header with search + create button
   children.push(
-    createElement("input", {
-      key: "search",
-      "data-thread-list-search": "true",
-      value: searchQuery ?? "",
-      onChange: handleSearchChange,
-      placeholder: "Search sessions...",
-    }),
-  );
-
-  // Create button
-  children.push(
-    createElement(
-      "button",
-      {
-        key: "create",
-        "data-action": "create-session",
-        onClick: onCreate,
-        type: "button",
-      },
-      "New",
+    createElement("div", { key: "header", "data-thread-list-header": "true" },
+      createElement("input", {
+        "data-thread-list-search": "true",
+        value: searchQuery ?? "",
+        onChange: handleSearchChange,
+        placeholder: "Search...",
+      }),
+      createElement(
+        "button",
+        {
+          "data-action": "create-session",
+          onClick: onCreate,
+          type: "button",
+        },
+        "+",
+      ),
     ),
   );
 
@@ -96,8 +108,15 @@ export function ThreadList({
   const items = filtered.map((session) => {
     const isActive = session.id === activeSessionId;
     const itemChildren: ReactNode[] = [
-      createElement("span", { key: "title" }, session.title ?? "Untitled"),
+      createElement("span", { key: "title", "data-session-title": "true" }, session.title ?? "Untitled"),
     ];
+
+    if (session.updatedAt) {
+      const timeStr = formatRelativeTime(new Date(session.updatedAt));
+      itemChildren.push(
+        createElement("span", { key: "time", "data-session-time": "true" }, timeStr),
+      );
+    }
 
     if (onDelete) {
       itemChildren.push(
@@ -112,7 +131,7 @@ export function ThreadList({
             },
             type: "button",
           },
-          "Delete",
+          "×",
         ),
       );
     }
@@ -123,6 +142,7 @@ export function ThreadList({
         key: session.id,
         "data-session-item": "true",
         "data-session-active": isActive ? "true" : "false",
+        "data-session-status": session.status ?? "active",
         onClick: () => onSelect(session.id),
       },
       ...itemChildren,

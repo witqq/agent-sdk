@@ -11,7 +11,6 @@ import * as path from "node:path";
 function mockRuntime(): IChatRuntime {
   return {
     status: "idle" as const,
-    currentBackend: "copilot",
     currentModel: "gpt-5-mini",
     send: vi.fn().mockResolvedValue(undefined),
     abort: vi.fn(),
@@ -27,13 +26,12 @@ function mockRuntime(): IChatRuntime {
     getSession: vi.fn().mockResolvedValue(null),
     listSessions: vi.fn().mockResolvedValue([]),
     deleteSession: vi.fn().mockResolvedValue(undefined),
-    archiveSession: vi.fn().mockResolvedValue(undefined),
     switchSession: vi.fn().mockResolvedValue(undefined),
     registerTool: vi.fn(),
     removeTool: vi.fn(),
-    switchBackend: vi.fn(),
     switchModel: vi.fn(),
     listModels: vi.fn().mockResolvedValue([]),
+    listBackends: vi.fn().mockReturnValue([{ name: "copilot" }]),
     use: vi.fn(),
     getContextStats: vi.fn().mockReturnValue(null),
   } as unknown as IChatRuntime;
@@ -256,6 +254,197 @@ describe("createChatServer", () => {
       } finally {
         fs.rmSync(siblingDir, { recursive: true, force: true });
       }
+    });
+  });
+
+  describe("autoCreateProviders", () => {
+    it("creates a default provider on first auth when enabled", async () => {
+      const { InMemoryProviderStore } = await import("../../../src/chat/server/provider-store.js");
+      const providerStore = new InMemoryProviderStore();
+      const userOnAuth = vi.fn();
+
+      const handler = createChatServer({
+        runtime: mockRuntime(),
+        auth: {
+          tokenStore: new InMemoryTokenStore(),
+          onAuth: userOnAuth,
+        },
+        providers: { providerStore },
+        autoCreateProviders: true,
+      });
+
+      // Simulate what happens when auth completes:
+      // The onAuth callback in the auth handler gets called.
+      // We test the wrapping by triggering auth via the start flow,
+      // but since that requires copilotAuth/claudeAuth mocks, let's
+      // test the provider store effect directly by triggering /tokens/use
+      // which calls onAuth.
+
+      // First, save a token manually
+      const tokenStore = new InMemoryTokenStore();
+      await tokenStore.save("copilot", { accessToken: "test", expiresAt: Date.now() + 100000 } as never);
+
+      // Use the createChatServer with the injected token store
+      const handler2 = createChatServer({
+        runtime: mockRuntime(),
+        auth: {
+          tokenStore,
+          onAuth: userOnAuth,
+        },
+        providers: { providerStore },
+        autoCreateProviders: true,
+      });
+
+      // Call /tokens/use to trigger onAuth
+      const res = mockRes();
+      await handler2(mockReq("POST", "/api/auth/tokens/use", { provider: "copilot" }), res);
+
+      // The wrapped onAuth should have created a provider
+      const providers = await providerStore.list();
+      expect(providers.length).toBe(1);
+      expect(providers[0].backend).toBe("copilot");
+      expect(providers[0].model).toBe("gpt-5-mini");
+      expect(providers[0].label).toContain("Copilot");
+    });
+
+    it("does not duplicate providers on subsequent auths", async () => {
+      const { InMemoryProviderStore } = await import("../../../src/chat/server/provider-store.js");
+      const providerStore = new InMemoryProviderStore();
+      const tokenStore = new InMemoryTokenStore();
+      await tokenStore.save("copilot", { accessToken: "test", expiresAt: Date.now() + 100000 } as never);
+
+      const handler = createChatServer({
+        runtime: mockRuntime(),
+        auth: { tokenStore },
+        providers: { providerStore },
+        autoCreateProviders: true,
+      });
+
+      // First auth
+      const res1 = mockRes();
+      await handler(mockReq("POST", "/api/auth/tokens/use", { provider: "copilot" }), res1);
+
+      // Second auth for same backend
+      const res2 = mockRes();
+      await handler(mockReq("POST", "/api/auth/tokens/use", { provider: "copilot" }), res2);
+
+      const providers = await providerStore.list();
+      expect(providers.length).toBe(1);
+    });
+
+    it("uses custom model mapping when provided", async () => {
+      const { InMemoryProviderStore } = await import("../../../src/chat/server/provider-store.js");
+      const providerStore = new InMemoryProviderStore();
+      const tokenStore = new InMemoryTokenStore();
+      await tokenStore.save("copilot", { accessToken: "test", expiresAt: Date.now() + 100000 } as never);
+
+      const handler = createChatServer({
+        runtime: mockRuntime(),
+        auth: { tokenStore },
+        providers: { providerStore },
+        autoCreateProviders: { copilot: "gpt-4.1" },
+      });
+
+      const res = mockRes();
+      await handler(mockReq("POST", "/api/auth/tokens/use", { provider: "copilot" }), res);
+
+      const providers = await providerStore.list();
+      expect(providers[0].model).toBe("gpt-4.1");
+    });
+
+    it("does not create providers when autoCreateProviders is disabled", async () => {
+      const { InMemoryProviderStore } = await import("../../../src/chat/server/provider-store.js");
+      const providerStore = new InMemoryProviderStore();
+      const tokenStore = new InMemoryTokenStore();
+      await tokenStore.save("copilot", { accessToken: "test", expiresAt: Date.now() + 100000 } as never);
+
+      const handler = createChatServer({
+        runtime: mockRuntime(),
+        auth: { tokenStore },
+        providers: { providerStore },
+        // autoCreateProviders not set (disabled by default)
+      });
+
+      const res = mockRes();
+      await handler(mockReq("POST", "/api/auth/tokens/use", { provider: "copilot" }), res);
+
+      const providers = await providerStore.list();
+      expect(providers.length).toBe(0);
+    });
+  });
+
+  // ─── Health Check ─────────────────────────────────────────────
+
+  describe("health check", () => {
+    it("responds with { ok: true } at default /api/health", async () => {
+      const handler = createChatServer({ runtime: mockRuntime() });
+      const res = mockRes();
+      await handler(mockReq("GET", "/api/health"), res);
+      expect(res._status).toBe(200);
+      expect(JSON.parse(res._body)).toEqual({ ok: true });
+    });
+
+    it("responds at custom healthPath", async () => {
+      const handler = createChatServer({ runtime: mockRuntime(), healthPath: "/healthz" });
+      const res = mockRes();
+      await handler(mockReq("GET", "/healthz"), res);
+      expect(res._status).toBe(200);
+      expect(JSON.parse(res._body)).toEqual({ ok: true });
+    });
+
+    it("disables health check when healthPath is false", async () => {
+      const handler = createChatServer({ runtime: mockRuntime(), healthPath: false });
+      const res = mockRes();
+      await handler(mockReq("GET", "/api/health"), res);
+      expect(res._status).toBe(404);
+    });
+  });
+
+  describe("runtimeConfig", () => {
+    it("creates runtime from runtimeConfig when runtime not provided", async () => {
+      const mockAdapter = {
+        streamMessage: vi.fn(),
+        sendMessage: vi.fn(),
+        resume: vi.fn(),
+        listModels: vi.fn().mockResolvedValue([]),
+        validate: vi.fn().mockResolvedValue(true),
+        dispose: vi.fn(),
+      };
+      const handler = createChatServer({
+        runtimeConfig: {
+          defaultBackend: "copilot",
+          backends: {
+            copilot: () => mockAdapter as never,
+          },
+          sessionStore: {
+            createSession: vi.fn().mockResolvedValue({
+              id: "s1", title: "Test", messages: [], status: "active",
+              config: { model: "gpt-5-mini", backend: "copilot" },
+              metadata: { messageCount: 0, totalTokens: 0, custom: {} },
+              createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+            }),
+            getSession: vi.fn().mockResolvedValue(null),
+            listSessions: vi.fn().mockResolvedValue([]),
+            deleteSession: vi.fn(),
+            appendMessage: vi.fn(),
+            loadMessages: vi.fn().mockResolvedValue({ messages: [], total: 0, hasMore: false }),
+            searchSessions: vi.fn().mockResolvedValue([]),
+            updateTitle: vi.fn(),
+            updateConfig: vi.fn(),
+            count: vi.fn().mockResolvedValue(0),
+            clear: vi.fn(),
+          },
+        },
+      });
+      const res = mockRes();
+      await handler(mockReq("POST", "/api/chat/sessions/create", { title: "Test" }), res);
+      expect(res._status).toBe(200);
+    });
+
+    it("throws when neither runtime nor runtimeConfig provided", () => {
+      expect(() => createChatServer({} as never)).toThrow(
+        "Either `runtime` or `runtimeConfig` must be provided",
+      );
     });
   });
 });

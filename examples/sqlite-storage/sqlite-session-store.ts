@@ -31,6 +31,7 @@ import type {
   SessionSearchOptions,
 } from "@witqq/agent-sdk/chat/sessions";
 import { StorageError } from "@witqq/agent-sdk/chat/storage";
+import { ErrorCode } from "../../src/types/errors.js";
 
 // ─── Schema ────────────────────────────────────────────────────
 
@@ -135,12 +136,12 @@ export class SQLiteSessionStore implements IChatSessionStore {
     const result = this.db.prepare(
       "UPDATE sessions SET title = ?, updated_at = ? WHERE id = ?",
     ).run(title, new Date().toISOString(), id);
-    if (result.changes === 0) throw new StorageError(`Session not found: ${id}`, "NOT_FOUND");
+    if (result.changes === 0) throw new StorageError(`Session not found: ${id}`, ErrorCode.STORAGE_NOT_FOUND);
   }
 
   async updateConfig(id: ChatId, config: Partial<ChatSessionConfig>): Promise<void> {
     const row = this.db.prepare("SELECT config FROM sessions WHERE id = ?").get(id) as { config: string } | undefined;
-    if (!row) throw new StorageError(`Session not found: ${id}`, "NOT_FOUND");
+    if (!row) throw new StorageError(`Session not found: ${id}`, ErrorCode.STORAGE_NOT_FOUND);
 
     const merged = { ...JSON.parse(row.config), ...config };
     this.db.prepare(
@@ -150,12 +151,12 @@ export class SQLiteSessionStore implements IChatSessionStore {
 
   async deleteSession(id: ChatId): Promise<void> {
     const result = this.db.prepare("DELETE FROM sessions WHERE id = ?").run(id);
-    if (result.changes === 0) throw new StorageError(`Session not found: ${id}`, "NOT_FOUND");
+    if (result.changes === 0) throw new StorageError(`Session not found: ${id}`, ErrorCode.STORAGE_NOT_FOUND);
   }
 
   async appendMessage(sessionId: ChatId, message: ChatMessage): Promise<void> {
     const session = this.db.prepare("SELECT id FROM sessions WHERE id = ?").get(sessionId) as { id: string } | undefined;
-    if (!session) throw new StorageError(`Session not found: ${sessionId}`, "NOT_FOUND");
+    if (!session) throw new StorageError(`Session not found: ${sessionId}`, ErrorCode.STORAGE_NOT_FOUND);
 
     const position = this.getNextPosition(sessionId);
 
@@ -181,7 +182,7 @@ export class SQLiteSessionStore implements IChatSessionStore {
     if (messages.length === 0) return;
 
     const session = this.db.prepare("SELECT id FROM sessions WHERE id = ?").get(sessionId) as { id: string } | undefined;
-    if (!session) throw new StorageError(`Session not found: ${sessionId}`, "NOT_FOUND");
+    if (!session) throw new StorageError(`Session not found: ${sessionId}`, ErrorCode.STORAGE_NOT_FOUND);
 
     const insertMsg = this.db.prepare(`
       INSERT INTO messages (id, session_id, role, parts, metadata, status, created_at, updated_at, position)
@@ -208,7 +209,7 @@ export class SQLiteSessionStore implements IChatSessionStore {
     options?: { limit?: number; offset?: number },
   ): Promise<PaginatedMessages> {
     const session = this.db.prepare("SELECT id FROM sessions WHERE id = ?").get(sessionId) as { id: string } | undefined;
-    if (!session) throw new StorageError(`Session not found: ${sessionId}`, "NOT_FOUND");
+    if (!session) throw new StorageError(`Session not found: ${sessionId}`, ErrorCode.STORAGE_NOT_FOUND);
 
     const total = (this.db.prepare(
       "SELECT COUNT(*) as cnt FROM messages WHERE session_id = ?",
@@ -226,20 +227,6 @@ export class SQLiteSessionStore implements IChatSessionStore {
       total,
       hasMore: offset + limit < total,
     };
-  }
-
-  async archiveSession(id: ChatId): Promise<void> {
-    const result = this.db.prepare(
-      "UPDATE sessions SET status = 'archived', updated_at = ? WHERE id = ?",
-    ).run(new Date().toISOString(), id);
-    if (result.changes === 0) throw new StorageError(`Session not found: ${id}`, "NOT_FOUND");
-  }
-
-  async unarchiveSession(id: ChatId): Promise<void> {
-    const result = this.db.prepare(
-      "UPDATE sessions SET status = 'active', updated_at = ? WHERE id = ?",
-    ).run(new Date().toISOString(), id);
-    if (result.changes === 0) throw new StorageError(`Session not found: ${id}`, "NOT_FOUND");
   }
 
   async searchSessions(options: SessionSearchOptions): Promise<ChatSession[]> {
@@ -333,7 +320,7 @@ export class SQLiteSessionStore implements IChatSessionStore {
       row.title,
       JSON.parse(row.config),
       JSON.parse(row.metadata),
-      row.status as "active" | "archived",
+      row.status as "active",
       row.created_at,
       row.updated_at,
       messages,
@@ -345,7 +332,7 @@ export class SQLiteSessionStore implements IChatSessionStore {
     title: string | undefined | null,
     config: ChatSessionConfig,
     metadata: ChatSession["metadata"],
-    status: "active" | "archived",
+    status: "active",
     createdAt: string,
     updatedAt: string,
     messages: ChatMessage[],

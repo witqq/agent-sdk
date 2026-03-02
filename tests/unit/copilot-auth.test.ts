@@ -4,6 +4,7 @@ import {
   AuthError,
   DeviceCodeExpiredError,
   AccessDeniedError,
+  TokenExchangeError,
 } from "../../src/auth/types.js";
 import type { CopilotAuthToken } from "../../src/auth/types.js";
 
@@ -56,7 +57,7 @@ function slowDownResponse(interval?: number) {
   };
 }
 
-function tokenResponse(token = "gho_testtoken123") {
+function tokenResponse(token = "gho_testtoken123", extras?: { refresh_token?: string; expires_in?: number }) {
   return {
     ok: true,
     status: 200,
@@ -64,6 +65,7 @@ function tokenResponse(token = "gho_testtoken123") {
       access_token: token,
       token_type: "bearer",
       scope: "read:user,read:org,repo,gist",
+      ...extras,
     }),
   };
 }
@@ -324,7 +326,7 @@ describe("CopilotAuth", () => {
       await expectation;
     });
 
-    it("token has no expiresIn (long-lived)", async () => {
+    it("token has no expiresIn when not provided by GitHub", async () => {
       fetchFn = mockFetch([
         deviceCodeResponse(),
         tokenResponse(),
@@ -339,6 +341,27 @@ describe("CopilotAuth", () => {
 
       const token = await tokenPromise;
       expect(token.expiresIn).toBeUndefined();
+      expect(token.refreshToken).toBeUndefined();
+    });
+
+    it("captures refresh_token and expires_in when provided by GitHub", async () => {
+      fetchFn = mockFetch([
+        deviceCodeResponse(),
+        tokenResponse("gho_expiring", { refresh_token: "ghr_refresh123", expires_in: 28800 }),
+        userResponse("octocat"),
+      ]);
+      auth = new CopilotAuth({ fetch: fetchFn });
+
+      const flow = await auth.startDeviceFlow();
+      const tokenPromise = flow.waitForToken();
+
+      await vi.advanceTimersByTimeAsync(5000);
+
+      const token = await tokenPromise;
+      expect(token.accessToken).toBe("gho_expiring");
+      expect(token.refreshToken).toBe("ghr_refresh123");
+      expect(token.expiresIn).toBe(28800);
+      expect(token.login).toBe("octocat");
     });
   });
 
@@ -367,6 +390,113 @@ describe("CopilotAuth", () => {
       const customFetch = vi.fn() as unknown as typeof globalThis.fetch;
       const auth = new CopilotAuth({ fetch: customFetch });
       expect(auth).toBeInstanceOf(CopilotAuth);
+    });
+  });
+
+  describe("refreshToken", () => {
+    it("exchanges refresh token for new access token", async () => {
+      fetchFn = mockFetch([
+        {
+          ok: true,
+          status: 200,
+          json: () => ({
+            access_token: "gho_new_access",
+            token_type: "bearer",
+            refresh_token: "ghr_new_refresh",
+            expires_in: 28800,
+          }),
+        },
+      ]);
+      auth = new CopilotAuth({ fetch: fetchFn });
+
+      const token = await auth.refreshToken("ghr_old_refresh");
+
+      expect(token.accessToken).toBe("gho_new_access");
+      expect(token.tokenType).toBe("bearer");
+      expect(token.refreshToken).toBe("ghr_new_refresh");
+      expect(token.expiresIn).toBe(28800);
+      expect(typeof token.obtainedAt).toBe("number");
+
+      // Verify correct request parameters
+      const [url, options] = (fetchFn as ReturnType<typeof vi.fn>).mock.calls[0] as [string, RequestInit];
+      expect(url).toBe("https://github.com/login/oauth/access_token");
+      expect(options.body?.toString()).toContain("grant_type=refresh_token");
+      expect(options.body?.toString()).toContain("refresh_token=ghr_old_refresh");
+      expect(options.body?.toString()).toContain("client_id=Ov23ctDVkRmgkPke0Mmm");
+    });
+
+    it("throws TokenExchangeError on HTTP error", async () => {
+      fetchFn = mockFetch([httpErrorResponse(500, "Internal Server Error")]);
+      auth = new CopilotAuth({ fetch: fetchFn });
+
+      await expect(auth.refreshToken("ghr_test")).rejects.toThrow(
+        "Token refresh failed: 500 Internal Server Error",
+      );
+    });
+
+    it("throws TokenExchangeError on error response", async () => {
+      fetchFn = mockFetch([
+        {
+          ok: true,
+          status: 200,
+          json: () => ({
+            error: "invalid_grant",
+            error_description: "The refresh token is invalid or expired",
+          }),
+        },
+      ]);
+      auth = new CopilotAuth({ fetch: fetchFn });
+
+      await expect(auth.refreshToken("ghr_expired")).rejects.toThrow(
+        "The refresh token is invalid or expired",
+      );
+    });
+
+    it("throws TokenExchangeError when response missing access_token", async () => {
+      fetchFn = mockFetch([
+        {
+          ok: true,
+          status: 200,
+          json: () => ({}),
+        },
+      ]);
+      auth = new CopilotAuth({ fetch: fetchFn });
+
+      await expect(auth.refreshToken("ghr_test")).rejects.toThrow(
+        "Token refresh response missing access_token",
+      );
+    });
+
+    it("handles response without refresh_token (non-rotating)", async () => {
+      fetchFn = mockFetch([
+        {
+          ok: true,
+          status: 200,
+          json: () => ({
+            access_token: "gho_refreshed",
+            token_type: "bearer",
+            expires_in: 3600,
+          }),
+        },
+      ]);
+      auth = new CopilotAuth({ fetch: fetchFn });
+
+      const token = await auth.refreshToken("ghr_test");
+      expect(token.accessToken).toBe("gho_refreshed");
+      expect(token.refreshToken).toBeUndefined();
+      expect(token.expiresIn).toBe(3600);
+    });
+
+    it("supports abort signal", async () => {
+      const controller = new AbortController();
+      controller.abort();
+
+      fetchFn = vi.fn().mockRejectedValue(new DOMException("Aborted", "AbortError")) as unknown as typeof globalThis.fetch;
+      auth = new CopilotAuth({ fetch: fetchFn });
+
+      await expect(
+        auth.refreshToken("ghr_test", controller.signal),
+      ).rejects.toThrow();
     });
   });
 });

@@ -1,45 +1,24 @@
 /**
  * @witqq/agent-sdk/chat/errors
  *
- * Flat error taxonomy with ChatErrorCode enum, unified ChatError class,
+ * Flat error taxonomy with unified ErrorCode enum, ChatError class,
  * pattern-matching classifier, retry strategies with exponential backoff.
  * Extends the existing AgentSDKError from @witqq/agent-sdk.
  */
 
 import { AgentSDKError } from "../errors.js";
+import { ErrorCode } from "../types/errors.js";
 
-// ─── Error Code Enum ───────────────────────────────────────────
+// ─── Re-export ErrorCode ───────────────────────────────────────
 
-/** Error codes for chat-specific errors — used by classifyError() and ChatError */
-export enum ChatErrorCode {
-  NETWORK = "NETWORK",
-  TIMEOUT = "TIMEOUT",
-  AUTH_EXPIRED = "AUTH_EXPIRED",
-  AUTH_INVALID = "AUTH_INVALID",
-  RATE_LIMIT = "RATE_LIMIT",
-  PROVIDER_ERROR = "PROVIDER_ERROR",
-  MODEL_NOT_FOUND = "MODEL_NOT_FOUND",
-  MODEL_OVERLOADED = "MODEL_OVERLOADED",
-  CONTEXT_OVERFLOW = "CONTEXT_OVERFLOW",
-  INVALID_INPUT = "INVALID_INPUT",
-  INVALID_RESPONSE = "INVALID_RESPONSE",
-  PERMISSION_DENIED = "PERMISSION_DENIED",
-  BACKEND_NOT_INSTALLED = "BACKEND_NOT_INSTALLED",
-  SESSION_NOT_FOUND = "SESSION_NOT_FOUND",
-  STORAGE_ERROR = "STORAGE_ERROR",
-  SESSION_EXPIRED = "SESSION_EXPIRED",
-  DISPOSED = "DISPOSED",
-  ABORTED = "ABORTED",
-  INVALID_TRANSITION = "INVALID_TRANSITION",
-  REENTRANCY = "REENTRANCY",
-}
+export { ErrorCode };
 
 // ─── Error Options ─────────────────────────────────────────────
 
 /** Options for constructing a ChatError */
 export interface ChatErrorOptions {
   /** Machine-readable error code */
-  code: ChatErrorCode;
+  code: ErrorCode;
   /** Whether this error is retryable (default: false) */
   retryable?: boolean;
   /** Retry delay hint in milliseconds */
@@ -48,20 +27,21 @@ export interface ChatErrorOptions {
   cause?: unknown;
 }
 
-/** @deprecated Use ChatErrorOptions */
-export type ChatSDKErrorOptions = ChatErrorOptions;
-
 // ─── Unified Error Class ───────────────────────────────────────
 
 /** Unified error class for all chat SDK errors */
 export class ChatError extends AgentSDKError {
-  readonly code: ChatErrorCode;
+  readonly code: ErrorCode;
   readonly retryable: boolean;
   readonly retryAfter?: number;
   readonly timestamp: string;
 
   constructor(message: string, options: ChatErrorOptions) {
-    super(message, { cause: options.cause });
+    super(message, {
+      cause: options.cause,
+      code: options.code,
+      retryable: options.retryable,
+    });
     this.name = "ChatError";
     this.code = options.code;
     this.retryable = options.retryable ?? false;
@@ -69,9 +49,6 @@ export class ChatError extends AgentSDKError {
     this.timestamp = new Date().toISOString();
   }
 }
-
-/** @deprecated Use ChatError */
-export { ChatError as ChatSDKError };
 
 // ─── Classification ────────────────────────────────────────────
 
@@ -100,7 +77,7 @@ export function classifyError(error: unknown): ChatError {
     // Network errors
     if (isNetworkError(msg)) {
       return new ChatError(error.message, {
-        code: ChatErrorCode.NETWORK,
+        code: ErrorCode.NETWORK,
         retryable: true,
         cause: error,
       });
@@ -109,7 +86,7 @@ export function classifyError(error: unknown): ChatError {
     // Timeout errors
     if (isTimeoutPattern(msg)) {
       return new ChatError(error.message, {
-        code: ChatErrorCode.TIMEOUT,
+        code: ErrorCode.TIMEOUT,
         retryable: true,
         cause: error,
       });
@@ -118,7 +95,7 @@ export function classifyError(error: unknown): ChatError {
     // Zod validation errors
     if (isZodError(error)) {
       return new ChatError(error.message, {
-        code: ChatErrorCode.INVALID_INPUT,
+        code: ErrorCode.INVALID_INPUT,
         retryable: false,
         cause: error,
       });
@@ -133,7 +110,7 @@ export function classifyError(error: unknown): ChatError {
     // Context overflow patterns
     if (isContextOverflow(msg)) {
       return new ChatError(error.message, {
-        code: ChatErrorCode.CONTEXT_OVERFLOW,
+        code: ErrorCode.CONTEXT_OVERFLOW,
         retryable: false,
         cause: error,
       });
@@ -144,7 +121,7 @@ export function classifyError(error: unknown): ChatError {
   const message =
     error instanceof Error ? error.message : String(error);
   return new ChatError(message, {
-    code: ChatErrorCode.PROVIDER_ERROR,
+    code: ErrorCode.PROVIDER_ERROR,
     retryable: false,
     cause: error,
   });
@@ -199,7 +176,7 @@ function extractStatusCode(error: Error): number | null {
 function classifyByStatusCode(status: number, error: Error): ChatError {
   if (status === 401 || status === 403) {
     return new ChatError(error.message, {
-      code: ChatErrorCode.AUTH_INVALID,
+      code: ErrorCode.AUTH_INVALID,
       retryable: false,
       cause: error,
     });
@@ -207,7 +184,7 @@ function classifyByStatusCode(status: number, error: Error): ChatError {
   if (status === 429) {
     const retryAfterSeconds = extractRetryAfter(error);
     return new ChatError(error.message, {
-      code: ChatErrorCode.RATE_LIMIT,
+      code: ErrorCode.RATE_LIMIT,
       retryable: true,
       retryAfter: retryAfterSeconds != null ? retryAfterSeconds * 1000 : undefined,
       cause: error,
@@ -215,7 +192,7 @@ function classifyByStatusCode(status: number, error: Error): ChatError {
   }
   if (status >= 500) {
     return new ChatError(error.message, {
-      code: ChatErrorCode.PROVIDER_ERROR,
+      code: ErrorCode.PROVIDER_ERROR,
       retryable: true,
       cause: error,
     });
@@ -223,13 +200,13 @@ function classifyByStatusCode(status: number, error: Error): ChatError {
   // 4xx other than auth/rate-limit → invalid input
   if (status >= 400 && status < 500) {
     return new ChatError(error.message, {
-      code: ChatErrorCode.INVALID_INPUT,
+      code: ErrorCode.INVALID_INPUT,
       retryable: false,
       cause: error,
     });
   }
   return new ChatError(error.message, {
-    code: ChatErrorCode.NETWORK,
+    code: ErrorCode.NETWORK,
     retryable: true,
     cause: error,
   });
@@ -291,7 +268,7 @@ export class ExponentialBackoffStrategy implements RetryStrategy {
     if (!error.retryable) return null;
 
     // Rate-limit errors with retryAfter (already in ms) take priority
-    if (error.code === ChatErrorCode.RATE_LIMIT && error.retryAfter) {
+    if (error.code === ErrorCode.RATE_LIMIT && error.retryAfter) {
       return error.retryAfter;
     }
 
@@ -370,7 +347,7 @@ export function isRetryable(error: unknown): boolean {
 function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     if (signal?.aborted) {
-      reject(new ChatError("Retry aborted", { code: ChatErrorCode.ABORTED }));
+      reject(new ChatError("Retry aborted", { code: ErrorCode.ABORTED }));
       return;
     }
 
@@ -380,7 +357,7 @@ function sleep(ms: number, signal?: AbortSignal): Promise<void> {
       "abort",
       () => {
         clearTimeout(timer);
-        reject(new ChatError("Retry aborted", { code: ChatErrorCode.ABORTED }));
+        reject(new ChatError("Retry aborted", { code: ErrorCode.ABORTED }));
       },
       { once: true },
     );

@@ -10,15 +10,15 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useRemoteChat } from "../../../src/chat/react/useRemoteChat.js";
 import type { UseRemoteChatOptions } from "../../../src/chat/react/useRemoteChat.js";
-import { RemoteChatRuntime } from "../../../src/chat/react/RemoteChatRuntime.js";
+import { RemoteChatClient } from "../../../src/chat/react/RemoteChatClient.js";
 
-// Intercept RemoteChatRuntime constructor
+// Intercept RemoteChatClient constructor
 const mockCreateSession = vi.fn();
-vi.mock("../../../src/chat/react/RemoteChatRuntime.js", () => ({
-  RemoteChatRuntime: vi.fn(),
+vi.mock("../../../src/chat/react/RemoteChatClient.js", () => ({
+  RemoteChatClient: vi.fn(),
 }));
 
-const MockedRuntime = vi.mocked(RemoteChatRuntime);
+const MockedRuntime = vi.mocked(RemoteChatClient);
 
 function makeMockRuntimeInstance() {
   return {
@@ -27,19 +27,20 @@ function makeMockRuntimeInstance() {
     send: vi.fn(),
     abort: vi.fn(),
     listModels: vi.fn().mockResolvedValue([]),
-    switchBackend: vi.fn(),
-    switchModel: vi.fn(),
     getSession: vi.fn(),
     listSessions: vi.fn().mockResolvedValue([]),
     deleteSession: vi.fn(),
-    archiveSession: vi.fn(),
     switchSession: vi.fn(),
-    registerTool: vi.fn(),
-    removeTool: vi.fn(),
-    use: vi.fn(),
-    getContextStats: vi.fn().mockReturnValue(null),
+    listProviders: vi.fn().mockResolvedValue([]),
+    createProvider: vi.fn(),
+    updateProvider: vi.fn(),
+    deleteProvider: vi.fn(),
+    selectProvider: vi.fn(),
+    selectedProviderId: null,
+    onSelectionChange: vi.fn().mockReturnValue(() => {}),
+    listBackends: vi.fn().mockResolvedValue([]),
     status: "idle",
-  } as unknown as RemoteChatRuntime;
+  } as unknown as RemoteChatClient;
 }
 
 function createMockFetch(responses: Record<string, unknown>) {
@@ -106,24 +107,6 @@ describe("useRemoteChat", () => {
     expect(result.current.phase).toBe("ready");
     expect(result.current.runtime).not.toBeNull();
     expect(result.current.sessionId).toBe("session-1");
-  });
-
-  it("skips auto-restore when autoRestore=false", async () => {
-    const fetchSpy = createMockFetch({ "/tokens/saved": { saved: [] } });
-    const opts: UseRemoteChatOptions = {
-      ...defaultOptions,
-      autoRestore: false,
-      fetch: fetchSpy as unknown as typeof globalThis.fetch,
-    };
-
-    const { result } = renderHook(() => useRemoteChat(opts));
-
-    await act(async () => {
-      await new Promise(r => setTimeout(r, 50));
-    });
-
-    expect(result.current.phase).toBe("initializing");
-    expect(fetchSpy).not.toHaveBeenCalled();
   });
 
   it("handles runtime creation failure", async () => {

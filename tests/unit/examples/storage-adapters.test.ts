@@ -3,7 +3,7 @@
  *
  * Both adapters run against in-memory SQLite — no external DB needed.
  * Tests verify the full IChatSessionStore contract: CRUD, pagination,
- * search, archive, error handling.
+ * search, error handling.
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
@@ -13,6 +13,7 @@ import { SQLiteSessionStore } from "../../../examples/sqlite-storage/sqlite-sess
 import { DrizzleSessionStore } from "../../../examples/drizzle-storage/drizzle-session-store.js";
 import type { IChatSessionStore } from "../../../src/chat/sessions.js";
 import type { ChatMessage, ChatId } from "../../../src/chat/core.js";
+import { ErrorCode } from "../../../src/types/errors.js";
 import { createChatId } from "../../../src/chat/core.js";
 
 
@@ -97,7 +98,7 @@ function sessionStoreTests(name: string, factory: () => IChatSessionStore) {
 
     it("should throw NOT_FOUND when updating title of non-existent session", async () => {
       await expect(store.updateTitle(createChatId(), "X"))
-        .rejects.toMatchObject({ code: "NOT_FOUND" });
+        .rejects.toMatchObject({ code: ErrorCode.STORAGE_NOT_FOUND });
     });
 
     it("should update session config", async () => {
@@ -117,7 +118,7 @@ function sessionStoreTests(name: string, factory: () => IChatSessionStore) {
 
     it("should throw NOT_FOUND when deleting non-existent session", async () => {
       await expect(store.deleteSession(createChatId()))
-        .rejects.toMatchObject({ code: "NOT_FOUND" });
+        .rejects.toMatchObject({ code: ErrorCode.STORAGE_NOT_FOUND });
     });
 
     // ── Messages ──────────────────────────────────────────────
@@ -209,12 +210,12 @@ function sessionStoreTests(name: string, factory: () => IChatSessionStore) {
 
     it("should throw NOT_FOUND when appending to non-existent session", async () => {
       await expect(store.appendMessage(createChatId(), makeMessage()))
-        .rejects.toMatchObject({ code: "NOT_FOUND" });
+        .rejects.toMatchObject({ code: ErrorCode.STORAGE_NOT_FOUND });
     });
 
     it("should throw NOT_FOUND when loading messages from non-existent session", async () => {
       await expect(store.loadMessages(createChatId()))
-        .rejects.toMatchObject({ code: "NOT_FOUND" });
+        .rejects.toMatchObject({ code: ErrorCode.STORAGE_NOT_FOUND });
     });
 
     it("should update message count after append", async () => {
@@ -224,26 +225,6 @@ function sessionStoreTests(name: string, factory: () => IChatSessionStore) {
 
       const updated = await store.getSession(session.id);
       expect(updated!.metadata.messageCount).toBe(2);
-    });
-
-    // ── Archive ───────────────────────────────────────────────
-
-    it("should archive and unarchive session", async () => {
-      const session = await store.createSession({});
-      expect(session.status).toBe("active");
-
-      await store.archiveSession(session.id);
-      const archived = await store.getSession(session.id);
-      expect(archived!.status).toBe("archived");
-
-      await store.unarchiveSession(session.id);
-      const active = await store.getSession(session.id);
-      expect(active!.status).toBe("active");
-    });
-
-    it("should throw NOT_FOUND when archiving non-existent session", async () => {
-      await expect(store.archiveSession(createChatId()))
-        .rejects.toMatchObject({ code: "NOT_FOUND" });
     });
 
     // ── Search ────────────────────────────────────────────────
@@ -301,21 +282,6 @@ function sessionStoreTests(name: string, factory: () => IChatSessionStore) {
       expect(loaded!.messages).toHaveLength(2);
     });
 
-    // ── Deprecated aliases ────────────────────────────────────
-
-    it("should support deprecated addMessage alias", async () => {
-      const session = await store.createSession({});
-      await store.addMessage(session.id, makeMessage());
-      const page = await store.loadMessages(session.id);
-      expect(page.messages).toHaveLength(1);
-    });
-
-    it("should support deprecated getMessages alias", async () => {
-      const session = await store.createSession({});
-      await store.appendMessage(session.id, makeMessage());
-      const page = await store.getMessages(session.id);
-      expect(page.messages).toHaveLength(1);
-    });
   });
 }
 

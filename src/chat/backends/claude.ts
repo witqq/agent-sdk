@@ -11,7 +11,7 @@ import type {
   SendMessageOptions,
 } from "../core.js";
 import { toAgentMessage } from "../core.js";
-import { ChatError, ChatErrorCode } from "../errors.js";
+import { ChatError, ErrorCode } from "../errors.js";
 import type {
   IAgent,
   IAgentService,
@@ -19,7 +19,7 @@ import type {
   Message,
 } from "../../types.js";
 import { BaseBackendAdapter } from "./base.js";
-import type { BackendAdapterOptions } from "./types.js";
+import type { BackendAdapterOptions, IResumableBackend } from "./types.js";
 
 // ─── Claude-Specific Options ──────────────────────────────────
 
@@ -35,7 +35,7 @@ export interface ClaudeChatAdapterOptions extends BackendAdapterOptions {
  * Backend adapter for Claude CLI.
  * Uses persistent session mode for session resume via Claude's session_id.
  */
-export class ClaudeChatAdapter extends BaseBackendAdapter {
+export class ClaudeChatAdapter extends BaseBackendAdapter implements IResumableBackend {
   private _backendSessionId: string | null = null;
   private readonly _claudeOptions?: ClaudeBackendOptions;
 
@@ -50,10 +50,10 @@ export class ClaudeChatAdapter extends BaseBackendAdapter {
   }
 
   protected createService(): IAgentService {
-    // Lazy import to avoid requiring @anthropic-ai/claude-agent-sdk at load time
+    // Use synchronous factory directly (not the async registry createAgentService)
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { createAgentService } = require("../../index.js");
-    return createAgentService("claude", this._claudeOptions);
+    const { createClaudeService } = require("../../backends/claude.js");
+    return createClaudeService(this._claudeOptions || {});
   }
 
   get backendSessionId(): string | null {
@@ -73,7 +73,7 @@ export class ClaudeChatAdapter extends BaseBackendAdapter {
 
     if (!backendSessionId) {
       throw new ChatError("Backend session ID is required for resume", {
-        code: ChatErrorCode.INVALID_INPUT,
+        code: ErrorCode.INVALID_INPUT,
       });
     }
 
@@ -84,7 +84,7 @@ export class ClaudeChatAdapter extends BaseBackendAdapter {
     if (!currentSessionId) {
       throw new ChatError(
         `No active session to resume (requested: ${backendSessionId})`,
-        { code: ChatErrorCode.SESSION_NOT_FOUND },
+        { code: ErrorCode.SESSION_NOT_FOUND },
       );
     }
 
@@ -92,7 +92,7 @@ export class ClaudeChatAdapter extends BaseBackendAdapter {
     if (currentSessionId !== backendSessionId) {
       throw new ChatError(
         `Session expired: expected ${backendSessionId}, got ${currentSessionId}`,
-        { code: ChatErrorCode.SESSION_EXPIRED },
+        { code: ErrorCode.SESSION_EXPIRED },
       );
     }
 

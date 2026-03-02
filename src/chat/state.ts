@@ -6,7 +6,7 @@
  */
 
 import type { RuntimeStatus, MessageStatus, ToolCallStatus } from "./core.js";
-import { ChatError, ChatErrorCode } from "./errors.js";
+import { ChatError, ErrorCode } from "./errors.js";
 
 // ─── Generic State Machine ─────────────────────────────────────
 
@@ -51,7 +51,7 @@ export class StateMachine<S extends string> {
     if (!this.canTransition(next)) {
       throw new ChatError(
         `Invalid transition: ${this._current} → ${next}`,
-        { code: ChatErrorCode.INVALID_TRANSITION },
+        { code: ErrorCode.INVALID_TRANSITION },
       );
     }
     this._current = next;
@@ -132,7 +132,7 @@ export class ChatReentrancyGuard {
     if (this._acquired) {
       throw new ChatError(
         "Concurrent operation detected: a send is already in progress",
-        { code: ChatErrorCode.REENTRANCY },
+        { code: ErrorCode.REENTRANCY },
       );
     }
     this._acquired = true;

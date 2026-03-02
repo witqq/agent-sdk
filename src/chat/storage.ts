@@ -9,6 +9,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { AgentSDKError } from "../errors.js";
+import { ErrorCode } from "../types/errors.js";
 
 // ─── Storage Errors ────────────────────────────────────────────
 
@@ -20,14 +21,14 @@ import { AgentSDKError } from "../errors.js";
  * try {
  *   await store.get("missing-id");
  * } catch (e) {
- *   if (e instanceof StorageError && e.code === "NOT_FOUND") {
+ *   if (e instanceof StorageError && e.code === ErrorCode.STORAGE_NOT_FOUND) {
  *     // handle missing item
  *   }
  * }
  * ```
  */
 export class StorageError extends AgentSDKError {
-  /** Machine-readable error code */
+  /** Machine-readable error code from the unified ErrorCode enum */
   readonly code: StorageErrorCode;
 
   constructor(message: string, code: StorageErrorCode) {
@@ -37,12 +38,12 @@ export class StorageError extends AgentSDKError {
   }
 }
 
-/** Possible storage error codes */
+/** Storage-specific subset of ErrorCode */
 export type StorageErrorCode =
-  | "NOT_FOUND"
-  | "DUPLICATE_KEY"
-  | "IO_ERROR"
-  | "SERIALIZATION_ERROR";
+  | ErrorCode.STORAGE_NOT_FOUND
+  | ErrorCode.STORAGE_DUPLICATE_KEY
+  | ErrorCode.STORAGE_IO_ERROR
+  | ErrorCode.STORAGE_SERIALIZATION_ERROR;
 
 // ─── Storage Adapter Interface ─────────────────────────────────
 
@@ -127,6 +128,12 @@ export interface IStorageAdapter<T> {
    * Remove all items from storage.
    */
   clear(): Promise<void>;
+
+  /**
+   * Release any resources held by this adapter (DB connections, file handles).
+   * Optional — adapters that don't hold resources need not implement this.
+   */
+  dispose?(): Promise<void>;
 }
 
 // ─── InMemoryStorage ───────────────────────────────────────────
@@ -181,7 +188,7 @@ export class InMemoryStorage<T> implements IStorageAdapter<T> {
     if (this.data.has(key)) {
       throw new StorageError(
         `Item with key "${key}" already exists`,
-        "DUPLICATE_KEY",
+        ErrorCode.STORAGE_DUPLICATE_KEY,
       );
     }
     this.data.set(key, structuredClone(item));
@@ -192,7 +199,7 @@ export class InMemoryStorage<T> implements IStorageAdapter<T> {
     if (!this.data.has(key)) {
       throw new StorageError(
         `Item with key "${key}" not found`,
-        "NOT_FOUND",
+        ErrorCode.STORAGE_NOT_FOUND,
       );
     }
     this.data.set(key, structuredClone(item));
@@ -203,7 +210,7 @@ export class InMemoryStorage<T> implements IStorageAdapter<T> {
     if (!this.data.has(key)) {
       throw new StorageError(
         `Item with key "${key}" not found`,
-        "NOT_FOUND",
+        ErrorCode.STORAGE_NOT_FOUND,
       );
     }
     this.data.delete(key);
@@ -306,7 +313,7 @@ export class FileStorage<T> implements IStorageAdapter<T> {
     if (existsSync(filePath)) {
       throw new StorageError(
         `Item with key "${key}" already exists`,
-        "DUPLICATE_KEY",
+        ErrorCode.STORAGE_DUPLICATE_KEY,
       );
     }
     this.writeFile(filePath, item);
@@ -318,7 +325,7 @@ export class FileStorage<T> implements IStorageAdapter<T> {
     if (!existsSync(filePath)) {
       throw new StorageError(
         `Item with key "${key}" not found`,
-        "NOT_FOUND",
+        ErrorCode.STORAGE_NOT_FOUND,
       );
     }
     this.writeFile(filePath, item);
@@ -330,7 +337,7 @@ export class FileStorage<T> implements IStorageAdapter<T> {
     if (!existsSync(filePath)) {
       throw new StorageError(
         `Item with key "${key}" not found`,
-        "NOT_FOUND",
+        ErrorCode.STORAGE_NOT_FOUND,
       );
     }
     unlinkSync(filePath);
@@ -381,12 +388,12 @@ export class FileStorage<T> implements IStorageAdapter<T> {
       if (error instanceof SyntaxError) {
         throw new StorageError(
           `Failed to parse file: ${filePath}`,
-          "SERIALIZATION_ERROR",
+          ErrorCode.STORAGE_SERIALIZATION_ERROR,
         );
       }
       throw new StorageError(
         `Failed to read file: ${filePath}`,
-        "IO_ERROR",
+        ErrorCode.STORAGE_IO_ERROR,
       );
     }
   }
@@ -398,7 +405,7 @@ export class FileStorage<T> implements IStorageAdapter<T> {
     } catch {
       throw new StorageError(
         `Failed to write file: ${filePath}`,
-        "IO_ERROR",
+        ErrorCode.STORAGE_IO_ERROR,
       );
     }
   }

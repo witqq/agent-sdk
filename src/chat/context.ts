@@ -147,9 +147,13 @@ export interface ContextWindowResult {
 /**
  * Context usage statistics for a session.
  * Returned by `IChatRuntime.getContextStats()`.
+ *
+ * When real usage data is available (after the first API response),
+ * `realPromptTokens` and `realCompletionTokens` contain actual token counts.
+ * `modelContextWindow` is the model's context window from `listModels()`.
  */
 export interface ContextStats {
-  /** Estimated total tokens in the trimmed context */
+  /** Estimated total tokens in the trimmed context (heuristic, kept for backward compat) */
   totalTokens: number;
   /** Number of messages removed by trimming */
   removedCount: number;
@@ -157,6 +161,12 @@ export interface ContextStats {
   wasTruncated: boolean;
   /** Available token budget (maxTokens − reservedTokens) */
   availableBudget: number;
+  /** Real prompt tokens from the last API response (undefined before first response) */
+  realPromptTokens?: number;
+  /** Real completion tokens from the last API response (undefined before first response) */
+  realCompletionTokens?: number;
+  /** Model's context window in tokens from listModels() (undefined if not available) */
+  modelContextWindow?: number;
 }
 
 // ─── Context Window Manager ────────────────────────────────────
@@ -289,6 +299,78 @@ export class ContextWindowManager {
     });
 
     return { ...result, messages: updatedMessages };
+  }
+
+  /**
+   * Trim messages using real token usage data from the previous API call.
+   * Uses average-based algorithm: `avgTokensPerMessage = lastPromptTokens / messageCount`.
+   * Removes oldest non-system messages until freed budget brings usage under modelContextWindow.
+   *
+   * @param messages - All messages in the session
+   * @param lastPromptTokens - Real prompt tokens from the last API response
+   * @param modelContextWindow - Model's total context window size in tokens
+   * @returns Result with fitted messages and metadata
+   */
+  fitMessagesWithUsage(
+    messages: readonly ChatMessage[],
+    lastPromptTokens: number,
+    modelContextWindow: number,
+  ): ContextWindowResult {
+    if (messages.length === 0) {
+      return { messages: [], totalTokens: 0, removedCount: 0, wasTruncated: false };
+    }
+
+    const budget = modelContextWindow - this.config.reservedTokens;
+    if (budget <= 0 || lastPromptTokens <= budget) {
+      return {
+        messages: [...messages],
+        totalTokens: lastPromptTokens,
+        removedCount: 0,
+        wasTruncated: false,
+      };
+    }
+
+    // Average tokens per message from real data
+    const avgTokensPerMessage = lastPromptTokens / messages.length;
+
+    // How many tokens we need to free
+    const tokensToFree = lastPromptTokens - budget;
+    // How many messages to remove (ceil to be safe)
+    const messagesToRemove = Math.ceil(tokensToFree / avgTokensPerMessage);
+
+    // Separate system and non-system messages
+    const systemIndices: number[] = [];
+    const nonSystemIndices: number[] = [];
+    for (let i = 0; i < messages.length; i++) {
+      if (messages[i].role === "system") {
+        systemIndices.push(i);
+      } else {
+        nonSystemIndices.push(i);
+      }
+    }
+
+    // Remove oldest non-system messages (from the beginning of conversation)
+    const removableCount = Math.min(messagesToRemove, nonSystemIndices.length);
+    const removedIndices = new Set(nonSystemIndices.slice(0, removableCount));
+
+    const result: ChatMessage[] = [];
+    for (let i = 0; i < messages.length; i++) {
+      if (!removedIndices.has(i)) {
+        result.push(messages[i]);
+      }
+    }
+
+    // Estimate new total: proportional reduction
+    const estimatedTokens = Math.round(
+      lastPromptTokens * (result.length / messages.length),
+    );
+
+    return {
+      messages: result,
+      totalTokens: estimatedTokens,
+      removedCount: removableCount,
+      wasTruncated: removableCount > 0,
+    };
   }
 
   /**

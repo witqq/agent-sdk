@@ -109,6 +109,9 @@ function createWritableResponse(): { res: WritableResponse; getResponse: () => R
         streamController.close();
       }
     },
+    get writableEnded() {
+      return endCalled;
+    },
   };
 
   function getResponse(): Response {

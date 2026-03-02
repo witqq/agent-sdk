@@ -3,6 +3,7 @@ import {
   AuthError,
   DeviceCodeExpiredError,
   AccessDeniedError,
+  TokenExchangeError,
 } from "./types.js";
 
 const CLIENT_ID = "Ov23ctDVkRmgkPke0Mmm";
@@ -24,6 +25,8 @@ interface TokenPollResponse {
   access_token?: string;
   token_type?: string;
   scope?: string;
+  refresh_token?: string;
+  expires_in?: number;
   error?: string;
   error_description?: string;
   interval?: number;
@@ -152,6 +155,13 @@ export class CopilotAuth {
           obtainedAt: Date.now(),
         };
 
+        if (data.refresh_token) {
+          token.refreshToken = data.refresh_token;
+        }
+        if (data.expires_in) {
+          token.expiresIn = data.expires_in;
+        }
+
         // Try to fetch user login
         try {
           const login = await this.fetchUserLogin(data.access_token, signal);
@@ -202,6 +212,73 @@ export class CopilotAuth {
 
     const user = (await response.json()) as GitHubUser;
     return user.login;
+  }
+
+  /**
+   * Refresh an expired Copilot token using a refresh token.
+   * Only works for GitHub App tokens that include a refresh_token.
+   *
+   * @param refreshToken - The refresh token from the original auth flow
+   * @param signal - Optional abort signal
+   * @returns Fresh CopilotAuthToken with new access and refresh tokens
+   * @throws {TokenExchangeError} If the refresh request fails
+   *
+   * @example
+   * ```ts
+   * const auth = new CopilotAuth();
+   * const newToken = await auth.refreshToken(oldToken.refreshToken!);
+   * ```
+   */
+  async refreshToken(
+    refreshToken: string,
+    signal?: AbortSignal,
+  ): Promise<CopilotAuthToken> {
+    const response = await this.fetchFn(ACCESS_TOKEN_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
+      body: new URLSearchParams({
+        client_id: CLIENT_ID,
+        grant_type: "refresh_token",
+        refresh_token: refreshToken,
+      }),
+      signal,
+    });
+
+    if (!response.ok) {
+      throw new TokenExchangeError(
+        `Token refresh failed: ${response.status} ${response.statusText}`,
+      );
+    }
+
+    const data = (await response.json()) as TokenPollResponse;
+
+    if (data.error) {
+      throw new TokenExchangeError(
+        data.error_description ?? `Token refresh error: ${data.error}`,
+      );
+    }
+
+    if (!data.access_token) {
+      throw new TokenExchangeError("Token refresh response missing access_token");
+    }
+
+    const token: CopilotAuthToken = {
+      accessToken: data.access_token,
+      tokenType: data.token_type ?? "bearer",
+      obtainedAt: Date.now(),
+    };
+
+    if (data.refresh_token) {
+      token.refreshToken = data.refresh_token;
+    }
+    if (data.expires_in) {
+      token.expiresIn = data.expires_in;
+    }
+
+    return token;
   }
 
   private delay(ms: number, signal?: AbortSignal): Promise<void> {

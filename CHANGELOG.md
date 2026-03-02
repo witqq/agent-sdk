@@ -2,6 +2,14 @@
 
 ## [0.8.0]
 
+### Step 20: Demo Actualization & Documentation
+
+- **Demo server rewrite** — replaced manual `agentServices` Map and `ensureService()` with `ServiceManager` auto-wired via `createChatServer`. Server reduced from 134 to ~80 lines.
+- **ServiceManager integration** — demo now uses zero manual service management; `onAuth`/`onLogout` automatically handled.
+- **Tools via runtime** — moved tool registration from per-backend to `createChatRuntime({ tools })`.
+- **Documentation updates** — `RemoteChatRuntime` → `RemoteChatClient` rename across all docs, removed broken links, updated composable architecture examples in README.
+- **DEMO-ISSUES.md** — 9/10 issues resolved, 1 partially resolved.
+
 ### New Features
 
 - **WebSocket transport** — `WsChatTransport` implementing `IChatTransport` with heartbeat, reconnection, and binary frame support

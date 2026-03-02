@@ -8,11 +8,13 @@ import { renderHook } from "@testing-library/react";
 import { ThreadList } from "../../../src/chat/react/ThreadList.js";
 import { useSSE } from "../../../src/chat/react/useSSE.js";
 import { useModels } from "../../../src/chat/react/useModels.js";
+import type { ModelOption } from "../../../src/chat/react/useModels.js";
 import { ModelSelector } from "../../../src/chat/react/ModelSelector.js";
+import { BackendSelector } from "../../../src/chat/react/BackendSelector.js";
 import { ChatProvider } from "../../../src/chat/react/ChatProvider.js";
 import type { IChatRuntime } from "../../../src/chat/runtime.js";
 import type { SessionInfo, ChatId } from "../../../src/chat/core.js";
-import type { ModelInfo } from "../../../src/chat/react/useModels.js";
+import type { ModelOption } from "../../../src/chat/react/useModels.js";
 
 // ─── Helpers ──────────────────────────────────────────────────
 
@@ -47,7 +49,6 @@ function createMockRuntime(overrides: Partial<IChatRuntime> = {}): IChatRuntime 
     getSession: vi.fn(async () => null),
     listSessions: vi.fn(async () => []),
     deleteSession: vi.fn(async () => {}),
-    archiveSession: vi.fn(async () => {}),
     switchSession: vi.fn(async () => ({
       id: "s1" as unknown as ChatId,
       title: "",
@@ -60,7 +61,6 @@ function createMockRuntime(overrides: Partial<IChatRuntime> = {}): IChatRuntime 
     })),
     registerTool: vi.fn(),
     removeTool: vi.fn(),
-    switchBackend: vi.fn(),
     switchModel: vi.fn(),
     listModels: vi.fn(async () => []),
     use: vi.fn(),
@@ -160,6 +160,42 @@ describe("ThreadList", () => {
     );
     const items = container.querySelectorAll("[data-session-item]");
     expect(items).toHaveLength(2);
+  });
+
+  it("renders data-thread-list-header with search and create button", () => {
+    const onCreate = vi.fn();
+    const { container } = render(
+      createElement(ThreadList, { sessions: [], onSelect: vi.fn(), onCreate }),
+    );
+    const header = container.querySelector("[data-thread-list-header]");
+    expect(header).not.toBeNull();
+    expect(header!.querySelector("[data-thread-list-search]")).not.toBeNull();
+    expect(header!.querySelector("[data-action='create-session']")).not.toBeNull();
+  });
+
+  it("renders data-session-title for each session", () => {
+    const sessions = [
+      createMockSession({ id: "s1" as unknown as ChatId, title: "My Chat" }),
+    ];
+    const { container } = render(
+      createElement(ThreadList, { sessions, onSelect: vi.fn() }),
+    );
+    const titleEl = container.querySelector("[data-session-title]");
+    expect(titleEl).not.toBeNull();
+    expect(titleEl!.textContent).toBe("My Chat");
+  });
+
+  it("renders data-session-time with relative timestamp", () => {
+    const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    const sessions = [
+      createMockSession({ id: "s1" as unknown as ChatId, updatedAt: fiveMinAgo }),
+    ];
+    const { container } = render(
+      createElement(ThreadList, { sessions, onSelect: vi.fn() }),
+    );
+    const timeEl = container.querySelector("[data-session-time]");
+    expect(timeEl).not.toBeNull();
+    expect(timeEl!.textContent).toBe("5m");
   });
 });
 
@@ -502,7 +538,7 @@ describe("useModels", () => {
 // ─── ModelSelector ────────────────────────────────────────────
 
 describe("ModelSelector", () => {
-  const testModels: ModelInfo[] = [
+  const testModels: ModelOption[] = [
     { id: "gpt-4", name: "GPT-4", tier: "premium" },
     { id: "gpt-3.5", name: "GPT-3.5 Turbo", tier: "standard" },
     { id: "claude-3", name: "Claude 3 Sonnet", tier: "premium" },
@@ -639,6 +675,120 @@ describe("ModelSelector", () => {
     const options = container.querySelectorAll("[data-model-option]");
     expect(options).toHaveLength(2);
   });
+
+  it("renders free-text input when models list is empty", () => {
+    const onSelect = vi.fn();
+    const { container } = render(
+      createElement(ModelSelector, {
+        models: [],
+        onSelect,
+      }),
+    );
+
+    expect(container.querySelector("[data-model-selector-freetext]")).not.toBeNull();
+    expect(container.querySelector("[data-model-input]")).not.toBeNull();
+    expect(container.querySelector("[data-action='apply-model']")).not.toBeNull();
+    // No trigger or dropdown
+    expect(container.querySelector("[data-model-selector-trigger]")).toBeNull();
+  });
+
+  it("free-text input calls onSelect on Apply click", () => {
+    const onSelect = vi.fn();
+    const { container } = render(
+      createElement(ModelSelector, {
+        models: [],
+        onSelect,
+      }),
+    );
+
+    const input = container.querySelector("[data-model-input]") as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "gpt-5-turbo" } });
+
+    const apply = container.querySelector("[data-action='apply-model']")!;
+    fireEvent.click(apply);
+
+    expect(onSelect).toHaveBeenCalledWith("gpt-5-turbo");
+  });
+
+  it("free-text input calls onSelect on Enter", () => {
+    const onSelect = vi.fn();
+    const { container } = render(
+      createElement(ModelSelector, {
+        models: [],
+        onSelect,
+      }),
+    );
+
+    const input = container.querySelector("[data-model-input]") as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "claude-3" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    expect(onSelect).toHaveBeenCalledWith("claude-3");
+  });
+
+  it("free-text does not call onSelect with empty value", () => {
+    const onSelect = vi.fn();
+    const { container } = render(
+      createElement(ModelSelector, {
+        models: [],
+        onSelect,
+      }),
+    );
+
+    const apply = container.querySelector("[data-action='apply-model']")!;
+    fireEvent.click(apply);
+
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it("disables free-text when allowFreeText=false", () => {
+    const { container } = render(
+      createElement(ModelSelector, {
+        models: [],
+        onSelect: vi.fn(),
+        allowFreeText: false,
+      }),
+    );
+
+    expect(container.querySelector("[data-model-selector-freetext]")).toBeNull();
+    // Should render normal trigger with placeholder
+    expect(container.querySelector("[data-model-selector-trigger]")).not.toBeNull();
+  });
+
+  it("shows provider context when multiple providers present", () => {
+    const models: ModelOption[] = [
+      { id: "gpt-5", name: "GPT-5", provider: "copilot" },
+      { id: "claude-4", name: "Claude 4", provider: "claude" },
+    ];
+    const { container } = render(
+      createElement(ModelSelector, { models, onSelect: vi.fn() }),
+    );
+    // Open dropdown
+    const trigger = container.querySelector("[data-model-selector-trigger]")!;
+    fireEvent.click(trigger);
+
+    const options = container.querySelectorAll("[data-model-option]");
+    expect(options[0].getAttribute("data-model-provider")).toBe("copilot");
+    expect(options[0].textContent).toContain("(copilot)");
+    expect(options[1].getAttribute("data-model-provider")).toBe("claude");
+    expect(options[1].textContent).toContain("(claude)");
+  });
+
+  it("hides provider context when single provider", () => {
+    const models: ModelOption[] = [
+      { id: "gpt-5", name: "GPT-5", provider: "copilot" },
+      { id: "gpt-4", name: "GPT-4", provider: "copilot" },
+    ];
+    const { container } = render(
+      createElement(ModelSelector, { models, onSelect: vi.fn() }),
+    );
+    const trigger = container.querySelector("[data-model-selector-trigger]")!;
+    fireEvent.click(trigger);
+
+    const options = container.querySelectorAll("[data-model-option]");
+    expect(options[0].getAttribute("data-model-provider")).toBeNull();
+    expect(options[0].textContent).toBe("GPT-5");
+  });
 });
 
 // ─── ThreadList with ChatSession[] ──────────────────────────
@@ -693,3 +843,124 @@ describe("ThreadList with ChatSession objects", () => {
     expect(container.querySelectorAll("[data-session-item]")).toHaveLength(2);
   });
 });
+
+// ─── BackendSelector ────────────────────────────────────────────
+
+describe("BackendSelector", () => {
+  const testBackends = [
+    { name: "copilot" },
+    { name: "claude" },
+    { name: "openai" },
+  ];
+
+  it("renders all backends with data attributes", () => {
+    const { container } = render(
+      createElement(BackendSelector, {
+        backends: testBackends,
+        onSelect: vi.fn(),
+      }),
+    );
+
+    expect(container.querySelector("[data-backend-selector]")).not.toBeNull();
+    const items = container.querySelectorAll("[data-backend-item]");
+    expect(items).toHaveLength(3);
+  });
+
+  it("calls onSelect when backend clicked", () => {
+    const onSelect = vi.fn();
+    const { container } = render(
+      createElement(BackendSelector, {
+        backends: testBackends,
+        onSelect,
+      }),
+    );
+
+    const claudeBtn = container.querySelector('[data-backend-name="claude"]')!;
+    fireEvent.click(claudeBtn);
+
+    expect(onSelect).toHaveBeenCalledWith("claude");
+  });
+
+  it("renders backend names as button text", () => {
+    const { container } = render(
+      createElement(BackendSelector, {
+        backends: testBackends,
+        onSelect: vi.fn(),
+      }),
+    );
+
+    const items = container.querySelectorAll("[data-backend-item]");
+    const names = Array.from(items).map((i) => i.textContent);
+    expect(names).toEqual(["copilot", "claude", "openai"]);
+  });
+
+  it("renders empty when no backends", () => {
+    const { container } = render(
+      createElement(BackendSelector, {
+        backends: [],
+        onSelect: vi.fn(),
+      }),
+    );
+
+    expect(container.querySelector("[data-backend-selector]")).not.toBeNull();
+    expect(container.querySelectorAll("[data-backend-item]")).toHaveLength(0);
+  });
+});
+
+// ─── ContextStatsDisplay ──────────────────────────────────────
+
+import { ContextStatsDisplay } from "../../../src/chat/react/ContextStatsDisplay.js";
+
+describe("ContextStatsDisplay", () => {
+  it("renders null when stats is null", () => {
+    const { container } = render(createElement(ContextStatsDisplay, { stats: null }));
+    expect(container.querySelector("[data-context-stats]")).toBeNull();
+  });
+
+  it("renders null when real data is not available", () => {
+    const stats = { totalTokens: 500, availableBudget: 3500, removedCount: 0, wasTruncated: false };
+    const { container } = render(createElement(ContextStatsDisplay, { stats }));
+    expect(container.querySelector("[data-context-stats]")).toBeNull();
+  });
+
+  it("renders real token count and budget", () => {
+    const stats = {
+      totalTokens: 500, availableBudget: 3500, removedCount: 0, wasTruncated: false,
+      realPromptTokens: 500, realCompletionTokens: 100, modelContextWindow: 4000,
+    };
+    const { container } = render(createElement(ContextStatsDisplay, { stats }));
+    expect(container.querySelector("[data-context-stats]")).not.toBeNull();
+    expect(container.querySelector("[data-context-tokens]")?.textContent).toContain("500 tokens");
+    expect(container.querySelector("[data-context-budget]")?.textContent).toContain("3.5k available");
+  });
+
+  it("shows truncation status", () => {
+    const stats = {
+      totalTokens: 3000, availableBudget: 1000, removedCount: 5, wasTruncated: true,
+      realPromptTokens: 3000, realCompletionTokens: 500, modelContextWindow: 4000,
+    };
+    const { container } = render(createElement(ContextStatsDisplay, { stats }));
+    expect(container.querySelector("[data-context-stats]")?.getAttribute("data-context-truncated")).toBe("true");
+    expect(container.querySelector("[data-context-removed]")?.textContent).toContain("5 trimmed");
+  });
+
+  it("hides removed count when zero", () => {
+    const stats = {
+      totalTokens: 100, availableBudget: 900, removedCount: 0, wasTruncated: false,
+      realPromptTokens: 100, realCompletionTokens: 50, modelContextWindow: 1000,
+    };
+    const { container } = render(createElement(ContextStatsDisplay, { stats }));
+    expect(container.querySelector("[data-context-removed]")).toBeNull();
+  });
+
+  it("shows usage percentage from real data", () => {
+    const stats = {
+      totalTokens: 750, availableBudget: 250, removedCount: 0, wasTruncated: false,
+      realPromptTokens: 3000, realCompletionTokens: 200, modelContextWindow: 4000,
+    };
+    const { container } = render(createElement(ContextStatsDisplay, { stats }));
+    expect(container.querySelector("[data-context-usage]")?.textContent).toBe("75%");
+  });
+});
+
+

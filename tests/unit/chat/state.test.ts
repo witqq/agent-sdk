@@ -10,7 +10,7 @@ import {
   ChatReentrancyGuard,
   ChatAbortController,
 } from "../../../src/chat/state.js";
-import { ChatError, ChatErrorCode } from "../../../src/chat/errors.js";
+import { ChatError, ErrorCode } from "../../../src/chat/errors.js";
 
 // ─── Generic StateMachine ──────────────────────────────────────
 
@@ -34,7 +34,7 @@ describe("StateMachine<S>", () => {
       sm.transition("a");
     } catch (e) {
       expect(e).toBeInstanceOf(ChatError);
-      expect((e as ChatError).code).toBe(ChatErrorCode.INVALID_TRANSITION);
+      expect((e as ChatError).code).toBe(ErrorCode.INVALID_TRANSITION);
       expect((e as ChatError).message).toContain("a → a");
     }
   });
@@ -280,13 +280,13 @@ describe("transition map exports", () => {
 
 // ─── Error codes exist ─────────────────────────────────────────
 
-describe("new ChatErrorCode values", () => {
+describe("new ErrorCode values", () => {
   it("INVALID_TRANSITION exists", () => {
-    expect(ChatErrorCode.INVALID_TRANSITION).toBe("INVALID_TRANSITION");
+    expect(ErrorCode.INVALID_TRANSITION).toBe("INVALID_TRANSITION");
   });
 
   it("REENTRANCY exists", () => {
-    expect(ChatErrorCode.REENTRANCY).toBe("REENTRANCY");
+    expect(ErrorCode.REENTRANCY).toBe("REENTRANCY");
   });
 });
 
@@ -312,7 +312,7 @@ describe("ChatReentrancyGuard", () => {
       guard.acquire();
     } catch (e) {
       expect(e).toBeInstanceOf(ChatError);
-      expect((e as ChatError).code).toBe(ChatErrorCode.REENTRANCY);
+      expect((e as ChatError).code).toBe(ErrorCode.REENTRANCY);
     }
   });
 

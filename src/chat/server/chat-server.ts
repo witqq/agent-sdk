@@ -11,22 +11,40 @@
  */
 
 import { createChatHandler } from "./handler.js";
-import type { ReadableRequest, WritableResponse, ChatHandlerOptions } from "./handler.js";
+import type { ReadableRequest, WritableResponse, ChatHandlerOptions, ChatServerHooks } from "./handler.js";
 import { createAuthHandler } from "./auth-handler.js";
 import type { AuthHandlerOptions } from "./auth-handler.js";
+import type { ProviderHandlerOptions } from "./provider-handler.js";
+import type { IProviderStore } from "./provider-store.js";
 import { corsMiddleware } from "./cors.js";
 import type { CorsOptions } from "./cors.js";
-import type { IChatRuntime } from "../runtime.js";
+import type { IChatRuntime, ChatRuntimeOptions } from "../runtime.js";
+import { createChatRuntime } from "../runtime.js";
+import { json } from "./utils.js";
+import type { ServiceManager } from "./service-manager.js";
 
 import * as fs from "node:fs";
 import * as path from "node:path";
 
 // ─── Options ───────────────────────────────────────────────────
 
+/**
+ * Configuration for auto-creating a ChatRuntime from options.
+ * Alternative to providing a pre-built IChatRuntime instance.
+ * Uses the same shape as ChatRuntimeOptions from the runtime module.
+ */
+export type ChatRuntimeConfig = ChatRuntimeOptions;
+
 /** Configuration for createChatServer */
 export interface ChatServerOptions {
-  /** The chat runtime instance to serve */
-  runtime: IChatRuntime;
+  /** Pre-built runtime instance. Either `runtime` or `runtimeConfig` must be provided. */
+  runtime?: IChatRuntime;
+
+  /** Config to auto-create a runtime. Used when `runtime` is not provided. */
+  runtimeConfig?: ChatRuntimeConfig;
+
+  /** Server-side hooks for customizing handler behavior. */
+  hooks?: ChatServerHooks;
 
   /** Prefix for chat API routes. Default: "/api/chat" */
   chatPrefix?: string;
@@ -46,11 +64,50 @@ export interface ChatServerOptions {
   /** Prefix for static file routes. Default: "/" */
   staticPrefix?: string;
 
+  /** Provider handler options. If provided, provider routes are mounted. */
+  providers?: ProviderHandlerOptions;
+
+  /** Prefix for provider routes. Default: "/api/providers" */
+  providerPrefix?: string;
+
   /** Chat handler options (maxBodySize, etc.) */
   chatHandlerOptions?: Omit<ChatHandlerOptions, "prefix">;
+
+  /**
+   * Path for the health check endpoint. Default: "/api/health".
+   * Set to `false` to disable. Returns `{ ok: true }`.
+   */
+  healthPath?: string | false;
+
+  /**
+   * Auto-create a default provider when a backend authenticates for the first time.
+   *
+   * - `true` — uses built-in default models per backend
+   * - `Record<string, string>` — custom backend→model mapping (e.g. `{ copilot: "gpt-5-mini" }`)
+   * - `false` / omitted — disabled
+   *
+   * Requires both `auth` and `providers` to be configured.
+   */
+  autoCreateProviders?: boolean | Record<string, string>;
+
+  /**
+   * Service lifecycle manager. When provided with `auth`, automatically wires:
+   * - `onAuth` → `serviceManager.handleAuth(backend, token)` (creates/caches service)
+   * - `onLogout` → `serviceManager.handleLogout()` (disposes all services)
+   *
+   * User's own `onAuth`/`onLogout` callbacks in `auth` are still called first.
+   */
+  serviceManager?: ServiceManager;
 }
 
 // ─── MIME Types ────────────────────────────────────────────────
+
+/** Default model per backend for auto-created providers */
+export const DEFAULT_PROVIDER_MODELS: Record<string, string> = {
+  copilot: "gpt-5-mini",
+  claude: "claude-sonnet-4-5-20250514",
+  "vercel-ai": "gpt-4.1-mini",
+};
 
 const MIME_TYPES: Record<string, string> = {
   ".html": "text/html",
@@ -97,18 +154,36 @@ export type RequestHandler = (req: ReadableRequest, res: WritableResponse) => Pr
  * ```
  */
 export function createChatServer(options: ChatServerOptions): RequestHandler {
+  // Resolve runtime: use provided instance or create from config
+  const runtime: IChatRuntime = options.runtime
+    ?? (options.runtimeConfig ? createChatRuntime(options.runtimeConfig) : (() => {
+      throw new Error("Either `runtime` or `runtimeConfig` must be provided to createChatServer");
+    })());
+
   const chatPrefix = options.chatPrefix ?? "/api/chat";
   const authPrefix = options.authPrefix ?? "/api/auth";
   const staticPrefix = options.staticPrefix ?? "/";
   const staticDir = options.staticDir ? path.resolve(options.staticDir) : undefined;
+  const healthPath = options.healthPath !== false ? (options.healthPath ?? "/api/health") : undefined;
+
+  // Auto-create providers on auth + wire ServiceManager
+  const authOptions = wrapAuthWithServiceManager(
+    wrapAuthWithAutoProviders(options),
+    options.serviceManager,
+  );
 
   // Create sub-handlers
-  const chatHandler = createChatHandler(options.runtime, {
+  const chatHandler = createChatHandler(runtime, {
     prefix: chatPrefix,
+    providerStore: options.providers?.providerStore,
+    hooks: options.hooks,
     ...options.chatHandlerOptions,
   });
 
-  const authHandler = options.auth ? createAuthHandler(options.auth) : undefined;
+  const authHandler = authOptions ? createAuthHandler(authOptions) : undefined;
+  // Provider routes are served via chatHandler (at chatPrefix/providers/*).
+  // The standalone providerHandler is available for direct use but not mounted here
+  // to avoid duplicate CRUD routes.
 
   const cors = options.cors !== false
     ? corsMiddleware(options.cors)
@@ -129,6 +204,12 @@ export function createChatServer(options: ChatServerOptions): RequestHandler {
       if (cors(corsReq, corsRes)) {
         return;
       }
+    }
+
+    // Health check
+    if (healthPath && urlPath === healthPath) {
+      json(res, { ok: true }, 200);
+      return;
     }
 
     // Chat routes
@@ -180,12 +261,75 @@ export function createChatServer(options: ChatServerOptions): RequestHandler {
     }
 
     // 404
-    json(res, 404, { error: "Not found" });
+    json(res, { error: "Not found" }, 404);
   };
 }
 
-function json(res: WritableResponse, status: number, body: unknown): void {
-  const data = JSON.stringify(body);
-  res.writeHead(status, { "Content-Type": "application/json" });
-  res.end(data);
+/**
+ * Wrap auth options to auto-create a default provider on first authentication.
+ * Returns the (possibly-modified) auth options or undefined if auth is not configured.
+ */
+function wrapAuthWithAutoProviders(options: ChatServerOptions): AuthHandlerOptions | undefined {
+  if (!options.auth) return undefined;
+  if (!options.autoCreateProviders || !options.providers) return options.auth;
+
+  const providerStore: IProviderStore = options.providers.providerStore;
+  const modelMap = typeof options.autoCreateProviders === "object"
+    ? options.autoCreateProviders
+    : DEFAULT_PROVIDER_MODELS;
+
+  const userOnAuth = options.auth.onAuth;
+
+  const wrappedOnAuth: AuthHandlerOptions["onAuth"] = async (backend, token) => {
+    // Call user's onAuth first
+    if (userOnAuth) await userOnAuth(backend, token);
+
+    // Auto-create default provider if none exists for this backend
+    try {
+      const existing = await providerStore.list();
+      const hasBackend = existing.some(p => p.backend === backend);
+      if (!hasBackend) {
+        const model = modelMap[backend] ?? "default";
+        const label = `${backend.charAt(0).toUpperCase() + backend.slice(1)} ${model}`;
+        await providerStore.create({
+          id: crypto.randomUUID(),
+          backend,
+          model,
+          label,
+          createdAt: Date.now(),
+        });
+      }
+    } catch {
+      // Silently ignore — provider auto-creation is best-effort
+    }
+  };
+
+  return { ...options.auth, onAuth: wrappedOnAuth };
+}
+
+/**
+ * Wrap auth options to auto-wire ServiceManager lifecycle callbacks.
+ * ServiceManager.handleAuth() is called after user's onAuth.
+ * ServiceManager.handleLogout() is called after user's onLogout.
+ */
+function wrapAuthWithServiceManager(
+  authOptions: AuthHandlerOptions | undefined,
+  serviceManager: ServiceManager | undefined,
+): AuthHandlerOptions | undefined {
+  if (!authOptions || !serviceManager) return authOptions;
+
+  const userOnAuth = authOptions.onAuth;
+  const userOnLogout = authOptions.onLogout;
+
+  return {
+    ...authOptions,
+    onAuth: async (backend, token) => {
+      if (userOnAuth) await userOnAuth(backend, token);
+      await serviceManager.handleAuth(backend, token);
+    },
+    onLogout: async () => {
+      if (userOnLogout) await userOnLogout();
+      await serviceManager.handleLogout();
+    },
+  };
 }

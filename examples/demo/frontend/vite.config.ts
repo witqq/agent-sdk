@@ -1,12 +1,8 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
-import path from "node:path";
 
 export default defineConfig({
   plugins: [
-    // Stub Node crypto for browser — useAuth lazy-imports ClaudeAuth which needs crypto,
-    // but these functions are never called in browser (server-mediated auth).
     {
       name: "stub-crypto",
       enforce: "pre" as const,
@@ -22,19 +18,9 @@ export default defineConfig({
       },
     },
     react(),
-    tailwindcss(),
   ],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
-  build: {
-    outDir: "dist",
-  },
+  build: { outDir: "dist" },
   server: {
-    proxy: {
-      "/api": "http://localhost:3456",
-    },
+    proxy: { "/api": "http://localhost:3456" },
   },
 });

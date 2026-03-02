@@ -100,8 +100,8 @@ function createMockClient(sessionOverrides?: Parameters<typeof createMockSession
     getState: vi.fn(() => "connected"),
     createSession: vi.fn(async () => session),
     listModels: vi.fn(async () => [
-      { id: "gpt-4o", name: "GPT-4o" },
-      { id: "claude-sonnet-4.5", name: "Claude Sonnet 4.5" },
+      { id: "gpt-4o", name: "GPT-4o", capabilities: { limits: { max_context_window_tokens: 128000 }, supports: { vision: true, reasoningEffort: false } } },
+      { id: "claude-sonnet-4.5", name: "Claude Sonnet 4.5", capabilities: { limits: { max_context_window_tokens: 200000 }, supports: { vision: true, reasoningEffort: false } } },
     ]),
     getAuthStatus: vi.fn(async () => ({ isAuthenticated: true })),
   };
@@ -165,7 +165,7 @@ describe("Copilot Backend", () => {
       const service = createCopilotService({});
       const models = await service.listModels();
       expect(models).toHaveLength(2);
-      expect(models[0]).toEqual({ id: "gpt-4o", name: "GPT-4o", provider: "copilot" });
+      expect(models[0]).toEqual({ id: "gpt-4o", name: "GPT-4o", provider: "copilot", contextWindow: 128000 });
       expect(client.listModels).toHaveBeenCalled();
     });
 
@@ -249,7 +249,7 @@ describe("Copilot Backend", () => {
       injectMockSDK();
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
-      const result = await agent.run("Hello");
+      const result = await agent.run("Hello", { model: "test-model" });
 
       expect(result.output).toBe("Hello from Copilot!");
       expect(result.messages).toHaveLength(2);
@@ -265,7 +265,7 @@ describe("Copilot Backend", () => {
       const service = createCopilotService({});
       const config = makeConfig({ model: "gpt-4o" });
       const agent = service.createAgent(config);
-      await agent.run("test");
+      await agent.run("test", { model: "gpt-4o" });
 
       expect(client.createSession).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -280,7 +280,7 @@ describe("Copilot Backend", () => {
       const { client } = injectMockSDK();
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       const sessionConfig = client.createSession.mock.calls[0][0];
       expect(sessionConfig.tools).toHaveLength(1);
@@ -296,7 +296,7 @@ describe("Copilot Backend", () => {
       const { client } = injectMockSDK();
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       const sessionConfig = client.createSession.mock.calls[0][0];
       const toolHandler = sessionConfig.tools[0].handler;
@@ -332,7 +332,7 @@ describe("Copilot Backend", () => {
       injectMockSDK({ events });
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
-      const result = await agent.run("find news");
+      const result = await agent.run("find news", { model: "test-model" });
 
       expect(result.toolCalls).toHaveLength(1);
       expect(result.toolCalls[0].toolName).toBe("search");
@@ -356,9 +356,9 @@ describe("Copilot Backend", () => {
       injectMockSDK({ events });
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
-      const result = await agent.run("test");
+      const result = await agent.run("test", { model: "test-model" });
 
-      expect(result.usage).toEqual({ promptTokens: 100, completionTokens: 50, model: undefined, backend: "copilot" });
+      expect(result.usage).toEqual({ promptTokens: 100, completionTokens: 50, model: "test-model", backend: "copilot" });
     });
 
     it("should handle null response from sendAndWait", async () => {
@@ -368,7 +368,7 @@ describe("Copilot Backend", () => {
 
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
-      const result = await agent.run("test");
+      const result = await agent.run("test", { model: "test-model" });
 
       expect(result.output).toBeNull();
       expect(result.messages).toHaveLength(1); // Only user message
@@ -378,7 +378,7 @@ describe("Copilot Backend", () => {
       const { session } = injectMockSDK();
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       expect(session.destroy).toHaveBeenCalled();
     });
@@ -387,7 +387,7 @@ describe("Copilot Backend", () => {
       const { session } = injectMockSDK();
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("What is 2+2?");
+      await agent.run("What is 2+2?", { model: "test-model" });
 
       expect(session.sendAndWait).toHaveBeenCalledWith({ prompt: "What is 2+2?" });
     });
@@ -400,7 +400,7 @@ describe("Copilot Backend", () => {
         { role: "user", content: "My name is Alice" },
         { role: "assistant", content: "Hello Alice!" },
         { role: "user", content: "What is my name?" },
-      ]);
+      ], { model: "test-model" });
 
       const sentPrompt = session.sendAndWait.mock.calls[0][0].prompt;
       expect(sentPrompt).toContain("Conversation history:");
@@ -413,7 +413,7 @@ describe("Copilot Backend", () => {
       const { session } = injectMockSDK();
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
-      await agent.runWithContext([{ role: "user", content: "Hello" }]);
+      await agent.runWithContext([{ role: "user", content: "Hello" }], { model: "test-model" });
 
       expect(session.sendAndWait).toHaveBeenCalledWith({ prompt: "Hello" });
     });
@@ -437,7 +437,7 @@ describe("Copilot Backend", () => {
           },
         }),
       );
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       const sessionConfig = client.createSession.mock.calls[0][0];
       expect(sessionConfig.onPermissionRequest).toBeDefined();
@@ -466,7 +466,7 @@ describe("Copilot Backend", () => {
           },
         }),
       );
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       const sessionConfig = client.createSession.mock.calls[0][0];
       const sdkResult = await sessionConfig.onPermissionRequest!(
@@ -480,7 +480,7 @@ describe("Copilot Backend", () => {
       const { client } = injectMockSDK();
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       const sessionConfig = client.createSession.mock.calls[0][0];
       expect(sessionConfig.onPermissionRequest).toBeDefined();
@@ -512,7 +512,7 @@ describe("Copilot Backend", () => {
           },
         }),
       );
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       const sessionConfig = client.createSession.mock.calls[0][0];
       expect(sessionConfig.onUserInputRequest).toBeDefined();
@@ -532,7 +532,7 @@ describe("Copilot Backend", () => {
       const { client } = injectMockSDK();
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       const sessionConfig = client.createSession.mock.calls[0][0];
       expect(sessionConfig.onUserInputRequest).toBeDefined();
@@ -575,7 +575,7 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig());
 
       const collected: import("../../src/types.js").AgentEvent[] = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         collected.push(event);
       }
 
@@ -608,7 +608,7 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig());
 
       const collected: import("../../src/types.js").AgentEvent[] = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         collected.push(event);
       }
 
@@ -640,7 +640,7 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig());
 
       const collected: import("../../src/types.js").AgentEvent[] = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         collected.push(event);
       }
 
@@ -672,10 +672,41 @@ describe("Copilot Backend", () => {
       // session.error should cause the stream to throw
       await expect(async () => {
         const collected: import("../../src/types.js").AgentEvent[] = [];
-        for await (const event of agent.stream("test")) {
+        for await (const event of agent.stream("test", { model: "test-model" })) {
           collected.push(event);
         }
       }).rejects.toThrow("Model overloaded");
+    });
+
+    it("should classify error events with error code before throwing", async () => {
+      const events: MockSessionEvent[] = [
+        {
+          id: "e1",
+          timestamp: new Date().toISOString(),
+          parentId: null,
+          type: "session.error",
+          data: { errorType: "fatal", message: "Model overloaded" },
+        },
+      ];
+
+      injectMockSDK({ events });
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig());
+
+      const collected: import("../../src/types.js").AgentEvent[] = [];
+      try {
+        for await (const event of agent.stream("test", { model: "test-model" })) {
+          collected.push(event);
+        }
+      } catch {
+        // expected to throw
+      }
+      const err = collected.find((e) => e.type === "error");
+      expect(err).toBeDefined();
+      if (err?.type === "error") {
+        expect(err.code).toBe("PROVIDER_ERROR");
+        expect(err.recoverable).toBe(true);
+      }
     });
 
     it("should yield thinking_start for reasoning events", async () => {
@@ -694,7 +725,7 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig());
 
       const collected: import("../../src/types.js").AgentEvent[] = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         collected.push(event);
       }
 
@@ -733,7 +764,7 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig());
 
       const collected: import("../../src/types.js").AgentEvent[] = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         collected.push(event);
       }
 
@@ -767,7 +798,7 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig());
 
       const collected: import("../../src/types.js").AgentEvent[] = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         collected.push(event);
       }
 
@@ -793,7 +824,7 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig());
 
       const collected: import("../../src/types.js").AgentEvent[] = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         collected.push(event);
       }
 
@@ -824,7 +855,7 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig());
 
       const collected: import("../../src/types.js").AgentEvent[] = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         collected.push(event);
       }
 
@@ -869,7 +900,7 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig());
 
       const collected: import("../../src/types.js").AgentEvent[] = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         collected.push(event);
       }
 
@@ -922,7 +953,7 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig());
 
       const collected: import("../../src/types.js").AgentEvent[] = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         collected.push(event);
       }
 
@@ -977,7 +1008,7 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig());
 
       const collected: import("../../src/types.js").AgentEvent[] = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         collected.push(event);
       }
 
@@ -1002,7 +1033,7 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig());
 
       const collected: import("../../src/types.js").AgentEvent[] = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         collected.push(event);
       }
 
@@ -1027,13 +1058,13 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig());
 
       const collected: import("../../src/types.js").AgentEvent[] = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "test-model" })) {
         collected.push(event);
       }
 
       const doneEvents = collected.filter((e) => e.type === "done");
       expect(doneEvents).toHaveLength(1);
-      expect((doneEvents[0] as { finalOutput: string | null }).finalOutput).toBe("Hello world");
+      expect((doneEvents[0] as { finalOutput: string | null }).finalOutput).toBeNull();
     });
   });
 
@@ -1054,7 +1085,7 @@ describe("Copilot Backend", () => {
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
       const schema = z.object({ name: z.string(), age: z.number() });
-      const result = await agent.runStructured("Get user info", { schema });
+      const result = await agent.runStructured("Get user info", { schema }, { model: "test-model" });
 
       expect(result.structuredOutput).toEqual({ name: "Alice", age: 30 });
     });
@@ -1073,7 +1104,7 @@ describe("Copilot Backend", () => {
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
       const schema = z.object({ name: z.string() });
-      const result = await agent.runStructured("Get name", { schema });
+      const result = await agent.runStructured("Get name", { schema }, { model: "test-model" });
 
       expect(result.structuredOutput).toEqual({ name: "Bob" });
     });
@@ -1092,7 +1123,7 @@ describe("Copilot Backend", () => {
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
       const schema = z.object({ name: z.string() });
-      const result = await agent.runStructured("Get info", { schema });
+      const result = await agent.runStructured("Get info", { schema }, { model: "test-model" });
 
       expect(result.structuredOutput).toBeUndefined();
       expect(result.output).toBe("I could not find the information.");
@@ -1103,7 +1134,7 @@ describe("Copilot Backend", () => {
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
       const schema = z.object({ count: z.number() });
-      await agent.runStructured("Count items", { schema });
+      await agent.runStructured("Count items", { schema }, { model: "test-model" });
 
       const prompt = session.sendAndWait.mock.calls[0][0].prompt;
       expect(prompt).toContain("Count items");
@@ -1125,7 +1156,7 @@ describe("Copilot Backend", () => {
       injectMockSDK();
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
       expect(agent.getState()).toBe("idle");
     });
 
@@ -1145,9 +1176,9 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig());
 
       // Start a slow run
-      const p1 = agent.run("test1");
+      const p1 = agent.run("test1", { model: "test-model" });
       // Try to run again immediately
-      await expect(agent.run("test2")).rejects.toThrow("already running");
+      await expect(agent.run("test2", { model: "test-model" })).rejects.toThrow("already running");
       await p1;
     });
 
@@ -1166,8 +1197,8 @@ describe("Copilot Backend", () => {
       const agent1 = service.createAgent(makeConfig());
       const agent2 = service.createAgent(makeConfig());
 
-      await agent1.run("test1");
-      await agent2.run("test2");
+      await agent1.run("test1", { model: "test-model" });
+      await agent2.run("test2", { model: "test-model" });
 
       // Both use the same client (createSession called twice)
       expect(client.createSession).toHaveBeenCalledTimes(2);
@@ -1184,8 +1215,8 @@ describe("Copilot Backend", () => {
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
 
-      await expect(agent.run("test")).rejects.toThrow(SubprocessError);
-      await expect(agent.run("test")).rejects.toThrow("Not authenticated");
+      await expect(agent.run("test", { model: "test-model" })).rejects.toThrow(SubprocessError);
+      await expect(agent.run("test", { model: "test-model" })).rejects.toThrow("Not authenticated");
       expect(client.stop).toHaveBeenCalled();
     });
 
@@ -1194,7 +1225,7 @@ describe("Copilot Backend", () => {
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
 
-      const result = await agent.run("test");
+      const result = await agent.run("test", { model: "test-model" });
       expect(result.output).toBe("Hello from Copilot!");
     });
   });
@@ -1241,7 +1272,7 @@ describe("Copilot Backend", () => {
       const { client } = injectMockSDK();
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       const sessionConfig = client.createSession.mock.calls[0][0];
       expect(sessionConfig.systemMessage).toEqual({
@@ -1254,7 +1285,7 @@ describe("Copilot Backend", () => {
       const { client } = injectMockSDK();
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig({ systemMessageMode: "replace" }));
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       const sessionConfig = client.createSession.mock.calls[0][0];
       expect(sessionConfig.systemMessage).toEqual({
@@ -1273,7 +1304,7 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(
         makeConfig({ availableTools: ["web_search", "web_fetch"] }),
       );
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       const sessionConfig = client.createSession.mock.calls[0][0];
       expect(sessionConfig.availableTools).toEqual(["web_search", "web_fetch"]);
@@ -1283,7 +1314,7 @@ describe("Copilot Backend", () => {
       const { client } = injectMockSDK();
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("test");
+      await agent.run("test", { model: "test-model" });
 
       const sessionConfig = client.createSession.mock.calls[0][0];
       expect(sessionConfig).not.toHaveProperty("availableTools");
@@ -1308,7 +1339,7 @@ describe("Copilot Backend", () => {
       injectMockSDK({ events });
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig({ model: "gpt-4o" }));
-      const result = await agent.run("test");
+      const result = await agent.run("test", { model: "gpt-4o" });
 
       expect(result.usage?.model).toBe("gpt-4o");
       expect(result.usage?.backend).toBe("copilot");
@@ -1331,7 +1362,7 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig({ model: "gpt-4o" }));
 
       const collected: import("../../src/types.js").AgentEvent[] = [];
-      for await (const event of agent.stream("test")) {
+      for await (const event of agent.stream("test", { model: "gpt-4o" })) {
         collected.push(event);
       }
 
@@ -1358,7 +1389,7 @@ describe("Copilot Backend", () => {
       const onUsage = vi.fn();
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig({ model: "gpt-4o", onUsage }));
-      await agent.run("test");
+      await agent.run("test", { model: "gpt-4o" });
 
       expect(onUsage).toHaveBeenCalledOnce();
       expect(onUsage).toHaveBeenCalledWith({
@@ -1386,7 +1417,7 @@ describe("Copilot Backend", () => {
       const onUsage = vi.fn(() => { throw new Error("callback error"); });
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig({ onUsage }));
-      const result = await agent.run("test");
+      const result = await agent.run("test", { model: "test-model" });
 
       expect(result.output).toBe("Hello from Copilot!");
       expect(warnSpy).toHaveBeenCalledWith(
@@ -1414,7 +1445,7 @@ describe("Copilot Backend", () => {
       });
 
       // Should still complete (abort is best-effort)
-      await agent.run("test", { signal: ac.signal });
+      await agent.run("test", { model: "test-model", signal: ac.signal });
       expect(session.abort).toHaveBeenCalled();
     });
   });
@@ -1427,8 +1458,8 @@ describe("Copilot Backend", () => {
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
 
-      await agent.run("first message");
-      await agent.run("second message");
+      await agent.run("first message", { model: "test-model" });
+      await agent.run("second message", { model: "test-model" });
 
       // Session created only once
       expect(client.createSession).toHaveBeenCalledTimes(1);
@@ -1452,9 +1483,9 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
 
       // Consume first stream
-      for await (const _ of agent.stream("first")) { /* drain */ }
+      for await (const _ of agent.stream("first", { model: "test-model" })) { /* drain */ }
       // Consume second stream
-      for await (const _ of agent.stream("second")) { /* drain */ }
+      for await (const _ of agent.stream("second", { model: "test-model" })) { /* drain */ }
 
       expect(client.createSession).toHaveBeenCalledTimes(1);
       expect(session.send).toHaveBeenCalledTimes(2);
@@ -1470,14 +1501,14 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
 
       // First call (isNew=true): sends via buildContextualPrompt
-      await agent.run("first");
+      await agent.run("first", { model: "test-model" });
 
       // Second call (isNew=false): should send only last user message
       await agent.runWithContext([
         { role: "user", content: "first" },
         { role: "assistant", content: "response1" },
         { role: "user", content: "second" },
-      ]);
+      ], { model: "test-model" });
 
       expect(session.sendAndWait).toHaveBeenCalledTimes(2);
       // First call: single message goes through buildContextualPrompt → plain prompt
@@ -1495,7 +1526,7 @@ describe("Copilot Backend", () => {
 
       expect(agent.sessionId).toBeUndefined();
 
-      await agent.run("hello");
+      await agent.run("hello", { model: "test-model" });
 
       // The mock session has sessionId: "test-session-id"
       expect(agent.sessionId).toBe("test-session-id");
@@ -1508,7 +1539,7 @@ describe("Copilot Backend", () => {
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig()); // default per-call
 
-      await agent.run("hello");
+      await agent.run("hello", { model: "test-model" });
 
       expect(agent.sessionId).toBeUndefined();
       agent.dispose();
@@ -1519,8 +1550,8 @@ describe("Copilot Backend", () => {
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig()); // default = per-call
 
-      await agent.run("first");
-      await agent.run("second");
+      await agent.run("first", { model: "test-model" });
+      await agent.run("second", { model: "test-model" });
 
       // Two separate sessions created
       expect(client.createSession).toHaveBeenCalledTimes(2);
@@ -1536,14 +1567,14 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
 
       // First call succeeds
-      await agent.run("first");
+      await agent.run("first", { model: "test-model" });
       expect(client.createSession).toHaveBeenCalledTimes(1);
 
       // Make session.sendAndWait fail
       session.sendAndWait = vi.fn(async () => { throw new Error("Session broken"); });
 
       // Second call fails
-      await expect(agent.run("second")).rejects.toThrow("Session broken");
+      await expect(agent.run("second", { model: "test-model" })).rejects.toThrow("Session broken");
 
       // Session should be cleared — next call creates a fresh one
       session.sendAndWait = vi.fn(async () => ({
@@ -1551,7 +1582,7 @@ describe("Copilot Backend", () => {
         data: { messageId: "msg-2", content: "recovered" },
       }));
 
-      const result = await agent.run("third");
+      const result = await agent.run("third", { model: "test-model" });
       expect(result.output).toBe("recovered");
       // Two sessions created total: first + recovery
       expect(client.createSession).toHaveBeenCalledTimes(2);
@@ -1564,12 +1595,47 @@ describe("Copilot Backend", () => {
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
 
-      await agent.run("hello");
+      await agent.run("hello", { model: "test-model" });
       expect(agent.sessionId).toBe("test-session-id");
 
       agent.dispose();
       expect(agent.sessionId).toBeUndefined();
     });
+
+    it("should recreate session when model changes on persistent session", async () => {
+      const { client, session } = injectMockSDK();
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig({ model: "gpt-5-mini", sessionMode: "persistent" }));
+
+      // First call establishes persistent session
+      await agent.run("first message", { model: "test-model" });
+      expect(client.createSession).toHaveBeenCalledTimes(1);
+
+      // Second call with different model should recreate session
+      await agent.run("second message", { model: "gpt-4.1" });
+      expect(client.createSession).toHaveBeenCalledTimes(2);
+      // Old session was destroyed
+      expect(session.destroy).toHaveBeenCalledTimes(1);
+
+      // Verify new session was created with new model
+      const secondConfig = client.createSession.mock.calls[1][0];
+      expect(secondConfig.model).toBe("gpt-4.1");
+    });
+
+    it("should reuse persistent session when same model is used", async () => {
+      const { client, session } = injectMockSDK();
+      const service = createCopilotService({});
+      const agent = service.createAgent(makeConfig({ model: "gpt-5-mini", sessionMode: "persistent" }));
+
+      await agent.run("first", { model: "gpt-5-mini" });
+      await agent.run("second", { model: "gpt-5-mini" });
+      await agent.run("third", { model: "gpt-5-mini" });
+
+      // Session created only once — no model change
+      expect(client.createSession).toHaveBeenCalledTimes(1);
+      expect(session.destroy).not.toHaveBeenCalled();
+    });
+
   });
 
   // ── session_info event ──────────────────────────────────────────
@@ -1581,7 +1647,7 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
 
       const events: Array<{ type: string; sessionId?: string; backend?: string }> = [];
-      for await (const event of agent.stream("hello")) {
+      for await (const event of agent.stream("hello", { model: "test-model" })) {
         events.push(event as { type: string; sessionId?: string; backend?: string });
       }
       const sessionInfoEvents = events.filter((e) => e.type === "session_info");
@@ -1603,7 +1669,7 @@ describe("Copilot Backend", () => {
       const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
 
       // Run completes first, establishing session
-      await agent.run("hello");
+      await agent.run("hello", { model: "test-model" });
       // After run, activeSession is null — interrupt is a no-op for abort, just calls base abort()
       await agent.interrupt();
       // Should not throw
@@ -1621,7 +1687,7 @@ describe("Copilot Backend", () => {
       });
       const service = createCopilotService({ env: { CUSTOM_VAR: "test-value" } });
       const agent = service.createAgent(makeConfig());
-      await agent.run("hello");
+      await agent.run("hello", { model: "test-model" });
 
       const clientOpts = clientConstructor.mock.calls[0]?.[0];
       expect(clientOpts?.env).toBeDefined();
@@ -1636,7 +1702,7 @@ describe("Copilot Backend", () => {
       });
       const service = createCopilotService({});
       const agent = service.createAgent(makeConfig());
-      await agent.run("hello");
+      await agent.run("hello", { model: "test-model" });
 
       const clientOpts = clientConstructor.mock.calls[0]?.[0];
       expect(clientOpts?.env).toBeUndefined();

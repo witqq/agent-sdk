@@ -15,6 +15,7 @@ import type {
 import { createChatId } from "./core.js";
 import type { IStorageAdapter, ListOptions } from "./storage.js";
 import { InMemoryStorage, FileStorage, StorageError } from "./storage.js";
+import { ErrorCode } from "../types/errors.js";
 
 // ─── Session Store Interface ───────────────────────────────────
 
@@ -61,8 +62,39 @@ export interface SessionSearchOptions {
 }
 
 /**
- * Session store interface for managing chat sessions.
- * Wraps a storage adapter with session-specific operations.
+ * Read-only session operations.
+ * Consumers needing read-only access (dashboards, analytics) implement only this.
+ */
+export interface ISessionReader {
+  getSession(id: ChatId): Promise<ChatSession | null>;
+  listSessions(options?: SessionListOptions): Promise<ChatSession[]>;
+  loadMessages(
+    sessionId: ChatId,
+    options?: { limit?: number; offset?: number },
+  ): Promise<PaginatedMessages>;
+  searchSessions(options: SessionSearchOptions): Promise<ChatSession[]>;
+  count(): Promise<number>;
+}
+
+/**
+ * Write/mutate session operations.
+ * Consumers needing full access implement both ISessionReader & ISessionWriter.
+ */
+export interface ISessionWriter {
+  createSession(options: CreateSessionOptions): Promise<ChatSession>;
+  updateTitle(id: ChatId, title: string): Promise<void>;
+  updateConfig(id: ChatId, config: Partial<ChatSessionConfig>): Promise<void>;
+  deleteSession(id: ChatId): Promise<void>;
+  appendMessage(sessionId: ChatId, message: ChatMessage): Promise<void>;
+  saveMessages(sessionId: ChatId, messages: ChatMessage[]): Promise<void>;
+  clear(): Promise<void>;
+  /** Release any resources held by this store (optional). */
+  dispose?(): Promise<void>;
+}
+
+/**
+ * Full session store interface — union of reader and writer.
+ * Backward-compatible: all existing implementations continue to work.
  *
  * @example
  * ```typescript
@@ -72,131 +104,7 @@ export interface SessionSearchOptions {
  * const page = await store.loadMessages(session.id, { limit: 20, offset: 0 });
  * ```
  */
-export interface IChatSessionStore {
-  /**
-   * Create a new session with defaults.
-   * @param options - Session creation options
-   * @returns The created session
-   */
-  createSession(options: CreateSessionOptions): Promise<ChatSession>;
-
-  /**
-   * Retrieve a session by ID.
-   * @param id - Session ID
-   * @returns The session, or `null` if not found
-   */
-  getSession(id: ChatId): Promise<ChatSession | null>;
-
-  /**
-   * List sessions with optional filtering, sorting, and pagination.
-   * @param options - List options
-   * @returns Array of sessions
-   */
-  listSessions(options?: SessionListOptions): Promise<ChatSession[]>;
-
-  /**
-   * Update session title.
-   * @param id - Session ID
-   * @param title - New title
-   * @throws {StorageError} with code `NOT_FOUND` if session doesn't exist
-   */
-  updateTitle(id: ChatId, title: string): Promise<void>;
-
-  /**
-   * Update session configuration.
-   * @param id - Session ID
-   * @param config - Partial config to merge
-   * @throws {StorageError} with code `NOT_FOUND` if session doesn't exist
-   */
-  updateConfig(
-    id: ChatId,
-    config: Partial<ChatSessionConfig>,
-  ): Promise<void>;
-
-  /**
-   * Delete a session by ID.
-   * @param id - Session ID
-   * @throws {StorageError} with code `NOT_FOUND` if session doesn't exist
-   */
-  deleteSession(id: ChatId): Promise<void>;
-
-  /**
-   * Append a single message to a session.
-   * Updates session metadata (messageCount, updatedAt).
-   * @param sessionId - Session ID
-   * @param message - Message to append
-   * @throws {StorageError} with code `NOT_FOUND` if session doesn't exist
-   */
-  appendMessage(sessionId: ChatId, message: ChatMessage): Promise<void>;
-
-  /**
-   * Append multiple messages to a session in bulk.
-   * No-op if messages array is empty.
-   * @param sessionId - Session ID
-   * @param messages - Messages to append
-   * @throws {StorageError} with code `NOT_FOUND` if session doesn't exist
-   */
-  saveMessages(sessionId: ChatId, messages: ChatMessage[]): Promise<void>;
-
-  /**
-   * Get paginated messages from a session.
-   * @param sessionId - Session ID
-   * @param options - Pagination options (limit, offset)
-   * @returns Paginated messages result
-   * @throws {StorageError} with code `NOT_FOUND` if session doesn't exist
-   */
-  loadMessages(
-    sessionId: ChatId,
-    options?: { limit?: number; offset?: number },
-  ): Promise<PaginatedMessages>;
-
-  /**
-   * Archive a session (set status to "archived").
-   * @param id - Session ID
-   * @throws {StorageError} with code `NOT_FOUND` if session doesn't exist
-   */
-  archiveSession(id: ChatId): Promise<void>;
-
-  /**
-   * Unarchive a session (set status back to "active").
-   * @param id - Session ID
-   * @throws {StorageError} with code `NOT_FOUND` if session doesn't exist
-   */
-  unarchiveSession(id: ChatId): Promise<void>;
-
-  /**
-   * Search sessions by title and message content.
-   * Case-insensitive substring match.
-   * @param options - Search query and limit
-   * @returns Matching sessions (without full message content)
-   */
-  searchSessions(options: SessionSearchOptions): Promise<ChatSession[]>;
-
-  /**
-   * Return the number of stored sessions.
-   */
-  count(): Promise<number>;
-
-  /**
-   * Remove all sessions.
-   */
-  clear(): Promise<void>;
-
-  // ── Deprecated Aliases ──────────────────────────────────────
-
-  /**
-   * @deprecated Use `appendMessage()` instead. Will be removed in next major.
-   */
-  addMessage(sessionId: ChatId, message: ChatMessage): Promise<void>;
-
-  /**
-   * @deprecated Use `loadMessages()` instead. Will be removed in next major.
-   */
-  getMessages(
-    sessionId: ChatId,
-    options?: { limit?: number; offset?: number },
-  ): Promise<PaginatedMessages>;
-}
+export interface IChatSessionStore extends ISessionReader, ISessionWriter {}
 
 // ─── Base Session Store ────────────────────────────────────────
 
@@ -244,7 +152,7 @@ class BaseSessionStore implements IChatSessionStore {
   async updateTitle(id: ChatId, title: string): Promise<void> {
     const session = await this.adapter.get(id);
     if (!session) {
-      throw new StorageError(`Session "${id}" not found`, "NOT_FOUND");
+      throw new StorageError(`Session "${id}" not found`, ErrorCode.STORAGE_NOT_FOUND);
     }
     session.title = title;
     session.updatedAt = new Date().toISOString();
@@ -257,7 +165,7 @@ class BaseSessionStore implements IChatSessionStore {
   ): Promise<void> {
     const session = await this.adapter.get(id);
     if (!session) {
-      throw new StorageError(`Session "${id}" not found`, "NOT_FOUND");
+      throw new StorageError(`Session "${id}" not found`, ErrorCode.STORAGE_NOT_FOUND);
     }
     session.config = { ...session.config, ...config };
     session.updatedAt = new Date().toISOString();
@@ -271,7 +179,7 @@ class BaseSessionStore implements IChatSessionStore {
   async appendMessage(sessionId: ChatId, message: ChatMessage): Promise<void> {
     const session = await this.adapter.get(sessionId);
     if (!session) {
-      throw new StorageError(`Session "${sessionId}" not found`, "NOT_FOUND");
+      throw new StorageError(`Session "${sessionId}" not found`, ErrorCode.STORAGE_NOT_FOUND);
     }
     session.messages.push(structuredClone(message));
     session.metadata.messageCount = session.messages.length;
@@ -283,7 +191,7 @@ class BaseSessionStore implements IChatSessionStore {
     if (messages.length === 0) return;
     const session = await this.adapter.get(sessionId);
     if (!session) {
-      throw new StorageError(`Session "${sessionId}" not found`, "NOT_FOUND");
+      throw new StorageError(`Session "${sessionId}" not found`, ErrorCode.STORAGE_NOT_FOUND);
     }
     for (const msg of messages) {
       session.messages.push(structuredClone(msg));
@@ -299,7 +207,7 @@ class BaseSessionStore implements IChatSessionStore {
   ): Promise<PaginatedMessages> {
     const session = await this.adapter.get(sessionId);
     if (!session) {
-      throw new StorageError(`Session "${sessionId}" not found`, "NOT_FOUND");
+      throw new StorageError(`Session "${sessionId}" not found`, ErrorCode.STORAGE_NOT_FOUND);
     }
     const total = session.messages.length;
     const offset = options?.offset ?? 0;
@@ -310,26 +218,6 @@ class BaseSessionStore implements IChatSessionStore {
       total,
       hasMore: offset + limit < total,
     };
-  }
-
-  async archiveSession(id: ChatId): Promise<void> {
-    const session = await this.adapter.get(id);
-    if (!session) {
-      throw new StorageError(`Session "${id}" not found`, "NOT_FOUND");
-    }
-    session.status = "archived";
-    session.updatedAt = new Date().toISOString();
-    await this.adapter.update(id, session);
-  }
-
-  async unarchiveSession(id: ChatId): Promise<void> {
-    const session = await this.adapter.get(id);
-    if (!session) {
-      throw new StorageError(`Session "${id}" not found`, "NOT_FOUND");
-    }
-    session.status = "active";
-    session.updatedAt = new Date().toISOString();
-    await this.adapter.update(id, session);
   }
 
   async searchSessions(
@@ -358,21 +246,6 @@ class BaseSessionStore implements IChatSessionStore {
 
   async clear(): Promise<void> {
     return this.adapter.clear();
-  }
-
-  // ── Deprecated Aliases ──────────────────────────────────────
-
-  /** @deprecated Use `appendMessage()` instead */
-  async addMessage(sessionId: ChatId, message: ChatMessage): Promise<void> {
-    return this.appendMessage(sessionId, message);
-  }
-
-  /** @deprecated Use `loadMessages()` instead */
-  async getMessages(
-    sessionId: ChatId,
-    options?: { limit?: number; offset?: number },
-  ): Promise<PaginatedMessages> {
-    return this.loadMessages(sessionId, options);
   }
 }
 

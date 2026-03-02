@@ -186,6 +186,27 @@
         "types": "./dist/chat/server.d.cts",
         "default": "./dist/chat/server.cjs"
       }
+    },
+    "./chat/react/theme.css": "./dist/chat/react/theme.css",
+    "./chat/sqlite": {
+      "import": {
+        "types": "./dist/chat/sqlite.d.ts",
+        "default": "./dist/chat/sqlite.js"
+      },
+      "require": {
+        "types": "./dist/chat/sqlite.d.cts",
+        "default": "./dist/chat/sqlite.cjs"
+      }
+    },
+    "./testing": {
+      "import": {
+        "types": "./dist/testing.d.ts",
+        "default": "./dist/testing.js"
+      },
+      "require": {
+        "types": "./dist/testing.d.cts",
+        "default": "./dist/testing.cjs"
+      }
     }
   },
   "files": [
@@ -193,7 +214,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && mkdir -p dist/chat/react && cp src/chat/react/theme.css dist/chat/react/theme.css",
     "test": "testfold unit",
     "test:e2e": "testfold e2e",
     "test:all": "testfold",
@@ -223,6 +244,7 @@
     "@types/react": ">=18",
     "ai": ">=4.0.0",
     "react": ">=18",
+    "better-sqlite3": ">=9.0.0",
     "zod": "^3.23.0 || ^4.0.0"
   },
   "peerDependenciesMeta": {
@@ -242,6 +264,9 @@
       "optional": true
     },
     "@types/react": {
+      "optional": true
+    },
+    "better-sqlite3": {
       "optional": true
     }
   },

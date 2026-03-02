@@ -24,18 +24,13 @@ function createMockRuntime(overrides: Partial<IChatRuntime> = {}): IChatRuntime 
     getSession: vi.fn(async () => null),
     listSessions: vi.fn(async () => []),
     deleteSession: vi.fn(async () => {}),
-    archiveSession: vi.fn(async () => {}),
     switchSession: vi.fn(async () => createMockSession()),
     registerTool: vi.fn(),
     removeTool: vi.fn(),
-    switchBackend: vi.fn(),
-    switchModel: vi.fn(),
     listModels: vi.fn(async () => []),
     use: vi.fn(),
     removeMiddleware: vi.fn(),
     activeSessionId: null,
-    currentBackend: "test",
-    currentModel: "test-model",
     registeredTools: new Map(),
     getContextStats: vi.fn(() => null),
     onSessionChange: vi.fn((cb: () => void) => {
@@ -468,6 +463,144 @@ describe("useChat", () => {
 
     // Should work fine — non-accumulator events ignored
     expect(result.current.messages).toHaveLength(2);
+  });
+
+  it("tracks usage from usage events", async () => {
+    const session = createMockSession();
+    vi.mocked(runtime.createSession).mockResolvedValue(session);
+
+    vi.mocked(runtime.send).mockImplementation(() => {
+      return (async function* () {
+        yield { type: "message:start" as const, messageId: "mid" as unknown as ChatId, role: "assistant" as const };
+        yield { type: "message:delta" as const, messageId: "mid" as unknown as ChatId, text: "Hi" };
+        yield { type: "usage" as const, promptTokens: 100, completionTokens: 50, model: "gpt-5-mini" };
+        yield { type: "message:complete" as const, messageId: "mid" as unknown as ChatId, message: createMockMessage() };
+      })() as AsyncIterable<ChatEvent>;
+    });
+
+    vi.mocked(runtime.getSession).mockResolvedValue(
+      createMockSession({
+        messages: [
+          createMockMessage({ role: "user", parts: [{ type: "text", text: "hi", status: "complete" }] }),
+          createMockMessage({ parts: [{ type: "text", text: "Hi", status: "complete" }] }),
+        ],
+      }),
+    );
+
+    const { result } = renderHook(() => useChat(), { wrapper });
+
+    // usage starts as null
+    expect(result.current.usage).toBeNull();
+
+    await act(async () => {
+      await result.current.sendMessage("hi");
+    });
+
+    expect(result.current.usage).toEqual({
+      promptTokens: 100,
+      completionTokens: 50,
+      totalTokens: 150,
+      model: "gpt-5-mini",
+    });
+  });
+
+  it("returns usage as null initially", () => {
+    const { result } = renderHook(() => useChat(), { wrapper });
+    expect(result.current.usage).toBeNull();
+  });
+
+  it("updates usage with computed totalTokens", async () => {
+    const session = createMockSession();
+    vi.mocked(runtime.createSession).mockResolvedValue(session);
+
+    vi.mocked(runtime.send).mockImplementation(() => {
+      return (async function* () {
+        yield { type: "usage" as const, promptTokens: 7, completionTokens: 3, model: undefined };
+      })() as AsyncIterable<ChatEvent>;
+    });
+
+    vi.mocked(runtime.getSession).mockResolvedValue(
+      createMockSession({
+        messages: [
+          createMockMessage({ role: "user", parts: [{ type: "text", text: "hi", status: "complete" }] }),
+        ],
+      }),
+    );
+
+    const { result } = renderHook(() => useChat(), { wrapper });
+
+    await act(async () => {
+      await result.current.sendMessage("hi");
+    });
+
+    expect(result.current.usage).toEqual({
+      promptTokens: 7,
+      completionTokens: 3,
+      totalTokens: 10,
+      model: undefined,
+    });
+  });
+
+  it("retryLastMessage re-sends the last user message", async () => {
+    const session = createMockSession();
+    vi.mocked(runtime.createSession).mockResolvedValue(session);
+
+    let callCount = 0;
+    vi.mocked(runtime.send).mockImplementation(() => {
+      callCount++;
+      if (callCount === 1) {
+        return (async function* () { throw new Error("fail"); })();
+      }
+      return (async function* () {
+        yield { type: "message:delta" as const, text: "ok" } as ChatEvent;
+      })() as AsyncIterable<ChatEvent>;
+    });
+    vi.mocked(runtime.getSession).mockResolvedValue(session);
+
+    const { result } = renderHook(() => useChat(), { wrapper });
+
+    // First send fails
+    await act(async () => { await result.current.sendMessage("hello"); });
+    expect(result.current.error).not.toBeNull();
+
+    // Retry succeeds
+    await act(async () => { await result.current.retryLastMessage(); });
+    expect(result.current.error).toBeNull();
+    expect(runtime.send).toHaveBeenCalledTimes(2);
+  });
+
+  it("retryLastMessage is no-op when no prior message", async () => {
+    const { result } = renderHook(() => useChat(), { wrapper });
+
+    await act(async () => { await result.current.retryLastMessage(); });
+    expect(runtime.send).not.toHaveBeenCalled();
+  });
+
+  it("autoDismissMs auto-clears error after timeout", async () => {
+    vi.useFakeTimers();
+    const session = createMockSession();
+    vi.mocked(runtime.createSession).mockResolvedValue(session);
+    vi.mocked(runtime.send).mockImplementation(() => {
+      return (async function* () { throw new Error("timeout"); })();
+    });
+
+    const { result } = renderHook(
+      () => useChat({ autoDismissMs: 3000 }),
+      { wrapper },
+    );
+
+    await act(async () => { await result.current.sendMessage("hello"); });
+    expect(result.current.error).not.toBeNull();
+
+    // Advance just before dismiss
+    act(() => { vi.advanceTimersByTime(2999); });
+    expect(result.current.error).not.toBeNull();
+
+    // Advance past dismiss threshold
+    act(() => { vi.advanceTimersByTime(2); });
+    expect(result.current.error).toBeNull();
+
+    vi.useRealTimers();
   });
 });
 

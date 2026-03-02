@@ -1,6 +1,6 @@
 # Stage 1: Build SDK
 FROM node:22-slim AS sdk-builder
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y git python3 make g++ && rm -rf /var/lib/apt/lists/*
 WORKDIR /sdk
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -34,18 +34,19 @@ COPY --from=frontend-builder /sdk/examples/demo/frontend/dist/ /sdk/examples/dem
 # Copy server
 COPY examples/demo/server.ts /sdk/examples/demo/server.ts
 COPY examples/demo/model-allowlist.ts /sdk/examples/demo/model-allowlist.ts
+COPY examples/demo/tools.ts /sdk/examples/demo/tools.ts
 
 # Install tsx and Copilot CLI globally (CLI binary needed for copilot backend)
 RUN npm install -g tsx @github/copilot
 
 ENV PORT=3456
-ENV TOKEN_DIR=/data
+ENV DB_PATH=/data/chat.db
 ENV NODE_ENV=production
 EXPOSE 3456
 
 VOLUME ["/data"]
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=15s --retries=3 \
-  CMD curl -sf -X POST -H "Content-Type: application/json" -d '{}' http://localhost:3456/api/health || exit 1
+  CMD curl -sf http://localhost:3456/api/health || exit 1
 
 CMD ["tsx", "/sdk/examples/demo/server.ts"]

@@ -20,6 +20,8 @@ export interface ITokenStore {
   clearAll(): Promise<void>;
   /** List provider names that have saved tokens. */
   list(): Promise<string[]>;
+  /** Release any resources held by this store (optional). */
+  dispose?(): Promise<void>;
 }
 
 // ─── In-Memory Implementation ──────────────────────────────────

@@ -1,5 +1,5 @@
 /**
- * Tests for IBackendAdapter, BaseBackendAdapter, CopilotChatAdapter,
+ * Tests for IResumableBackend, BaseBackendAdapter, CopilotChatAdapter,
  * ClaudeChatAdapter, VercelAIChatAdapter, and IChatTransport.
  */
 
@@ -10,14 +10,15 @@ import { ClaudeChatAdapter } from "../../../src/chat/backends/claude.js";
 import { VercelAIChatAdapter } from "../../../src/chat/backends/vercel-ai.js";
 import { SSEChatTransport, streamToTransport } from "../../../src/chat/backends/transport.js";
 import type { IChatTransport, WritableResponse } from "../../../src/chat/backends/transport.js";
-import type { IBackendAdapter, BackendAdapterOptions } from "../../../src/chat/backends/types.js";
+import { isResumableBackend } from "../../../src/chat/backends/types.js";
+import type { IResumableBackend, BackendAdapterOptions } from "../../../src/chat/backends/types.js";
 import type {
   ChatSession,
   ChatEvent,
   SendMessageOptions,
 } from "../../../src/chat/core.js";
 import { createChatId } from "../../../src/chat/core.js";
-import { ChatError, ChatErrorCode } from "../../../src/chat/errors.js";
+import { ChatError, ErrorCode } from "../../../src/chat/errors.js";
 import type {
   IAgent,
   IAgentService,
@@ -32,6 +33,7 @@ import type {
 function createMockAgent(options?: {
   sessionId?: string;
   events?: AgentEvent[];
+  model?: string;
 }): IAgent {
   const events = options?.events ?? [
     { type: "text_delta" as const, text: "Hello " },
@@ -98,16 +100,16 @@ async function collectEvents(iterable: AsyncIterable<ChatEvent>): Promise<ChatEv
 
 // ─── SESSION_EXPIRED Error Code ────────────────────────────────
 
-describe("ChatErrorCode.SESSION_EXPIRED", () => {
-  it("exists in ChatErrorCode enum", () => {
-    expect(ChatErrorCode.SESSION_EXPIRED).toBe("SESSION_EXPIRED");
+describe("ErrorCode.SESSION_EXPIRED", () => {
+  it("exists in ErrorCode enum", () => {
+    expect(ErrorCode.SESSION_EXPIRED).toBe("SESSION_EXPIRED");
   });
 
   it("can create ChatError with SESSION_EXPIRED code", () => {
     const error = new ChatError("Session expired", {
-      code: ChatErrorCode.SESSION_EXPIRED,
+      code: ErrorCode.SESSION_EXPIRED,
     });
-    expect(error.code).toBe(ChatErrorCode.SESSION_EXPIRED);
+    expect(error.code).toBe(ErrorCode.SESSION_EXPIRED);
     expect(error.message).toBe("Session expired");
     expect(error.retryable).toBe(false);
   });
@@ -121,8 +123,6 @@ describe("BaseBackendAdapter", () => {
 
   // Minimal concrete subclass for testing base behavior
   class TestAdapter extends BaseBackendAdapter {
-    private _sessionId: string | null = null;
-
     constructor(options: BackendAdapterOptions) {
       super("test", options);
     }
@@ -131,24 +131,8 @@ describe("BaseBackendAdapter", () => {
       throw new Error("Should not be called when service is provided");
     }
 
-    get backendSessionId(): string | null {
-      return this._sessionId;
-    }
-
-    canResume(): boolean {
-      return this._sessionId !== null;
-    }
-
-    async *resume(): AsyncIterable<ChatEvent> {
-      throw new ChatError("Not supported", {
-        code: ChatErrorCode.SESSION_EXPIRED,
-      });
-    }
-
     protected captureSessionId(agent: IAgent): void {
-      if (agent.sessionId) {
-        this._sessionId = agent.sessionId;
-      }
+      // No-op for test
     }
   }
 
@@ -321,7 +305,7 @@ describe("BaseBackendAdapter", () => {
       await adapter.dispose();
 
       await expect(adapter.sendMessage(createMockSession(), "Hi")).rejects.toThrow(
-        expect.objectContaining({ code: ChatErrorCode.DISPOSED }),
+        expect.objectContaining({ code: ErrorCode.DISPOSED }),
       );
     });
   });
@@ -477,6 +461,94 @@ describe("BaseBackendAdapter", () => {
       expect(types).toContain("heartbeat");
     });
   });
+
+  describe("model tracking in persistent sessions", () => {
+    it("recreates agent when model changes in persistent mode", async () => {
+      const agent1 = createMockAgent();
+      const agent2 = createMockAgent();
+      let createCount = 0;
+      const service = createMockService(agent1);
+      (service.createAgent as ReturnType<typeof vi.fn>).mockImplementation(() => {
+        createCount++;
+        return createCount === 1 ? agent1 : agent2;
+      });
+
+      const adapter = new TestAdapter({
+        agentConfig: { ...createDefaultAgentConfig(), sessionMode: "persistent" },
+        agentService: service,
+      });
+
+      // First call
+      await collectEvents(
+        adapter.streamMessage(createMockSession(), "Hi", { model: "model-a" }),
+      );
+      expect(createCount).toBe(1);
+
+      // Same model — reuse
+      await collectEvents(
+        adapter.streamMessage(createMockSession(), "Hi", { model: "model-a" }),
+      );
+      expect(createCount).toBe(1);
+
+      // Different model — recreate
+      await collectEvents(
+        adapter.streamMessage(createMockSession(), "Hi", { model: "model-b" }),
+      );
+      expect(createCount).toBe(2);
+      expect(agent1.dispose).toHaveBeenCalled();
+    });
+  });
+
+  describe("lazy service initialization", () => {
+    it("uses agentServiceFactory for lazy creation", async () => {
+      const service = createMockService();
+      const factory = vi.fn().mockReturnValue(service);
+
+      const adapter = new TestAdapter({
+        agentConfig: createDefaultAgentConfig(),
+        agentServiceFactory: factory,
+      });
+
+      // Factory not called yet
+      expect(factory).not.toHaveBeenCalled();
+
+      // Access triggers lazy init
+      const svc = adapter.agentService;
+      expect(factory).toHaveBeenCalledTimes(1);
+      expect(svc).toBe(service);
+
+      // Second access returns cached
+      expect(adapter.agentService).toBe(service);
+      expect(factory).toHaveBeenCalledTimes(1);
+    });
+
+    it("dispose is safe when service was never created", async () => {
+      const factory = vi.fn().mockReturnValue(createMockService());
+
+      const adapter = new TestAdapter({
+        agentConfig: createDefaultAgentConfig(),
+        agentServiceFactory: factory,
+      });
+
+      // Dispose without ever creating service
+      await adapter.dispose();
+      expect(factory).not.toHaveBeenCalled();
+    });
+
+    it("listModels triggers lazy init", async () => {
+      const service = createMockService();
+      const factory = vi.fn().mockReturnValue(service);
+
+      const adapter = new TestAdapter({
+        agentConfig: createDefaultAgentConfig(),
+        agentServiceFactory: factory,
+      });
+
+      const models = await adapter.listModels();
+      expect(factory).toHaveBeenCalledTimes(1);
+      expect(models).toEqual([{ id: "gpt-4", name: "GPT-4" }]);
+    });
+  });
 });
 
 // ─── CopilotChatAdapter ────────────────────────────────────────
@@ -554,7 +626,7 @@ describe("CopilotChatAdapter", () => {
       await expect(
         collectEvents(adapter.resume(session, "")),
       ).rejects.toThrow(
-        expect.objectContaining({ code: ChatErrorCode.INVALID_INPUT }),
+        expect.objectContaining({ code: ErrorCode.INVALID_INPUT }),
       );
     });
 
@@ -571,7 +643,7 @@ describe("CopilotChatAdapter", () => {
       await expect(
         collectEvents(adapter.resume(session, "different-session-id")),
       ).rejects.toThrow(
-        expect.objectContaining({ code: ChatErrorCode.SESSION_EXPIRED }),
+        expect.objectContaining({ code: ErrorCode.SESSION_EXPIRED }),
       );
     });
 
@@ -593,7 +665,7 @@ describe("CopilotChatAdapter", () => {
       await expect(
         collectEvents(adapter.resume(createMockSession(), "some-session-id")),
       ).rejects.toThrow(
-        expect.objectContaining({ code: ChatErrorCode.SESSION_NOT_FOUND }),
+        expect.objectContaining({ code: ErrorCode.SESSION_NOT_FOUND }),
       );
     });
 
@@ -624,7 +696,7 @@ describe("CopilotChatAdapter", () => {
       await expect(
         collectEvents(adapter.resume(createMockSession(), "any-id")),
       ).rejects.toThrow(
-        expect.objectContaining({ code: ChatErrorCode.DISPOSED }),
+        expect.objectContaining({ code: ErrorCode.DISPOSED }),
       );
     });
   });
@@ -716,7 +788,7 @@ describe("ClaudeChatAdapter", () => {
       await expect(
         collectEvents(adapter.resume(createMockSession(), "")),
       ).rejects.toThrow(
-        expect.objectContaining({ code: ChatErrorCode.INVALID_INPUT }),
+        expect.objectContaining({ code: ErrorCode.INVALID_INPUT }),
       );
     });
 
@@ -729,7 +801,7 @@ describe("ClaudeChatAdapter", () => {
       await expect(
         collectEvents(adapter.resume(createMockSession(), "different-session")),
       ).rejects.toThrow(
-        expect.objectContaining({ code: ChatErrorCode.SESSION_EXPIRED }),
+        expect.objectContaining({ code: ErrorCode.SESSION_EXPIRED }),
       );
     });
 
@@ -748,7 +820,7 @@ describe("ClaudeChatAdapter", () => {
       await expect(
         collectEvents(adapter.resume(createMockSession(), "some-session-id")),
       ).rejects.toThrow(
-        expect.objectContaining({ code: ChatErrorCode.SESSION_NOT_FOUND }),
+        expect.objectContaining({ code: ErrorCode.SESSION_NOT_FOUND }),
       );
     });
 
@@ -776,7 +848,7 @@ describe("ClaudeChatAdapter", () => {
       await expect(
         collectEvents(adapter.resume(createMockSession(), "any-id")),
       ).rejects.toThrow(
-        expect.objectContaining({ code: ChatErrorCode.DISPOSED }),
+        expect.objectContaining({ code: ErrorCode.DISPOSED }),
       );
     });
   });
@@ -823,31 +895,14 @@ describe("VercelAIChatAdapter", () => {
     expect(createAdapter().name).toBe("vercel-ai");
   });
 
-  it("backendSessionId is always null", async () => {
+  it("does not have backendSessionId (stateless, no IResumableBackend)", async () => {
     const adapter = createAdapter();
-    expect(adapter.backendSessionId).toBeNull();
-    await collectEvents(
-      adapter.streamMessage(createMockSession(), "Hi"),
-    );
-    expect(adapter.backendSessionId).toBeNull();
+    expect("backendSessionId" in adapter).toBe(false);
   });
 
-  it("canResume always returns false", async () => {
+  it("does not have canResume (stateless, no IResumableBackend)", async () => {
     const adapter = createAdapter();
-    expect(adapter.canResume()).toBe(false);
-    await collectEvents(
-      adapter.streamMessage(createMockSession(), "Hi"),
-    );
-    expect(adapter.canResume()).toBe(false);
-  });
-
-  it("resume throws PROVIDER_ERROR", async () => {
-    const adapter = createAdapter();
-    await expect(
-      collectEvents(adapter.resume(createMockSession(), "any-id")),
-    ).rejects.toThrow(
-      expect.objectContaining({ code: ChatErrorCode.PROVIDER_ERROR }),
-    );
+    expect("canResume" in adapter).toBe(false);
   });
 
   describe("streamMessage", () => {
@@ -898,7 +953,7 @@ describe("VercelAIChatAdapter", () => {
       await expect(
         adapter.sendMessage(createMockSession(), "Hi"),
       ).rejects.toThrow(
-        expect.objectContaining({ code: ChatErrorCode.DISPOSED }),
+        expect.objectContaining({ code: ErrorCode.DISPOSED }),
       );
     });
   });
@@ -1054,23 +1109,23 @@ describe("streamToTransport", () => {
   });
 });
 
-// ─── IBackendAdapter contract ──────────────────────────────────
+// ─── IResumableBackend contract ──────────────────────────────────
 
-describe("IBackendAdapter contract", () => {
-  it("CopilotChatAdapter implements all IChatProvider methods", () => {
+describe("IResumableBackend contract", () => {
+  it("CopilotChatAdapter implements all IChatBackend methods", () => {
     const adapter = new CopilotChatAdapter({
       agentConfig: createDefaultAgentConfig(),
       agentService: createMockService(),
     });
 
-    // IChatProvider methods
+    // IChatBackend methods
     expect(typeof adapter.sendMessage).toBe("function");
     expect(typeof adapter.streamMessage).toBe("function");
     expect(typeof adapter.listModels).toBe("function");
     expect(typeof adapter.validate).toBe("function");
     expect(typeof adapter.dispose).toBe("function");
 
-    // IBackendAdapter additions
+    // IResumableBackend additions
     expect(typeof adapter.canResume).toBe("function");
     expect(typeof adapter.resume).toBe("function");
     expect(adapter.backendSessionId).toBeNull();
@@ -1078,7 +1133,7 @@ describe("IBackendAdapter contract", () => {
     expect(typeof adapter.name).toBe("string");
   });
 
-  it("ClaudeChatAdapter implements all IChatProvider methods", () => {
+  it("ClaudeChatAdapter implements all IChatBackend methods", () => {
     const adapter = new ClaudeChatAdapter({
       agentConfig: createDefaultAgentConfig(),
       agentService: createMockService(),
@@ -1097,24 +1152,200 @@ describe("IBackendAdapter contract", () => {
     expect(adapter.name).toBe("claude");
   });
 
-  it("VercelAIChatAdapter implements all IChatProvider methods", () => {
+  it("VercelAIChatAdapter implements IChatBackend methods", () => {
     const adapter = new VercelAIChatAdapter({
       agentConfig: createDefaultAgentConfig(),
       agentService: createMockService(),
     });
 
+    // IChatBackend methods (no resume support — stateless)
     expect(typeof adapter.sendMessage).toBe("function");
     expect(typeof adapter.streamMessage).toBe("function");
     expect(typeof adapter.listModels).toBe("function");
     expect(typeof adapter.validate).toBe("function");
     expect(typeof adapter.dispose).toBe("function");
 
-    expect(typeof adapter.canResume).toBe("function");
-    expect(typeof adapter.resume).toBe("function");
-    expect(adapter.backendSessionId).toBeNull();
     expect(adapter.agentService).toBeDefined();
     expect(adapter.name).toBe("vercel-ai");
-    expect(adapter.canResume()).toBe(false);
+
+    // VercelAI does NOT implement IResumableBackend
+    expect("canResume" in adapter).toBe(false);
+    expect("resume" in adapter).toBe(false);
+    expect("backendSessionId" in adapter).toBe(false);
+  });
+});
+
+// ─── isResumableBackend type guard ─────────────────────────────
+
+describe("isResumableBackend", () => {
+  it("returns true for CopilotChatAdapter", () => {
+    const adapter = new CopilotChatAdapter({
+      agentConfig: createDefaultAgentConfig(),
+      agentService: createMockService(),
+    });
+    expect(isResumableBackend(adapter)).toBe(true);
+  });
+
+  it("returns true for ClaudeChatAdapter", () => {
+    const adapter = new ClaudeChatAdapter({
+      agentConfig: createDefaultAgentConfig(),
+      agentService: createMockService(),
+    });
+    expect(isResumableBackend(adapter)).toBe(true);
+  });
+
+  it("returns false for VercelAIChatAdapter", () => {
+    const adapter = new VercelAIChatAdapter({
+      agentConfig: createDefaultAgentConfig(),
+      agentService: createMockService(),
+    });
+    expect(isResumableBackend(adapter)).toBe(false);
+  });
+});
+
+describe("BaseBackendAdapter stateless tool/model handling", () => {
+  let mockService: IAgentService;
+  let mockAgent: IAgent;
+  let secondAgent: IAgent;
+
+  class TestAdapter extends BaseBackendAdapter {
+    constructor(options: BackendAdapterOptions) {
+      super("test", options);
+    }
+
+    protected createService(): IAgentService {
+      throw new Error("Should not be called when service is provided");
+    }
+
+    protected captureSessionId(agent: IAgent): void {
+      // No-op for test
+    }
+  }
+
+  beforeEach(() => {
+    mockAgent = createMockAgent();
+    secondAgent = createMockAgent();
+    mockService = createMockService(mockAgent);
+    // Second createAgent call returns secondAgent
+    (mockService.createAgent as ReturnType<typeof vi.fn>)
+      .mockReturnValueOnce(mockAgent)
+      .mockReturnValueOnce(secondAgent);
+  });
+
+  it("currentModel returns config model", () => {
+    const adapter = new TestAdapter({
+      agentConfig: { ...createDefaultAgentConfig(), model: "gpt-4" },
+      agentService: mockService,
+    });
+    expect(adapter.currentModel).toBe("gpt-4");
+  });
+
+  it("currentModel returns undefined when config has no model", () => {
+    const adapter = new TestAdapter({
+      agentConfig: createDefaultAgentConfig(),
+      agentService: mockService,
+    });
+    expect(adapter.currentModel).toBeUndefined();
+  });
+
+  it("setTools is a deprecated no-op", async () => {
+    const adapter = new TestAdapter({
+      agentConfig: { ...createDefaultAgentConfig(), sessionMode: "persistent" },
+      agentService: mockService,
+    });
+    const session = createMockSession();
+    await collectEvents(adapter.streamMessage(session, "Hi"));
+    expect(mockService.createAgent).toHaveBeenCalledTimes(1);
+
+    // setTools is no-op — does NOT dispose cached agent
+    adapter.setTools();
+    expect(mockAgent.dispose).not.toHaveBeenCalled();
+
+    // Same persistent agent reused on next call
+    await collectEvents(adapter.streamMessage(session, "Hello"));
+    expect(mockService.createAgent).toHaveBeenCalledTimes(1);
+  });
+
+  it("tools passed per-call via SendMessageOptions reach agent", async () => {
+    const adapter = new TestAdapter({
+      agentConfig: createDefaultAgentConfig(),
+      agentService: mockService,
+    });
+    const tools = [{ name: "my_tool", description: "desc", parameters: {}, execute: async () => "ok" }];
+    const session = createMockSession();
+    await collectEvents(adapter.streamMessage(session, "Hi", { tools }));
+
+    expect(mockAgent.streamWithContext).toHaveBeenCalledWith(
+      expect.any(Array),
+      expect.objectContaining({ tools }),
+    );
+  });
+
+  it("non-persistent mode disposes previous agent on each call (P23 fix)", async () => {
+    const adapter = new TestAdapter({
+      agentConfig: createDefaultAgentConfig(), // default: per-call
+      agentService: mockService,
+    });
+    const session = createMockSession();
+    // First stream — creates and caches agent
+    await collectEvents(adapter.streamMessage(session, "First"));
+    expect(mockService.createAgent).toHaveBeenCalledTimes(1);
+
+    // Second stream — should dispose first agent before creating new one
+    await collectEvents(adapter.streamMessage(session, "Second"));
+    expect(mockAgent.dispose).toHaveBeenCalled();
+    expect(mockService.createAgent).toHaveBeenCalledTimes(2);
+  });
+
+  it("per-call model override via streamMessage options", async () => {
+    const adapter = new TestAdapter({
+      agentConfig: { ...createDefaultAgentConfig(), model: "gpt-4" },
+      agentService: mockService,
+    });
+
+    const session = createMockSession();
+    await collectEvents(
+      adapter.streamMessage(session, "Hi", { model: "gpt-6" }),
+    );
+
+    // Per-call model is passed to agent.streamWithContext, not createAgent
+    expect(mockAgent.streamWithContext).toHaveBeenCalledWith(
+      expect.any(Array),
+      expect.objectContaining({ model: "gpt-6" }),
+    );
+  });
+
+  it("agent config does not include tool overrides (tools per-call only)", async () => {
+    const configTools = [{ name: "config_tool", description: "from config", parameters: {} }];
+    const adapter = new TestAdapter({
+      agentConfig: { ...createDefaultAgentConfig(), tools: configTools },
+      agentService: mockService,
+    });
+
+    const session = createMockSession();
+    await collectEvents(adapter.streamMessage(session, "Hi"));
+
+    // Agent created with config tools only — no merging with runtime tools
+    expect(mockService.createAgent).toHaveBeenCalledWith(
+      expect.objectContaining({ tools: configTools }),
+    );
+  });
+
+  it("persistent mode recreates agent when model changes between calls", async () => {
+    const adapter = new TestAdapter({
+      agentConfig: { ...createDefaultAgentConfig(), sessionMode: "persistent", model: "gpt-4" },
+      agentService: mockService,
+    });
+    const session = createMockSession();
+
+    // First call with config model
+    await collectEvents(adapter.streamMessage(session, "Hi"));
+    expect(mockService.createAgent).toHaveBeenCalledTimes(1);
+
+    // Second call with different model — should recreate agent
+    await collectEvents(adapter.streamMessage(session, "Hello", { model: "gpt-6" }));
+    expect(mockAgent.dispose).toHaveBeenCalled();
+    expect(mockService.createAgent).toHaveBeenCalledTimes(2);
   });
 });
 
