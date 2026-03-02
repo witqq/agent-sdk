@@ -139,7 +139,6 @@ import type { IChatBackend } from "@witqq/agent-sdk/chat/backends";
 - `ChatSession<TCustom>` — pure data container with messages, config, metadata, and status. `TCustom` defaults to `Record<string, unknown>` for the `metadata.custom` field
 - `ObservableSession<TCustom>` — reactive wrapper extending `ChatSession` with `subscribe()`, `getSnapshot()`, `lastMessage` for React `useSyncExternalStore` integration
 - `ChatEvent` — 18-variant discriminated union (`message:start`, `message:delta`, `message:complete`, `tool:start`, `tool:complete`, `thinking:start`, `thinking:delta`, `thinking:end`, `done`, `error`, etc.)
-- `IChatProvider` — **@deprecated** type alias for `IChatBackend`. Import `IChatBackend` from `@witqq/agent-sdk/chat/backends` instead
 - `MessagePart` — union of `TextPart`, `ReasoningPart`, `ToolCallPart`, `SourcePart`, `FilePart`
 
 **Utility functions:**
