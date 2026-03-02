@@ -23,7 +23,6 @@ version: "0.8.0"
 ## Quality
 
 - [Quality Attributes](./quality-attributes.md) — 6 measurable scenarios with targets
-- [Risks and Technical Debt](./risks-and-debt.md) — 6 resolved gaps + 9 open items from feedback audit
 
 ## Decisions
 
