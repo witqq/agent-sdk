@@ -180,6 +180,6 @@ Cross-referenced with [moira-ws/sdk-feedback-audit-20260227-2101/all-items.md](.
 | Open — Documentation | 4 (IMP-06 through IMP-09) |
 | Open — Infrastructure | 1 (IMP-11, LOW) |
 | Strategic | 1 (IMP-12) |
-| **Total open** | **17** |
+| **Total open** | **9** |
 
 Source: [SDK Feedback Audit — All Items](../../moira-ws/sdk-feedback-audit-20260227-2101/all-items.md) (78 items), [Action Plan](../../moira-ws/sdk-feedback-audit-20250301-0700/step-4/action-plan.md) (27 findings, Tiers 1–4).
