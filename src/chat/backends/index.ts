@@ -14,6 +14,8 @@ export { isResumableBackend } from "./types.js";
 
 export { BaseBackendAdapter } from "./base.js";
 
+export { ResumableChatAdapter } from "./resumable.js";
+
 export {
   CopilotChatAdapter,
   type CopilotChatAdapterOptions,

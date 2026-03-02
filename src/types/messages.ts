@@ -11,6 +11,6 @@ export type ContentPart =
 /** Conversation message — discriminated union on `role` */
 export type Message =
   | { role: "user"; content: MessageContent }
-  | { role: "assistant"; content: MessageContent; toolCalls?: ToolCall[] }
+  | { role: "assistant"; content: MessageContent; toolCalls?: ToolCall[]; thinking?: string }
   | { role: "tool"; content?: string; toolResults: ToolResult[] }
   | { role: "system"; content: string };

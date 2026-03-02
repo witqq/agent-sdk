@@ -116,6 +116,32 @@ Library with modular entry points. Not a deployed service — consumed as npm pa
 ### Module Structure
 11 bounded contexts organized by dependency direction. See [Container Diagram](./container-diagram.md) and [Bounded Context Map](./bounded-context-map.md).
 
+## Backend Architecture: Two Layers
+
+The SDK has two directories both named "backends" — this is intentional. They represent two layers of the same abstraction:
+
+```
+src/backends/           → Agent Services (low-level)
+  copilot.ts            CopilotAgentService
+  claude.ts             ClaudeAgentService
+  vercel-ai.ts          VercelAIAgentService
+  shared.ts             Shared utilities
+
+src/chat/backends/      → Chat Adapters (high-level)
+  copilot.ts            CopilotChatAdapter
+  claude.ts             ClaudeChatAdapter
+  vercel-ai.ts          VercelAIChatAdapter
+  base.ts               BaseBackendAdapter
+  resumable.ts          ResumableChatAdapter
+  transport.ts          IChatTransport implementations
+```
+
+**Agent Services** (`IAgentService`) wrap vendor SDKs and emit `AgentEvent` streams. They handle subprocess management (Copilot/Claude) or HTTP calls (Vercel AI). Consumers who only need the agent abstraction layer use these directly via `createAgentService()`.
+
+**Chat Adapters** (`IChatBackend`) sit one layer above. They bridge `IAgentService` → `ChatEvent` streams and manage session lifecycle (persistent sessions, resume). Used by `ChatRuntime` and the full Chat SDK stack.
+
+The naming overlap (`copilot.ts` in both directories) reflects that each file handles the same vendor — at a different abstraction level. Consumer entry points keep them separate: `@witqq/agent-sdk/copilot` vs `@witqq/agent-sdk/chat/backends`.
+
 ## 8. Crosscutting Concepts
 
 | Concern | Approach |

@@ -15,6 +15,7 @@ import {
   chatEventToAgentEvent,
   adaptAgentEvents,
   toAgentMessage,
+  toAgentMessages,
   fromAgentMessage,
   getMessageText,
   getMessageToolCalls,
@@ -784,6 +785,226 @@ describe("toAgentMessage", () => {
     };
     const agentMsg = toAgentMessage(chatMsg);
     expect(agentMsg).toEqual({ role: "user", content: "hello world" });
+  });
+});
+
+// ─── toAgentMessages (plural — preserves tool results) ─────────
+
+describe("toAgentMessages", () => {
+  it("returns single message for user", () => {
+    const chatMsg: ChatMessage = {
+      id: createChatId(),
+      role: "user",
+      parts: [{ type: "text", text: "hello", status: "complete" }],
+      createdAt: new Date().toISOString(),
+      status: "complete",
+    };
+    const msgs = toAgentMessages(chatMsg);
+    expect(msgs).toHaveLength(1);
+    expect(msgs[0]).toEqual({ role: "user", content: "hello" });
+  });
+
+  it("returns single message for system", () => {
+    const chatMsg: ChatMessage = {
+      id: createChatId(),
+      role: "system",
+      parts: [{ type: "text", text: "You are a bot.", status: "complete" }],
+      createdAt: new Date().toISOString(),
+      status: "complete",
+    };
+    const msgs = toAgentMessages(chatMsg);
+    expect(msgs).toHaveLength(1);
+    expect(msgs[0]).toEqual({ role: "system", content: "You are a bot." });
+  });
+
+  it("returns single message for assistant without tool calls", () => {
+    const chatMsg: ChatMessage = {
+      id: createChatId(),
+      role: "assistant",
+      parts: [{ type: "text", text: "Here is the answer.", status: "complete" }],
+      createdAt: new Date().toISOString(),
+      status: "complete",
+    };
+    const msgs = toAgentMessages(chatMsg);
+    expect(msgs).toHaveLength(1);
+    expect(msgs[0]).toEqual({ role: "assistant", content: "Here is the answer." });
+  });
+
+  it("returns single message for assistant with pending tool calls (no results)", () => {
+    const chatMsg: ChatMessage = {
+      id: createChatId(),
+      role: "assistant",
+      parts: [
+        { type: "tool_call", toolCallId: "tc1", name: "search", args: { q: "test" }, status: "running" },
+      ],
+      createdAt: new Date().toISOString(),
+      status: "complete",
+    };
+    const msgs = toAgentMessages(chatMsg);
+    expect(msgs).toHaveLength(1);
+    expect(msgs[0].role).toBe("assistant");
+    if (msgs[0].role === "assistant") {
+      expect(msgs[0].toolCalls).toHaveLength(1);
+    }
+  });
+
+  it("returns two messages for assistant with completed tool calls (with results)", () => {
+    const chatMsg: ChatMessage = {
+      id: createChatId(),
+      role: "assistant",
+      parts: [
+        { type: "text", text: "Let me search.", status: "complete" },
+        {
+          type: "tool_call",
+          toolCallId: "tc1",
+          name: "search",
+          args: { q: "weather" },
+          result: "Sunny, 25°C",
+          status: "complete",
+        },
+      ],
+      createdAt: new Date().toISOString(),
+      status: "complete",
+    };
+    const msgs = toAgentMessages(chatMsg);
+    expect(msgs).toHaveLength(2);
+
+    // First: assistant with toolCalls
+    expect(msgs[0].role).toBe("assistant");
+    if (msgs[0].role === "assistant") {
+      expect(msgs[0].content).toBe("Let me search.");
+      expect(msgs[0].toolCalls).toEqual([
+        { id: "tc1", name: "search", args: { q: "weather" } },
+      ]);
+    }
+
+    // Second: tool with toolResults
+    expect(msgs[1].role).toBe("tool");
+    if (msgs[1].role === "tool") {
+      expect(msgs[1].toolResults).toEqual([
+        { toolCallId: "tc1", name: "search", result: "Sunny, 25°C", isError: undefined },
+      ]);
+    }
+  });
+
+  it("handles multiple tool calls with results", () => {
+    const chatMsg: ChatMessage = {
+      id: createChatId(),
+      role: "assistant",
+      parts: [
+        {
+          type: "tool_call",
+          toolCallId: "tc1",
+          name: "search",
+          args: { q: "a" },
+          result: "result-a",
+          status: "complete",
+        },
+        {
+          type: "tool_call",
+          toolCallId: "tc2",
+          name: "calc",
+          args: { expr: "1+1" },
+          result: "2",
+          status: "complete",
+        },
+      ],
+      createdAt: new Date().toISOString(),
+      status: "complete",
+    };
+    const msgs = toAgentMessages(chatMsg);
+    expect(msgs).toHaveLength(2);
+
+    if (msgs[0].role === "assistant") {
+      expect(msgs[0].toolCalls).toHaveLength(2);
+    }
+    if (msgs[1].role === "tool") {
+      expect(msgs[1].toolResults).toHaveLength(2);
+      expect(msgs[1].toolResults[0].toolCallId).toBe("tc1");
+      expect(msgs[1].toolResults[1].toolCallId).toBe("tc2");
+    }
+  });
+
+  it("marks errored tool calls with isError", () => {
+    const chatMsg: ChatMessage = {
+      id: createChatId(),
+      role: "assistant",
+      parts: [
+        {
+          type: "tool_call",
+          toolCallId: "tc1",
+          name: "search",
+          args: {},
+          result: "Error: timeout",
+          status: "error",
+        },
+      ],
+      createdAt: new Date().toISOString(),
+      status: "complete",
+    };
+    const msgs = toAgentMessages(chatMsg);
+    expect(msgs).toHaveLength(2);
+    if (msgs[1].role === "tool") {
+      expect(msgs[1].toolResults[0].isError).toBe(true);
+    }
+  });
+
+  it("round-trips: fromAgentMessage → toAgentMessages preserves tool results", () => {
+    // Start with agent-level messages (tool call + result)
+    const assistantMsg = {
+      role: "assistant" as const,
+      content: "Calling tool",
+      toolCalls: [{ id: "tc1", name: "search", args: { q: "test" } as const }],
+    };
+    const toolMsg = {
+      role: "tool" as const,
+      toolResults: [{ toolCallId: "tc1", name: "search", result: "found it" as const }],
+    };
+
+    // Convert to ChatMessage (fromAgentMessage merges tool results into assistant)
+    const chatAssistant = fromAgentMessage(assistantMsg);
+    const chatTool = fromAgentMessage(toolMsg);
+
+    // The chat layer stores tool results on the assistant-role message
+    // Merge them (simulating what accumulator does in practice)
+    const mergedChat: ChatMessage = {
+      ...chatAssistant,
+      parts: [
+        ...chatAssistant.parts,
+        ...chatTool.parts.filter(p => p.type === "tool_call" && "result" in p),
+      ],
+    };
+
+    // Now convert back — tool results should be preserved
+    const agentMsgs = toAgentMessages(mergedChat);
+    // Should have the tool_call parts from chatTool with results
+    const toolResultMsgs = agentMsgs.filter(m => m.role === "tool");
+    expect(toolResultMsgs.length).toBeGreaterThanOrEqual(1);
+    if (toolResultMsgs[0].role === "tool") {
+      expect(toolResultMsgs[0].toolResults[0].result).toBe("found it");
+    }
+  });
+
+  it("toAgentMessage (deprecated) returns first message", () => {
+    const chatMsg: ChatMessage = {
+      id: createChatId(),
+      role: "assistant",
+      parts: [
+        {
+          type: "tool_call",
+          toolCallId: "tc1",
+          name: "search",
+          args: {},
+          result: "data",
+          status: "complete",
+        },
+      ],
+      createdAt: new Date().toISOString(),
+      status: "complete",
+    };
+    // Deprecated toAgentMessage returns first message (assistant)
+    const msg = toAgentMessage(chatMsg);
+    expect(msg.role).toBe("assistant");
   });
 });
 

@@ -219,21 +219,6 @@ function convertParameters(params: unknown): z.ZodType | Record<string, unknown>
   return params as Record<string, unknown>;
 }
 
-/** Async tool mapping that pre-converts Zod schemas to JSON Schema.
- *  Handles ESM environments where synchronous Zod import may fail. */
-async function mapToolsToSDKAsync(tools: ToolDefinition[]): Promise<SDKTool[]> {
-  return tools.map((tool) => ({
-    name: tool.name,
-    description: tool.description,
-    parameters: convertParameters(tool.parameters),
-    handler: async (args: unknown): Promise<unknown> => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const result = await tool.execute(args as any);
-      return typeof result === "string" ? result : JSON.stringify(result);
-    },
-  }));
-}
-
 // ─── Permission Mapping ─────────────────────────────────────────
 
 function buildPermissionHandler(
@@ -535,10 +520,10 @@ class CopilotAgent extends BaseAgent {
     this._resumeSessionId = resumeSessionId;
   }
 
-  /** Pre-convert Zod schemas to JSON Schema asynchronously.
+  /** Pre-convert Zod schemas to JSON Schema.
    *  Updates sdkTools and sessionConfig.tools before first session creation. */
   private async _initToolsAsync(config: FullAgentConfig): Promise<void> {
-    this.sdkTools = await mapToolsToSDKAsync(config.tools ?? []);
+    this.sdkTools = mapToolsToSDK(config.tools ?? []);
     this.sessionConfig.tools = this.sdkTools;
   }
 
