@@ -32,6 +32,11 @@ Use case: Desktop apps (Electron), CLI tools, test environments.
 Transport that publishes `ChatEvent` to a NATS subject.
 Use case: Microservice architectures, event-driven systems (e.g., claude-supervisor).
 
+### 4. Enhanced NATS Transport (`nats-enhanced-transport.ts`)
+
+Subject-based routing with request-reply and pub/sub streaming patterns.
+Includes `NatsChatRouter` (server-side) and `NatsChatClient` (client-side) with typed methods for send, sessions, and models.
+
 ## Usage Pattern
 
 All transports follow the same pattern with `streamToTransport()`:
@@ -43,7 +48,7 @@ import { streamToTransport } from '@witqq/agent-sdk/chat/backends';
 const transport = new WsChatTransport(wsConnection);
 
 // 2. Get a ChatEvent stream from runtime
-const stream = runtime.send(sessionId, message);
+const stream = runtime.send(sessionId, message, { model: 'gpt-5-mini', backend: 'copilot' });
 
 // 3. Pipe stream to transport
 await streamToTransport(stream, transport);
@@ -54,6 +59,6 @@ Or use directly with `createChatHandler`-style routing:
 ```typescript
 // In your custom handler
 const transport = new NatsChatTransport(nats, replySubject);
-const stream = runtime.send(sessionId, message);
+const stream = runtime.send(sessionId, message, { model: 'gpt-5-mini', backend: 'copilot' });
 await streamToTransport(stream, transport);
 ```
