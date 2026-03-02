@@ -6,7 +6,6 @@ tsconfig.json
 tsup.config.ts
 vitest.config.ts
 CLAUDE.md
-DOCUMENTATION-STYLE-GUIDE.md
-PROJECT_CHECKLIST.md
+MOIRA-BUGS.md
 .git/
 .gitignore
