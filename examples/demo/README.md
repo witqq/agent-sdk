@@ -10,7 +10,6 @@ npm run demo              # Build & start in Docker (port 3456)
 npm run demo -- stop      # Stop Docker container
 npm run demo -- logs      # Follow Docker logs
 npm run demo -- restart   # Rebuild & restart
-npm run demo -- dev       # Local dev without Docker
 ```
 
 ## What It Demonstrates
