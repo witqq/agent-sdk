@@ -229,7 +229,7 @@ describe("createUsageMiddleware", () => {
     expect(usage!.totalTokens).toBe(430);
   });
 
-  it("should track model and backend from usage events", async () => {
+  it("should track model from usage events", async () => {
     const store = new InMemoryUsageStore();
     const middleware = createUsageMiddleware(store);
     const sessionId = createChatId();
@@ -237,7 +237,7 @@ describe("createUsageMiddleware", () => {
 
     middleware.onBeforeSend!(makeMessage(), ctx);
     middleware.onEvent!(
-      { type: "usage", promptTokens: 10, completionTokens: 5, model: "gpt-4", backend: "copilot" } as ChatEvent,
+      { type: "usage", promptTokens: 10, completionTokens: 5, model: "gpt-4" } as ChatEvent,
       ctx,
     );
     middleware.onEvent!({ type: "done" } as ChatEvent, ctx);
@@ -249,6 +249,5 @@ describe("createUsageMiddleware", () => {
 
     const usage = await store.getUsage(sessionId);
     expect(usage!.lastModel).toBe("gpt-4");
-    expect(usage!.lastBackend).toBe("copilot");
   });
 });
