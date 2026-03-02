@@ -24,6 +24,8 @@ export type {
   TimeoutConfig,
   ErrorHandlingConfig,
   AgentConfig,
+  CallDefaults,
+  FullAgentConfig,
   AgentResult,
   AgentState,
   IAgent,
@@ -33,6 +35,17 @@ export type {
   CopilotBackendOptions,
   ClaudeBackendOptions,
   VercelAIBackendOptions,
+  CallOptions,
+  RetryConfig,
+  StreamMiddleware,
+  StreamContext,
+} from "./types.js";
+
+// ─── Error Classification ──────────────────────────────────────
+export {
+  ErrorCode,
+  isRecoverableErrorCode,
+  classifyAgentError,
 } from "./types.js";
 
 // ─── Type Guards ───────────────────────────────────────────────
@@ -44,6 +57,7 @@ export {
 } from "./types.js";
 
 // ─── Errors ────────────────────────────────────────────────────
+export type { AgentSDKErrorOptions } from "./errors.js";
 export {
   AgentSDKError,
   ReentrancyError,
@@ -54,6 +68,7 @@ export {
   DependencyError,
   AbortError,
   ToolExecutionError,
+  ActivityTimeoutError,
   StructuredOutputError,
 } from "./errors.js";
 
@@ -61,11 +76,14 @@ export {
 export type { BackendFactory, BackendOptionsMap, BuiltinBackendName } from "./registry.js";
 export {
   registerBackend,
+  registerLazyBackend,
   unregisterBackend,
   hasBackend,
   listBackends,
   resetRegistry,
   createAgentService,
+  disposeBackend,
+  listConfigs,
 } from "./registry.js";
 
 // ─── Base Agent ────────────────────────────────────────────────

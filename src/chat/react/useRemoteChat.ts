@@ -4,13 +4,13 @@
  * Lifecycle hook that orchestrates auth → runtime → session.
  *
  * On mount, checks for saved auth tokens and auto-restores.
- * Once authenticated, creates a RemoteChatRuntime and initial session.
- * Exposes readiness phase, the runtime instance, and the auth sub-hook.
+ * Once authenticated, creates a RemoteChatClient and initial session.
+ * Exposes readiness phase, the client instance, and the auth sub-hook.
  */
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import type { IChatRuntime } from "../runtime.js";
-import { RemoteChatRuntime } from "./RemoteChatRuntime.js";
+import type { IChatClient } from "../runtime.js";
+import { RemoteChatClient } from "./RemoteChatClient.js";
 import { useRemoteAuth } from "./useRemoteAuth.js";
 import type { RemoteAuthBackend, UseRemoteAuthReturn } from "./useRemoteAuth.js";
 
@@ -37,16 +37,14 @@ export interface UseRemoteChatOptions {
   fetch?: typeof globalThis.fetch;
   /** Optional headers for all requests. */
   headers?: Record<string, string>;
-  /** Auto-restore saved tokens on mount (default: true). */
-  autoRestore?: boolean;
 }
 
 /** Return value from useRemoteChat. */
 export interface UseRemoteChatReturn {
   /** Current lifecycle phase. */
   phase: RemoteChatPhase;
-  /** Chat runtime (null until phase = "ready"). */
-  runtime: IChatRuntime | null;
+  /** Chat client (null until phase = "ready"). */
+  runtime: IChatClient | null;
   /** Initial session ID (null until phase = "ready"). */
   sessionId: string | null;
   /** Auth sub-hook for manual auth control. */
@@ -85,12 +83,11 @@ export function useRemoteChat(options: UseRemoteChatOptions): UseRemoteChatRetur
     backend,
     onReady,
     headers,
-    autoRestore = true,
   } = options;
   const fetchFn = options.fetch ?? globalThis.fetch.bind(globalThis);
 
   const [phase, setPhase] = useState<RemoteChatPhase>("initializing");
-  const [runtime, setRuntime] = useState<IChatRuntime | null>(null);
+  const [runtime, setRuntime] = useState<IChatClient | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
@@ -111,11 +108,11 @@ export function useRemoteChat(options: UseRemoteChatOptions): UseRemoteChatRetur
     headers,
   });
 
-  // Auto-restore saved tokens on mount
+  // Load saved tokens on mount
   const restoredRef = useRef(false);
   const [tokensLoaded, setTokensLoaded] = useState(false);
   useEffect(() => {
-    if (!autoRestore || restoredRef.current) return;
+    if (restoredRef.current) return;
     restoredRef.current = true;
 
     (async () => {
@@ -128,7 +125,7 @@ export function useRemoteChat(options: UseRemoteChatOptions): UseRemoteChatRetur
     })();
   // auth.loadSavedTokens is stable (useCallback)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoRestore]);
+  }, []);
 
   // When saved tokens load, auto-use if backend matches
   useEffect(() => {
@@ -171,7 +168,7 @@ export function useRemoteChat(options: UseRemoteChatOptions): UseRemoteChatRetur
 
     (async () => {
       try {
-        const rt = new RemoteChatRuntime({
+        const rt = new RemoteChatClient({
           baseUrl: chatBaseUrl,
           headers,
           fetch: fetchFn,

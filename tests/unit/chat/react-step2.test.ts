@@ -59,14 +59,38 @@ describe("Message", () => {
     expect(span!.textContent).toBe("Hello world");
   });
 
+  it("renders text part with MarkdownRenderer (bold/italic/code)", () => {
+    const msg = createTestMessage({
+      parts: [{ type: "text", text: "Hello **bold** and *italic* and `code`", status: "complete" }],
+    });
+    const { container } = render(createElement(Message, { message: msg }));
+    const textDiv = container.querySelector("[data-part='text']");
+    expect(textDiv).not.toBeNull();
+    // MarkdownRenderer wraps in [data-md-root]
+    const mdRoot = textDiv!.querySelector("[data-md-root]");
+    expect(mdRoot).not.toBeNull();
+    // Bold renders as <strong>
+    const strong = textDiv!.querySelector("strong");
+    expect(strong).not.toBeNull();
+    expect(strong!.textContent).toBe("bold");
+    // Italic renders as <em>
+    const em = textDiv!.querySelector("em");
+    expect(em).not.toBeNull();
+    expect(em!.textContent).toBe("italic");
+    // Inline code renders with data-md-inline-code
+    const code = textDiv!.querySelector("[data-md-inline-code]");
+    expect(code).not.toBeNull();
+    expect(code!.textContent).toBe("code");
+  });
+
   it("renders reasoning part with default renderer", () => {
     const msg = createTestMessage({
       parts: [{ type: "reasoning", text: "Let me think...", status: "complete" }],
     });
     const { container } = render(createElement(Message, { message: msg }));
-    const span = container.querySelector("[data-part='reasoning']");
-    expect(span).not.toBeNull();
-    expect(span!.textContent).toBe("Let me think...");
+    const thinking = container.querySelector("[data-thinking]");
+    expect(thinking).not.toBeNull();
+    expect(thinking!.textContent).toContain("Let me think...");
   });
 
   it("renders tool_call part with default renderer", () => {
@@ -80,10 +104,9 @@ describe("Message", () => {
       }],
     });
     const { container } = render(createElement(Message, { message: msg }));
-    const span = container.querySelector("[data-part='tool_call']");
-    expect(span).not.toBeNull();
-    expect(span!.textContent).toBe("search");
-    expect(span!.getAttribute("data-tool-name")).toBe("search");
+    const toolView = container.querySelector("[data-tool-status]");
+    expect(toolView).not.toBeNull();
+    expect(toolView!.querySelector("[data-tool-label='name']")!.textContent).toBe("search");
   });
 
   it("renders source part with default renderer", () => {
@@ -127,7 +150,12 @@ describe("Message", () => {
       ],
     });
     const { container } = render(createElement(Message, { message: msg }));
-    expect(container.querySelectorAll("[data-part]")).toHaveLength(5);
+    // text, source, file use data-part; reasoning uses data-thinking; tool_call uses data-tool-status
+    expect(container.querySelector("[data-part='text']")).not.toBeNull();
+    expect(container.querySelector("[data-thinking]")).not.toBeNull();
+    expect(container.querySelector("[data-tool-status]")).not.toBeNull();
+    expect(container.querySelector("[data-part='source']")).not.toBeNull();
+    expect(container.querySelector("[data-part='file']")).not.toBeNull();
   });
 
   it("uses renderText override", () => {
@@ -340,6 +368,42 @@ describe("ToolCallView", () => {
       createElement("div", { id: "custom-result" }, `Result: ${result}`);
     const { container } = render(createElement(ToolCallView, { part, renderResult }));
     expect(container.querySelector("#custom-result")!.textContent).toBe("Result: ok");
+  });
+
+  it("renders data-tool-header wrapper with name and status", () => {
+    const { container } = render(createElement(ToolCallView, { part: basePart }));
+    const header = container.querySelector("[data-tool-header]");
+    expect(header).not.toBeNull();
+    expect(header!.querySelector("[data-tool-label='name']")!.textContent).toBe("search");
+    expect(header!.querySelector("[data-tool-label='status']")!.textContent).toBe("complete");
+  });
+
+  it("wraps args in collapsible details/summary", () => {
+    const { container } = render(createElement(ToolCallView, { part: basePart }));
+    const details = container.querySelector("details[data-tool-details='args']");
+    expect(details).not.toBeNull();
+    const summary = details!.querySelector("summary");
+    expect(summary).not.toBeNull();
+    expect(summary!.textContent).toBe("Arguments");
+  });
+
+  it("wraps result in collapsible details/summary (open by default)", () => {
+    const part: ToolCallPart = { ...basePart, result: { data: 42 } };
+    const { container } = render(createElement(ToolCallView, { part }));
+    const details = container.querySelector("details[data-tool-details='result']") as HTMLDetailsElement;
+    expect(details).not.toBeNull();
+    expect(details.open).toBe(true);
+    const summary = details.querySelector("summary");
+    expect(summary!.textContent).toBe("Result");
+  });
+
+  it("wraps approve/deny buttons in data-tool-actions container", () => {
+    const part: ToolCallPart = { ...basePart, status: "requires_approval" };
+    const { container } = render(createElement(ToolCallView, { part, onApprove: vi.fn(), onDeny: vi.fn() }));
+    const actions = container.querySelector("[data-tool-actions]");
+    expect(actions).not.toBeNull();
+    expect(actions!.querySelector("[data-action='approve']")).not.toBeNull();
+    expect(actions!.querySelector("[data-action='deny']")).not.toBeNull();
   });
 });
 

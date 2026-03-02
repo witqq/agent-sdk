@@ -1,6 +1,7 @@
 // ─── Auth Token Types ──────────────────────────────────────────
 
 import { AgentSDKError } from "../errors.js";
+import { ErrorCode } from "../types/errors.js";
 
 /**
  * Base auth token returned by all auth providers.
@@ -45,6 +46,8 @@ export interface AuthToken {
 export interface CopilotAuthToken extends AuthToken {
   /** GitHub user login associated with the token */
   login?: string;
+  /** Refresh token for obtaining new access tokens (present when GitHub App has expiring tokens) */
+  refreshToken?: string;
 }
 
 /**
@@ -135,7 +138,7 @@ export interface OAuthFlowResult {
  */
 export class AuthError extends AgentSDKError {
   constructor(message: string, options?: ErrorOptions) {
-    super(message, options);
+    super(message, { ...options, code: ErrorCode.AUTH_EXPIRED });
     this.name = "AuthError";
   }
 }

@@ -16,27 +16,32 @@ import {
   adaptAgentEvents,
   toAgentMessage,
 } from "../core.js";
-import { ChatError, ChatErrorCode } from "../errors.js";
+import { ChatError, ErrorCode } from "../errors.js";
 import type {
-  AgentConfig,
+  FullAgentConfig,
   IAgent,
   IAgentService,
   Message,
   ModelInfo,
 } from "../../types.js";
-import type { IBackendAdapter, BackendAdapterOptions } from "./types.js";
+import type { IChatBackend, BackendAdapterOptions } from "./types.js";
 
 /**
- * Abstract base for backend adapters.
- * Subclasses implement createService() and override resume behavior.
+ * Abstract base for backend adapters implementing IChatBackend (core only).
+ * Subclasses implement createService() for backend-specific service creation.
+ * Resume support is NOT required — subclasses can implement IResumableBackend separately.
  */
-export abstract class BaseBackendAdapter implements IBackendAdapter {
+export abstract class BaseBackendAdapter implements IChatBackend {
   readonly name: string;
-  protected _agentService: IAgentService;
-  protected _agent: IAgent | null = null;
-  protected _disposed = false;
-  protected readonly _agentConfig: AgentConfig;
-  private readonly _ownsService: boolean;
+  private _agentService: IAgentService | null = null;
+  private _agentServiceFactory: (() => IAgentService) | null = null;
+  private _disposed = false;
+  protected readonly _agentConfig: FullAgentConfig;
+  private _ownsService: boolean;
+  // Agent lifecycle: tracks current agent and the model it was created with.
+  // For persistent sessions, reused across calls when model matches.
+  // For non-persistent, recreated every call.
+  private _currentAgent: { instance: IAgent; model: string | undefined } | null = null;
 
   constructor(name: string, options: BackendAdapterOptions) {
     this.name = name;
@@ -44,6 +49,9 @@ export abstract class BaseBackendAdapter implements IBackendAdapter {
     if (options.agentService) {
       this._agentService = options.agentService;
       this._ownsService = false;
+    } else if (options.agentServiceFactory) {
+      this._agentServiceFactory = options.agentServiceFactory;
+      this._ownsService = true;
     } else {
       this._agentService = this.createService();
       this._ownsService = true;
@@ -54,16 +62,30 @@ export abstract class BaseBackendAdapter implements IBackendAdapter {
   protected abstract createService(): IAgentService;
 
   get agentService(): IAgentService {
+    if (!this._agentService) {
+      if (this._agentServiceFactory) {
+        this._agentService = this._agentServiceFactory();
+        this._agentServiceFactory = null; // factory used once
+      } else {
+        throw new ChatError("Agent service not available", {
+          code: ErrorCode.BACKEND_NOT_INSTALLED,
+        });
+      }
+    }
     return this._agentService;
   }
 
-  abstract get backendSessionId(): string | null;
-  abstract canResume(): boolean;
-  abstract resume(
-    session: ChatSession,
-    backendSessionId: string,
-    options?: SendMessageOptions,
-  ): AsyncIterable<ChatEvent>;
+  get currentModel(): string | undefined {
+    return this._agentConfig.model;
+  }
+
+  /**
+   * @deprecated No-op. Tools are passed per-call via SendMessageOptions.tools.
+   * Kept for backward compatibility with code that calls setTools() directly.
+   */
+  setTools(): void {
+    // No-op — tools flow per-call via SendMessageOptions.tools
+  }
 
   async sendMessage(
     session: ChatSession,
@@ -125,10 +147,14 @@ export abstract class BaseBackendAdapter implements IBackendAdapter {
     options?: SendMessageOptions,
   ): AsyncIterable<ChatEvent> {
     const messageId = createChatId();
+    const model = options?.model ?? this._agentConfig.model ?? "";
 
     const agentEvents = agent.streamWithContext(messages, {
+      model,
       signal: options?.signal,
       context: options?.context,
+      tools: options?.tools,
+      ...(options?.systemPrompt ? { systemMessage: options.systemPrompt } : {}),
     });
 
     yield { type: "message:start", messageId, role: "assistant" };
@@ -159,40 +185,55 @@ export abstract class BaseBackendAdapter implements IBackendAdapter {
 
   async listModels(): Promise<ModelInfo[]> {
     this.assertNotDisposed();
-    return this._agentService.listModels();
+    return this.agentService.listModels();
   }
 
   async validate(): Promise<{ valid: boolean; errors: string[] }> {
     this.assertNotDisposed();
-    return this._agentService.validate();
+    return this.agentService.validate();
   }
 
   async dispose(): Promise<void> {
     if (this._disposed) return;
     this._disposed = true;
-    this._agent?.dispose();
-    this._agent = null;
-    if (this._ownsService) {
+    if (this._currentAgent) {
+      this._currentAgent.instance.dispose();
+      this._currentAgent = null;
+    }
+    if (this._ownsService && this._agentService && typeof this._agentService.dispose === "function") {
       await this._agentService.dispose();
     }
   }
 
-  /** Get or create an agent, applying model override from options */
+  /** Get or create an agent. Model is passed per-call via RunOptions.
+   *  Tools are passed per-call via SendMessageOptions — not baked into config.
+   *  For persistent sessions, reuses agent when model matches. */
   protected getOrCreateAgent(options?: SendMessageOptions): IAgent {
-    const config = options?.model
-      ? { ...this._agentConfig, model: options.model }
-      : this._agentConfig;
+    const model = options?.model ?? this._agentConfig.model;
 
-    // For persistent session mode, reuse the agent
-    if (this._agentConfig.sessionMode === "persistent" && this._agent) {
-      return this._agent;
+    // For persistent session mode, reuse if model matches
+    if (this._agentConfig.sessionMode === "persistent" && this._currentAgent) {
+      if (this._currentAgent.model === model) {
+        return this._currentAgent.instance;
+      }
+      // Model changed — dispose old agent, create new one below
+      this._currentAgent.instance.dispose();
+      this._currentAgent = null;
     }
 
-    // Create fresh agent
-    const agent = this._agentService.createAgent(config);
-    if (this._agentConfig.sessionMode === "persistent") {
-      this._agent = agent;
+    // Dispose previous agent to prevent leaks (P23)
+    if (this._currentAgent) {
+      this._currentAgent.instance.dispose();
+      this._currentAgent = null;
     }
+
+    // Create fresh agent — tools come per-call, not in config
+    const config: FullAgentConfig = {
+      ...this._agentConfig,
+      ...(model !== undefined && { model }),
+    };
+    const agent = this.agentService.createAgent(config);
+    this._currentAgent = { instance: agent, model };
     return agent;
   }
 
@@ -202,7 +243,7 @@ export abstract class BaseBackendAdapter implements IBackendAdapter {
   protected assertNotDisposed(): void {
     if (this._disposed) {
       throw new ChatError("Adapter is disposed", {
-        code: ChatErrorCode.DISPOSED,
+        code: ErrorCode.DISPOSED,
       });
     }
   }

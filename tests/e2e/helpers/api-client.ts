@@ -134,10 +134,35 @@ export class DemoApiClient {
     return res.json() as Promise<{ ok?: boolean; error?: string }>;
   }
 
-  // ─── Backend ─────────────────────────────────────────────
+  // ─── Providers ───────────────────────────────────────────
 
-  async switchBackend(backend: string): Promise<{ ok?: boolean; error?: string }> {
-    return this.post("/api/chat/backend/switch", { backend });
+  async listProviders(): Promise<Array<{ id: string; backend: string; model: string; label: string }>> {
+    return this.get("/api/chat/providers");
+  }
+
+  async createProvider(data: { backend: string; model: string; label: string }): Promise<{ id: string; backend: string; model: string; label: string }> {
+    return this.post("/api/chat/providers", data);
+  }
+
+  async getProvider(id: string): Promise<{ id: string; backend: string; model: string; label: string }> {
+    return this.get(`/api/chat/providers/${id}`);
+  }
+
+  async updateProvider(id: string, changes: { model?: string; label?: string }): Promise<{ id: string; backend: string; model: string; label: string }> {
+    return this.put(`/api/chat/providers/${id}`, changes);
+  }
+
+  async deleteProvider(id: string): Promise<{ ok: boolean }> {
+    return this.delete(`/api/chat/providers/${id}`);
+  }
+
+  async switchProvider(providerId: string): Promise<{ ok?: boolean; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/chat/provider/switch`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ providerId }),
+    });
+    return res.json() as Promise<{ ok?: boolean; error?: string }>;
   }
 
   // ─── Internal ────────────────────────────────────────────
@@ -169,6 +194,19 @@ export class DemoApiClient {
     if (!res.ok) {
       const text = await res.text();
       throw new Error(`DELETE ${path} failed (${res.status}): ${text}`);
+    }
+    return res.json() as Promise<T>;
+  }
+
+  private async put<T>(path: string, body: unknown): Promise<T> {
+    const res = await fetch(`${this.baseUrl}${path}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`PUT ${path} failed (${res.status}): ${text}`);
     }
     return res.json() as Promise<T>;
   }

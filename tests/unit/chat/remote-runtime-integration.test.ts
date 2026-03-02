@@ -1,15 +1,15 @@
 /**
  * @vitest-environment jsdom
  *
- * Integration test: React hooks working through RemoteChatRuntime with mock server.
- * Confirms that useChat + ChatProvider + RemoteChatRuntime form a working chain.
+ * Integration test: React hooks working through RemoteChatClient with mock server.
+ * Confirms that useChat + ChatProvider + RemoteChatClient form a working chain.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { createElement, type ReactNode } from "react";
 import { ChatProvider } from "../../../src/chat/react/ChatProvider.js";
 import { useChat } from "../../../src/chat/react/useChat.js";
-import { RemoteChatRuntime } from "../../../src/chat/react/RemoteChatRuntime.js";
+import { RemoteChatClient } from "../../../src/chat/react/RemoteChatClient.js";
 import type { ChatSession, ChatId, ChatEvent } from "../../../src/chat/core.js";
 
 // ─── Helpers ──────────────────────────────────────────────────
@@ -51,13 +51,13 @@ function jsonResponse(body: unknown, status = 200): Response {
 
 // ─── Tests ────────────────────────────────────────────────────
 
-describe("React hooks through RemoteChatRuntime", () => {
+describe("React hooks through RemoteChatClient", () => {
   let fetchMock: ReturnType<typeof vi.fn>;
-  let runtime: RemoteChatRuntime;
+  let runtime: RemoteChatClient;
 
   beforeEach(() => {
     fetchMock = vi.fn();
-    runtime = new RemoteChatRuntime({
+    runtime = new RemoteChatClient({
       baseUrl: "http://localhost:3456/api",
       fetch: fetchMock,
     });
@@ -67,7 +67,7 @@ describe("React hooks through RemoteChatRuntime", () => {
     return createElement(ChatProvider, { runtime, children });
   }
 
-  it("useChat can send a message through RemoteChatRuntime", async () => {
+  it("useChat can send a message through RemoteChatClient", async () => {
     const session = mockSession("s1");
     const sessionWithMsg = {
       ...session,
@@ -116,7 +116,7 @@ describe("React hooks through RemoteChatRuntime", () => {
     expect(fetchCalls).toContain("http://localhost:3456/api/send");
   });
 
-  it("useChat.stop() calls abort on RemoteChatRuntime", async () => {
+  it("useChat.stop() calls abort on RemoteChatClient", async () => {
     const session = mockSession("s1");
     fetchMock.mockImplementation((url: string) => {
       if (url.includes("/sessions/create")) {
@@ -147,7 +147,7 @@ describe("React hooks through RemoteChatRuntime", () => {
     expect(result.current.status).toBe("idle");
   });
 
-  it("ChatProvider provides RemoteChatRuntime to hooks", () => {
+  it("ChatProvider provides RemoteChatClient to hooks", () => {
     const { result } = renderHook(
       () => useChat(),
       { wrapper },
@@ -159,7 +159,7 @@ describe("React hooks through RemoteChatRuntime", () => {
     expect(result.current.isGenerating).toBe(false);
   });
 
-  it("useChat creates session on first send via RemoteChatRuntime", async () => {
+  it("useChat creates session on first send via RemoteChatClient", async () => {
     const session = mockSession("auto-created");
     fetchMock.mockImplementation((url: string) => {
       if (url.includes("/sessions/create")) {

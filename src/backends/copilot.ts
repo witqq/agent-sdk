@@ -2,7 +2,7 @@ import type { z } from "zod";
 import type {
   IAgent,
   IAgentService,
-  AgentConfig,
+  FullAgentConfig,
   AgentResult,
   AgentEvent,
   Message,
@@ -16,10 +16,11 @@ import type {
   JSONValue,
   PermissionRequest as UnifiedPermissionRequest,
 } from "../types.js";
-import { getTextContent } from "../types.js";
+import { getTextContent, classifyAgentError, isRecoverableErrorCode } from "../types.js";
 import { BaseAgent } from "../base-agent.js";
 import { DisposedError, SubprocessError, AbortError } from "../errors.js";
 import { zodToJsonSchema } from "../utils/schema.js";
+import { extractLastUserPrompt, buildContextualPrompt } from "./shared.js";
 
 export type { CopilotBackendOptions } from "../types.js";
 
@@ -139,6 +140,12 @@ interface SDKSession {
 interface SDKModelInfo {
   id: string;
   name: string;
+  capabilities?: {
+    limits?: {
+      max_context_window_tokens?: number;
+      max_prompt_tokens?: number;
+    };
+  };
 }
 
 /** @internal */
@@ -154,19 +161,20 @@ interface SDKClient {
 
 // ─── Dynamic SDK Loader ─────────────────────────────────────────
 
-let sdkModule: {
+type CopilotSDKModule = {
   CopilotClient: new (options?: SDKClientOptions) => SDKClient;
-} | null = null;
+};
 
-async function loadSDK(): Promise<
-  NonNullable<typeof sdkModule>
-> {
-  if (sdkModule) return sdkModule;
+/** Module-level mock set by _injectSDK() for testing */
+let _sdkMock: CopilotSDKModule | null = null;
+
+/** Load the Copilot SDK. Checks module-level mock first, then dynamic import. */
+async function loadSDK(): Promise<CopilotSDKModule> {
+  if (_sdkMock) return _sdkMock;
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-ts-comment
     // @ts-ignore — peer dependency, not present at compile time
-    sdkModule = (await import("@github/copilot-sdk")) as any;
-    return sdkModule!;
+    return (await import("@github/copilot-sdk")) as any;
   } catch {
     throw new SubprocessError(
       "@github/copilot-sdk is not installed. Install it: npm install @github/copilot-sdk",
@@ -176,14 +184,14 @@ async function loadSDK(): Promise<
 
 /** @internal For testing: inject mock SDK module */
 export function _injectSDK(
-  mock: typeof sdkModule,
+  mock: CopilotSDKModule | null,
 ): void {
-  sdkModule = mock;
+  _sdkMock = mock;
 }
 
 /** @internal For testing: reset injected SDK */
 export function _resetSDK(): void {
-  sdkModule = null;
+  _sdkMock = null;
 }
 
 // ─── Tool Mapping ───────────────────────────────────────────────
@@ -229,7 +237,7 @@ async function mapToolsToSDKAsync(tools: ToolDefinition[]): Promise<SDKTool[]> {
 // ─── Permission Mapping ─────────────────────────────────────────
 
 function buildPermissionHandler(
-  config: AgentConfig,
+  config: FullAgentConfig,
 ): SDKSessionConfig["onPermissionRequest"] {
   const onPermission = config.supervisor?.onPermission;
 
@@ -254,6 +262,7 @@ function buildPermissionHandler(
     const unifiedRequest: UnifiedPermissionRequest = {
       toolName,
       toolArgs: { ...request } as Record<string, unknown>,
+      toolCallId: request.toolCallId,
       rawSDKRequest: request,
     };
 
@@ -275,7 +284,7 @@ function buildPermissionHandler(
 // ─── User Input Mapping ─────────────────────────────────────────
 
 function buildUserInputHandler(
-  config: AgentConfig,
+  config: FullAgentConfig,
 ): SDKSessionConfig["onUserInputRequest"] {
   const onAskUser = config.supervisor?.onAskUser;
 
@@ -453,16 +462,23 @@ function mapSessionEvent(
 
     case "session.error":
       console.error("[copilot] mapSessionEvent error:", JSON.stringify(data));
-      return {
-        type: "error",
-        error: String(data.message ?? "Unknown error"),
-        recoverable: false,
-      };
+      {
+        const errorMsg = String(data.message ?? "Unknown error");
+        const code = classifyAgentError(errorMsg);
+        return {
+          type: "error",
+          error: errorMsg,
+          recoverable: isRecoverableErrorCode(code),
+          code,
+        };
+      }
 
     case "assistant.message": {
+      // Text was already streamed via text_delta events — suppress finalOutput to avoid duplication
       const doneEvent: AgentEvent = {
         type: "done",
-        finalOutput: data.content ? String(data.content) : null,
+        finalOutput: null,
+        streamed: true,
       };
       if (thinkingTracker.endThinking()) {
         return [{ type: "thinking_end" }, doneEvent];
@@ -486,12 +502,13 @@ class CopilotAgent extends BaseAgent {
   private readonly isPersistent: boolean;
   private persistentSession: SDKSession | null = null;
   private _sessionId: string | undefined;
+  private _persistentModel: string | undefined;
   private activeSession: SDKSession | null = null;
   private _resumeSessionId: string | undefined;
   private _toolsReady: Promise<void> | null = null;
 
   constructor(
-    config: AgentConfig,
+    config: FullAgentConfig,
     getClient: () => Promise<SDKClient>,
     sendAndWaitTimeout?: number,
     resumeSessionId?: string,
@@ -520,7 +537,7 @@ class CopilotAgent extends BaseAgent {
 
   /** Pre-convert Zod schemas to JSON Schema asynchronously.
    *  Updates sdkTools and sessionConfig.tools before first session creation. */
-  private async _initToolsAsync(config: AgentConfig): Promise<void> {
+  private async _initToolsAsync(config: FullAgentConfig): Promise<void> {
     this.sdkTools = await mapToolsToSDKAsync(config.tools ?? []);
     this.sessionConfig.tools = this.sdkTools;
   }
@@ -549,18 +566,36 @@ class CopilotAgent extends BaseAgent {
       this.persistentSession?.destroy().catch(() => {});
       this.persistentSession = null;
       this._sessionId = undefined;
+      this._persistentModel = undefined;
     }
   }
 
-  private async getOrCreateSession(streaming: boolean): Promise<{ session: SDKSession; isNew: boolean }> {
+  private async getOrCreateSession(streaming: boolean, options: RunOptions): Promise<{ session: SDKSession; isNew: boolean }> {
     if (this.isPersistent && this.persistentSession) {
-      return { session: this.persistentSession, isNew: false };
+      // Check if model has changed — if so, recreate the session
+      if (options.model !== this._persistentModel) {
+        this.persistentSession.destroy().catch(() => {});
+        this.persistentSession = null;
+        this._sessionId = undefined;
+        // Fall through to create new session with new model
+      } else {
+        return { session: this.persistentSession, isNew: false };
+      }
     }
     // Wait for async Zod converter initialization before first session creation
     if (this._toolsReady) {
       await this._toolsReady;
       this._toolsReady = null;
     }
+
+    // Apply per-call overrides to session config
+    const sessionConfig = { ...this.sessionConfig };
+    sessionConfig.model = options.model;
+    const resolvedTools = this.resolveTools(options);
+    if (options?.tools) {
+      sessionConfig.tools = mapToolsToSDK(resolvedTools);
+    }
+
     const client = await this.getClient();
     // Try to resume a stored session (from DB) before creating a new one.
     // This enables session recovery after server restart for persistent sessions.
@@ -569,12 +604,13 @@ class CopilotAgent extends BaseAgent {
       this._resumeSessionId = undefined; // Only attempt once
       try {
         const session = await client.resumeSession(storedId, {
-          ...this.sessionConfig,
+          ...sessionConfig,
           streaming: this.isPersistent ? true : streaming,
         });
         if (this.isPersistent) {
           this.persistentSession = session;
           this._sessionId = session.sessionId;
+          this._persistentModel = options.model;
         }
         return { session, isNew: false };
       } catch {
@@ -582,12 +618,13 @@ class CopilotAgent extends BaseAgent {
       }
     }
     const session = await client.createSession({
-      ...this.sessionConfig,
+      ...sessionConfig,
       streaming: this.isPersistent ? true : streaming,
     });
     if (this.isPersistent) {
       this.persistentSession = session;
       this._sessionId = session.sessionId;
+      this._persistentModel = options.model;
     }
     return { session, isNew: true };
   }
@@ -596,12 +633,12 @@ class CopilotAgent extends BaseAgent {
 
   protected async executeRun(
     messages: Message[],
-    _options: RunOptions | undefined,
+    options: RunOptions,
     signal: AbortSignal,
   ): Promise<AgentResult> {
     this.checkAbort(signal);
 
-    const { session, isNew: isNewSession } = await this.getOrCreateSession(false);
+    const { session, isNew: isNewSession } = await this.getOrCreateSession(false, options);
     this.activeSession = session;
     // In per-call mode, include conversation context in prompt.
     const prompt = this.isPersistent && !isNewSession
@@ -685,7 +722,7 @@ class CopilotAgent extends BaseAgent {
   protected async executeRunStructured<T>(
     messages: Message[],
     schema: StructuredOutputConfig<T>,
-    options: RunOptions | undefined,
+    options: RunOptions,
     signal: AbortSignal,
   ): Promise<AgentResult<T>> {
     const jsonSchema = zodToJsonSchema(schema.schema);
@@ -731,12 +768,12 @@ class CopilotAgent extends BaseAgent {
 
   protected async *executeStream(
     messages: Message[],
-    _options: RunOptions | undefined,
+    options: RunOptions,
     signal: AbortSignal,
   ): AsyncIterable<AgentEvent> {
     this.checkAbort(signal);
 
-    const { session, isNew: isNewSession } = await this.getOrCreateSession(true);
+    const { session, isNew: isNewSession } = await this.getOrCreateSession(true, options);
     this.activeSession = session;
     if (isNewSession) {
       yield this.emitSessionInfo(session.sessionId);
@@ -841,64 +878,6 @@ class CopilotAgent extends BaseAgent {
 
 // ─── Helpers ────────────────────────────────────────────────────
 
-function extractLastUserPrompt(messages: Message[]): string {
-  for (let i = messages.length - 1; i >= 0; i--) {
-    const msg = messages[i];
-    if (msg.role === "user") {
-      return getTextContent(msg.content);
-    }
-  }
-  return "";
-}
-
-function serializeToolCall(tc: { name: string; args: JSONValue }): string {
-  const args = typeof tc.args === "string" ? tc.args : JSON.stringify(tc.args);
-  return `  Tool call: ${tc.name}(${args})`;
-}
-
-function serializeToolResult(tr: { name: string; result: JSONValue; isError?: boolean }): string {
-  const result = typeof tr.result === "string" ? tr.result : JSON.stringify(tr.result);
-  const prefix = tr.isError ? "[ERROR] " : "";
-  return `  ${tr.name} → ${prefix}${result}`;
-}
-
-/** Build prompt with conversation history for CLI backends that create fresh sessions */
-function buildContextualPrompt(messages: Message[]): string {
-  if (messages.length <= 1) {
-    return extractLastUserPrompt(messages);
-  }
-
-  const history = messages.slice(0, -1).map((msg) => {
-    if (msg.role === "user") {
-      return `User: ${msg.content ? getTextContent(msg.content) : ""}`;
-    }
-    if (msg.role === "tool" && msg.toolResults) {
-      const results = msg.toolResults.map(serializeToolResult).join("\n");
-      return `Tool results:\n${results}`;
-    }
-    if (msg.role === "assistant") {
-      const parts: string[] = [];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const thinking = (msg as any).thinking as string | undefined;
-      if (thinking) {
-        parts.push(`[reasoning: ${thinking}]`);
-      }
-      const text = msg.content ? getTextContent(msg.content) : "";
-      if (text) parts.push(text);
-      if (msg.toolCalls && msg.toolCalls.length > 0) {
-        parts.push(msg.toolCalls.map(serializeToolCall).join("\n"));
-      }
-      return `Assistant: ${parts.join("\n")}`;
-    }
-    const text = msg.content ? getTextContent(msg.content) : "";
-    return `${msg.role}: ${text}`;
-  }).join("\n");
-
-  const lastPrompt = extractLastUserPrompt(messages);
-
-  return `Conversation history:\n${history}\n\nUser: ${lastPrompt}`;
-}
-
 // ─── Helpers ─────────────────────────────────────────────────────
 
 /** Race a promise against a timeout. Rejects with SubprocessError on timeout. */
@@ -974,7 +953,7 @@ class CopilotAgentService implements IAgentService {
     return this.clientPromise;
   }
 
-  createAgent(config: AgentConfig): IAgent {
+  createAgent(config: FullAgentConfig): IAgent {
     if (this.disposed) throw new DisposedError("CopilotAgentService");
     return new CopilotAgent(config, () => this.ensureClient(), this.options.timeout, this.options.resumeSessionId);
   }
@@ -986,6 +965,9 @@ class CopilotAgentService implements IAgentService {
       id: m.id,
       name: m.name,
       provider: "copilot",
+      ...(m.capabilities?.limits?.max_context_window_tokens != null && {
+        contextWindow: m.capabilities.limits.max_context_window_tokens,
+      }),
     }));
   }
 

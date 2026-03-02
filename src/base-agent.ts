@@ -1,24 +1,31 @@
 import type {
   IAgent,
-  AgentConfig,
+  FullAgentConfig,
   AgentState,
   AgentResult,
   AgentEvent,
   MessageContent,
   Message,
   RunOptions,
+  RetryConfig,
   StructuredOutputConfig,
   UsageData,
+  ToolDefinition,
+  StreamMiddleware,
+  StreamContext,
 } from "./types.js";
-import { ReentrancyError, DisposedError, AbortError } from "./errors.js";
+import { ReentrancyError, DisposedError, AbortError, ActivityTimeoutError } from "./errors.js";
+import { AgentSDKError } from "./errors.js";
+import { isRecoverableErrorCode } from "./types/errors.js";
 
 /** Abstract base agent with shared lifecycle logic.
  *  Concrete backends extend this and implement the protected _run/_stream methods. */
 export abstract class BaseAgent implements IAgent {
   protected state: AgentState = "idle";
   protected abortController: AbortController | null = null;
-  protected readonly config: AgentConfig;
+  protected readonly config: FullAgentConfig;
   private _cleanupExternalSignal: (() => void) | null = null;
+  private _streamMiddleware: StreamMiddleware[] = [];
 
   /** Backend identifier (e.g. "copilot", "claude", "vercel-ai") */
   protected abstract readonly backendName: string;
@@ -28,7 +35,7 @@ export abstract class BaseAgent implements IAgent {
     return undefined;
   }
 
-  constructor(config: AgentConfig) {
+  constructor(config: FullAgentConfig) {
     this.config = Object.freeze({ ...config });
   }
 
@@ -36,7 +43,7 @@ export abstract class BaseAgent implements IAgent {
 
   async run(
     prompt: MessageContent,
-    options?: RunOptions,
+    options: RunOptions,
   ): Promise<AgentResult> {
     this.guardReentrancy();
     this.guardDisposed();
@@ -46,8 +53,10 @@ export abstract class BaseAgent implements IAgent {
 
     try {
       const messages: Message[] = [{ role: "user", content: prompt }];
-      const result = await this.executeRun(messages, options, ac.signal);
-      this.enrichAndNotifyUsage(result);
+      const result = await this.withRetry(
+        () => this.executeRun(messages, options, ac.signal), options,
+      );
+      this.enrichAndNotifyUsage(result, options);
       return result;
     } finally {
       this.cleanupRun();
@@ -56,7 +65,7 @@ export abstract class BaseAgent implements IAgent {
 
   async runWithContext(
     messages: Message[],
-    options?: RunOptions,
+    options: RunOptions,
   ): Promise<AgentResult> {
     this.guardReentrancy();
     this.guardDisposed();
@@ -65,8 +74,10 @@ export abstract class BaseAgent implements IAgent {
     this.state = "running";
 
     try {
-      const result = await this.executeRun(messages, options, ac.signal);
-      this.enrichAndNotifyUsage(result);
+      const result = await this.withRetry(
+        () => this.executeRun(messages, options, ac.signal), options,
+      );
+      this.enrichAndNotifyUsage(result, options);
       return result;
     } finally {
       this.cleanupRun();
@@ -76,7 +87,7 @@ export abstract class BaseAgent implements IAgent {
   async runStructured<T>(
     prompt: MessageContent,
     schema: StructuredOutputConfig<T>,
-    options?: RunOptions,
+    options: RunOptions,
   ): Promise<AgentResult<T>> {
     this.guardReentrancy();
     this.guardDisposed();
@@ -86,13 +97,10 @@ export abstract class BaseAgent implements IAgent {
 
     try {
       const messages: Message[] = [{ role: "user", content: prompt }];
-      const result = await this.executeRunStructured(
-        messages,
-        schema,
-        options,
-        ac.signal,
+      const result = await this.withRetry(
+        () => this.executeRunStructured(messages, schema, options, ac.signal), options,
       );
-      this.enrichAndNotifyUsage(result);
+      this.enrichAndNotifyUsage(result, options);
       return result;
     } finally {
       this.cleanupRun();
@@ -101,7 +109,7 @@ export abstract class BaseAgent implements IAgent {
 
   async *stream(
     prompt: MessageContent,
-    options?: RunOptions,
+    options: RunOptions,
   ): AsyncIterable<AgentEvent> {
     this.guardReentrancy();
     this.guardDisposed();
@@ -111,8 +119,10 @@ export abstract class BaseAgent implements IAgent {
 
     try {
       const messages: Message[] = [{ role: "user", content: prompt }];
-      const enriched = this.enrichStream(this.executeStream(messages, options, ac.signal));
-      yield* this.heartbeatStream(enriched);
+      yield* this.streamWithRetry(
+        () => this.applyStreamPipeline(this.executeStream(messages, options, ac.signal), options, ac),
+        options,
+      );
     } finally {
       this.cleanupRun();
     }
@@ -120,7 +130,7 @@ export abstract class BaseAgent implements IAgent {
 
   async *streamWithContext(
     messages: Message[],
-    options?: RunOptions,
+    options: RunOptions,
   ): AsyncIterable<AgentEvent> {
     this.guardReentrancy();
     this.guardDisposed();
@@ -129,11 +139,46 @@ export abstract class BaseAgent implements IAgent {
     this.state = "streaming";
 
     try {
-      const enriched = this.enrichStream(this.executeStream(messages, options, ac.signal));
-      yield* this.heartbeatStream(enriched);
+      yield* this.streamWithRetry(
+        () => this.applyStreamPipeline(this.executeStream(messages, options, ac.signal), options, ac),
+        options,
+      );
     } finally {
       this.cleanupRun();
     }
+  }
+
+  /** Register a stream middleware. Applied in registration order after built-in transforms. */
+  addStreamMiddleware(middleware: StreamMiddleware): void {
+    this.guardDisposed();
+    this._streamMiddleware.push(middleware);
+  }
+
+  /** Apply built-in transforms (enrich→timeout→heartbeat) then custom middleware */
+  private async *applyStreamPipeline(
+    source: AsyncIterable<AgentEvent>,
+    options: RunOptions,
+    ac: AbortController,
+  ): AsyncIterable<AgentEvent> {
+    // Built-in pipeline
+    let stream: AsyncIterable<AgentEvent> = this.enrichStream(source, options);
+    stream = this.activityTimeoutStream(stream, options?.activityTimeoutMs, ac);
+    stream = this.heartbeatStream(stream);
+
+    // Custom middleware
+    if (this._streamMiddleware.length > 0) {
+      const ctx: StreamContext = {
+        model: options.model,
+        backend: this.backendName,
+        abortController: ac,
+        config: Object.freeze({ ...this.config }),
+      };
+      for (const mw of this._streamMiddleware) {
+        stream = mw(stream, ctx);
+      }
+    }
+
+    yield* stream;
   }
 
   abort(): void {
@@ -151,7 +196,7 @@ export abstract class BaseAgent implements IAgent {
     return this.state;
   }
 
-  getConfig(): Readonly<AgentConfig> {
+  getConfig(): Readonly<FullAgentConfig> {
     return this.config;
   }
 
@@ -168,7 +213,7 @@ export abstract class BaseAgent implements IAgent {
   /** Execute a blocking run. Backend implements the actual LLM call. */
   protected abstract executeRun(
     messages: Message[],
-    options: RunOptions | undefined,
+    options: RunOptions,
     signal: AbortSignal,
   ): Promise<AgentResult>;
 
@@ -176,25 +221,131 @@ export abstract class BaseAgent implements IAgent {
   protected abstract executeRunStructured<T>(
     messages: Message[],
     schema: StructuredOutputConfig<T>,
-    options: RunOptions | undefined,
+    options: RunOptions,
     signal: AbortSignal,
   ): Promise<AgentResult<T>>;
 
   /** Execute a streaming run. Backend yields events. */
   protected abstract executeStream(
     messages: Message[],
-    options: RunOptions | undefined,
+    options: RunOptions,
     signal: AbortSignal,
   ): AsyncIterable<AgentEvent>;
+
+  // ─── Retry Logic ─────────────────────────────────────────────
+
+  /** Check if an error should be retried given the retry configuration. */
+  private isRetryableError(error: unknown, retry: RetryConfig): boolean {
+    // Abort and reentrancy errors are never retryable
+    if (error instanceof AbortError || error instanceof ReentrancyError || error instanceof DisposedError) {
+      return false;
+    }
+    if (AgentSDKError.is(error)) {
+      // If specific retryable error codes configured, check against them
+      if (retry.retryableErrors && retry.retryableErrors.length > 0 && error.code) {
+        return retry.retryableErrors.includes(error.code as typeof retry.retryableErrors[number]);
+      }
+      // Otherwise check the retryable flag or recoverable code
+      if (error.retryable) return true;
+      if (error.code) return isRecoverableErrorCode(error.code as Parameters<typeof isRecoverableErrorCode>[0]);
+    }
+    return false;
+  }
+
+  /** Execute a function with retry logic per RetryConfig. */
+  private async withRetry<T>(
+    fn: () => Promise<T>,
+    options: RunOptions,
+  ): Promise<T> {
+    const retry = options?.retry;
+    if (!retry || !retry.maxRetries || retry.maxRetries <= 0) {
+      return fn();
+    }
+
+    const maxRetries = retry.maxRetries;
+    const initialDelay = retry.initialDelayMs ?? 1000;
+    const multiplier = retry.backoffMultiplier ?? 2;
+    let lastError: unknown;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        return await fn();
+      } catch (err) {
+        lastError = err;
+        if (attempt >= maxRetries || !this.isRetryableError(err, retry)) {
+          throw err;
+        }
+        // Exponential backoff
+        const delay = initialDelay * Math.pow(multiplier, attempt);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        // Check abort between retries
+        if (options?.signal?.aborted || this.abortController?.signal.aborted) {
+          throw err;
+        }
+      }
+    }
+    throw lastError;
+  }
+
+  /** Execute a stream factory with pre-stream retry: retries until first event, then committed. */
+  private async *streamWithRetry(
+    factory: () => AsyncIterable<AgentEvent>,
+    options: RunOptions,
+  ): AsyncIterable<AgentEvent> {
+    const retry = options?.retry;
+    if (!retry || !retry.maxRetries || retry.maxRetries <= 0) {
+      yield* factory();
+      return;
+    }
+
+    const maxRetries = retry.maxRetries;
+    const initialDelay = retry.initialDelayMs ?? 1000;
+    const multiplier = retry.backoffMultiplier ?? 2;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const stream = factory();
+        const iterator = stream[Symbol.asyncIterator]();
+        // Try to get first event — this is the "pre-stream" phase
+        const first = await iterator.next();
+        if (first.done) return;
+        // First event received — stream committed, no more retries
+        yield first.value;
+        // Yield remaining events
+        while (true) {
+          const next = await iterator.next();
+          if (next.done) break;
+          yield next.value;
+        }
+        return;
+      } catch (err) {
+        if (attempt >= maxRetries || !this.isRetryableError(err, retry)) {
+          throw err;
+        }
+        const delay = initialDelay * Math.pow(multiplier, attempt);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        if (options?.signal?.aborted || this.abortController?.signal.aborted) {
+          throw err;
+        }
+      }
+    }
+  }
+
+  // ─── CallOptions Resolution ──────────────────────────────────
+
+  /** Resolve tools to use for this call (per-call override > config default) */
+  protected resolveTools(options?: RunOptions): ToolDefinition[] {
+    return options?.tools ?? this.config.tools ?? [];
+  }
 
   // ─── Usage Enrichment ───────────────────────────────────────────
 
   /** Enrich result usage with model/backend and fire onUsage callback */
-  private enrichAndNotifyUsage(result: AgentResult<unknown>): void {
+  private enrichAndNotifyUsage(result: AgentResult<unknown>, options: RunOptions): void {
     if (result.usage) {
       result.usage = {
         ...result.usage,
-        model: this.config.model,
+        model: options.model,
         backend: this.backendName,
       };
       this.callOnUsage(result.usage);
@@ -204,13 +355,15 @@ export abstract class BaseAgent implements IAgent {
   /** Wrap a stream to enrich usage_update events and fire onUsage callback */
   private async *enrichStream(
     source: AsyncIterable<AgentEvent>,
+    options: RunOptions,
   ): AsyncIterable<AgentEvent> {
+    const model = options.model;
     for await (const event of source) {
       if (event.type === "usage_update") {
         const usage: UsageData = {
           promptTokens: event.promptTokens,
           completionTokens: event.completionTokens,
-          model: this.config.model,
+          model,
           backend: this.backendName,
         };
         this.callOnUsage(usage);
@@ -290,6 +443,42 @@ export abstract class BaseAgent implements IAgent {
     } finally {
       clearInterval(timer);
       heartbeatResolve = null;
+    }
+  }
+
+  // ─── Activity Timeout ────────────────────────────────────────
+
+  /** Wrap a stream to abort on inactivity. Resets timer on every event.
+   *  When timeoutMs is not set, passes through directly. */
+  private async *activityTimeoutStream(
+    source: AsyncIterable<AgentEvent>,
+    timeoutMs: number | undefined,
+    ac: AbortController,
+  ): AsyncIterable<AgentEvent> {
+    if (!timeoutMs || timeoutMs <= 0) {
+      yield* source;
+      return;
+    }
+
+    const iterator = source[Symbol.asyncIterator]();
+    let timerId: ReturnType<typeof setTimeout> | undefined;
+    try {
+      while (true) {
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          timerId = setTimeout(() => reject(new ActivityTimeoutError(timeoutMs)), timeoutMs);
+        });
+        const result = await Promise.race([iterator.next(), timeoutPromise]);
+        clearTimeout(timerId);
+        if (result.done) break;
+        yield result.value;
+      }
+    } catch (err) {
+      if (err instanceof ActivityTimeoutError) {
+        ac.abort(err);
+      }
+      throw err;
+    } finally {
+      clearTimeout(timerId);
     }
   }
 

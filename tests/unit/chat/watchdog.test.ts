@@ -4,7 +4,7 @@
 
 import { describe, it, expect, vi } from "vitest";
 import { withStreamWatchdog } from "../../../src/chat/watchdog.js";
-import { ChatError, ChatErrorCode } from "../../../src/chat/errors.js";
+import { ChatError, ErrorCode } from "../../../src/chat/errors.js";
 
 // ─── Helpers ───────────────────────────────────────────────────
 
@@ -97,7 +97,7 @@ describe("withStreamWatchdog", () => {
         expect.fail("should have thrown");
       } catch (err) {
         expect(err).toBeInstanceOf(ChatError);
-        expect((err as ChatError).code).toBe(ChatErrorCode.TIMEOUT);
+        expect((err as ChatError).code).toBe(ErrorCode.TIMEOUT);
       }
     });
 

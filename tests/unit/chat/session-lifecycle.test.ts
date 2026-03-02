@@ -100,7 +100,7 @@ describe("Claude session lifecycle", () => {
     const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
 
     // The first query should use resume with the stored session ID
-    await agent.run("hello");
+    await agent.run("hello", { model: "test-model" });
 
     const queryOpts = sdk.query.mock.calls[0][0].options;
     expect(queryOpts.resume).toBe("ses-old-123");
@@ -122,7 +122,7 @@ describe("Claude session lifecycle", () => {
       { role: "assistant", content: "first answer" },
       { role: "user", content: "second question" },
     ];
-    const result = await agent.runWithContext(messages);
+    const result = await agent.runWithContext(messages, { model: "test-model" });
 
     // First call uses resume
     expect(sdk.query.mock.calls[0][0].options.resume).toBe("ses-old");
@@ -144,7 +144,7 @@ describe("Claude session lifecycle", () => {
     const service = createClaudeService({ resumeSessionId: "ses-old" });
     const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
 
-    await expect(agent.run("test")).rejects.toThrow("fatal error");
+    await expect(agent.run("test", { model: "test-model" })).rejects.toThrow("fatal error");
     expect(agent.sessionId).toBeUndefined();
   });
 
@@ -183,7 +183,7 @@ describe("Claude session lifecycle", () => {
     const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
 
     const events: AgentEvent[] = [];
-    for await (const event of agent.stream("test")) {
+    for await (const event of agent.stream("test", { model: "test-model" })) {
       events.push(event);
     }
 
@@ -250,7 +250,7 @@ describe("Copilot session lifecycle", () => {
     const service = createCopilotService({ resumeSessionId: "ses-stored" });
     const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
 
-    await agent.run("test");
+    await agent.run("test", { model: "test-model" });
 
     // Should have called resumeSession with stored ID
     expect(mockClient.resumeSession).toHaveBeenCalledWith(
@@ -267,7 +267,7 @@ describe("Copilot session lifecycle", () => {
     const service = createCopilotService({ resumeSessionId: "ses-broken" });
     const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
 
-    await agent.run("test");
+    await agent.run("test", { model: "test-model" });
 
     // Should have attempted resume
     expect(mockClient.resumeSession).toHaveBeenCalledWith(
@@ -284,8 +284,8 @@ describe("Copilot session lifecycle", () => {
     const service = createCopilotService({ resumeSessionId: "ses-once" });
     const agent = service.createAgent(makeConfig({ sessionMode: "persistent" }));
 
-    await agent.run("first");
-    await agent.run("second");
+    await agent.run("first", { model: "test-model" });
+    await agent.run("second", { model: "test-model" });
 
     // resumeSession called only once (first call)
     expect(mockClient.resumeSession).toHaveBeenCalledTimes(1);
@@ -337,7 +337,7 @@ describe("History serialization", () => {
         { role: "user", content: "now list them" },
       ];
 
-      await agent.runWithContext(messages);
+      await agent.runWithContext(messages, { model: "test-model" });
 
       const prompt = sdk.query.mock.calls[0][0].prompt;
       expect(prompt).toContain("Tool call: search");
@@ -362,7 +362,7 @@ describe("History serialization", () => {
         { role: "user", content: "what did you find?" },
       ];
 
-      await agent.runWithContext(messages);
+      await agent.runWithContext(messages, { model: "test-model" });
 
       const prompt = sdk.query.mock.calls[0][0].prompt;
       expect(prompt).toContain("[reasoning: Let me think about this...]");
@@ -384,7 +384,7 @@ describe("History serialization", () => {
         { role: "user", content: "try again" },
       ];
 
-      await agent.runWithContext(messages);
+      await agent.runWithContext(messages, { model: "test-model" });
 
       const prompt = sdk.query.mock.calls[0][0].prompt;
       expect(prompt).toContain("[ERROR]");
@@ -452,7 +452,7 @@ describe("History serialization", () => {
         { role: "user", content: "thanks" },
       ];
 
-      await agent.runWithContext(messages);
+      await agent.runWithContext(messages, { model: "test-model" });
 
       const sdkMessages = mockGenerateText.mock.calls[0][0].messages;
       // Assistant message should have toolCalls
@@ -519,7 +519,7 @@ describe("History serialization", () => {
         { role: "user", content: "what?" },
       ];
 
-      await agent.runWithContext(messages);
+      await agent.runWithContext(messages, { model: "test-model" });
 
       const sdkMessages = mockGenerateText.mock.calls[0][0].messages;
       const assistantMsg = sdkMessages.find((m: any) => m.role === "assistant");

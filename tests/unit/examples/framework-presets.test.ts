@@ -273,3 +273,37 @@ describe("Fastify Adapter", () => {
     expect(handler.calls[0].body).toBe("");
   });
 });
+
+describe("WritableResponse framework compatibility", () => {
+  it("accepts Express-like response without casts", () => {
+    // Express.Response shape — writeHead returns `this`, end has overloads
+    const expressRes = {
+      writeHead(statusCode: number, headers?: Record<string, string>) { return this; },
+      setHeader(name: string, value: string) { /* express returns this */ },
+      write(chunk: string) { return true; },
+      end(body?: string) {},
+      writableEnded: false,
+    };
+
+    // Should be assignable to WritableResponse without 'as unknown as'
+    const sdkRes: import("../../../src/chat/backends/transport.js").WritableResponse = expressRes;
+    expect(sdkRes.writableEnded).toBe(false);
+    sdkRes.writeHead(200, { "Content-Type": "application/json" });
+    sdkRes.setHeader("X-Custom", "value");
+    sdkRes.write("data");
+    sdkRes.end('{"ok":true}');
+  });
+
+  it("accepts Node http.ServerResponse-like object", () => {
+    const nodeRes = {
+      writeHead(statusCode: number, headers?: Record<string, string>) {},
+      setHeader(name: string, value: string) {},
+      write(chunk: string) { return true; },
+      end(body?: string) {},
+      writableEnded: false,
+    };
+
+    const sdkRes: import("../../../src/chat/backends/transport.js").WritableResponse = nodeRes;
+    expect(sdkRes).toBeDefined();
+  });
+});

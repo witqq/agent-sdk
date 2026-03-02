@@ -8,10 +8,9 @@ services:
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
     volumes:
-      - demo-tokens:/data
+      - ./data:/data
       - copilot-config:/root/.copilot
     restart: unless-stopped
 
 volumes:
-  demo-tokens:
   copilot-config:

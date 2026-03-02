@@ -15,9 +15,7 @@
 import type { ReadableRequest, WritableResponse } from "./handler.js";
 import type { ITokenStore } from "./token-store.js";
 import type { AuthToken, CopilotAuthToken, ClaudeAuthToken } from "../../auth/types.js";
-
-// Re-use readBody and json helpers via a local copy (handler.ts keeps them unexported).
-// We define local equivalents to avoid coupling internal handler helpers.
+import { readBody, json, BodyParseError } from "./utils.js";
 
 // ─── Types ─────────────────────────────────────────────────────
 
@@ -266,8 +264,12 @@ export function createAuthHandler(
       // No route matched
       json(res, { error: "Not found" }, 404);
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      json(res, { error: message }, 500);
+      if (err instanceof BodyParseError) {
+        json(res, { error: err.message }, err.statusCode);
+      } else {
+        const message = err instanceof Error ? err.message : String(err);
+        json(res, { error: message }, 500);
+      }
     }
   };
 }
@@ -276,39 +278,4 @@ export function createAuthHandler(
 
 function isValidProvider(p: string): p is AuthProvider {
   return p === "copilot" || p === "claude" || p === "vercel-ai";
-}
-
-function readBody(req: ReadableRequest, maxSize: number): Promise<Record<string, unknown>> {
-  return new Promise((resolve) => {
-    let body = "";
-    let size = 0;
-    let exceeded = false;
-    req.on("data", (chunk: Buffer | string) => {
-      if (exceeded) return;
-      const str = chunk.toString();
-      size += Buffer.byteLength(str);
-      if (size > maxSize) {
-        exceeded = true;
-        resolve({});
-        return;
-      }
-      body += str;
-    });
-    req.on("end", () => {
-      if (exceeded) return;
-      try {
-        resolve(JSON.parse(body || "{}"));
-      } catch {
-        resolve({});
-      }
-    });
-    if ("once" in req && typeof (req as { once: unknown }).once === "function") {
-      (req as { once(event: string, listener: () => void): void }).once("error", () => resolve({}));
-    }
-  });
-}
-
-function json(res: WritableResponse, data: unknown, status = 200): void {
-  res.writeHead(status, { "Content-Type": "application/json" });
-  res.end(JSON.stringify(data));
 }

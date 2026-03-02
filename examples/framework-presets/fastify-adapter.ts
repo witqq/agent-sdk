@@ -85,6 +85,9 @@ function toWritableResponse(reply: FastifyReply): WritableResponse {
     end(body?: string) {
       reply.raw.end(body);
     },
+    get writableEnded() {
+      return reply.raw.writableEnded;
+    },
   };
 }
 

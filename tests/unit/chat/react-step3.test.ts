@@ -99,6 +99,102 @@ describe("Thread", () => {
     render(createElement(Thread, { messages, autoScroll: false }));
     expect(mockScrollIntoView).not.toHaveBeenCalled();
   });
+
+  it("renders empty state when messages array is empty and not generating", () => {
+    const { container } = render(createElement(Thread, { messages: [] }));
+    const empty = container.querySelector("[data-thread-empty]");
+    expect(empty).not.toBeNull();
+    expect(empty!.textContent).toBe("Start a conversation");
+  });
+
+  it("does not render empty state when messages exist", () => {
+    const messages = [
+      createTestMessage({ parts: [{ type: "text", text: "Hi", status: "complete" }] }),
+    ];
+    const { container } = render(createElement(Thread, { messages }));
+    const empty = container.querySelector("[data-thread-empty]");
+    expect(empty).toBeNull();
+  });
+
+  it("does not render empty state when isGenerating even with empty messages", () => {
+    const { container } = render(
+      createElement(Thread, { messages: [], isGenerating: true }),
+    );
+    const empty = container.querySelector("[data-thread-empty]");
+    expect(empty).toBeNull();
+  });
+
+  it("does not show scroll-to-bottom button when at bottom", () => {
+    const { container } = render(
+      createElement(Thread, { messages: [] }),
+    );
+    const btn = container.querySelector("[data-action='scroll-to-bottom']");
+    expect(btn).toBeNull();
+  });
+
+  it("shows scroll-to-bottom button when user scrolls up", () => {
+    const messages = [
+      createTestMessage({ parts: [{ type: "text", text: "Hi", status: "complete" }] }),
+    ];
+    const { container } = render(createElement(Thread, { messages }));
+    const thread = container.querySelector("[data-thread]") as HTMLDivElement;
+
+    // Simulate scrolled-up state: scrollHeight > scrollTop + clientHeight
+    Object.defineProperty(thread, "scrollHeight", { value: 1000, configurable: true });
+    Object.defineProperty(thread, "scrollTop", { value: 0, configurable: true });
+    Object.defineProperty(thread, "clientHeight", { value: 400, configurable: true });
+
+    fireEvent.scroll(thread);
+
+    const btn = container.querySelector("[data-action='scroll-to-bottom']");
+    expect(btn).not.toBeNull();
+    expect(btn!.getAttribute("aria-label")).toBe("Scroll to bottom");
+  });
+
+  it("scroll-to-bottom button calls scrollIntoView when clicked", () => {
+    const mockScrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = mockScrollIntoView;
+
+    const messages = [
+      createTestMessage({ parts: [{ type: "text", text: "Hi", status: "complete" }] }),
+    ];
+    const { container } = render(createElement(Thread, { messages }));
+    const thread = container.querySelector("[data-thread]") as HTMLDivElement;
+
+    // Trigger scrolled-up state
+    Object.defineProperty(thread, "scrollHeight", { value: 1000, configurable: true });
+    Object.defineProperty(thread, "scrollTop", { value: 0, configurable: true });
+    Object.defineProperty(thread, "clientHeight", { value: 400, configurable: true });
+    fireEvent.scroll(thread);
+
+    mockScrollIntoView.mockClear();
+    const btn = container.querySelector("[data-action='scroll-to-bottom']")!;
+    fireEvent.click(btn);
+
+    expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: "smooth" });
+  });
+
+  it("scroll-to-bottom button hides after clicking", () => {
+    const messages = [
+      createTestMessage({ parts: [{ type: "text", text: "Hi", status: "complete" }] }),
+    ];
+    const { container } = render(createElement(Thread, { messages }));
+    const thread = container.querySelector("[data-thread]") as HTMLDivElement;
+
+    // Trigger scrolled-up
+    Object.defineProperty(thread, "scrollHeight", { value: 1000, configurable: true });
+    Object.defineProperty(thread, "scrollTop", { value: 0, configurable: true });
+    Object.defineProperty(thread, "clientHeight", { value: 400, configurable: true });
+    fireEvent.scroll(thread);
+
+    expect(container.querySelector("[data-action='scroll-to-bottom']")).not.toBeNull();
+
+    // Click scroll-to-bottom
+    fireEvent.click(container.querySelector("[data-action='scroll-to-bottom']")!);
+
+    // Button should disappear (userScrolledUp set to false)
+    expect(container.querySelector("[data-action='scroll-to-bottom']")).toBeNull();
+  });
 });
 
 // ─── Composer Component ───────────────────────────────────────

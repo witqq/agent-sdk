@@ -25,7 +25,7 @@ interface CorsRequest {
 /** Minimal response interface for CORS */
 interface CorsResponse {
   setHeader(name: string, value: string): void;
-  writeHead(statusCode: number): void;
+  writeHead(statusCode: number, headers?: Record<string, string>): unknown;
   end(): void;
 }
 

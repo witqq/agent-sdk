@@ -86,7 +86,7 @@ describe("Claude tool availability", () => {
       makeConfig({ availableTools: ["Bash", "Read"] }),
     );
 
-    await agent.run("test");
+    await agent.run("test", { model: "test-model" });
 
     const opts = sdk.query.mock.calls[0][0].options;
     // availableTools should map to opts.tools (restricts availability)
@@ -109,7 +109,7 @@ describe("Claude tool availability", () => {
       }),
     );
 
-    await agent.run("test");
+    await agent.run("test", { model: "test-model" });
 
     const opts = sdk.query.mock.calls[0][0].options;
     // opts.tools should have availableTools
@@ -158,7 +158,7 @@ describe("Copilot async Zod conversion", () => {
     const service = createCopilotService({});
     const agent = service.createAgent(makeConfig());
 
-    await agent.run("test");
+    await agent.run("test", { model: "test-model" });
 
     const sessionConfig = mockClient.createSession.mock.calls[0][0];
     const params = sessionConfig.tools[0].parameters;
@@ -182,7 +182,7 @@ describe("Copilot async Zod conversion", () => {
       makeConfig({ tools: [noParamTool] }),
     );
 
-    await agent.run("test");
+    await agent.run("test", { model: "test-model" });
 
     const sessionConfig = mockClient.createSession.mock.calls[0][0];
     expect(sessionConfig.tools[0].parameters).toBeUndefined();
@@ -201,7 +201,7 @@ describe("Copilot async Zod conversion", () => {
       makeConfig({ tools: [jsonSchemaTool] }),
     );
 
-    await agent.run("test");
+    await agent.run("test", { model: "test-model" });
 
     const sessionConfig = mockClient.createSession.mock.calls[0][0];
     const params = sessionConfig.tools[0].parameters;
@@ -248,7 +248,7 @@ describe("Copilot empty availableTools guard", () => {
       makeConfig({ availableTools: [] }),
     );
 
-    await agent.run("test");
+    await agent.run("test", { model: "test-model" });
 
     const sessionConfig = mockClient.createSession.mock.calls[0][0];
     // Empty array should NOT be passed — it would disable ALL tools including MCP
@@ -262,7 +262,7 @@ describe("Copilot empty availableTools guard", () => {
       makeConfig({ availableTools: ["Bash", "Read"] }),
     );
 
-    await agent.run("test");
+    await agent.run("test", { model: "test-model" });
 
     const sessionConfig = mockClient.createSession.mock.calls[0][0];
     expect(sessionConfig.availableTools).toEqual(["Bash", "Read"]);
@@ -329,7 +329,7 @@ describe("Claude tool result capture in streaming", () => {
     );
 
     const events: AgentEvent[] = [];
-    for await (const event of agent.stream("test")) {
+    for await (const event of agent.stream("test", { model: "test-model" })) {
       events.push(event);
     }
 

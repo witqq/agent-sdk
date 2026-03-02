@@ -5,3 +5,5 @@ dist/
 .supervisor_logs/
 test-results/
 summary.json
+examples/demo/.tokens/
+examples/demo/.data/

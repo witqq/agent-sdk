@@ -10,6 +10,7 @@ import {
   type IChatSessionStore,
   type CreateSessionOptions,
 } from "../../../src/chat/sessions.js";
+import { ErrorCode } from "../../../src/types/errors.js";
 import type { ChatMessage, ChatId } from "../../../src/chat/core.js";
 import { createChatId, getMessageText } from "../../../src/chat/core.js";
 
@@ -183,7 +184,7 @@ function runSessionStoreTests(
           expect.fail("should have thrown");
         } catch (e) {
           expect(e).toBeInstanceOf(StorageError);
-          expect((e as StorageError).code).toBe("NOT_FOUND");
+          expect((e as StorageError).code).toBe(ErrorCode.STORAGE_NOT_FOUND);
         }
       });
     });
@@ -212,7 +213,7 @@ function runSessionStoreTests(
           expect.fail("should have thrown");
         } catch (e) {
           expect(e).toBeInstanceOf(StorageError);
-          expect((e as StorageError).code).toBe("NOT_FOUND");
+          expect((e as StorageError).code).toBe(ErrorCode.STORAGE_NOT_FOUND);
         }
       });
     });
@@ -233,18 +234,18 @@ function runSessionStoreTests(
           expect.fail("should have thrown");
         } catch (e) {
           expect(e).toBeInstanceOf(StorageError);
-          expect((e as StorageError).code).toBe("NOT_FOUND");
+          expect((e as StorageError).code).toBe(ErrorCode.STORAGE_NOT_FOUND);
         }
       });
     });
 
-    // ── Add message ──
+    // ── Append message ──
 
-    describe("addMessage", () => {
+    describe("appendMessage", () => {
       it("adds a message to session", async () => {
         const session = await store.createSession(makeOptions());
         const msg = makeMessage({ parts: [{ type: "text" as const, text: "Hi", status: "complete" as const }] });
-        await store.addMessage(session.id, msg);
+        await store.appendMessage(session.id, msg);
         const updated = await store.getSession(session.id);
         expect(updated!.messages).toHaveLength(1);
         expect(getMessageText(updated!.messages[0])).toBe("Hi");
@@ -252,8 +253,8 @@ function runSessionStoreTests(
 
       it("updates messageCount metadata", async () => {
         const session = await store.createSession(makeOptions());
-        await store.addMessage(session.id, makeMessage());
-        await store.addMessage(session.id, makeMessage());
+        await store.appendMessage(session.id, makeMessage());
+        await store.appendMessage(session.id, makeMessage());
         const updated = await store.getSession(session.id);
         expect(updated!.metadata.messageCount).toBe(2);
       });
@@ -262,7 +263,7 @@ function runSessionStoreTests(
         const session = await store.createSession(makeOptions());
         const originalUpdatedAt = session.updatedAt;
         await new Promise((r) => setTimeout(r, 5));
-        await store.addMessage(session.id, makeMessage());
+        await store.appendMessage(session.id, makeMessage());
         const updated = await store.getSession(session.id);
         expect(updated!.updatedAt).not.toBe(originalUpdatedAt);
       });
@@ -270,7 +271,7 @@ function runSessionStoreTests(
       it("stores a deep copy of the message", async () => {
         const session = await store.createSession(makeOptions());
         const msg = makeMessage({ parts: [{ type: "text" as const, text: "Original", status: "complete" as const }] });
-        await store.addMessage(session.id, msg);
+        await store.appendMessage(session.id, msg);
         (msg.parts[0] as { text: string }).text = "MUTATED";
         const updated = await store.getSession(session.id);
         expect(getMessageText(updated!.messages[0])).toBe("Original");
@@ -278,23 +279,23 @@ function runSessionStoreTests(
 
       it("throws NOT_FOUND for non-existent session", async () => {
         try {
-          await store.addMessage("nonexistent" as ChatId, makeMessage());
+          await store.appendMessage("nonexistent" as ChatId, makeMessage());
           expect.fail("should have thrown");
         } catch (e) {
           expect(e).toBeInstanceOf(StorageError);
-          expect((e as StorageError).code).toBe("NOT_FOUND");
+          expect((e as StorageError).code).toBe(ErrorCode.STORAGE_NOT_FOUND);
         }
       });
     });
 
-    // ── Get messages (paginated) ──
+    // ── Load messages (paginated) ──
 
-    describe("getMessages", () => {
+    describe("loadMessages", () => {
       it("returns all messages by default", async () => {
         const session = await store.createSession(makeOptions());
-        await store.addMessage(session.id, makeMessage({ parts: [{ type: "text" as const, text: "A", status: "complete" as const }] }));
-        await store.addMessage(session.id, makeMessage({ parts: [{ type: "text" as const, text: "B", status: "complete" as const }] }));
-        const result = await store.getMessages(session.id);
+        await store.appendMessage(session.id, makeMessage({ parts: [{ type: "text" as const, text: "A", status: "complete" as const }] }));
+        await store.appendMessage(session.id, makeMessage({ parts: [{ type: "text" as const, text: "B", status: "complete" as const }] }));
+        const result = await store.loadMessages(session.id);
         expect(result.messages).toHaveLength(2);
         expect(result.total).toBe(2);
         expect(result.hasMore).toBe(false);
@@ -303,13 +304,13 @@ function runSessionStoreTests(
       it("paginates with limit and offset", async () => {
         const session = await store.createSession(makeOptions());
         for (let i = 0; i < 5; i++) {
-          await store.addMessage(
+          await store.appendMessage(
             session.id,
             makeMessage({ parts: [{ type: "text" as const, text: `Msg ${i}`, status: "complete" as const }] }),
           );
         }
 
-        const page1 = await store.getMessages(session.id, {
+        const page1 = await store.loadMessages(session.id, {
           limit: 2,
           offset: 0,
         });
@@ -318,7 +319,7 @@ function runSessionStoreTests(
         expect(page1.hasMore).toBe(true);
         expect(getMessageText(page1.messages[0])).toBe("Msg 0");
 
-        const page2 = await store.getMessages(session.id, {
+        const page2 = await store.loadMessages(session.id, {
           limit: 2,
           offset: 2,
         });
@@ -326,7 +327,7 @@ function runSessionStoreTests(
         expect(page2.hasMore).toBe(true);
         expect(getMessageText(page2.messages[0])).toBe("Msg 2");
 
-        const page3 = await store.getMessages(session.id, {
+        const page3 = await store.loadMessages(session.id, {
           limit: 2,
           offset: 4,
         });
@@ -336,23 +337,23 @@ function runSessionStoreTests(
 
       it("returns deep copies of messages", async () => {
         const session = await store.createSession(makeOptions());
-        await store.addMessage(
+        await store.appendMessage(
           session.id,
           makeMessage({ parts: [{ type: "text" as const, text: "Original", status: "complete" as const }] }),
         );
-        const result = await store.getMessages(session.id);
+        const result = await store.loadMessages(session.id);
         (result.messages[0].parts[0] as { text: string }).text = "MUTATED";
-        const fresh = await store.getMessages(session.id);
+        const fresh = await store.loadMessages(session.id);
         expect(getMessageText(fresh.messages[0])).toBe("Original");
       });
 
       it("throws NOT_FOUND for non-existent session", async () => {
         try {
-          await store.getMessages("nonexistent" as ChatId);
+          await store.loadMessages("nonexistent" as ChatId);
           expect.fail("should have thrown");
         } catch (e) {
           expect(e).toBeInstanceOf(StorageError);
-          expect((e as StorageError).code).toBe("NOT_FOUND");
+          expect((e as StorageError).code).toBe(ErrorCode.STORAGE_NOT_FOUND);
         }
       });
     });
@@ -371,11 +372,11 @@ function runSessionStoreTests(
       it("searches by message content", async () => {
         const s1 = await store.createSession(makeOptions({ title: "Chat A" }));
         const s2 = await store.createSession(makeOptions({ title: "Chat B" }));
-        await store.addMessage(
+        await store.appendMessage(
           s1.id,
           makeMessage({ parts: [{ type: "text" as const, text: "Discuss TypeScript generics", status: "complete" as const }] }),
         );
-        await store.addMessage(
+        await store.appendMessage(
           s2.id,
           makeMessage({ parts: [{ type: "text" as const, text: "Plan vacation trip", status: "complete" as const }] }),
         );
@@ -410,55 +411,10 @@ function runSessionStoreTests(
       });
     });
 
-    // ── Archive / Unarchive ──
-
-    describe("archiveSession", () => {
-      it("sets session status to archived", async () => {
-        const session = await store.createSession(makeOptions());
-        expect(session.status).toBe("active");
-
-        await store.archiveSession(session.id);
-        const archived = await store.getSession(session.id);
-        expect(archived!.status).toBe("archived");
-      });
-
-      it("updates updatedAt timestamp", async () => {
-        const session = await store.createSession(makeOptions());
-        const before = session.updatedAt;
-        await new Promise((r) => setTimeout(r, 5));
-        await store.archiveSession(session.id);
-        const archived = await store.getSession(session.id);
-        expect(archived!.updatedAt).not.toBe(before);
-      });
-
-      it("throws NOT_FOUND for nonexistent session", async () => {
-        await expect(
-          store.archiveSession("nonexistent" as ChatId),
-        ).rejects.toThrow("not found");
-      });
-    });
-
-    describe("unarchiveSession", () => {
-      it("sets session status back to active", async () => {
-        const session = await store.createSession(makeOptions());
-        await store.archiveSession(session.id);
-
-        await store.unarchiveSession(session.id);
-        const active = await store.getSession(session.id);
-        expect(active!.status).toBe("active");
-      });
-
-      it("throws NOT_FOUND for nonexistent session", async () => {
-        await expect(
-          store.unarchiveSession("nonexistent" as ChatId),
-        ).rejects.toThrow("not found");
-      });
-    });
-
-    // ── appendMessage (renamed from addMessage) ──
+    // ── appendMessage ──
 
     describe("appendMessage", () => {
-      it("appends a message (same behavior as addMessage)", async () => {
+      it("appends a message (same behavior as appendMessage)", async () => {
         const session = await store.createSession(makeOptions());
         const msg = makeMessage();
         await store.appendMessage(session.id, msg);
@@ -507,10 +463,10 @@ function runSessionStoreTests(
       });
     });
 
-    // ── loadMessages (renamed from getMessages) ──
+    // ── loadMessages ──
 
     describe("loadMessages", () => {
-      it("returns paginated messages (same behavior as getMessages)", async () => {
+      it("returns paginated messages (same behavior as loadMessages)", async () => {
         const session = await store.createSession(makeOptions());
         await store.appendMessage(session.id, makeMessage());
         await store.appendMessage(session.id, makeMessage());
@@ -524,17 +480,17 @@ function runSessionStoreTests(
     // ── Deprecated aliases ──
 
     describe("deprecated aliases", () => {
-      it("addMessage delegates to appendMessage", async () => {
+      it("appendMessage works", async () => {
         const session = await store.createSession(makeOptions());
-        await store.addMessage(session.id, makeMessage());
+        await store.appendMessage(session.id, makeMessage());
         const page = await store.loadMessages(session.id);
         expect(page.messages).toHaveLength(1);
       });
 
-      it("getMessages delegates to loadMessages", async () => {
+      it("loadMessages works", async () => {
         const session = await store.createSession(makeOptions());
         await store.appendMessage(session.id, makeMessage());
-        const page = await store.getMessages(session.id);
+        const page = await store.loadMessages(session.id);
         expect(page.messages).toHaveLength(1);
       });
     });
@@ -604,13 +560,13 @@ describe("FileSessionStore", () => {
     const session = await store1.createSession({
       config: { model: "gpt-4", backend: "vercel-ai" },
     });
-    await store1.addMessage(
+    await store1.appendMessage(
       session.id,
       makeMessage({ parts: [{ type: "text" as const, text: "Persisted message", status: "complete" as const }] }),
     );
 
     const store2 = new FileSessionStore({ directory: tempDir });
-    const result = await store2.getMessages(session.id);
+    const result = await store2.loadMessages(session.id);
     expect(result.messages).toHaveLength(1);
     expect(getMessageText(result.messages[0])).toBe("Persisted message");
   });

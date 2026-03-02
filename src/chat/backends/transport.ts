@@ -29,11 +29,12 @@ export interface IChatTransport {
 
 // ─── SSE Chat Transport ────────────────────────────────────────
 
-/** Writable HTTP response interface (Node.js http.ServerResponse subset) */
+/** Writable HTTP response interface — minimal type satisfied by Express, Fastify (raw), and Node http.ServerResponse without casts. */
 export interface WritableResponse {
-  writeHead(statusCode: number, headers: Record<string, string>): void;
+  writeHead(statusCode: number, headers?: Record<string, string | string[]>): unknown;
+  setHeader(name: string, value: string): unknown;
   write(chunk: string): boolean;
-  end(): void;
+  end(body?: string): unknown;
   readonly writableEnded: boolean;
 }
 

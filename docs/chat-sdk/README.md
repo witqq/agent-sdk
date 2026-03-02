@@ -32,6 +32,72 @@ for await (const event of agentStream) {
 const message = acc.finalize();
 ```
 
+## Server Quickstart
+
+Complete working server from an empty directory:
+
+```bash
+mkdir my-chat && cd my-chat
+npm init -y
+npm install @witqq/agent-sdk zod better-sqlite3
+```
+
+Create `server.ts`:
+
+```typescript
+import * as http from "node:http";
+import { createAgentService } from "@witqq/agent-sdk";
+import type { AuthToken } from "@witqq/agent-sdk/auth";
+import { CopilotAuth } from "@witqq/agent-sdk/auth";
+import { CopilotChatAdapter } from "@witqq/agent-sdk/chat/backends";
+import { createChatRuntime } from "@witqq/agent-sdk/chat/runtime";
+import { createChatServer } from "@witqq/agent-sdk/chat/server";
+import { createSQLiteStorage } from "@witqq/agent-sdk/chat/sqlite";
+
+const { sessionStore, providerStore, tokenStore } = createSQLiteStorage("chat.db");
+
+const runtime = createChatRuntime({
+  backends: {
+    copilot: async (credentials: AuthToken) => {
+      const svc = await createAgentService("copilot", { githubToken: credentials.accessToken });
+      return new CopilotChatAdapter({
+        agentConfig: { systemPrompt: "You are a helpful assistant." },
+        agentService: svc,
+      });
+    },
+  },
+  defaultBackend: "copilot",
+  sessionStore,
+});
+
+const handler = createChatServer({
+  runtime,
+  auth: { tokenStore, createCopilotAuth: () => new CopilotAuth() },
+  providers: { providerStore },
+});
+
+http.createServer(handler).listen(3000, () => {
+  console.log("Chat server → http://localhost:3000");
+});
+```
+
+Run with `npx tsx server.ts`. The server exposes:
+- `POST /api/auth/start` — begin Copilot Device Flow
+- `POST /api/chat/sessions/create` — create a chat session
+- `POST /api/chat/send` — send a message (SSE response)
+- `GET /api/chat/models` — list available models
+
+Backend factories receive credentials per-request — no in-memory token cache. SQLite stores sessions, providers, and tokens in a single database file.
+
+### Architecture Note: Dual Accumulation
+
+When using `useChat` with a remote server, message events are accumulated twice:
+
+1. **Server-side**: `ChatRuntime.send()` creates a `MessageAccumulator` to build and persist the final assistant message
+2. **Client-side**: `useChat` creates a local `MessageAccumulator` to re-accumulate from SSE events for progressive UI rendering
+
+This is inherent to the client/server split — the server accumulates for persistence, the client accumulates for real-time display. After streaming completes, the client replaces its accumulated snapshot with the authoritative persisted session from the server.
+
 ## Modules
 
 | Module | Import | Description |
@@ -63,16 +129,17 @@ import type {
   ChatSession,
   ChatEvent,
   ChatId,
-  IChatProvider,
   MessagePart,
 } from "@witqq/agent-sdk/chat/core";
+import type { IChatBackend } from "@witqq/agent-sdk/chat/backends";
 ```
 
 **Key types:**
 - `ChatMessage<TMetadata>` — message with `id`, `role`, `parts`, `status`, `metadata`
-- `ChatSession<TCustom>` — session with messages, config, metadata, and status. `TCustom` defaults to `Record<string, unknown>` for the `metadata.custom` field
+- `ChatSession<TCustom>` — pure data container with messages, config, metadata, and status. `TCustom` defaults to `Record<string, unknown>` for the `metadata.custom` field
+- `ObservableSession<TCustom>` — reactive wrapper extending `ChatSession` with `subscribe()`, `getSnapshot()`, `lastMessage` for React `useSyncExternalStore` integration
 - `ChatEvent` — 18-variant discriminated union (`message:start`, `message:delta`, `message:complete`, `tool:start`, `tool:complete`, `thinking:start`, `thinking:delta`, `thinking:end`, `done`, `error`, etc.)
-- `IChatProvider` — provider interface with `sendMessage()`, `streamMessage()`, `listModels()`, `validate()`, `dispose()`
+- `IChatProvider` — **@deprecated** type alias for `IChatBackend`. Import `IChatBackend` from `@witqq/agent-sdk/chat/backends` instead
 - `MessagePart` — union of `TextPart`, `ReasoningPart`, `ToolCallPart`, `SourcePart`, `FilePart`
 
 **Utility functions:**
@@ -84,6 +151,8 @@ import type {
 - `agentEventToChatEvent(event, messageId)` — convert a single `AgentEvent` to `ChatEvent`
 - `adaptAgentEvents(events, messageId)` — convert an async iterable of agent events to chat events
 - `toAgentMessage(message)` / `fromAgentMessage(message)` — bidirectional message conversion
+- `createTextMessage(text, role?)` — create a simple text `ChatMessage`
+- `isObservableSession(session)` — type guard for `ObservableSession`
 - Type guards: `isChatMessage()`, `isChatSession()`, `isChatEvent()`, `isTextPart()`, `isToolCallPart()`, `isReasoningPart()`, `isMessagePart()`, `isSourcePart()`, `isFilePart()`
 
 ## Event System (`chat/events`)
@@ -125,16 +194,16 @@ const messageEvents = filterEvents(chatEventStream, "message:start", "message:de
 
 ## Error Handling (`chat/errors`)
 
-Error classification and retry strategies with 19 error codes.
+Error classification and retry strategies with 28 error codes (unified `ErrorCode` enum).
 
 ```typescript
-import { classifyError, withRetry, ChatError, ChatErrorCode, ExponentialBackoffStrategy } from "@witqq/agent-sdk/chat/errors";
+import { classifyError, withRetry, ChatError, ErrorCode, ExponentialBackoffStrategy } from "@witqq/agent-sdk/chat/errors";
 
 try {
   await fetch(url);
 } catch (err) {
   const chatError = classifyError(err);
-  console.log(chatError.code);      // ChatErrorCode.NETWORK
+  console.log(chatError.code);      // ErrorCode.NETWORK
   console.log(chatError.retryable);  // true
 }
 
@@ -146,7 +215,7 @@ const result = await withRetry(
 );
 ```
 
-**Error codes:** `NETWORK`, `TIMEOUT`, `AUTH_EXPIRED`, `AUTH_INVALID`, `RATE_LIMIT`, `PROVIDER_ERROR`, `MODEL_NOT_FOUND`, `MODEL_OVERLOADED`, `CONTEXT_OVERFLOW`, `INVALID_INPUT`, `INVALID_RESPONSE`, `PERMISSION_DENIED`, `BACKEND_NOT_INSTALLED`, `SESSION_NOT_FOUND`, `STORAGE_ERROR`, `DISPOSED`, `ABORTED`, `INVALID_TRANSITION`, `REENTRANCY`
+**Error codes:** `NETWORK`, `TIMEOUT`, `AUTH_EXPIRED`, `AUTH_INVALID`, `RATE_LIMIT`, `PROVIDER_ERROR`, `MODEL_NOT_FOUND`, `MODEL_OVERLOADED`, `CONTEXT_OVERFLOW`, `INVALID_INPUT`, `INVALID_RESPONSE`, `PERMISSION_DENIED`, `BACKEND_NOT_INSTALLED`, `SESSION_NOT_FOUND`, `SESSION_EXPIRED`, `STORAGE_ERROR`, `STORAGE_NOT_FOUND`, `STORAGE_DUPLICATE_KEY`, `STORAGE_IO_ERROR`, `STORAGE_SERIALIZATION_ERROR`, `DISPOSED`, `ABORTED`, `INVALID_TRANSITION`, `REENTRANCY`, `TOOL_EXECUTION`, `DEPENDENCY_MISSING`, `PROVIDER_NOT_FOUND`, `AUTH_REQUIRED`
 
 **Functions:**
 - `classifyError(error)` — pattern-match unknown errors into `ChatError` with appropriate code
@@ -201,16 +270,26 @@ await store.saveMessages(session.id, [message1, message2]);
 const page = await store.loadMessages(session.id, { limit: 20, offset: 0 });
 console.log(page.messages, page.total, page.hasMore);
 
-// Archive / unarchive
-await store.archiveSession(session.id);
-await store.unarchiveSession(session.id);
-
 // List and search sessions
 const sessions = await store.listSessions({ limit: 10 });
 const results = await store.searchSessions({ query: "deployment" });
 ```
 
 **Implementations:** `InMemorySessionStore` (zero-config) and `FileSessionStore` (JSON files).
+
+### SQLite Storage (`chat/sqlite`)
+
+Unified SQLite storage via `createSQLiteStorage(dbPath)` — single database for sessions, providers, and tokens. Requires `better-sqlite3` as optional peer dependency.
+
+```typescript
+import { createSQLiteStorage } from "@witqq/agent-sdk/chat/sqlite";
+
+const { db, sessionStore, providerStore, tokenStore } = createSQLiteStorage("chat.db");
+```
+
+**Schema management:** Tables are auto-created on construction via `CREATE TABLE IF NOT EXISTS`. No versioned migration system — the schema is additive. If schema changes are needed in future versions, a `SCHEMA_VERSION` constant and migration mechanism will be introduced.
+
+**WAL mode** and foreign keys are enabled on the shared `Database` instance for concurrent read performance.
 
 ## Context Window (`chat/context`)
 
@@ -319,7 +398,7 @@ High-level adapters bridging `IAgentService` to `ChatEvent` streams with session
 import {
   CopilotChatAdapter, ClaudeChatAdapter, VercelAIChatAdapter,
   SSEChatTransport, streamToTransport,
-  type IBackendAdapter, type IChatTransport
+  type IResumableBackend, type IChatTransport
 } from "@witqq/agent-sdk/chat/backends";
 
 // Create adapter (auto-creates and owns its agent service)
@@ -386,26 +465,29 @@ interface AppMetadata extends Record<string, unknown> {
 
 const runtime = createChatRuntime<AppMetadata>({
   backends: {
-    copilot: () => new CopilotChatAdapter({ agentService }),
+    copilot: async (credentials) => new CopilotChatAdapter({
+      agentConfig: { systemPrompt: "Hello" },
+      agentService: await createAgentService("copilot", { githubToken: credentials.accessToken }),
+    }),
   },
   defaultBackend: "copilot",
   sessionStore,
-  contextManager,
-  retry: { maxRetries: 2, initialDelayMs: 500, backoffMultiplier: 2 },
+  context: { maxTokens: 128_000 },
+  retryConfig: { maxAttempts: 2, delayMs: 500, backoffMultiplier: 2 },
 });
 ```
 
 **Factory:** `createChatRuntime<TMetadata>(options)` returns `IChatRuntime<TMetadata>`. The generic `TMetadata` flows through `createSession()` and `getSession()` to type the `metadata.custom` field. Backend adapters are created lazily from factory functions.
 
-**Retry:** `RetryConfig` (`maxRetries`, `initialDelayMs`, `backoffMultiplier`) controls pre-stream retry behavior. If the adapter factory or the first stream event fails, the runtime retries with exponential backoff. Once the first event is received, the stream is committed (no mid-stream retry). Failed adapters are disposed before retry.
+**Retry:** `StreamRetryConfig` (`maxAttempts`, `delayMs`, `backoffMultiplier`) controls pre-stream retry behavior. If the adapter factory or the first stream event fails, the runtime retries with exponential backoff. Once the first event is received, the stream is committed (no mid-stream retry). Failed adapters are disposed before retry.
 
-**Session delegation:** `createSession()`, `getSession(id)`, `listSessions()`, `deleteSession(id)`, `archiveSession(id)`, `switchSession(id)` — delegates to `IChatSessionStore`.
+**Session delegation:** `createSession()`, `getSession(id)`, `listSessions()`, `deleteSession(id)` — delegates to `IChatSessionStore`.
 
 **Send flow:** `send(sessionId, content, options?)` → persist user message → run `onBeforeSend` middleware → stream via adapter → `feedAccumulator()` bridges `ChatEvent` → `AgentEvent` → run `onEvent` middleware per event → persist assistant message → run `onAfterReceive` middleware. Yields `ChatEvent` items.
 
-**Backend/model switching:** `switchBackend(name)` changes active backend (adapter created lazily). `switchModel(model)` sets model for next `send()`.
+**Backend/model switching:** Model is passed per-call via `send(sessionId, msg, { model, backend, credentials })`. Subscribe to session lifecycle changes via `onSessionChange(callback)`.
 
-**Tool registration:** `addTool(def)`, `removeTool(name)`, `getTools()`. Tools persist across backend switches, passed to adapters via `SendMessageOptions.tools`.
+**Tool registration:** `registerTool(tool)`, `removeTool(name)`, `registeredTools` (readonly `ReadonlyMap<string, ToolDefinition>`). Tools persist across backend switches, passed to adapters via `SendMessageOptions.tools`.
 
 **Tool context:** Runtime-registered tools receive an optional `ToolContext` as their second parameter. `ChatRuntime.send()` builds the context from the current session (`{ sessionId, custom? }`) and injects it via closure wrapping. Existing single-parameter tools work unchanged.
 
@@ -425,13 +507,13 @@ const tool: ToolDefinition = {
 runtime.registerTool(tool);
 ```
 
-**Middleware:** `use(middleware)` registers `ChatMiddleware` (onBeforeSend, onEvent, onAfterReceive, onError). Sequential execution in registration order.
+**Middleware:** `use(middleware)` registers `ChatMiddleware` (onBeforeSend, onEvent, onAfterReceive, onError). `removeMiddleware(middleware)` removes a previously registered middleware. Sequential execution in registration order.
 
 **Lifecycle:** State machine (idle → streaming → idle/error/disposed). `status` property, `abort()` cancels current send, `dispose()` cleans up. Error auto-recovery: transient errors reset to idle on next `send()`.
 
-**Context stats:** `getContextStats(sessionId)` returns the last trimming result for a session: `{ totalTokens, removedCount, wasTruncated, availableBudget }` or `null` if no context config is set. Updated after each `send()`.
+**Context stats:** `getContextStats(sessionId)` returns the last trimming result for a session: `{ totalTokens, removedCount, wasTruncated, availableBudget, realPromptTokens?, realCompletionTokens?, modelContextWindow? }` or `null` if no context config is set. When real usage data is available (from backend `usage` events and `ModelInfo.contextWindow`), stats include actual token counts.
 
-**Archive callback:** `onContextTrimmed: (sessionId, removedMessages) => void` in runtime options. Called when context trimming removes messages during `send()`. Callback errors are caught and swallowed to avoid disrupting the send flow.
+**Context trimmed callback:** `onContextTrimmed: (sessionId, removedMessages) => void` in runtime options. Called when context trimming removes messages during `send()`. Callback errors are caught and swallowed to avoid disrupting the send flow.
 
 **Stream watchdog:** `streamTimeoutMs` in runtime options wraps the event stream with an inactivity timeout. If no events arrive within the configured window, the stream aborts with `ChatError(TIMEOUT)`. Timer resets on each received event. Uses `Promise.race()` with cancellable timeouts to avoid timer leaks.
 
@@ -455,7 +537,7 @@ if (stats?.wasTruncated) {
 
 ## React Bindings (`chat/react`)
 
-Headless React hooks wrapping `IChatRuntime`. React 18+ as optional peer dependency.
+Headless React hooks wrapping `IChatClient`. React 18+ as optional peer dependency.
 
 ```typescript
 import { ChatProvider, useChat, useMessages } from "@witqq/agent-sdk/chat/react";
@@ -483,7 +565,7 @@ function Chat() {
 
 | Hook | Purpose |
 |------|---------|
-| `ChatProvider` | React context provider wrapping `IChatRuntime` |
+| `ChatProvider` | React context provider wrapping `IChatClient` |
 | `useChatRuntime()` | Access runtime from context (throws outside provider) |
 | `useChat(options?)` | Send messages, track status, manage sessions |
 | `useMessages({ sessionId })` | Reactive message list via `useSyncExternalStore` |
@@ -514,6 +596,7 @@ Headless rendering components using `createElement` (no JSX required).
 | `ThinkingBlock` | Collapsible reasoning via `details/summary`, streaming indicator |
 | `ToolCallView` | Tool call display with approve/deny buttons when `requires_approval` |
 | `MarkdownRenderer` | Markdown→HTML parser with headings, code blocks, links, lists |
+| `ContextStatsDisplay` | Displays real context window stats (`realPromptTokens`, `modelContextWindow`, usage%). Returns null without real data. `data-context-stats` attribute |
 | `useToolApproval(messages)` | Tracks tool calls needing approval, returns `pendingRequests`/`approve`/`deny` |
 
 ```typescript
@@ -556,7 +639,7 @@ createElement(ThreadProvider, {
 | Component/Hook | Purpose |
 |----------------|---------|
 | `ThreadList` | Session sidebar with create, delete, switch, search |
-| `useSSE(url)` | Fetch-based SSE client with reconnection and multi-line data |
+| `useSSE(url, options?)` | Fetch-based SSE client with GET/POST support, reconnection, multi-line data |
 | `useModels()` | Model list with loading state, caching, search/filter |
 | `ModelSelector` | Dropdown with search, keyboard navigation, tier badges |
 
@@ -564,7 +647,7 @@ createElement(ThreadProvider, {
 import { ThreadList, useSSE, useModels, ModelSelector } from "@witqq/agent-sdk/chat/react";
 
 // Session sidebar
-createElement(ThreadList, { sessions, activeSessionId, onSelect, onDelete, onCreate });
+createElement(ThreadList, { sessions, activeSessionId, onSelect, onDelete, onCreate, onSearchChange });
 
 // SSE transport with reconnection
 const { status, connect, disconnect, lastEvent } = useSSE("/api/chat/stream", {
@@ -582,25 +665,25 @@ createElement(ModelSelector, { models, selected: currentModel, onSelect: setMode
 
 | Component/Hook | Purpose |
 |----------------|---------|
-| `useAuth({ backend })` | Multi-backend auth state machine (Copilot Device Flow, Claude OAuth+PKCE, API key) |
+| `useRemoteAuth({ backend, baseUrl })` | Server-delegated auth state machine (Copilot Device Flow, Claude OAuth+PKCE, API key) |
 | `AuthDialog` | Headless multi-backend auth dialog with render props |
 
 ```typescript
-import { useAuth, AuthDialog } from "@witqq/agent-sdk/chat/react";
-import type { AuthBackend } from "@witqq/agent-sdk/chat/react";
+import { useRemoteAuth, AuthDialog } from "@witqq/agent-sdk/chat/react";
+import type { RemoteAuthBackend } from "@witqq/agent-sdk/chat/react";
 
-// Auth hook with Copilot Device Flow
-const { status, deviceCode, verificationUrl, startDeviceFlow, token } = useAuth({
+// Auth hook with Copilot Device Flow (delegated to server)
+const { status, startDeviceFlow, token, loadSavedTokens } = useRemoteAuth({
   backend: "copilot",
-  onAuthenticated: (token) => console.log("Authenticated:", token.accessToken),
+  baseUrl: "/api",
 });
 
-// Auth hook with Claude OAuth
-const { authorizeUrl, startOAuthFlow, completeOAuth } = useAuth({ backend: "claude" });
+// Unified start — auto-dispatches to correct auth flow per backend
+const { start } = useRemoteAuth({ backend: "claude", baseUrl: "/api" });
 
 // Multi-backend auth dialog
 createElement(AuthDialog, {
-  backends: ["copilot", "claude", "api-key"] as AuthBackend[],
+  backends: ["copilot", "claude", "vercel-ai"] as RemoteAuthBackend[],
   onAuthenticated: handleAuth,
   renderCopilotFlow: ({ deviceCode, verificationUrl }) =>
     createElement("div", null, `Code: ${deviceCode}, URL: ${verificationUrl}`),
@@ -641,14 +724,14 @@ manager.updateToken(newToken);
 manager.dispose();
 ```
 
-### RemoteChatRuntime
+### RemoteChatClient
 
-Client-side `IChatRuntime` adapter that delegates all operations to a server over HTTP/SSE. Enables React hooks to work in browser apps where the actual `ChatRuntime` runs server-side.
+Client-side `IChatClient` adapter that delegates all operations to a server over HTTP/SSE. Enables React hooks to work in browser apps where the actual `ChatRuntime` runs server-side.
 
 ```typescript
-import { RemoteChatRuntime } from "@witqq/agent-sdk/chat/react";
+import { RemoteChatClient } from "@witqq/agent-sdk/chat/react";
 
-const runtime = new RemoteChatRuntime({ baseUrl: "/api/chat" });
+const runtime = new RemoteChatClient({ baseUrl: "/api/chat" });
 
 // Use with ChatProvider — all hooks work transparently
 createElement(ChatProvider, { runtime }, createElement(Chat));
@@ -662,7 +745,6 @@ createElement(ChatProvider, { runtime }, createElement(Chat));
 | `GET` | `/sessions/{id}` | Get session |
 | `GET` | `/sessions` | List sessions |
 | `DELETE` | `/sessions/{id}` | Delete session |
-| `POST` | `/sessions/{id}/archive` | Archive session |
 | `POST` | `/send` | Send message (SSE stream response) |
 | `POST` | `/abort` | Abort generation |
 | `GET` | `/models` | List available models |
@@ -672,7 +754,7 @@ createElement(ChatProvider, { runtime }, createElement(Chat));
 #### Options
 
 ```typescript
-interface RemoteChatRuntimeOptions {
+interface RemoteChatClientOptions {
   baseUrl: string;        // Server base URL (no trailing slash)
   headers?: HeadersInit;  // Custom headers (auth tokens, etc.)
   fetch?: typeof fetch;   // Custom fetch implementation
@@ -681,13 +763,59 @@ interface RemoteChatRuntimeOptions {
 
 Streaming uses SSE with `ChatEvent` JSON payloads. Abort cancellation is handled via `AbortController` with clean stream teardown.
 
+## Server Utilities (`chat/server`)
+
+Framework-agnostic HTTP handlers for serving `IChatRuntime` over HTTP.
+
+```typescript
+import { createChatServer } from "@witqq/agent-sdk/chat/server";
+
+const handler = createChatServer({
+  runtime,
+  staticDir: "./public",
+  auth: { tokenStore, createCopilotAuth: () => new CopilotAuth() },
+  providers: { providerStore },
+  hooks: {
+    filterModels: (models) => models.filter(m => allowedModels.has(m.id)),
+    onModelSwitch: (model) => { if (!allowed(model)) throw new Error("Blocked"); },
+    onBackendSwitch: (backend) => ensureAuthenticated(backend),
+    onProviderSwitch: ({ backend }) => ensureAuthenticated(backend),
+    onBeforeSend: (sessionId, message) => { /* rate limit, logging */ },
+    onError: (error, ctx) => console.error(`[${ctx.route}] ${error.message}`),
+  },
+  autoCreateProviders: true,
+});
+
+http.createServer(handler).listen(3000);
+```
+
+**`ChatServerHooks`** — 6 lifecycle hooks:
+- `filterModels(models)` — filter GET /models response
+- `onModelSwitch(model)` — guard POST /model/switch (throw to reject)
+- `onBackendSwitch(backend)` — guard POST /backend/switch
+- `onProviderSwitch({ providerId, backend })` — guard POST /provider/switch
+- `onBeforeSend(sessionId, message)` — intercept before send (throw to reject)
+- `onError(error, context)` — notification on handler errors
+
+**Stateless backend factories** — backend adapters are created per-request via credential-accepting factory functions in `ChatRuntimeOptions.backends`. No service caching or lifecycle management needed:
+
+```typescript
+const runtime = createChatRuntime({
+  backends: {
+    copilot: async (credentials: AuthToken) => {
+      const svc = await createAgentService("copilot", { githubToken: credentials.accessToken });
+      return new CopilotChatAdapter({ agentConfig: { systemPrompt: "Hello" }, agentService: svc });
+    },
+  },
+  defaultBackend: "copilot", sessionStore,
+});
+
+createChatServer({ runtime, auth: { tokenStore } });
+// Credentials resolved from tokenStore per request — no in-memory token cache
+```
+
+**`WritableResponse`** — unified minimal interface satisfied by Express.Response, Fastify reply.raw, and Node http.ServerResponse without casts.
+
 ## Demo Application
 
 See [examples/demo/README.md](../../examples/demo/README.md) for a working React demo showcasing all modules.
-
-## Research Documents
-
-- [ARCHITECTURE.md](ARCHITECTURE.md) — architecture specification
-- [IMPLEMENTATION.md](IMPLEMENTATION.md) — implementation roadmap
-- [PROJECTS-ANALYSIS.md](PROJECTS-ANALYSIS.md) — project analysis
-- [COMPETITORS.md](COMPETITORS.md) — competitive landscape

@@ -10,6 +10,9 @@
 
 import { useState, useCallback, useRef } from "react";
 import type { AuthToken } from "../../auth/types.js";
+import { useCopilotAuth } from "./auth/useCopilotAuth.js";
+import { useClaudeAuth } from "./auth/useClaudeAuth.js";
+import { useApiKeyAuth } from "./auth/useApiKeyAuth.js";
 
 /** Supported remote auth backends. */
 export type RemoteAuthBackend = "copilot" | "claude" | "vercel-ai";
@@ -80,16 +83,33 @@ export function useRemoteAuth(options: UseRemoteAuthOptions): UseRemoteAuthRetur
   const { backend, baseUrl, onAuthenticated, headers } = options;
   const fetchFn = options.fetch ?? globalThis.fetch.bind(globalThis);
 
+  // Orchestrator-level state (single source of truth for public interface)
   const [status, setStatus] = useState<RemoteAuthStatus>("idle");
   const [error, setError] = useState<Error | null>(null);
   const [token, setToken] = useState<AuthToken | null>(null);
-  const [deviceCode, setDeviceCode] = useState<string | null>(null);
-  const [verificationUrl, setVerificationUrl] = useState<string | null>(null);
-  const [authorizeUrl, setAuthorizeUrl] = useState<string | null>(null);
   const [savedProviders, setSavedProviders] = useState<string[]>([]);
 
   const onAuthenticatedRef = useRef(onAuthenticated);
   onAuthenticatedRef.current = onAuthenticated;
+
+  // Callbacks to sync per-backend hook outcomes → orchestrator state
+  const handleSuccess = useCallback((authToken: AuthToken) => {
+    setToken(authToken);
+    setStatus("authenticated");
+    onAuthenticatedRef.current?.(authToken);
+  }, []);
+
+  const handleError = useCallback((err: Error) => {
+    setError(err);
+    setStatus("error");
+  }, []);
+
+  const hookOpts = { baseUrl, headers, fetch: fetchFn, onAuthenticated: handleSuccess, onError: handleError };
+
+  // Per-backend hooks for backend-specific state + auth HTTP calls
+  const copilot = useCopilotAuth(hookOpts);
+  const claude = useClaudeAuth(hookOpts);
+  const apiKey = useApiKeyAuth(hookOpts);
 
   const post = useCallback(
     async (path: string, body?: Record<string, unknown>) => {
@@ -118,93 +138,37 @@ export function useRemoteAuth(options: UseRemoteAuthOptions): UseRemoteAuthRetur
     [baseUrl, fetchFn, headers],
   );
 
+  // Wrap per-backend methods with backend guards and orchestrator status
   const startDeviceFlow = useCallback(async () => {
     if (backend !== "copilot") return;
     setStatus("pending");
     setError(null);
-    try {
-      // Start the flow on server
-      const result = await post("/auth/start", { provider: "copilot" });
-      setDeviceCode(result.userCode);
-      setVerificationUrl(result.verificationUrl);
-      // Poll for completion (server blocks until device flow completes)
-      await post("/auth/copilot/poll");
-      const authToken: AuthToken = {
-        accessToken: "server-managed",
-        tokenType: "bearer",
-        obtainedAt: Date.now(),
-      };
-      setToken(authToken);
-      setStatus("authenticated");
-      onAuthenticatedRef.current?.(authToken);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
-      setStatus("error");
-    }
-  }, [backend, post]);
+    await copilot.start();
+  }, [backend, copilot]);
 
   const startOAuthFlow = useCallback(async () => {
     if (backend !== "claude") return;
     setStatus("pending");
     setError(null);
-    try {
-      const result = await post("/auth/start", { provider: "claude" });
-      setAuthorizeUrl(result.authorizeUrl);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
-      setStatus("error");
-    }
-  }, [backend, post]);
+    await claude.start();
+  }, [backend, claude]);
 
   const completeOAuth = useCallback(
     async (codeOrUrl: string) => {
-      try {
-        await post("/auth/claude/complete", { code: codeOrUrl });
-        const authToken: AuthToken = {
-          accessToken: "server-managed",
-          tokenType: "bearer",
-          obtainedAt: Date.now(),
-        };
-        setToken(authToken);
-        setStatus("authenticated");
-        onAuthenticatedRef.current?.(authToken);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error(String(err)));
-        setStatus("error");
-      }
+      await claude.complete(codeOrUrl);
     },
-    [post],
+    [claude],
   );
 
   const submitApiKey = useCallback(
     async (key: string, apiBaseUrl?: string) => {
       if (backend !== "vercel-ai") return;
-      if (!key || !key.trim()) {
-        setError(new Error("API key cannot be empty"));
-        setStatus("error");
-        return;
-      }
-      try {
-        await post("/auth/vercel/complete", {
-          apiKey: key.trim(),
-          ...(apiBaseUrl ? { baseUrl: apiBaseUrl } : {}),
-        });
-        const authToken: AuthToken = {
-          accessToken: "server-managed",
-          tokenType: "bearer",
-          obtainedAt: Date.now(),
-        };
-        setToken(authToken);
-        setStatus("authenticated");
-        onAuthenticatedRef.current?.(authToken);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error(String(err)));
-        setStatus("error");
-      }
+      await apiKey.submit(key, apiBaseUrl);
     },
-    [backend, post],
+    [backend, apiKey],
   );
 
+  // Cross-cutting operations managed at orchestrator level
   const loadSavedTokens = useCallback(async () => {
     try {
       const data = await get("/tokens/saved");
@@ -247,58 +211,46 @@ export function useRemoteAuth(options: UseRemoteAuthOptions): UseRemoteAuthRetur
     setStatus("idle");
     setError(null);
     setToken(null);
-    setDeviceCode(null);
-    setVerificationUrl(null);
-    setAuthorizeUrl(null);
+    copilot.reset();
+    claude.reset();
+    apiKey.reset();
     setSavedProviders([]);
-  }, []);
+  }, [copilot, claude, apiKey]);
 
   const start = useCallback(async (provider?: RemoteAuthBackend) => {
     const target = provider ?? backend;
     setStatus("pending");
     setError(null);
-    try {
-      switch (target) {
-        case "copilot": {
-          const result = await post("/auth/start", { provider: "copilot" });
-          setDeviceCode(result.userCode);
-          setVerificationUrl(result.verificationUrl);
-          await post("/auth/copilot/poll");
-          const authToken: AuthToken = {
-            accessToken: "server-managed",
-            tokenType: "bearer",
-            obtainedAt: Date.now(),
-          };
-          setToken(authToken);
-          setStatus("authenticated");
-          onAuthenticatedRef.current?.(authToken);
-          break;
-        }
-        case "claude": {
-          const result = await post("/auth/start", { provider: "claude" });
-          setAuthorizeUrl(result.authorizeUrl);
-          // OAuth is two-step: start sets authorizeUrl, user must call completeOAuth after redirect
-          break;
-        }
-        case "vercel-ai":
-          throw new Error("vercel-ai requires submitApiKey(key, baseUrl) — cannot auto-start");
-        default:
-          throw new Error(`Unknown auth provider: ${target as string}`);
+    switch (target) {
+      case "copilot":
+        await copilot.start();
+        break;
+      case "claude":
+        await claude.start();
+        break;
+      case "vercel-ai": {
+        const e = new Error("vercel-ai requires submitApiKey(key, baseUrl) — cannot auto-start");
+        setError(e);
+        setStatus("error");
+        return;
       }
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
-      setStatus("error");
+      default: {
+        const e = new Error(`Unknown auth provider: ${target as string}`);
+        setError(e);
+        setStatus("error");
+        return;
+      }
     }
-  }, [backend, post]);
+  }, [backend, copilot, claude]);
 
   return {
     status,
     error,
     startDeviceFlow,
-    deviceCode,
-    verificationUrl,
+    deviceCode: copilot.deviceCode,
+    verificationUrl: copilot.verificationUrl,
     startOAuthFlow,
-    authorizeUrl,
+    authorizeUrl: claude.authorizeUrl,
     completeOAuth,
     submitApiKey,
     start,

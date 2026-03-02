@@ -167,6 +167,7 @@ export interface MiddlewareContext {
 
 /**
  * Middleware function for intercepting, transforming, or suppressing events.
+ * EventMiddleware operates at the ChatEventBus level.
  *
  * @param ctx - Middleware context with event, next(), and suppress()
  *

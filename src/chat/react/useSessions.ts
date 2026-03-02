@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { SessionInfo, ChatSession } from "../core.js";
-import type { IChatRuntime } from "../runtime.js";
+import type { IChatClient } from "../runtime.js";
 import { useChatRuntime } from "./ChatProvider.js";
 
 /** Return type of useSessions hook. */
@@ -38,10 +38,10 @@ function toSessionInfo(s: ChatSession): SessionInfo {
 /**
  * Reactive session list hook.
  * Subscribes to `runtime.onSessionChange()` and refreshes the list automatically
- * on create, delete, archive, and message send completion.
+ * on create, delete, and message send completion.
  */
 export function useSessions(): UseSessionsReturn {
-  const runtime: IChatRuntime = useChatRuntime();
+  const runtime: IChatClient = useChatRuntime();
   const [sessions, setSessions] = useState<SessionInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);

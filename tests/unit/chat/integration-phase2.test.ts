@@ -55,11 +55,11 @@ describe("Phase 2 Integration: Storage → Sessions → Context", () => {
     ];
 
     for (const msg of msgs) {
-      await store.addMessage(session.id, msg);
+      await store.appendMessage(session.id, msg);
     }
 
     // Retrieve messages
-    const page = await store.getMessages(session.id, { limit: 100, offset: 0 });
+    const page = await store.loadMessages(session.id, { limit: 100, offset: 0 });
     expect(page.total).toBe(6);
 
     // Apply context window
@@ -85,22 +85,22 @@ describe("Phase 2 Integration: Storage → Sessions → Context", () => {
     });
 
     // Round 1: add initial messages
-    await store.addMessage(session.id, makeMessage("user", "Hello"));
-    await store.addMessage(session.id, makeMessage("assistant", "Hi there!"));
+    await store.appendMessage(session.id, makeMessage("user", "Hello"));
+    await store.appendMessage(session.id, makeMessage("assistant", "Hi there!"));
 
     // Verify session metadata updated
     const updated = await store.getSession(session.id);
     expect(updated.metadata.messageCount).toBe(2);
 
     // Round 2: add more messages
-    await store.addMessage(session.id, makeMessage("user", "Follow up"));
-    await store.addMessage(session.id, makeMessage("assistant", "Sure!"));
+    await store.appendMessage(session.id, makeMessage("user", "Follow up"));
+    await store.appendMessage(session.id, makeMessage("assistant", "Sure!"));
 
     const final = await store.getSession(session.id);
     expect(final.metadata.messageCount).toBe(4);
 
     // Retrieve and verify all messages in order
-    const page = await store.getMessages(session.id, { limit: 100, offset: 0 });
+    const page = await store.loadMessages(session.id, { limit: 100, offset: 0 });
     expect(page.messages.map((m) => getMessageText(m))).toEqual([
       "Hello", "Hi there!", "Follow up", "Sure!",
     ]);
@@ -110,12 +110,12 @@ describe("Phase 2 Integration: Storage → Sessions → Context", () => {
     const session1 = await store.createSession({ title: "Session 1" });
     const session2 = await store.createSession({ title: "Session 2" });
 
-    await store.addMessage(session1.id, makeMessage("user", "Message in session 1"));
-    await store.addMessage(session2.id, makeMessage("user", "Message in session 2"));
-    await store.addMessage(session2.id, makeMessage("assistant", "Reply in session 2"));
+    await store.appendMessage(session1.id, makeMessage("user", "Message in session 1"));
+    await store.appendMessage(session2.id, makeMessage("user", "Message in session 2"));
+    await store.appendMessage(session2.id, makeMessage("assistant", "Reply in session 2"));
 
-    const page1 = await store.getMessages(session1.id, { limit: 100, offset: 0 });
-    const page2 = await store.getMessages(session2.id, { limit: 100, offset: 0 });
+    const page1 = await store.loadMessages(session1.id, { limit: 100, offset: 0 });
+    const page2 = await store.loadMessages(session2.id, { limit: 100, offset: 0 });
 
     expect(page1.total).toBe(1);
     expect(page2.total).toBe(2);
@@ -139,10 +139,10 @@ describe("Phase 2 Integration: Storage → Sessions → Context", () => {
     ];
 
     for (const msg of msgs) {
-      await store.addMessage(session.id, msg);
+      await store.appendMessage(session.id, msg);
     }
 
-    const page = await store.getMessages(session.id, { limit: 100, offset: 0 });
+    const page = await store.loadMessages(session.id, { limit: 100, offset: 0 });
     const result = mgr.fitMessages(page.messages);
 
     expect(result.wasTruncated).toBe(true);
@@ -168,10 +168,10 @@ describe("Phase 2 Integration: Storage → Sessions → Context", () => {
     ];
 
     for (const msg of msgs) {
-      await store.addMessage(session.id, msg);
+      await store.appendMessage(session.id, msg);
     }
 
-    const page = await store.getMessages(session.id, { limit: 100, offset: 0 });
+    const page = await store.loadMessages(session.id, { limit: 100, offset: 0 });
     const result = mgr.fitMessages(page.messages);
 
     expect(result.wasTruncated).toBe(true);
@@ -197,25 +197,25 @@ describe("Phase 2 Integration: Storage → Sessions → Context", () => {
 
     // Add 10 messages
     for (let i = 0; i < 10; i++) {
-      await store.addMessage(
+      await store.appendMessage(
         session.id,
         makeMessage(i % 2 === 0 ? "user" : "assistant", `Message ${i}`),
       );
     }
 
     // Page 1
-    const page1 = await store.getMessages(session.id, { limit: 3, offset: 0 });
+    const page1 = await store.loadMessages(session.id, { limit: 3, offset: 0 });
     expect(page1.messages.length).toBe(3);
     expect(page1.total).toBe(10);
     expect(page1.hasMore).toBe(true);
 
     // Page 2
-    const page2 = await store.getMessages(session.id, { limit: 3, offset: 3 });
+    const page2 = await store.loadMessages(session.id, { limit: 3, offset: 3 });
     expect(page2.messages.length).toBe(3);
     expect(page2.hasMore).toBe(true);
 
     // Last page
-    const page4 = await store.getMessages(session.id, { limit: 3, offset: 9 });
+    const page4 = await store.loadMessages(session.id, { limit: 3, offset: 9 });
     expect(page4.messages.length).toBe(1);
     expect(page4.hasMore).toBe(false);
   });
@@ -223,9 +223,9 @@ describe("Phase 2 Integration: Storage → Sessions → Context", () => {
   it("context trimming returns new array (not same reference)", async () => {
     const session = await store.createSession({ title: "Array ref test" });
     const original = makeMessage("user", "Original content");
-    await store.addMessage(session.id, original);
+    await store.appendMessage(session.id, original);
 
-    const page = await store.getMessages(session.id, { limit: 100, offset: 0 });
+    const page = await store.loadMessages(session.id, { limit: 100, offset: 0 });
     const result = contextMgr.fitMessages(page.messages);
 
     // Result array is different reference from input
@@ -235,7 +235,7 @@ describe("Phase 2 Integration: Storage → Sessions → Context", () => {
 
   it("empty session returns no-truncation result", async () => {
     const session = await store.createSession({ title: "Empty" });
-    const page = await store.getMessages(session.id, { limit: 100, offset: 0 });
+    const page = await store.loadMessages(session.id, { limit: 100, offset: 0 });
 
     const result = contextMgr.fitMessages(page.messages);
     expect(result.messages).toEqual([]);
@@ -328,7 +328,7 @@ describe("Phase 2 Integration: ChatSession subscribe/getSnapshot & SessionInfo",
     const lastMsg = makeMessage("assistant", "Here is the answer");
     const info: SessionInfo = {
       id: "info-2" as ChatId,
-      status: "archived",
+      status: "active",
       messageCount: 5,
       lastMessage: lastMsg,
       createdAt: new Date().toISOString(),
@@ -336,7 +336,7 @@ describe("Phase 2 Integration: ChatSession subscribe/getSnapshot & SessionInfo",
     };
 
     expect(info.lastMessage).toBe(lastMsg);
-    expect(info.status).toBe("archived");
+    expect(info.status).toBe("active");
     expect(info.title).toBeUndefined();
   });
 });

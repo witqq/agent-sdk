@@ -12,27 +12,40 @@ export interface ToolCallViewProps {
 
 /**
  * Headless tool call display component.
- * Shows tool name, status, args, result, and approval buttons when needed.
+ * Shows tool name, status, collapsible args/result, and approval buttons when needed.
  */
 export function ToolCallView({ part, onApprove, onDeny, renderArgs, renderResult }: ToolCallViewProps): ReactNode {
-  const children: ReactNode[] = [
-    createElement("span", { key: "name", "data-tool-label": "name" }, part.name),
-    createElement("span", { key: "status", "data-tool-label": "status" }, part.status),
-  ];
+  const children: ReactNode[] = [];
 
+  // Header row: tool name + status badge
+  children.push(
+    createElement("div", { key: "header", "data-tool-header": "true" },
+      createElement("span", { "data-tool-label": "name" }, part.name),
+      createElement("span", { "data-tool-label": "status" }, part.status),
+    ),
+  );
+
+  // Collapsible args section
   if (part.args !== undefined) {
     children.push(
       renderArgs
         ? renderArgs(part.args)
-        : createElement("pre", { key: "args", "data-tool-label": "args" }, JSON.stringify(part.args, null, 2)),
+        : createElement("details", { key: "args", "data-tool-details": "args" },
+            createElement("summary", null, "Arguments"),
+            createElement("pre", { "data-tool-label": "args" }, JSON.stringify(part.args, null, 2)),
+          ),
     );
   }
 
+  // Collapsible result section
   if (part.result !== undefined) {
     children.push(
       renderResult
         ? renderResult(part.result)
-        : createElement("pre", { key: "result", "data-tool-label": "result" }, JSON.stringify(part.result, null, 2)),
+        : createElement("details", { key: "result", "data-tool-details": "result", open: true },
+            createElement("summary", null, "Result"),
+            createElement("pre", { "data-tool-label": "result" }, JSON.stringify(part.result, null, 2)),
+          ),
     );
   }
 
@@ -44,8 +57,10 @@ export function ToolCallView({ part, onApprove, onDeny, renderArgs, renderResult
 
   if (part.status === "requires_approval") {
     children.push(
-      createElement("button", { key: "approve", onClick: onApprove, "data-action": "approve" }, "Approve"),
-      createElement("button", { key: "deny", onClick: onDeny, "data-action": "deny" }, "Deny"),
+      createElement("div", { key: "actions", "data-tool-actions": "true" },
+        createElement("button", { key: "approve", onClick: onApprove, "data-action": "approve" }, "Approve"),
+        createElement("button", { key: "deny", onClick: onDeny, "data-action": "deny" }, "Deny"),
+      ),
     );
   }
 

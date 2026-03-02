@@ -2,16 +2,10 @@
  * @witqq/agent-sdk/chat/backends/vercel-ai
  *
  * VercelAIChatAdapter wraps VercelAIAgentService for chat use.
- * Stateless adapter — canResume() always returns false.
+ * Stateless adapter — implements IChatBackend only (no resume support).
  * Each streamMessage/sendMessage creates a fresh agent (per-call session mode).
  */
 
-import type {
-  ChatEvent,
-  ChatSession,
-  SendMessageOptions,
-} from "../core.js";
-import { ChatError, ChatErrorCode } from "../errors.js";
 import type {
   IAgent,
   IAgentService,
@@ -33,6 +27,7 @@ export interface VercelAIChatAdapterOptions extends BackendAdapterOptions {
 /**
  * Backend adapter for Vercel AI SDK (API-based).
  * Stateless — each call creates a fresh agent. Does not support resume.
+ * Implements IChatBackend only (no IResumableBackend).
  */
 export class VercelAIChatAdapter extends BaseBackendAdapter {
   private readonly _vercelOptions?: VercelAIBackendOptions;
@@ -44,29 +39,10 @@ export class VercelAIChatAdapter extends BaseBackendAdapter {
   }
 
   protected createService(): IAgentService {
-    // Lazy import to avoid requiring ai + @ai-sdk/openai-compatible at load time
+    // Use synchronous factory directly (not the async registry createAgentService)
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { createAgentService } = require("../../index.js");
-    return createAgentService("vercel-ai", this._vercelOptions);
-  }
-
-  get backendSessionId(): string | null {
-    return null;
-  }
-
-  canResume(): boolean {
-    return false;
-  }
-
-  async *resume(
-    _session: ChatSession,
-    _backendSessionId: string,
-    _options?: SendMessageOptions,
-  ): AsyncIterable<ChatEvent> {
-    throw new ChatError(
-      "Vercel AI adapter does not support session resume (stateless)",
-      { code: ChatErrorCode.PROVIDER_ERROR },
-    );
+    const { createVercelAIService } = require("../../backends/vercel-ai.js");
+    return createVercelAIService(this._vercelOptions || {});
   }
 
   protected captureSessionId(_agent: IAgent): void {

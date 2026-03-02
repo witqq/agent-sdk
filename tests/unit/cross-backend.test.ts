@@ -262,13 +262,13 @@ describe("Cross-backend consistency", () => {
       createCopilotMock();
       const copilotService = createCopilotService({});
       const copilotAgent = copilotService.createAgent(makeConfig());
-      const copilotResult = await copilotAgent.run("Hello");
+      const copilotResult = await copilotAgent.run("Hello", { model: "gpt-5-mini" });
 
       // Claude
       createClaudeMock([claudeSuccessResult("Hello!")]);
       const claudeService = createClaudeService({});
       const claudeAgent = claudeService.createAgent(makeConfig());
-      const claudeResult = await claudeAgent.run("Hello");
+      const claudeResult = await claudeAgent.run("Hello", { model: "test-model" });
 
       // Vercel
       createVercelMock();
@@ -278,7 +278,7 @@ describe("Cross-backend consistency", () => {
         baseUrl: "https://test.example.com",
       });
       const vercelAgent = vercelService.createAgent(makeConfig({ model: "test/model" }));
-      const vercelResult = await vercelAgent.run("Hello");
+      const vercelResult = await vercelAgent.run("Hello", { model: "test/model" });
 
       // All results have the same fields
       for (const result of [copilotResult, claudeResult, vercelResult]) {
@@ -295,12 +295,12 @@ describe("Cross-backend consistency", () => {
       createCopilotMock();
       const copilotResult = await createCopilotService({})
         .createAgent(makeConfig())
-        .run("Hello");
+        .run("Hello", { model: "gpt-5-mini" });
 
       createClaudeMock([claudeSuccessResult("Hello!")]);
       const claudeResult = await createClaudeService({})
         .createAgent(makeConfig())
-        .run("Hello");
+        .run("Hello", { model: "test-model" });
 
       createVercelMock();
       const vercelResult = await createVercelAIService({
@@ -309,7 +309,7 @@ describe("Cross-backend consistency", () => {
         baseUrl: "https://test.example.com",
       })
         .createAgent(makeConfig({ model: "test/model" }))
-        .run("Hello");
+        .run("Hello", { model: "test/model" });
 
       for (const result of [copilotResult, claudeResult, vercelResult]) {
         expect(typeof result.output === "string" || result.output === null).toBe(true);
@@ -333,7 +333,7 @@ describe("Cross-backend consistency", () => {
       });
       const copilotEvents: AgentEvent[] = [];
       const copilotAgent = createCopilotService({}).createAgent(makeConfig());
-      for await (const e of copilotAgent.stream("test")) copilotEvents.push(e);
+      for await (const e of copilotAgent.stream("test", { model: "gpt-5-mini" })) copilotEvents.push(e);
 
       // Claude
       createClaudeMock([
@@ -349,7 +349,7 @@ describe("Cross-backend consistency", () => {
       ]);
       const claudeEvents: AgentEvent[] = [];
       const claudeAgent = createClaudeService({}).createAgent(makeConfig());
-      for await (const e of claudeAgent.stream("test")) claudeEvents.push(e);
+      for await (const e of claudeAgent.stream("test", { model: "test-model" })) claudeEvents.push(e);
 
       // Vercel
       createVercelMock({
@@ -364,7 +364,7 @@ describe("Cross-backend consistency", () => {
         provider: "test",
         baseUrl: "https://test.example.com",
       }).createAgent(makeConfig({ model: "test/model" }));
-      for await (const e of vercelAgent.stream("test")) vercelEvents.push(e);
+      for await (const e of vercelAgent.stream("test", { model: "test/model" })) vercelEvents.push(e);
 
       // All should have text_delta
       expect(copilotEvents.some((e) => e.type === "text_delta")).toBe(true);
@@ -393,7 +393,7 @@ describe("Cross-backend consistency", () => {
         ],
       });
       const copilotEvents: AgentEvent[] = [];
-      for await (const e of createCopilotService({}).createAgent(makeConfig()).stream("test")) {
+      for await (const e of createCopilotService({}).createAgent(makeConfig()).stream("test", { model: "gpt-5-mini" })) {
         copilotEvents.push(e);
       }
 
@@ -414,7 +414,7 @@ describe("Cross-backend consistency", () => {
         claudeSuccessResult("done"),
       ]);
       const claudeEvents: AgentEvent[] = [];
-      for await (const e of createClaudeService({}).createAgent(makeConfig()).stream("test")) {
+      for await (const e of createClaudeService({}).createAgent(makeConfig()).stream("test", { model: "test-model" })) {
         claudeEvents.push(e);
       }
 
@@ -431,7 +431,7 @@ describe("Cross-backend consistency", () => {
         apiKey: "test",
         provider: "test",
         baseUrl: "https://test.example.com",
-      }).createAgent(makeConfig({ model: "test/model" })).stream("test")) {
+      }).createAgent(makeConfig({ model: "test/model" })).stream("test", { model: "test/model" })) {
         vercelEvents.push(e);
       }
 
@@ -467,7 +467,7 @@ describe("Cross-backend consistency", () => {
         ],
       });
       const copilotEvents: AgentEvent[] = [];
-      for await (const e of createCopilotService({}).createAgent(makeConfig()).stream("test")) {
+      for await (const e of createCopilotService({}).createAgent(makeConfig()).stream("test", { model: "gpt-5-mini" })) {
         copilotEvents.push(e);
       }
 
@@ -488,7 +488,7 @@ describe("Cross-backend consistency", () => {
         claudeSuccessResult("done"),
       ]);
       const claudeEvents: AgentEvent[] = [];
-      for await (const e of createClaudeService({}).createAgent(makeConfig()).stream("test")) {
+      for await (const e of createClaudeService({}).createAgent(makeConfig()).stream("test", { model: "test-model" })) {
         claudeEvents.push(e);
       }
 
@@ -515,7 +515,7 @@ describe("Cross-backend consistency", () => {
         apiKey: "test",
         provider: "test",
         baseUrl: "https://test.example.com",
-      }).createAgent(makeConfig({ model: "test/model" })).stream("test")) {
+      }).createAgent(makeConfig({ model: "test/model" })).stream("test", { model: "test/model" })) {
         vercelEvents.push(e);
       }
 
@@ -563,7 +563,7 @@ describe("Cross-backend consistency", () => {
         data: { messageId: "m1", content: '{"name":"test","value":42}' },
       });
       const copilotAgent = createCopilotService({}).createAgent(makeConfig());
-      const copilotResult = await copilotAgent.runStructured("test", { schema });
+      const copilotResult = await copilotAgent.runStructured("test", { schema }, { model: "gpt-5-mini" });
 
       // Claude — uses native structured output
       createClaudeMock([
@@ -580,7 +580,7 @@ describe("Cross-backend consistency", () => {
         },
       ]);
       const claudeAgent = createClaudeService({}).createAgent(makeConfig());
-      const claudeResult = await claudeAgent.runStructured("test", { schema });
+      const claudeResult = await claudeAgent.runStructured("test", { schema }, { model: "test-model" });
 
       // Vercel — uses generateObject
       createVercelMock();
@@ -589,7 +589,7 @@ describe("Cross-backend consistency", () => {
         provider: "test",
         baseUrl: "https://test.example.com",
       }).createAgent(makeConfig({ model: "test/model" }));
-      const vercelResult = await vercelAgent.runStructured("test", { schema });
+      const vercelResult = await vercelAgent.runStructured("test", { schema }, { model: "test/model" });
 
       // All should have structuredOutput
       for (const [name, result] of [
@@ -620,13 +620,13 @@ describe("Cross-backend consistency", () => {
       });
       const copilotResult = await createCopilotService({})
         .createAgent(makeConfig({ model: "gpt-4o" }))
-        .run("test");
+        .run("test", { model: "gpt-4o" });
 
       // Claude
       createClaudeMock([claudeSuccessResult("ok")]);
       const claudeResult = await createClaudeService({})
         .createAgent(makeConfig({ model: "claude-sonnet" }))
-        .run("test");
+        .run("test", { model: "claude-sonnet" });
 
       // Vercel
       createVercelMock();
@@ -636,7 +636,7 @@ describe("Cross-backend consistency", () => {
         baseUrl: "https://test.example.com",
       })
         .createAgent(makeConfig({ model: "test/model" }))
-        .run("test");
+        .run("test", { model: "test/model" });
 
       // All should have backend field
       expect(copilotResult.usage?.backend).toBe("copilot");
@@ -663,14 +663,14 @@ describe("Cross-backend consistency", () => {
         ],
       });
       const copilotEvents: AgentEvent[] = [];
-      for await (const e of createCopilotService({}).createAgent(makeConfig({ model: "gpt-4o" })).stream("test")) {
+      for await (const e of createCopilotService({}).createAgent(makeConfig({ model: "gpt-4o" })).stream("test", { model: "gpt-4o" })) {
         copilotEvents.push(e);
       }
 
       // Claude
       createClaudeMock([claudeSuccessResult("ok")]);
       const claudeEvents: AgentEvent[] = [];
-      for await (const e of createClaudeService({}).createAgent(makeConfig({ model: "claude-sonnet" })).stream("test")) {
+      for await (const e of createClaudeService({}).createAgent(makeConfig({ model: "claude-sonnet" })).stream("test", { model: "claude-sonnet" })) {
         claudeEvents.push(e);
       }
 
@@ -681,7 +681,7 @@ describe("Cross-backend consistency", () => {
         apiKey: "test",
         provider: "test",
         baseUrl: "https://test.example.com",
-      }).createAgent(makeConfig({ model: "test/model" })).stream("test")) {
+      }).createAgent(makeConfig({ model: "test/model" })).stream("test", { model: "test/model" })) {
         vercelEvents.push(e);
       }
 
@@ -706,7 +706,7 @@ describe("Cross-backend consistency", () => {
       const agent = createCopilotService({}).createAgent(makeConfig());
       const ac = new AbortController();
       ac.abort();
-      await expect(agent.run("test", { signal: ac.signal })).rejects.toThrow("aborted");
+      await expect(agent.run("test", { model: "gpt-5-mini", signal: ac.signal })).rejects.toThrow("aborted");
     });
 
     it("should throw AbortError from claude when aborted", async () => {
@@ -747,7 +747,7 @@ describe("Cross-backend consistency", () => {
       const ac = new AbortController();
       // Pre-abort
       ac.abort();
-      await expect(agent.run("test", { signal: ac.signal })).rejects.toThrow("aborted");
+      await expect(agent.run("test", { model: "test-model", signal: ac.signal })).rejects.toThrow("aborted");
     });
 
     it("should throw when pre-aborted for vercel backend", async () => {
@@ -759,7 +759,7 @@ describe("Cross-backend consistency", () => {
       }).createAgent(makeConfig({ model: "test/model" }));
       const ac = new AbortController();
       ac.abort();
-      await expect(agent.run("test", { signal: ac.signal })).rejects.toThrow("aborted");
+      await expect(agent.run("test", { model: "test/model", signal: ac.signal })).rejects.toThrow("aborted");
     });
 
     it("should not emit events after abort in streaming", async () => {
@@ -780,7 +780,7 @@ describe("Cross-backend consistency", () => {
 
       const events: AgentEvent[] = [];
       try {
-        for await (const e of agent.stream("test", { signal: ac.signal })) {
+        for await (const e of agent.stream("test", { model: "gpt-5-mini", signal: ac.signal })) {
           events.push(e);
         }
       } catch {

@@ -10,6 +10,16 @@ export interface UseChatOptions {
   sessionId?: string;
   /** Called on error during send. */
   onError?: (error: Error) => void;
+  /** Auto-dismiss errors after this many ms (0 = disabled, default: 0). */
+  autoDismissMs?: number;
+}
+
+/** Token usage data from the last completed response. */
+export interface ChatUsage {
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  model?: string;
 }
 
 /** Return value from useChat. */
@@ -30,8 +40,12 @@ export interface UseChatReturn {
   error: Error | null;
   /** Clear the error state. */
   clearError: () => void;
+  /** Retry the last failed message. No-op if no error or no last user message. */
+  retryLastMessage: () => Promise<void>;
   /** Create a new session, resetting messages. */
   newSession: () => Promise<string>;
+  /** Token usage from the last completed response. */
+  usage: ChatUsage | null;
 }
 
 /**
@@ -48,10 +62,29 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
   const [isGenerating, setIsGenerating] = useState(false);
   const [status, setStatus] = useState<RuntimeStatus>("idle");
   const [error, setError] = useState<Error | null>(null);
+  const [usage, setUsage] = useState<ChatUsage | null>(null);
   const generatingRef = useRef(false);
+  const lastUserMessageRef = useRef<string | null>(null);
 
   const onErrorRef = useRef(options.onError);
   onErrorRef.current = options.onError;
+
+  // Auto-dismiss timer
+  const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoDismissMs = options.autoDismissMs ?? 0;
+  useEffect(() => {
+    if (!error || autoDismissMs <= 0) return;
+    dismissTimerRef.current = setTimeout(() => {
+      setError(null);
+      dismissTimerRef.current = null;
+    }, autoDismissMs);
+    return () => {
+      if (dismissTimerRef.current) {
+        clearTimeout(dismissTimerRef.current);
+        dismissTimerRef.current = null;
+      }
+    };
+  }, [error, autoDismissMs]);
 
   // Sync session messages when sessionId changes
   useEffect(() => {
@@ -66,6 +99,17 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
     });
   }, [sessionId, runtime]);
 
+  // Sync with external session switches (e.g. sidebar click → runtime.switchSession)
+  useEffect(() => {
+    return runtime.onSessionChange(() => {
+      const activeId = runtime.activeSessionId;
+      if (activeId && activeId !== sessionId) {
+        setSessionId(activeId);
+        setError(null);
+      }
+    });
+  }, [runtime, sessionId]);
+
   const ensureSession = useCallback(async (): Promise<string> => {
     if (sessionId) return sessionId;
     const session = await runtime.createSession({
@@ -78,6 +122,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
   const sendMessage = useCallback(
     async (content: string) => {
       if (generatingRef.current) return;
+      lastUserMessageRef.current = content;
       setError(null);
       generatingRef.current = true;
       setIsGenerating(true);
@@ -103,6 +148,15 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
         setMessages((prev) => [...prev, userMsg]);
 
         for await (const event of runtime.send(sid, content)) {
+          // Track usage from usage events
+          if (event.type === "usage") {
+            setUsage({
+              promptTokens: event.promptTokens,
+              completionTokens: event.completionTokens,
+              totalTokens: event.promptTokens + event.completionTokens,
+              model: event.model,
+            });
+          }
           const agentEvent = chatEventToAgentEvent(event);
           if (agentEvent) {
             accumulator.apply(agentEvent);
@@ -170,6 +224,11 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
     setError(null);
   }, []);
 
+  const retryLastMessage = useCallback(async () => {
+    if (!lastUserMessageRef.current || generatingRef.current) return;
+    await sendMessage(lastUserMessageRef.current);
+  }, [sendMessage]);
+
   const newSession = useCallback(async () => {
     const session = await runtime.createSession({
       config: { model: "", backend: "" },
@@ -177,6 +236,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
     setSessionId(session.id);
     setMessages([]);
     setError(null);
+    lastUserMessageRef.current = null;
     return session.id;
   }, [runtime]);
 
@@ -189,6 +249,8 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
     status,
     error,
     clearError,
+    retryLastMessage,
     newSession,
+    usage,
   };
 }

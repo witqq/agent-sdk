@@ -11,43 +11,31 @@ const FRONTEND_DIR = path.join(DEMO_DIR, "frontend");
 const FRONTEND_DIST = path.join(FRONTEND_DIR, "dist");
 
 describe("Unified React Demo — Build", () => {
-  it("server.ts exists and imports Chat SDK modules", () => {
+  it("server.ts uses createChatServer with backend adapters", () => {
     const server = fs.readFileSync(path.join(DEMO_DIR, "server.ts"), "utf-8");
     expect(server).toContain("@witqq/agent-sdk/chat/backends");
     expect(server).toContain("@witqq/agent-sdk/chat/server");
     expect(server).toContain("CopilotChatAdapter");
-    expect(server).toContain("createChatHandler");
-    expect(server).toContain("createAuthHandler");
-    expect(server).toContain("FileTokenStore");
+    expect(server).toContain("ClaudeChatAdapter");
+    expect(server).toContain("VercelAIChatAdapter");
+    expect(server).toContain("createChatServer");
+    expect(server).toContain("createSQLiteStorage");
   });
 
-  it("server.ts serves static files from frontend/dist", () => {
+  it("server.ts configures chat, auth, and static file serving", () => {
     const server = fs.readFileSync(path.join(DEMO_DIR, "server.ts"), "utf-8");
-    expect(server).toContain('frontend');
-    expect(server).toContain('dist');
-    expect(server).toContain("serveStatic");
-    expect(server).toContain("serveIndex");
-  });
-
-  it("server.ts uses SDK auth handler instead of manual routes", () => {
-    const server = fs.readFileSync(path.join(DEMO_DIR, "server.ts"), "utf-8");
-    // SDK auth handler replaces manual auth routes
-    expect(server).toContain("createAuthHandler");
-    expect(server).toContain("FileTokenStore");
-    expect(server).toContain("/api/auth/");
-    expect(server).toContain("/api/tokens/");
-    // Runtime auto-created in onAuth callback
-    expect(server).toContain("createChatHandler");
-    expect(server).toContain("Runtime auto-created");
-  });
-
-  it("server.ts uses SDK chat handler for RemoteChatRuntime routes", () => {
-    const server = fs.readFileSync(path.join(DEMO_DIR, "server.ts"), "utf-8");
-    // SDK chat handler replaces manual RemoteChatRuntime routes
-    expect(server).toContain("createChatHandler");
-    expect(server).toContain("/api/chat");
-    expect(server).toContain("prefix");
+    expect(server).toContain("chatPrefix");
+    expect(server).toContain("authPrefix");
+    expect(server).toContain("staticDir");
     expect(server).toContain("heartbeatMs");
+    expect(server).toContain("createChatRuntime");
+  });
+
+  it("server.ts has health endpoint and model allowlist", () => {
+    const server = fs.readFileSync(path.join(DEMO_DIR, "server.ts"), "utf-8");
+    expect(server).toContain("filterModels");
+    expect(server).toContain("onModelSwitch");
+    expect(server).toContain("createAllowlist");
   });
 
   it("server.ts has no inline HTML template literals for frontend", () => {
@@ -62,9 +50,6 @@ describe("Unified React Demo — Build", () => {
       "src/index.tsx",
       "src/App.tsx",
       "src/globals.css",
-      "src/types.ts",
-      "src/components/AuthDialog.tsx",
-      "src/components/SessionSidebar.tsx",
       "vite.config.ts",
       "tsconfig.json",
       "package.json",
@@ -93,28 +78,16 @@ describe("Unified React Demo — Build", () => {
     expect(html).toContain(".js");
   });
 
-  it("App.tsx uses SDK React components", () => {
+  it("App.tsx uses ChatUI and RemoteChatClient", () => {
     const app = fs.readFileSync(path.join(FRONTEND_DIR, "src/App.tsx"), "utf-8");
-    expect(app).toContain("ChatProvider");
-    expect(app).toContain("useChat");
-    expect(app).toContain("Thread");
-    expect(app).toContain("Composer");
-    expect(app).toContain("useRemoteChat");
+    expect(app).toContain("ChatUI");
+    expect(app).toContain("RemoteChatClient");
+    expect(app).toContain("@witqq/agent-sdk/chat/react");
   });
 
-  it("SessionSidebar uses SDK ThreadList", () => {
-    const sidebar = fs.readFileSync(path.join(FRONTEND_DIR, "src/components/SessionSidebar.tsx"), "utf-8");
-    expect(sidebar).toContain("ThreadList");
-    expect(sidebar).toContain("useChatRuntime");
-  });
-
-  it("globals.css has SDK component styles", () => {
+  it("globals.css imports SDK theme", () => {
     const css = fs.readFileSync(path.join(FRONTEND_DIR, "src/globals.css"), "utf-8");
-    expect(css).toContain("sdk-thread");
-    expect(css).toContain("sdk-composer");
-    expect(css).toContain("data-thread-message");
-    expect(css).toContain("data-role");
-    expect(css).toContain("data-part");
+    expect(css).toContain("theme.css");
   });
 
   it("Dockerfile has multi-stage build", () => {
@@ -129,6 +102,6 @@ describe("Unified React Demo — Build", () => {
   it("docker-compose.yml exposes port 3456", () => {
     const compose = fs.readFileSync(path.join(DEMO_DIR, "docker-compose.yml"), "utf-8");
     expect(compose).toContain("3456");
-    expect(compose).toContain("demo-tokens");
+    expect(compose).toContain("./data:/data");
   });
 });
