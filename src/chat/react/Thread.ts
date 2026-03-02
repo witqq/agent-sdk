@@ -9,6 +9,7 @@ import {
 import type { ChatMessage, ReasoningPart } from "../core.js";
 import { Message } from "./Message.js";
 import { useOptionalThreadSlots } from "./ThreadSlots.js";
+import { useVirtualMessages, type VirtualizeOptions } from "./useVirtualMessages.js";
 
 /** Props for the Thread component. */
 export interface ThreadProps {
@@ -16,6 +17,12 @@ export interface ThreadProps {
   isGenerating?: boolean;
   autoScroll?: boolean;
   className?: string;
+  /**
+   * Enable windowed rendering for large message lists.
+   * Pass `true` for defaults or an options object.
+   * When enabled, only visible messages (plus overscan) are mounted.
+   */
+  virtualize?: boolean | VirtualizeOptions;
 }
 
 /**
@@ -28,19 +35,35 @@ export function Thread({
   isGenerating,
   autoScroll = true,
   className,
+  virtualize,
 }: ThreadProps): ReactNode {
   const sentinelRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [userScrolledUp, setUserScrolledUp] = useState(false);
   const isScrollingProgrammatically = useRef(false);
 
-  const handleScroll = useCallback(() => {
-    if (isScrollingProgrammatically.current) return;
-    const el = containerRef.current;
-    if (!el) return;
-    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 1;
-    setUserScrolledUp(!atBottom);
-  }, []);
+  const isVirtualized = virtualize != null && virtualize !== false;
+  const virtualizeOpts: VirtualizeOptions | false =
+    virtualize === true ? {} : !isVirtualized ? false : virtualize;
+
+  const virtual = useVirtualMessages(
+    messages,
+    virtualizeOpts || undefined,
+  );
+
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      if (isVirtualized) {
+        virtual.onScroll(e as unknown as { currentTarget: { scrollTop: number; clientHeight: number } });
+      }
+      if (isScrollingProgrammatically.current) return;
+      const el = containerRef.current;
+      if (!el) return;
+      const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 1;
+      setUserScrolledUp(!atBottom);
+    },
+    [isVirtualized, virtual.onScroll],
+  );
 
   const scrollToBottom = useCallback(() => {
     isScrollingProgrammatically.current = true;
@@ -57,11 +80,25 @@ export function Thread({
 
   const slots = useOptionalThreadSlots();
 
+  // Merge refs — internal container ref + virtual container ref
+  const mergedRef = useCallback(
+    (el: HTMLDivElement | null) => {
+      (containerRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
+      if (isVirtualized) {
+        virtual.containerRef(el);
+      }
+    },
+    [isVirtualized, virtual.containerRef],
+  );
+
   const attrs: Record<string, unknown> = { "data-thread": "true", className };
   if (isGenerating) {
     attrs["data-thread-loading"] = "true";
   }
-  attrs.ref = containerRef;
+  if (virtualizeOpts) {
+    attrs["data-thread-virtualized"] = "true";
+  }
+  attrs.ref = mergedRef;
   attrs.onScroll = handleScroll;
 
   const children: ReactNode[] = [];
@@ -75,11 +112,27 @@ export function Thread({
     );
   }
 
+  // Determine which messages to render
+  const renderMessages = virtualizeOpts ? virtual.visibleItems : messages;
+  const startOffset = virtualizeOpts ? virtual.startIndex : 0;
+
+  // Top spacer for virtual scrolling
+  if (virtualizeOpts && virtual.topSpacerHeight > 0) {
+    children.push(
+      createElement("div", {
+        key: "__virtual-top",
+        "data-virtual-spacer": "top",
+        style: { height: virtual.topSpacerHeight },
+      }),
+    );
+  }
+
   // Message list
-  for (let i = 0; i < messages.length; i++) {
-    const msg = messages[i];
+  for (let i = 0; i < renderMessages.length; i++) {
+    const msg = renderMessages[i];
+    const originalIndex = startOffset + i;
     const content = slots?.renderMessage
-      ? slots.renderMessage(msg, i)
+      ? slots.renderMessage(msg, originalIndex)
       : createElement(Message, {
           key: msg.id,
           message: msg,
@@ -95,6 +148,17 @@ export function Thread({
         { key: msg.id, "data-thread-message": "true", "data-role": msg.role },
         content,
       ),
+    );
+  }
+
+  // Bottom spacer for virtual scrolling
+  if (virtualizeOpts && virtual.bottomSpacerHeight > 0) {
+    children.push(
+      createElement("div", {
+        key: "__virtual-bottom",
+        "data-virtual-spacer": "bottom",
+        style: { height: virtual.bottomSpacerHeight },
+      }),
     );
   }
 

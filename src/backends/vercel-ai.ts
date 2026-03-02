@@ -279,8 +279,7 @@ function messagesToSDK(messages: Message[]): Array<Record<string, unknown>> {
         return { role: "user", content: getTextContent(msg.content) };
       case "assistant": {
         let content = getTextContent(msg.content);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const thinking = (msg as any).thinking as string | undefined;
+        const thinking = msg.thinking;
         if (thinking) {
           content = `[reasoning: ${thinking}]\n${content}`;
         }

@@ -148,19 +148,20 @@ export async function streamToTransport(
   transport: IChatTransport,
 ): Promise<void> {
   try {
-    let accumulatedText = "";
+    const textChunks: string[] = [];
 
     for await (const event of events) {
       if (!transport.isOpen) break;
       transport.send(event);
 
       if (event.type === "message:delta") {
-        accumulatedText += event.text;
+        textChunks.push(event.text);
       }
     }
 
     if (transport.isOpen) {
-      transport.send({ type: "done", finalOutput: accumulatedText || undefined });
+      const finalOutput = textChunks.length > 0 ? textChunks.join("") : undefined;
+      transport.send({ type: "done", finalOutput });
     }
     transport.close();
   } catch (err) {

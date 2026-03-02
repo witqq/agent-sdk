@@ -45,9 +45,9 @@ Error hierarchy: `AgentSDKError` base class with `_agentSDKError` marker and `Ag
 @witqq/agent-sdk/chat/context  → src/chat/context.ts (ContextWindowManager, estimateTokens, overflow strategies)
 @witqq/agent-sdk/chat/accumulator → src/chat/accumulator.ts (MessageAccumulator)
 @witqq/agent-sdk/chat/state     → src/chat/state.ts (StateMachine, transition maps, factory functions)
-@witqq/agent-sdk/chat/backends  → src/chat/backends/index.ts (IChatBackend, IResumableBackend, BaseBackendAdapter, CopilotChatAdapter, ClaudeChatAdapter, VercelAIChatAdapter, SSEChatTransport, WsChatTransport, InProcessChatTransport, IChatTransport, CloseDetectable, SSETransportOptions, WebSocketLike, WsTransportOptions, TransportInterceptor, withInterceptors)
+@witqq/agent-sdk/chat/backends  → src/chat/backends/index.ts (IChatBackend, IResumableBackend, BaseBackendAdapter, ResumableChatAdapter, CopilotChatAdapter, ClaudeChatAdapter, VercelAIChatAdapter, SSEChatTransport, WsChatTransport, InProcessChatTransport, IChatTransport, CloseDetectable, SSETransportOptions, WebSocketLike, WsTransportOptions, TransportInterceptor, withInterceptors)
 @witqq/agent-sdk/chat/runtime   → src/chat/runtime.ts (IChatClient, IChatRuntime, ChatRuntime, createChatRuntime, BackendAdapterFactory, ChatRuntimeOptions, StreamRetryConfig, RetryConfig (deprecated alias), BackendInfo, SelectionChangeCallback)
-@witqq/agent-sdk/chat/react     → src/chat/react/index.ts (ChatProvider, useChatRuntime, useChat, useMessages, useSessions, useToolApproval, useSSE, useModels, useBackends, useProviders, useRemoteAuth, useRemoteChat, Message, ThinkingBlock, ToolCallView, MarkdownRenderer, Thread, Composer, ThreadSlots, ThreadList, ModelSelector, BackendSelector, ProviderSelector, ProviderModelSelector, ProviderSettings, ChatUI, ChatLayout, ChatHeader, ChatInputArea, ChatSettingsOverlay, UsageBadge, RemoteChatClient, CopilotAuthForm, ClaudeAuthForm, VercelAIAuthForm, useCopilotAuth, useClaudeAuth, useApiKeyAuth)
+@witqq/agent-sdk/chat/react     → src/chat/react/index.ts (ChatProvider, useChatRuntime, useChat, useMessages, useSessions, useToolApproval, useSSE, useModels, useBackends, useProviders, useRemoteAuth, useRemoteChat, useVirtualMessages, Message, ThinkingBlock, ToolCallView, MarkdownRenderer, PermissionDialog, Thread, Composer, ThreadSlots, ThreadList, ModelSelector, BackendSelector, ProviderSelector, ProviderModelSelector, ProviderSettings, ChatUI, ChatLayout, ChatHeader, ChatInputArea, ChatSettingsOverlay, UsageBadge, RemoteChatClient, CopilotAuthForm, ClaudeAuthForm, VercelAIAuthForm, useCopilotAuth, useClaudeAuth, useApiKeyAuth)
 @witqq/agent-sdk/chat/react/theme.css → src/chat/react/theme.css (default CSS theme with custom properties, light/dark mode)
 @witqq/agent-sdk/chat/sqlite  → src/chat/sqlite/index.ts (SQLiteSessionStore, SQLiteProviderStore, SQLiteTokenStore, createSQLiteStorage factory — unified single-DB storage, better-sqlite3 optional peer dep)
 @witqq/agent-sdk/chat/server   → src/chat/server/index.ts (createChatHandler, createAuthHandler, createChatServer, createProviderHandler, corsMiddleware, ServiceManager, ServiceManagerOptions, ManagedService, RefreshFactory, DEFAULT_PROVIDER_MODELS, ITokenStore, InMemoryTokenStore, FileTokenStore, FileTokenStoreOptions, IProviderStore, ProviderConfig, InMemoryProviderStore, FileProviderStore, FileProviderStoreOptions, ProviderHandlerOptions, AuthHandlerOptions, OnAuthCallback, ChatHandlerOptions, ChatServerHooks, ChatServerOptions, ChatRuntimeConfig, RequestHandler, TransportFactory, RouteContext, RouteHandler, HandlerState, CorsOptions, ReadableRequest, WritableResponse, readBody, json, BodyParseError, AdapterPool, AdapterPoolOptions, AdapterFactory, PooledAdapter, resolveRequestContext, RequestContext, RequestContextDeps, sessionRoutes, messageRoutes, configRoutes, providerRoutes)
@@ -92,8 +92,7 @@ Common utilities extracted from copilot.ts and claude.ts to eliminate duplicatio
 - Tool event parsing: `tool.execution_start` args parsed from JSON string; `tool.execution_complete` result unwrapped from `{ content: ... }` wrapper
 - `ThinkingTracker`: tracks reasoning state, emits `thinking_start`/`thinking_delta`/`thinking_end` from `assistant.reasoning_delta` events
 - `mapToolsToSDK()`: `ToolDefinition[]` → SDK `Tool[]` with `convertParameters` (Zod→JSON Schema or passthrough)
-- `mapToolsToSDKAsync()`: async version for pre-session Zod conversion
-- `_initToolsAsync()`: async init remaps tools before first session; `_toolsReady` promise awaited in `getOrCreateSession()`
+- `_initToolsAsync()`: calls `mapToolsToSDK()` to pre-convert tools before first session; `_toolsReady` promise awaited in `getOrCreateSession()`
 - `buildPermissionHandler()`: `SupervisorHooks.onPermission` → SDK `onPermissionRequest` (auto-approve default)
 - `buildUserInputHandler()`: `SupervisorHooks.onAskUser` → SDK `onUserInputRequest` (auto-answer default)
 - `cliArgs` passthrough from `CopilotBackendOptions` to `CopilotClient`
@@ -167,7 +166,7 @@ Higher-level chat abstractions extending the base agent types.
 - Type guards: `isChatMessage()`, `isChatSession()`, `isMessagePart()`, `isTextPart()`, `isReasoningPart()`, `isToolCallPart()`, `isSourcePart()`, `isFilePart()`, `isChatEvent()`
 - Utilities: `getMessageText()`, `getMessageToolCalls()`, `getMessageReasoning()`, `createTextMessage(text, role?)`, `isObservableSession(session)`
 - Bridge: `agentEventToChatEvent()` maps AgentEvent→ChatEvent, `chatEventToAgentEvent()` maps ChatEvent→AgentEvent (returns null for non-accumulator events), `adaptAgentEvents()` async generator
-- Conversion: `toAgentMessage()` / `fromAgentMessage()` for ChatMessage↔Message
+- Conversion: `toAgentMessages()` (plural, returns `Message[]` — handles tool results correctly) / `toAgentMessage()` (@deprecated alias, returns first message only) / `fromAgentMessage()` for ChatMessage↔Message
 
 ### Chat Accumulator (`src/chat/accumulator.ts`)
 
@@ -285,8 +284,9 @@ High-level backend adapters bridging IAgentService → ChatEvent stream.
   - `currentModel`: returns `agentConfig.model` (config default, immutable)
   - `getOrCreateAgent()`: agent lifecycle — persistent mode reuses agent when model matches (tracked in `_currentAgent` tuple), non-persistent always creates fresh. No tool merging — tools flow per-call via RunOptions.
   - `streamAgentEvents()`: shared streaming helper — ensures model and tools are passed to agent via RunOptions
-- `CopilotChatAdapter`: wraps CopilotAgentService, auto-sets `sessionMode: "persistent"`, captures `sessionId` for resume
-- `ClaudeChatAdapter`: wraps ClaudeAgentService, auto-sets `sessionMode: "persistent"`, captures `sessionId` for resume
+- `CopilotChatAdapter`: wraps CopilotAgentService, extends `ResumableChatAdapter`, auto-sets `sessionMode: "persistent"`, captures `sessionId` for resume
+- `ClaudeChatAdapter`: wraps ClaudeAgentService, extends `ResumableChatAdapter`, auto-sets `sessionMode: "persistent"`, captures `sessionId` for resume
+- `ResumableChatAdapter`: abstract base class for CLI-based adapters (extracted from CopilotChatAdapter/ClaudeChatAdapter duplication). Implements `IResumableBackend` with shared session capture, `createService()`, `createStreamOptions()`. ~80 lines eliminating ~140 lines of duplication.
 - `VercelAIChatAdapter`: wraps VercelAIAgentService, `canResume()` returns false (stateless API)
 - `IChatTransport`: interface for delivering ChatEvents to clients — `send()`, `error()`, `close()`
 - `SSEChatTransport`: Server-Sent Events transport over `node:http` response — sets headers, JSON-encodes events, `[DONE]` sentinel. Optional `SSETransportOptions`: `heartbeatMs` (periodic keep-alive comments), `request: CloseDetectable` (connection close detection)
@@ -343,7 +343,9 @@ Headless React hooks and components wrapping IChatRuntime. React 18+ as optional
 - `ToolCallView({ part, onApprove?, onDeny?, renderArgs?, renderResult? })`: Tool call display with `data-tool-status`/`data-tool-name`, approve/deny buttons when `requires_approval`, render props for args/result
 - `MarkdownRenderer({ content, renderCode?, renderLink? })`: Regex-based markdown→HTML parser, supports headings, paragraphs, bold/italic, inline code, fenced code blocks with language class, links, blockquotes, ordered/unordered lists, `data-md-*` attributes on all block elements
 - `ContextStatsDisplay({ stats })`: Headless component rendering real context window stats (realPromptTokens, modelContextWindow, usage%, removedCount). Returns null when real data fields are absent. Data attributes: `data-context-stats`, `data-context-tokens`, `data-context-budget`, `data-context-usage`, `data-context-removed`, `data-context-truncated`.
-- `Thread({ messages, isGenerating?, autoScroll?, className? })`: Headless message list wrapper with `data-thread`/`data-thread-message`/`data-thread-loading` attributes, auto-scroll via sentinel ref + scrollIntoView, scroll-to-bottom detection via container scroll events, integrates with `ThreadSlots` context for render overrides
+- `Thread({ messages, isGenerating?, autoScroll?, virtualize?, className? })`: Headless message list wrapper with `data-thread`/`data-thread-message`/`data-thread-loading` attributes, auto-scroll via sentinel ref + scrollIntoView, scroll-to-bottom detection via container scroll events, integrates with `ThreadSlots` context for render overrides. Optional `virtualize` prop (boolean or `VirtualizeOptions`) enables windowed rendering via `useVirtualMessages` hook — backward compatible, default off.
+- `useVirtualMessages<T>(items, containerRef, options?)`: Windowed rendering hook with ResizeObserver for container measurement. Returns `visibleItems`, `startOffset`, `topSpacerHeight`, `bottomSpacerHeight`, `onScroll`. Configurable `estimatedItemHeight` (default 80) and `overscan` (default 5). Falls back to rendering all items when containerHeight=0 (SSR/jsdom).
+- `PermissionDialog({ pendingRequests, onApprove?, onDeny?, renderToolName?, className? })`: Headless tool approval dialog with `data-permission-dialog`/`data-permission-request`/`data-permission-actions` attributes. Per-request approve/deny buttons plus bulk approve/deny all. Reuses `PendingToolRequest` from `useToolApproval`. Returns null when no pending requests.
 - `Composer({ onSend, onStop?, isGenerating?, disabled?, placeholder?, maxRows?, className? })`: Input component with auto-resizing textarea (capped at maxRows), Enter to submit / Shift+Enter for newline, send button `[data-action="send"]` disabled when empty, stop button `[data-action="stop"]` shown during generation, `aria-label="Message input"`
 - `ThreadProvider`: Slot-based customization context providing `renderMessage`, `renderToolCall`, `renderThinkingBlock` overrides to Thread
 - `useThreadSlots()`: Access slot overrides from ThreadProvider (throws outside provider)
@@ -362,7 +364,7 @@ Headless React hooks and components wrapping IChatRuntime. React 18+ as optional
 - `useCopilotAuth`, `useClaudeAuth`, `useApiKeyAuth`: Per-backend auth hooks wrapping `useRemoteAuth` with backend-specific logic
 - `ChatLayout`, `ChatHeader`, `ChatInputArea`, `ChatSettingsOverlay`: Layout sub-components extracted from ChatUI for composition
 - `UsageBadge({ usage })`: Token usage display component
-- Types: `UseChatOptions`, `UseChatReturn`, `UseMessagesOptions`, `UseMessagesReturn`, `UseSessionsReturn`, `ChatProviderProps`, `MessageProps`, `ThinkingBlockProps`, `ToolCallViewProps`, `MarkdownRendererProps`, `UseToolApprovalReturn`, `PendingToolRequest`, `ThreadProps`, `ComposerProps`, `ThreadSlotOverrides`, `ThreadProviderProps`, `ThreadListProps`, `ContextStatsDisplayProps`, `SSEStatus`, `UseSSEOptions`, `UseSSEReturn`, `ModelOption` (was `ModelInfo`, deprecated alias kept), `UseModelsReturn`, `ModelSelectorProps`, `ChatUIProps`, `ChatUISlots`, `RemoteAuthBackend`, `RemoteAuthStatus`, `UseRemoteAuthOptions`, `UseRemoteAuthReturn`, `RemoteChatPhase`, `UseRemoteChatOptions`, `UseRemoteChatReturn`, `UseProvidersReturn`, `ProviderSelectorProps`, `ProviderModelSelectorProps`, `ProviderSettingsProps`, `RemoteChatClientOptions`, `RemoteChatRuntimeOptions` (deprecated alias), `AuthFormProps`, `AuthFormComponent`
+- Types: `UseChatOptions`, `UseChatReturn`, `UseMessagesOptions`, `UseMessagesReturn`, `UseSessionsReturn`, `ChatProviderProps`, `MessageProps`, `ThinkingBlockProps`, `ToolCallViewProps`, `MarkdownRendererProps`, `UseToolApprovalReturn`, `PendingToolRequest`, `ThreadProps`, `ComposerProps`, `ThreadSlotOverrides`, `ThreadProviderProps`, `ThreadListProps`, `ContextStatsDisplayProps`, `SSEStatus`, `UseSSEOptions`, `UseSSEReturn`, `ModelOption` (was `ModelInfo`, deprecated alias kept), `UseModelsReturn`, `ModelSelectorProps`, `ChatUIProps`, `ChatUISlots`, `RemoteAuthBackend`, `RemoteAuthStatus`, `UseRemoteAuthOptions`, `UseRemoteAuthReturn`, `RemoteChatPhase`, `UseRemoteChatOptions`, `UseRemoteChatReturn`, `UseProvidersReturn`, `ProviderSelectorProps`, `ProviderModelSelectorProps`, `ProviderSettingsProps`, `RemoteChatClientOptions`, `RemoteChatRuntimeOptions` (deprecated alias), `AuthFormProps`, `AuthFormComponent`, `VirtualizeOptions`, `VirtualMessagesResult`, `PermissionDialogProps`
 - `RemoteChatClient`: client-side `IChatClient` adapter that delegates every operation over HTTP/SSE to a remote server. Bridges React hooks (which require in-process runtime) with server-side `ChatRuntime`. No tool/middleware/context stubs — only methods from IChatClient.
   - Constructor: `RemoteChatClientOptions` — `baseUrl`, optional `headers`, optional `fetch` override (testability)
   - `RemoteChatRuntime` is a deprecated alias for `RemoteChatClient`
@@ -458,8 +460,9 @@ Unified SQLite storage via `@witqq/agent-sdk/chat/sqlite`. Single database for a
 - `SQLiteProviderStore`: implements `IProviderStore` (providers table)
 - `SQLiteTokenStore`: implements `ITokenStore` (tokens table)
 - Factory enables WAL + foreign keys on shared Database instance
+- Schema versioning via `src/chat/sqlite/migrations.ts`: `Migration` type, `schema_version` table, `runMigrations()` called by factory
 - `better-sqlite3` as optional peer dependency
-- 47 tests in `tests/unit/chat/sqlite-storage.test.ts`
+- 54 tests in `tests/unit/chat/sqlite-storage.test.ts`
 
 ### Drizzle Storage Example (`examples/drizzle-storage/`)
 

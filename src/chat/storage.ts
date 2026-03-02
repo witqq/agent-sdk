@@ -6,7 +6,8 @@
  * Implementations: `InMemoryStorage` (Map-based) and `FileStorage` (JSON files).
  */
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
+import { access, mkdir, readdir, readFile, unlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { AgentSDKError } from "../errors.js";
 import { ErrorCode } from "../types/errors.js";
@@ -266,28 +267,28 @@ export class FileStorage<T> implements IStorageAdapter<T> {
   constructor(options: FileStorageOptions) {
     this.directory = options.directory;
     this.extension = options.extension ?? ".json";
-    this.ensureDirectory();
+    this.ensureDirectorySync();
   }
 
   /** @inheritdoc */
   async get(key: string): Promise<T | null> {
     const filePath = this.keyToPath(key);
-    if (!existsSync(filePath)) {
+    if (!(await this.fileExists(filePath))) {
       return null;
     }
-    return this.readFile(filePath);
+    return this.readJsonFile(filePath);
   }
 
   /** @inheritdoc */
   async list(options?: ListOptions<T>): Promise<T[]> {
-    this.ensureDirectory();
-    const files = readdirSync(this.directory).filter((f) =>
+    await this.ensureDirectoryAsync();
+    const files = (await readdir(this.directory)).filter((f) =>
       f.endsWith(this.extension),
     );
 
     let items: T[] = [];
     for (const file of files) {
-      const item = this.readFile(join(this.directory, file));
+      const item = await this.readJsonFile(join(this.directory, file));
       items.push(item);
     }
 
@@ -310,60 +311,60 @@ export class FileStorage<T> implements IStorageAdapter<T> {
   /** @inheritdoc */
   async create(key: string, item: T): Promise<void> {
     const filePath = this.keyToPath(key);
-    if (existsSync(filePath)) {
+    if (await this.fileExists(filePath)) {
       throw new StorageError(
         `Item with key "${key}" already exists`,
         ErrorCode.STORAGE_DUPLICATE_KEY,
       );
     }
-    this.writeFile(filePath, item);
+    await this.writeJsonFile(filePath, item);
   }
 
   /** @inheritdoc */
   async update(key: string, item: T): Promise<void> {
     const filePath = this.keyToPath(key);
-    if (!existsSync(filePath)) {
+    if (!(await this.fileExists(filePath))) {
       throw new StorageError(
         `Item with key "${key}" not found`,
         ErrorCode.STORAGE_NOT_FOUND,
       );
     }
-    this.writeFile(filePath, item);
+    await this.writeJsonFile(filePath, item);
   }
 
   /** @inheritdoc */
   async delete(key: string): Promise<void> {
     const filePath = this.keyToPath(key);
-    if (!existsSync(filePath)) {
+    if (!(await this.fileExists(filePath))) {
       throw new StorageError(
         `Item with key "${key}" not found`,
         ErrorCode.STORAGE_NOT_FOUND,
       );
     }
-    unlinkSync(filePath);
+    await unlink(filePath);
   }
 
   /** @inheritdoc */
   async has(key: string): Promise<boolean> {
-    return existsSync(this.keyToPath(key));
+    return this.fileExists(this.keyToPath(key));
   }
 
   /** @inheritdoc */
   async count(): Promise<number> {
-    this.ensureDirectory();
-    return readdirSync(this.directory).filter((f) =>
+    await this.ensureDirectoryAsync();
+    return (await readdir(this.directory)).filter((f) =>
       f.endsWith(this.extension),
     ).length;
   }
 
   /** @inheritdoc */
   async clear(): Promise<void> {
-    this.ensureDirectory();
-    const files = readdirSync(this.directory).filter((f) =>
+    await this.ensureDirectoryAsync();
+    const files = (await readdir(this.directory)).filter((f) =>
       f.endsWith(this.extension),
     );
     for (const file of files) {
-      unlinkSync(join(this.directory, file));
+      await unlink(join(this.directory, file));
     }
   }
 
@@ -374,15 +375,32 @@ export class FileStorage<T> implements IStorageAdapter<T> {
     return join(this.directory, `${safeKey}${this.extension}`);
   }
 
-  private ensureDirectory(): void {
+  /** Sync directory init — used only in constructor (one-time). */
+  private ensureDirectorySync(): void {
     if (!existsSync(this.directory)) {
       mkdirSync(this.directory, { recursive: true });
     }
   }
 
-  private readFile(filePath: string): T {
+  /** Async directory init — used in operations. */
+  private async ensureDirectoryAsync(): Promise<void> {
+    if (!(await this.fileExists(this.directory))) {
+      await mkdir(this.directory, { recursive: true });
+    }
+  }
+
+  private async fileExists(filePath: string): Promise<boolean> {
     try {
-      const content = readFileSync(filePath, "utf-8");
+      await access(filePath);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private async readJsonFile(filePath: string): Promise<T> {
+    try {
+      const content = await readFile(filePath, "utf-8");
       return JSON.parse(content) as T;
     } catch (error) {
       if (error instanceof SyntaxError) {
@@ -398,10 +416,10 @@ export class FileStorage<T> implements IStorageAdapter<T> {
     }
   }
 
-  private writeFile(filePath: string, item: T): void {
+  private async writeJsonFile(filePath: string, item: T): Promise<void> {
     try {
       const content = JSON.stringify(item, null, 2);
-      writeFileSync(filePath, content, "utf-8");
+      await writeFile(filePath, content, "utf-8");
     } catch {
       throw new StorageError(
         `Failed to write file: ${filePath}`,

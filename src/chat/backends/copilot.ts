@@ -6,20 +6,11 @@
  */
 
 import type {
-  ChatEvent,
-  ChatSession,
-  SendMessageOptions,
-} from "../core.js";
-import { toAgentMessage } from "../core.js";
-import { ChatError, ErrorCode } from "../errors.js";
-import type {
-  IAgent,
   IAgentService,
   CopilotBackendOptions,
-  Message,
 } from "../../types.js";
-import { BaseBackendAdapter } from "./base.js";
-import type { BackendAdapterOptions, IResumableBackend } from "./types.js";
+import type { BackendAdapterOptions } from "./types.js";
+import { ResumableChatAdapter } from "./resumable.js";
 
 // ─── Copilot-Specific Options ──────────────────────────────────
 
@@ -35,74 +26,17 @@ export interface CopilotChatAdapterOptions extends BackendAdapterOptions {
  * Backend adapter for GitHub Copilot CLI.
  * Uses persistent session mode for session resume via CLI session ID.
  */
-export class CopilotChatAdapter extends BaseBackendAdapter implements IResumableBackend {
-  private _backendSessionId: string | null = null;
+export class CopilotChatAdapter extends ResumableChatAdapter {
   private readonly _copilotOptions?: CopilotBackendOptions;
 
   constructor(options: CopilotChatAdapterOptions) {
-    // Force persistent session mode for resume support
-    const agentConfig = {
-      ...options.agentConfig,
-      sessionMode: "persistent" as const,
-    };
-    super("copilot", { ...options, agentConfig });
+    super("copilot", options);
     this._copilotOptions = options.copilotOptions;
   }
 
   protected createService(): IAgentService {
-    // Use synchronous factory directly (not the async registry createAgentService)
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { createCopilotService } = require("../../backends/copilot.js");
     return createCopilotService(this._copilotOptions || {});
-  }
-
-  get backendSessionId(): string | null {
-    return this._backendSessionId;
-  }
-
-  canResume(): boolean {
-    return this._backendSessionId !== null;
-  }
-
-  async *resume(
-    session: ChatSession,
-    backendSessionId: string,
-    options?: SendMessageOptions,
-  ): AsyncIterable<ChatEvent> {
-    this.assertNotDisposed();
-
-    if (!backendSessionId) {
-      throw new ChatError("Backend session ID is required for resume", {
-        code: ErrorCode.INVALID_INPUT,
-      });
-    }
-
-    const agent = this.getOrCreateAgent(options);
-    const currentSessionId = agent.sessionId;
-
-    // No prior session — adapter was never streamed or session was lost
-    if (!currentSessionId) {
-      throw new ChatError(
-        `No active session to resume (requested: ${backendSessionId})`,
-        { code: ErrorCode.SESSION_NOT_FOUND },
-      );
-    }
-
-    // Session ID mismatch — session expired or was replaced
-    if (currentSessionId !== backendSessionId) {
-      throw new ChatError(
-        `Session expired: expected ${backendSessionId}, got ${currentSessionId}`,
-        { code: ErrorCode.SESSION_EXPIRED },
-      );
-    }
-
-    const messages: Message[] = session.messages.map(toAgentMessage);
-    yield* this.streamAgentEvents(agent, messages, options);
-  }
-
-  protected captureSessionId(agent: IAgent): void {
-    if (agent.sessionId) {
-      this._backendSessionId = agent.sessionId;
-    }
   }
 }

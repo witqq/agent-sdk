@@ -59,4 +59,4 @@ export {
 export { agentEventToChatEvent, adaptAgentEvents, chatEventToAgentEvent } from "./bridge.js";
 
 // Message conversion (ChatMessage ↔ agent-sdk Message)
-export { toAgentMessage, fromAgentMessage, extractToolResults } from "./conversion.js";
+export { toAgentMessage, toAgentMessages, fromAgentMessage, extractToolResults } from "./conversion.js";

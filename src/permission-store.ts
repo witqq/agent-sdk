@@ -1,4 +1,4 @@
-import * as fs from "node:fs";
+import * as fsp from "node:fs/promises";
 import * as path from "node:path";
 import * as os from "node:os";
 import type { PermissionScope } from "./types.js";
@@ -71,34 +71,34 @@ export class FilePermissionStore implements IPermissionStore {
   }
 
   async isApproved(toolName: string): Promise<boolean> {
-    const data = this.readFile();
+    const data = await this.readStore();
     return toolName in data.approvals;
   }
 
   async approve(toolName: string, scope: PermissionScope): Promise<void> {
     if (scope === "once") return;
-    const data = this.readFile();
+    const data = await this.readStore();
     data.approvals[toolName] = { scope, timestamp: Date.now() };
-    this.writeFileAtomic(data);
+    await this.writeStoreAtomic(data);
   }
 
   async revoke(toolName: string): Promise<void> {
-    const data = this.readFile();
+    const data = await this.readStore();
     delete data.approvals[toolName];
-    this.writeFileAtomic(data);
+    await this.writeStoreAtomic(data);
   }
 
   async clear(): Promise<void> {
-    this.writeFileAtomic({ approvals: {} });
+    await this.writeStoreAtomic({ approvals: {} });
   }
 
   async dispose(): Promise<void> {
     // No resources to release
   }
 
-  private readFile(): FileStoreData {
+  private async readStore(): Promise<FileStoreData> {
     try {
-      const raw = fs.readFileSync(this.filePath, "utf-8");
+      const raw = await fsp.readFile(this.filePath, "utf-8");
       const parsed = JSON.parse(raw) as FileStoreData;
       if (parsed && typeof parsed.approvals === "object") return parsed;
     } catch {
@@ -107,12 +107,12 @@ export class FilePermissionStore implements IPermissionStore {
     return { approvals: {} };
   }
 
-  private writeFileAtomic(data: FileStoreData): void {
+  private async writeStoreAtomic(data: FileStoreData): Promise<void> {
     const dir = path.dirname(this.filePath);
-    fs.mkdirSync(dir, { recursive: true });
+    await fsp.mkdir(dir, { recursive: true });
     const tmpPath = this.filePath + `.tmp.${process.pid}.${Date.now()}`;
-    fs.writeFileSync(tmpPath, JSON.stringify(data, null, 2), "utf-8");
-    fs.renameSync(tmpPath, this.filePath);
+    await fsp.writeFile(tmpPath, JSON.stringify(data, null, 2), "utf-8");
+    await fsp.rename(tmpPath, this.filePath);
   }
 }
 

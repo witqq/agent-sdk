@@ -12,7 +12,6 @@ import type {
   SourcePart,
   FilePart,
   ChatEvent,
-  ChatEventType,
 } from "./types.js";
 
 /** Check if a value is a ChatMessage */
@@ -89,17 +88,18 @@ export function isFilePart(value: unknown): value is FilePart {
   return obj.type === "file" && typeof obj.name === "string" && typeof obj.mimeType === "string";
 }
 
+const VALID_CHAT_EVENT_TYPES: ReadonlySet<string> = new Set([
+  "message:start", "message:delta", "message:complete",
+  "tool:start", "tool:complete",
+  "thinking:start", "thinking:delta", "thinking:end",
+  "permission:request", "permission:response",
+  "usage", "session:created", "session:updated",
+  "error", "typing:start", "typing:end", "heartbeat", "done",
+]);
+
 /** Check if a value is a ChatEvent */
 export function isChatEvent(value: unknown): value is ChatEvent {
   if (typeof value !== "object" || value === null) return false;
   const obj = value as Record<string, unknown>;
-  const validTypes: ChatEventType[] = [
-    "message:start", "message:delta", "message:complete",
-    "tool:start", "tool:complete",
-    "thinking:start", "thinking:delta", "thinking:end",
-    "permission:request", "permission:response",
-    "usage", "session:created", "session:updated",
-    "error", "typing:start", "typing:end", "heartbeat", "done",
-  ];
-  return validTypes.includes(obj.type as ChatEventType);
+  return VALID_CHAT_EVENT_TYPES.has(obj.type as string);
 }

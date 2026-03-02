@@ -10,11 +10,11 @@ project: "@witqq/agent-sdk"
 | **AgentEvent** | Discriminated union of events emitted during agent execution (text_delta, tool_call_start, etc.) |
 | **AgentSDKError** | Base error class with `_agentSDKError` marker and static `is()` for cross-bundle instanceof checks |
 | **AuthToken** | Token object returned by auth providers, containing access token and metadata |
-| **Backend** | An AI provider implementation (copilot, claude, vercel-ai) |
-| **Backend Adapter** | Class wrapping a vendor SDK to produce an AgentEvent stream (e.g., CopilotAgentService) |
+| **Backend** | An AI provider implementation (copilot, claude, vercel-ai). Two layers share this name — see "Agent Service" and "Chat Backend" |
+| **Agent Service** (`src/backends/`) | Low-level backend wrapping a vendor SDK to produce AgentEvent streams (CopilotAgentService, ClaudeAgentService, VercelAIAgentService). Used directly for agent-layer-only consumers |
 | **BackendAdapterFactory** | Function `(credentials: AuthToken) => IChatBackend` — creates adapters per-request with credentials |
 | **BaseAgent** | Abstract class implementing agent state machine (idle → running/streaming → idle → disposed) |
-| **ChatBackend / IChatBackend** | Higher-level adapter bridging IAgentService → ChatEvent stream |
+| **ChatBackend / IChatBackend** (`src/chat/backends/`) | Higher-level adapter bridging IAgentService → ChatEvent stream. One layer above agent services. CopilotChatAdapter, ClaudeChatAdapter, VercelAIChatAdapter |
 | **ChatError** | Error class extending AgentSDKError with 28 error codes (NETWORK, TIMEOUT, AUTH_EXPIRED, TOOL_EXECUTION, etc.) |
 | **ChatEvent** | 18-type discriminated union with colon-separated names (message:start, tool:complete, done) |
 | **ChatId** | Branded string type for chat session identifiers, validated as UUID |

@@ -6,20 +6,11 @@
  */
 
 import type {
-  ChatEvent,
-  ChatSession,
-  SendMessageOptions,
-} from "../core.js";
-import { toAgentMessage } from "../core.js";
-import { ChatError, ErrorCode } from "../errors.js";
-import type {
-  IAgent,
   IAgentService,
   ClaudeBackendOptions,
-  Message,
 } from "../../types.js";
-import { BaseBackendAdapter } from "./base.js";
-import type { BackendAdapterOptions, IResumableBackend } from "./types.js";
+import type { BackendAdapterOptions } from "./types.js";
+import { ResumableChatAdapter } from "./resumable.js";
 
 // ─── Claude-Specific Options ──────────────────────────────────
 
@@ -35,74 +26,17 @@ export interface ClaudeChatAdapterOptions extends BackendAdapterOptions {
  * Backend adapter for Claude CLI.
  * Uses persistent session mode for session resume via Claude's session_id.
  */
-export class ClaudeChatAdapter extends BaseBackendAdapter implements IResumableBackend {
-  private _backendSessionId: string | null = null;
+export class ClaudeChatAdapter extends ResumableChatAdapter {
   private readonly _claudeOptions?: ClaudeBackendOptions;
 
   constructor(options: ClaudeChatAdapterOptions) {
-    // Force persistent session mode for resume support
-    const agentConfig = {
-      ...options.agentConfig,
-      sessionMode: "persistent" as const,
-    };
-    super("claude", { ...options, agentConfig });
+    super("claude", options);
     this._claudeOptions = options.claudeOptions;
   }
 
   protected createService(): IAgentService {
-    // Use synchronous factory directly (not the async registry createAgentService)
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { createClaudeService } = require("../../backends/claude.js");
     return createClaudeService(this._claudeOptions || {});
-  }
-
-  get backendSessionId(): string | null {
-    return this._backendSessionId;
-  }
-
-  canResume(): boolean {
-    return this._backendSessionId !== null;
-  }
-
-  async *resume(
-    session: ChatSession,
-    backendSessionId: string,
-    options?: SendMessageOptions,
-  ): AsyncIterable<ChatEvent> {
-    this.assertNotDisposed();
-
-    if (!backendSessionId) {
-      throw new ChatError("Backend session ID is required for resume", {
-        code: ErrorCode.INVALID_INPUT,
-      });
-    }
-
-    const agent = this.getOrCreateAgent(options);
-    const currentSessionId = agent.sessionId;
-
-    // No prior session — adapter was never streamed or session was lost
-    if (!currentSessionId) {
-      throw new ChatError(
-        `No active session to resume (requested: ${backendSessionId})`,
-        { code: ErrorCode.SESSION_NOT_FOUND },
-      );
-    }
-
-    // Session ID mismatch — session expired or was replaced
-    if (currentSessionId !== backendSessionId) {
-      throw new ChatError(
-        `Session expired: expected ${backendSessionId}, got ${currentSessionId}`,
-        { code: ErrorCode.SESSION_EXPIRED },
-      );
-    }
-
-    const messages: Message[] = session.messages.map(toAgentMessage);
-    yield* this.streamAgentEvents(agent, messages, options);
-  }
-
-  protected captureSessionId(agent: IAgent): void {
-    if (agent.sessionId) {
-      this._backendSessionId = agent.sessionId;
-    }
   }
 }
