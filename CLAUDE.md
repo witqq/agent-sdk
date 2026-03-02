@@ -599,4 +599,4 @@ If you add or modify integration tests — use ONLY the cheapest model for that 
 - `docs/chat-sdk/README.md` — chat SDK module documentation (consumer-facing)
 - `docs/chat-sdk/custom-transports.md` — custom transport implementation guide
 - `docs/chat-sdk/custom-renderers.md` — custom renderer guide (CSS theming, slot overrides, per-tool dispatch)
-- `docs/archive/` — superseded documents (roadmap, architecture review, design-phase docs, research)
+
