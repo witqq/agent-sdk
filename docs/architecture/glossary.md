@@ -15,7 +15,7 @@ project: "@witqq/agent-sdk"
 | **BackendAdapterFactory** | Function `(credentials: AuthToken) => IChatBackend` — creates adapters per-request with credentials |
 | **BaseAgent** | Abstract class implementing agent state machine (idle → running/streaming → idle → disposed) |
 | **ChatBackend / IChatBackend** | Higher-level adapter bridging IAgentService → ChatEvent stream |
-| **ChatError** | Error class extending AgentSDKError with 20 error codes (NETWORK, TIMEOUT, AUTH_EXPIRED, etc.) |
+| **ChatError** | Error class extending AgentSDKError with 28 error codes (NETWORK, TIMEOUT, AUTH_EXPIRED, TOOL_EXECUTION, etc.) |
 | **ChatEvent** | 18-type discriminated union with colon-separated names (message:start, tool:complete, done) |
 | **ChatId** | Branded string type for chat session identifiers, validated as UUID |
 | **ChatMessage** | Message with id, role, parts array (TextPart, ReasoningPart, ToolCallPart, etc.) |

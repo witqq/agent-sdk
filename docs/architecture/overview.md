@@ -122,7 +122,7 @@ Library with modular entry points. Not a deployed service — consumed as npm pa
 |---------|----------|
 | **State Management** | Client is state keeper; server is stateless. Per-request context resolution via `resolveRequestContext()`. See [Crosscutting Concerns](./crosscutting-concerns.md). |
 | Authentication | Server-side OAuth via createAuthHandler; browser uses useRemoteAuth |
-| Error Handling | AgentSDKError → ChatError (20 codes); classifyError(); ExponentialBackoff |
+| Error Handling | AgentSDKError → ChatError (28 codes); classifyError(); ExponentialBackoff |
 | Validation | Zod peer dep; zodToJsonSchema(); runtime state machine transitions |
 | Configuration | Programmatic objects (no env vars in library) |
 | Logging | N/A for library; consumers use ChatMiddleware hooks |

@@ -1,7 +1,7 @@
 ---
 title: Architecture Documentation Index
 project: "@witqq/agent-sdk"
-version: "0.7.0"
+version: "0.8.0"
 ---
 
 # Architecture Documentation
@@ -23,7 +23,7 @@ version: "0.7.0"
 ## Quality
 
 - [Quality Attributes](./quality-attributes.md) — 6 measurable scenarios with targets
-- [Risks and Technical Debt](./risks-and-debt.md) — 6 resolved gaps + 12 open items from feedback audit
+- [Risks and Technical Debt](./risks-and-debt.md) — 6 resolved gaps + 9 open items from feedback audit
 
 ## Decisions
 
