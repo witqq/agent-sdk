@@ -15,6 +15,7 @@ export default defineConfig([
       "./backends/copilot.js",
       "./backends/claude.js",
       "./backends/vercel-ai.js",
+      "./backends/mock-llm.js",
     ],
   },
   {
@@ -22,6 +23,7 @@ export default defineConfig([
       "backends/copilot": "src/backends/copilot.ts",
       "backends/claude": "src/backends/claude.ts",
       "backends/vercel-ai": "src/backends/vercel-ai.ts",
+      "backends/mock-llm": "src/backends/mock-llm.ts",
       "auth/index": "src/auth/index.ts",
       "chat/index": "src/chat/index.ts",
       "chat/core": "src/chat/core.ts",

@@ -638,12 +638,16 @@ describe("agentEventToChatEvent", () => {
     expect(result).toEqual({ type: "heartbeat" });
   });
 
-  it("returns null for done", () => {
+  it("returns done ChatEvent for done", () => {
     const result = agentEventToChatEvent(
       { type: "done", finalOutput: "ok" },
       msgId,
     );
-    expect(result).toBeNull();
+    expect(result).toEqual({
+      type: "done",
+      finalOutput: "ok",
+      finishReason: undefined,
+    });
   });
 
   it("returns null for ask_user", () => {
@@ -687,7 +691,7 @@ describe("adaptAgentEvents", () => {
       chatEvents.push(event);
     }
 
-    expect(chatEvents).toHaveLength(2);
+    expect(chatEvents).toHaveLength(3);
     expect(chatEvents[0]).toEqual({
       type: "message:delta",
       messageId: msgId,
@@ -697,6 +701,11 @@ describe("adaptAgentEvents", () => {
       type: "message:delta",
       messageId: msgId,
       text: "world",
+    });
+    expect(chatEvents[2]).toEqual({
+      type: "done",
+      finalOutput: "hello world",
+      finishReason: undefined,
     });
   });
 

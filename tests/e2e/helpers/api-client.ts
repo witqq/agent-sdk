@@ -57,10 +57,11 @@ export class DemoApiClient {
   async sendMessage(
     sessionId: string,
     message: string,
-    options?: { model?: string; timeoutMs?: number },
+    options?: { model?: string; providerId?: string; timeoutMs?: number },
   ): Promise<SSEEvent[]> {
     const body: Record<string, unknown> = { sessionId, message };
     if (options?.model) body.model = options.model;
+    if (options?.providerId) body.providerId = options.providerId;
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), options?.timeoutMs ?? 90_000);
@@ -91,10 +92,11 @@ export class DemoApiClient {
   async sendMessageStream(
     sessionId: string,
     message: string,
-    options?: { model?: string; timeoutMs?: number },
+    options?: { model?: string; providerId?: string; timeoutMs?: number },
   ): Promise<AsyncGenerator<SSEEvent>> {
     const body: Record<string, unknown> = { sessionId, message };
     if (options?.model) body.model = options.model;
+    if (options?.providerId) body.providerId = options.providerId;
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), options?.timeoutMs ?? 90_000);
@@ -108,11 +110,17 @@ export class DemoApiClient {
       });
 
       if (!res.ok) {
+        clearTimeout(timeout);
         const text = await res.text();
         throw new Error(`POST /api/chat/send failed (${res.status}): ${text}`);
       }
 
-      return parseSSEStream(res);
+      // Wrap the generator so the timeout is cleared when the stream ends
+      const inner = parseSSEStream(res);
+      return (async function* () {
+        try { yield* inner; }
+        finally { clearTimeout(timeout); }
+      })();
     } catch (e) {
       clearTimeout(timeout);
       throw e;
@@ -163,6 +171,30 @@ export class DemoApiClient {
       body: JSON.stringify({ providerId }),
     });
     return res.json() as Promise<{ ok?: boolean; error?: string }>;
+  }
+
+  /**
+   * Send a message via raw fetch with an AbortController.
+   * Returns the controller so callers can abort mid-stream.
+   */
+  sendMessageRaw(
+    sessionId: string,
+    message: string,
+    options?: { model?: string; providerId?: string },
+  ): { response: Promise<Response>; controller: AbortController } {
+    const body: Record<string, unknown> = { sessionId, message };
+    if (options?.model) body.model = options.model;
+    if (options?.providerId) body.providerId = options.providerId;
+
+    const controller = new AbortController();
+    const response = fetch(`${this.baseUrl}/api/chat/send`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+
+    return { response, controller };
   }
 
   // ─── Internal ────────────────────────────────────────────

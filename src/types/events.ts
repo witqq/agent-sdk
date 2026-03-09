@@ -36,7 +36,7 @@ export type AgentEvent =
   | { type: "session_info"; sessionId: string; transcriptPath?: string; backend: string }
   | { type: "heartbeat" }
   | { type: "error"; error: string; recoverable: boolean; code?: ErrorCode }
-  | { type: "done"; finalOutput: string | null; structuredOutput?: unknown; streamed?: boolean };
+  | { type: "done"; finalOutput: string | null; structuredOutput?: unknown; streamed?: boolean; finishReason?: string };
 
 // ─── Stream Middleware ────────────────────────────────────────
 

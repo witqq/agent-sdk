@@ -66,6 +66,12 @@ export type {
 export type {
   CopilotBackendOptions,
   ClaudeBackendOptions,
+  MockLLMBackendOptions,
+  MockLLMResponseMode,
+  MockLLMLatency,
+  MockLLMStreamingOptions,
+  MockLLMPermissionOptions,
+  MockLLMToolCall,
   VercelAIBackendOptions,
 } from "./backends.js";
 

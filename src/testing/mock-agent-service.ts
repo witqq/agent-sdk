@@ -14,7 +14,9 @@ import type {
   RunOptions,
   StructuredOutputConfig,
   AgentState,
+  MockLLMBackendOptions,
 } from "../types.js";
+import { createMockLLMService } from "../backends/mock-llm.js";
 
 /** Options for createMockAgentService. */
 export interface MockAgentServiceOptions {
@@ -28,6 +30,10 @@ export interface MockAgentServiceOptions {
   onRun?: (prompt: MessageContent, options?: RunOptions) => Promise<AgentResult>;
   /** Custom stream handler. Default: yields text_delta + result events. */
   onStream?: (prompt: MessageContent, options?: RunOptions) => AsyncIterable<AgentEvent>;
+  /** Opt-in: delegate to Mock LLM backend for richer simulation.
+   *  When provided, createAgent() returns a full MockLLMAgent that participates
+   *  in the BaseAgent lifecycle (retry, heartbeat, middleware, usage enrichment). */
+  mockLLMBackend?: MockLLMBackendOptions;
 }
 
 class MockAgent implements IAgent {
@@ -108,8 +114,27 @@ class MockAgent implements IAgent {
  * const agent = service.createAgent({ model: "gpt-5-mini" });
  * const result = await agent.run("Hello");
  * ```
+ *
+ * For richer simulation with full BaseAgent lifecycle, pass `mockLLMBackend`:
+ * ```ts
+ * const service = createMockAgentService({
+ *   mockLLMBackend: { mode: { type: "echo" }, latency: { type: "fixed", ms: 50 } },
+ * });
+ * ```
  */
 export function createMockAgentService(options: MockAgentServiceOptions = {}): IAgentService {
+  // When mockLLMBackend is provided, delegate entirely to Mock LLM backend
+  if (options.mockLLMBackend) {
+    const llmService = createMockLLMService(options.mockLLMBackend);
+    return {
+      name: options.name ?? "mock",
+      createAgent: (config: FullAgentConfig) => llmService.createAgent(config),
+      listModels: () => llmService.listModels(),
+      validate: () => llmService.validate(),
+      dispose: () => llmService.dispose(),
+    };
+  }
+
   const name = options.name ?? "mock";
   return {
     name,

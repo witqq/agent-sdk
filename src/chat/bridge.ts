@@ -71,8 +71,9 @@ export function agentEventToChatEvent(
     case "ask_user":
     case "ask_user_response":
     case "session_info":
-    case "done":
       return null;
+    case "done":
+      return { type: "done", finalOutput: event.finalOutput ?? undefined, finishReason: event.finishReason };
     default:
       return null;
   }

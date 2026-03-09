@@ -907,7 +907,11 @@ class CopilotAgentService implements IAgentService {
           githubToken: this.options.githubToken,
           useLoggedInUser: this.options.useLoggedInUser ?? !this.options.githubToken,
           ...(this.options.cliArgs ? { cliArgs: this.options.cliArgs } : {}),
-          ...(this.options.env ? { env: { ...process.env, ...this.options.env } } : {}),
+          env: {
+            ...process.env,
+            ...(this.options.githubToken ? { GITHUB_TOKEN: this.options.githubToken } : {}),
+            ...this.options.env,
+          },
         });
 
         const startupTimeout = this.options.startupTimeoutMs ?? 30_000;

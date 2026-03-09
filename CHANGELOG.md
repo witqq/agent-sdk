@@ -1,5 +1,23 @@
 # Changelog
 
+## [Unreleased]
+
+### New Features
+
+- **Mock LLM backend** — new backend (`@witqq/agent-sdk/mock-llm`) for automated testing. Extends `BaseAgent` with configurable response modes: echo, static, scripted (with loop), error. Full streaming support, structured output, and BaseAgent lifecycle participation (retry, heartbeat, activity timeout, middleware, usage enrichment).
+- **Mock LLM advanced modes** — latency simulation (fixed/random delay), streaming control (chunkSize, chunkDelayMs), configurable finishReason, permission simulation (autoApprove, denyTools, supervisor callback delegation). All modes composable.
+- **Mock LLM tool simulation** — configurable tool call events (`toolCalls` option) with `tool_call_start`/`tool_call_end` emission in streams, tool calls in `run()` results, custom `toolCallId` support. Configurable `structuredOutput` for `runStructured()` with JSON.parse fallback.
+- **createMockAgentService delegation** — `mockLLMBackend` option delegates to full MockLLMAgent for richer simulation with BaseAgent lifecycle.
+- **MockLLMChatAdapter** — chat backend adapter for Mock LLM (`@witqq/agent-sdk/chat/backends`). Extends `BaseBackendAdapter` with zero-auth support. Enables mock demo server (`examples/demo/server-mock.ts`) for E2E testing without API keys.
+- **Mock demo server** — drop-in replacement demo server on port 3457 using `MockLLMChatAdapter`. Pre-seeds token and provider. 3 mock models (echo, scripted, static).
+- **E2E mock-demo tests** — 17 tests covering health, session CRUD, SSE chat streaming with strict event ordering, model listing, and provider CRUD. Zero external dependencies.
+- **Comprehensive E2E test suite** — 42 tests across 9 categories: echo mode, streaming, error handling, tool calls, finishReason propagation, structured output, scripted mode, session management, permission simulation. All deterministic — no API keys, no network. Runs against mock demo server via `vitest.e2e.config.ts`.
+
+### Bug Fixes
+
+- **finishReason propagation** (Issue #7) — `done` event now includes optional `finishReason` field captured from Vercel AI SDK `finish-step` and `finish` stream parts. Enables consumers to detect stop reason (`stop`, `length`, `content-filter`, `tool-calls`).
+- **ChatEvent bridge `done` type narrowing** — separated `done` from `ask_user`/`session_info`/`ask_user_response` fallthrough in `bridge.ts`. The `done` case now correctly returns `{ type: "done", finalOutput, finishReason }` instead of `null`. Fixes DTS build error and enables finishReason propagation through the chat layer.
+
 ## [0.8.0]
 
 ### Step 20: Demo Actualization & Documentation

@@ -126,6 +126,7 @@ export {
   CopilotChatAdapter,
   ClaudeChatAdapter,
   VercelAIChatAdapter,
+  MockLLMChatAdapter,
   type IChatTransport,
   SSEChatTransport,
   WsChatTransport,

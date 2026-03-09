@@ -149,9 +149,17 @@ export async function streamToTransport(
 ): Promise<void> {
   try {
     const textChunks: string[] = [];
+    let finishReason: string | undefined;
 
     for await (const event of events) {
       if (!transport.isOpen) break;
+
+      if (event.type === "done") {
+        // Capture finishReason from stream; don't forward — we build our own done below
+        finishReason = event.finishReason;
+        continue;
+      }
+
       transport.send(event);
 
       if (event.type === "message:delta") {
@@ -161,7 +169,7 @@ export async function streamToTransport(
 
     if (transport.isOpen) {
       const finalOutput = textChunks.length > 0 ? textChunks.join("") : undefined;
-      transport.send({ type: "done", finalOutput });
+      transport.send({ type: "done", finalOutput, finishReason });
     }
     transport.close();
   } catch (err) {

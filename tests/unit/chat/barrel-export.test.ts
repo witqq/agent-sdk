@@ -68,6 +68,7 @@ describe("chat barrel export", () => {
     expect(barrel.CopilotChatAdapter).toBeTypeOf("function");
     expect(barrel.ClaudeChatAdapter).toBeTypeOf("function");
     expect(barrel.VercelAIChatAdapter).toBeTypeOf("function");
+    expect(barrel.MockLLMChatAdapter).toBeTypeOf("function");
     expect(barrel.SSEChatTransport).toBeTypeOf("function");
     expect(barrel.WsChatTransport).toBeTypeOf("function");
     expect(barrel.InProcessChatTransport).toBeTypeOf("function");

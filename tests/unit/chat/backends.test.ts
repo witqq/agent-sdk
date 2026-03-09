@@ -437,7 +437,7 @@ describe("BaseBackendAdapter", () => {
       }
     });
 
-    it("filters unmappable events (done, session_info)", async () => {
+    it("filters unmappable events (session_info) and passes done", async () => {
       const mixedAgent = createMockAgent({
         events: [
           { type: "text_delta" as const, text: "Hi" },
@@ -455,9 +455,9 @@ describe("BaseBackendAdapter", () => {
         adapter.streamMessage(createMockSession(), "Hi"),
       );
 
-      // message:start + message:delta + heartbeat + message:complete
+      // message:start + message:delta + done + heartbeat + message:complete
       const types = events.map((e) => e.type);
-      expect(types).not.toContain("done");
+      expect(types).toContain("done");
       expect(types).toContain("heartbeat");
     });
   });
@@ -1358,7 +1358,79 @@ describe("chat/backends barrel exports", () => {
     expect(barrel.CopilotChatAdapter).toBeDefined();
     expect(barrel.ClaudeChatAdapter).toBeDefined();
     expect(barrel.VercelAIChatAdapter).toBeDefined();
+    expect(barrel.MockLLMChatAdapter).toBeDefined();
     expect(barrel.SSEChatTransport).toBeDefined();
     expect(barrel.streamToTransport).toBeDefined();
+  });
+});
+
+// ─── MockLLMChatAdapter ────────────────────────────────────────
+
+describe("MockLLMChatAdapter", () => {
+  // Dynamic import so tests work even if mock-llm module is heavy
+  let MockLLMChatAdapter: typeof import("../../../src/chat/backends/mock-llm.js").MockLLMChatAdapter;
+
+  beforeEach(async () => {
+    const mod = await import("../../../src/chat/backends/mock-llm.js");
+    MockLLMChatAdapter = mod.MockLLMChatAdapter;
+  });
+
+  function createAdapter(mockOptions?: import("../../../src/types.js").MockLLMBackendOptions) {
+    return new MockLLMChatAdapter({
+      agentConfig: createDefaultAgentConfig(),
+      mockOptions,
+    });
+  }
+
+  it("has name 'mock-llm'", () => {
+    expect(createAdapter().name).toBe("mock-llm");
+  });
+
+  it("is not a resumable backend", () => {
+    const adapter = createAdapter();
+    expect(isResumableBackend(adapter)).toBe(false);
+  });
+
+  it("creates service with echo mode by default", async () => {
+    const adapter = createAdapter({ mode: { type: "echo" } });
+    const models = await adapter.listModels();
+    expect(Array.isArray(models)).toBe(true);
+  });
+
+  it("creates service with custom models", async () => {
+    const adapter = createAdapter({
+      models: [
+        { id: "custom-1", name: "Custom Model 1", provider: "mock-llm" },
+        { id: "custom-2", name: "Custom Model 2", provider: "mock-llm" },
+      ],
+    });
+    const models = await adapter.listModels();
+    expect(models).toHaveLength(2);
+    expect(models[0].id).toBe("custom-1");
+  });
+
+  it("validates successfully", async () => {
+    const result = await createAdapter().validate();
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("streams echo response", async () => {
+    const adapter = createAdapter({ mode: { type: "echo" } });
+    const session = createMockSession();
+    const events = await collectEvents(adapter.streamMessage(session, "test echo"));
+
+    // Should have message:delta events (adapted from AgentEvent text_delta)
+    const textEvents = events.filter(e => e.type === "message:delta");
+    expect(textEvents.length).toBeGreaterThan(0);
+    const fullText = textEvents
+      .map(e => (e as { type: "message:delta"; text: string }).text)
+      .join("");
+    expect(fullText).toContain("test echo");
+  });
+
+  it("disposes cleanly", async () => {
+    const adapter = createAdapter();
+    await expect(adapter.dispose()).resolves.toBeUndefined();
   });
 });

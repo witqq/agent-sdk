@@ -31,6 +31,11 @@ export {
   type VercelAIChatAdapterOptions,
 } from "./vercel-ai.js";
 
+export {
+  MockLLMChatAdapter,
+  type MockLLMChatAdapterOptions,
+} from "./mock-llm.js";
+
 export type { IChatTransport, WritableResponse, CloseDetectable, SSETransportOptions } from "./transport.js";
 export { SSEChatTransport, streamToTransport } from "./transport.js";
 

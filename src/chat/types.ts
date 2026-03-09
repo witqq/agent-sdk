@@ -229,7 +229,7 @@ export type ChatEvent =
   | { type: "typing:start" }
   | { type: "typing:end" }
   | { type: "heartbeat" }
-  | { type: "done"; finalOutput?: string };
+  | { type: "done"; finalOutput?: string; finishReason?: string };
 
 /** All possible ChatEvent type strings */
 export type ChatEventType = ChatEvent["type"];

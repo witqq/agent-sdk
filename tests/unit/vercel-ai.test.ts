@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { z } from "zod";
 import type {
   AgentConfig,
+  AgentEvent,
   PermissionRequest,
   PermissionDecision,
   JSONValue,
@@ -790,6 +791,8 @@ describe("VercelAIAgent.stream", () => {
     const doneEvents = events.filter((e) => e.type === "done");
     expect(doneEvents).toHaveLength(1);
     expect(doneEvents[0].finalOutput).toBeNull();
+    // finishReason propagated from finish-step (Issue #7)
+    expect(doneEvents[0].finishReason).toBe("stop");
 
     // Should have usage update events
     const usageEvents = events.filter((e) => e.type === "usage_update");
@@ -1124,6 +1127,123 @@ describe("VercelAIAgent.stream", () => {
     expect(doneEvent).toBeDefined();
     // All steps ended with tool-calls, so finalText was reset each time → null
     expect(doneEvent!.finalOutput).toBeNull();
+  });
+});
+
+// ─── finishReason propagation (Issue #7) ────────────────────────
+
+describe("VercelAIAgent.stream finishReason propagation", () => {
+  afterEach(() => _resetSDK());
+
+  it("should propagate finishReason from finish-step to done event", async () => {
+    const sdk = createMockSDK({
+      streamParts: [
+        { type: "text-delta", text: "Hello", id: "t1" },
+        { type: "finish-step", usage: { inputTokens: 10, outputTokens: 5 }, finishReason: "stop" },
+      ],
+    });
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+    const events: AgentEvent[] = [];
+    for await (const event of agent.stream("hi", { model: "test-model" })) {
+      events.push(event);
+    }
+    const done = events.find((e) => e.type === "done");
+    expect(done).toBeDefined();
+    expect(done!.finishReason).toBe("stop");
+  });
+
+  it("should propagate finishReason 'length' for max tokens", async () => {
+    const sdk = createMockSDK({
+      streamParts: [
+        { type: "text-delta", text: "Truncated", id: "t1" },
+        { type: "finish-step", usage: { inputTokens: 10, outputTokens: 500 }, finishReason: "length" },
+      ],
+    });
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+    const events: AgentEvent[] = [];
+    for await (const event of agent.stream("hi", { model: "test-model" })) {
+      events.push(event);
+    }
+    const done = events.find((e) => e.type === "done");
+    expect(done!.finishReason).toBe("length");
+  });
+
+  it("should propagate finishReason from finish part (overrides finish-step)", async () => {
+    const sdk = createMockSDK({
+      streamParts: [
+        { type: "text-delta", text: "Hello", id: "t1" },
+        { type: "finish-step", usage: { inputTokens: 10, outputTokens: 5 }, finishReason: "stop" },
+        { type: "finish", finishReason: "content-filter", totalUsage: { inputTokens: 10, outputTokens: 5 } },
+      ],
+    });
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+    const events: AgentEvent[] = [];
+    for await (const event of agent.stream("hi", { model: "test-model" })) {
+      events.push(event);
+    }
+    const done = events.find((e) => e.type === "done");
+    expect(done!.finishReason).toBe("content-filter");
+  });
+
+  it("should use last finish-step finishReason in multi-step stream", async () => {
+    const sdk = createMockSDK({
+      streamParts: [
+        { type: "text-delta", text: "Thinking...", id: "t1" },
+        { type: "tool-call", toolCallId: "tc-1", toolName: "search", input: { q: "test" } },
+        { type: "tool-result", toolCallId: "tc-1", toolName: "search", output: "result" },
+        { type: "finish-step", usage: { inputTokens: 20, outputTokens: 10 }, finishReason: "tool-calls" },
+        { type: "text-delta", text: "Final answer", id: "t2" },
+        { type: "finish-step", usage: { inputTokens: 30, outputTokens: 15 }, finishReason: "stop" },
+      ],
+    });
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+    const events: AgentEvent[] = [];
+    for await (const event of agent.stream("hi", { model: "test-model" })) {
+      events.push(event);
+    }
+    const done = events.find((e) => e.type === "done");
+    expect(done!.finishReason).toBe("stop");
+  });
+
+  it("should omit finishReason when no finish-step or finish parts present", async () => {
+    const sdk = createMockSDK({
+      streamParts: [
+        { type: "text-delta", text: "Hello", id: "t1" },
+      ],
+    });
+    const compat = createMockCompatModule();
+    _injectSDK(sdk);
+    _injectCompat(compat);
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+    const events: AgentEvent[] = [];
+    for await (const event of agent.stream("hi", { model: "test-model" })) {
+      events.push(event);
+    }
+    const done = events.find((e) => e.type === "done");
+    expect(done).toBeDefined();
+    expect(done!.finishReason).toBeUndefined();
   });
 });
 

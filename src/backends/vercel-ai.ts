@@ -618,6 +618,7 @@ class VercelAIAgent extends BaseAgent {
     });
 
     let finalText = "";
+    let lastFinishReason: string | undefined;
 
     try {
       for await (const part of result.fullStream) {
@@ -635,9 +636,16 @@ class VercelAIAgent extends BaseAgent {
         // the final step's text becomes the output.
         if ((part as SDKStreamPart).type === "finish-step") {
           const p = part as Extract<SDKStreamPart, { type: "finish-step" }>;
+          lastFinishReason = p.finishReason;
           if (p.finishReason === "tool-calls") {
             finalText = "";
           }
+        }
+
+        // The final `finish` part carries the overall finishReason
+        if ((part as SDKStreamPart).type === "finish") {
+          const p = part as Extract<SDKStreamPart, { type: "finish" }>;
+          lastFinishReason = p.finishReason;
         }
       }
 
@@ -654,6 +662,7 @@ class VercelAIAgent extends BaseAgent {
         type: "done",
         finalOutput: hasStreamed ? null : (finalText || null),
         ...(hasStreamed ? { streamed: true } : {}),
+        ...(lastFinishReason ? { finishReason: lastFinishReason } : {}),
       };
     } catch (e) {
       if (signal.aborted) throw new AbortError();

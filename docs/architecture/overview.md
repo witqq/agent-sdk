@@ -30,7 +30,7 @@ The SDK follows a **stateless architecture**: all data required to handle a requ
 
 ## 1. Introduction and Goals
 
-**@witqq/agent-sdk** is a TypeScript npm package providing a unified abstraction layer over three AI agent backends: GitHub Copilot CLI, Anthropic Claude CLI, and Vercel AI SDK v6.
+**@witqq/agent-sdk** is a TypeScript npm package providing a unified abstraction layer over multiple AI agent backends: GitHub Copilot CLI, Anthropic Claude CLI, Vercel AI SDK v6, and a Mock LLM backend for automated testing.
 
 ### Key Goals
 
@@ -125,6 +125,7 @@ src/backends/           → Agent Services (low-level)
   copilot.ts            CopilotAgentService
   claude.ts             ClaudeAgentService
   vercel-ai.ts          VercelAIAgentService
+  mock-llm.ts           MockLLMService (testing)
   shared.ts             Shared utilities
 
 src/chat/backends/      → Chat Adapters (high-level)

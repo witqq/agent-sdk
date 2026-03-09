@@ -207,6 +207,16 @@
         "types": "./dist/testing.d.cts",
         "default": "./dist/testing.cjs"
       }
+    },
+    "./mock-llm": {
+      "import": {
+        "types": "./dist/backends/mock-llm.d.ts",
+        "default": "./dist/backends/mock-llm.js"
+      },
+      "require": {
+        "types": "./dist/backends/mock-llm.d.cts",
+        "default": "./dist/backends/mock-llm.cjs"
+      }
     }
   },
   "files": [
@@ -221,7 +231,11 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run build",
-    "demo": "tsx scripts/demo.ts"
+    "demo": "tsx scripts/demo.ts",
+    "docs:api": "typedoc",
+    "docs:site": "cd docs-site && npm run build",
+    "docs:docker": "cd docs-site && docker compose up -d --build",
+    "docs:docker:stop": "cd docs-site && docker compose down"
   },
   "keywords": [
     "ai",
@@ -243,8 +257,8 @@
     "@github/copilot-sdk": "^0.1.22",
     "@types/react": ">=18",
     "ai": ">=4.0.0",
-    "react": ">=18",
     "better-sqlite3": ">=9.0.0",
+    "react": ">=18",
     "zod": "^3.23.0 || ^4.0.0"
   },
   "peerDependenciesMeta": {
@@ -284,6 +298,8 @@
     "jsdom": "^28.1.0",
     "react-dom": "^19.2.4",
     "tsup": "^8.4.0",
+    "typedoc": "^0.28.17",
+    "typedoc-plugin-markdown": "^4.10.0",
     "typescript": "^5.8.0",
     "vitest": "^4.0.18",
     "zod": "^4.3.6"

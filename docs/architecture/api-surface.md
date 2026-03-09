@@ -102,6 +102,7 @@ Public exports inventory grouped by entry point.
 | `CopilotChatAdapter` | class | Stable | Copilot adapter (persistent session) |
 | `ClaudeChatAdapter` | class | Stable | Claude adapter (persistent session) |
 | `VercelAIChatAdapter` | class | Stable | Vercel AI adapter (stateless) |
+| `MockLLMChatAdapter` | class | Stable | Mock LLM adapter (zero-auth, in-process) |
 | `IChatTransport` | interface | Stable | Transport: send, error, close |
 | `SSEChatTransport` | class | Stable | Server-Sent Events transport |
 | `WsChatTransport` | class | Stable | WebSocket transport |
@@ -254,13 +255,25 @@ Representative exports (see `src/chat/react/index.ts` for complete list):
 | `SQLiteProviderStore` | class | Stable | IProviderStore on better-sqlite3 |
 | `SQLiteTokenStore` | class | Stable | ITokenStore on better-sqlite3 |
 
+### `@witqq/agent-sdk/mock-llm`
+
+| Export | Kind | Stability | Description |
+|--------|------|-----------|-------------|
+| `createMockLLMService` | function | Experimental | Factory returning `IAgentService` — full-lifecycle mock with latency, streaming, permissions, tool calls, structured output |
+| `MockLLMBackendOptions` | type | Experimental | Configuration options for the mock service |
+| `MockLLMResponseMode` | type | Experimental | Discriminated union: `{ type: "echo" } \| { type: "static"; response } \| { type: "scripted"; responses } \| { type: "error"; error }` |
+| `MockLLMLatency` | type | Experimental | Latency config: `{ type: "fixed"; ms } \| { type: "random"; minMs; maxMs }` |
+| `MockLLMStreamingOptions` | type | Experimental | Streaming chunk control: `chunkSize`, `chunkDelayMs` |
+| `MockLLMPermissionOptions` | type | Experimental | Permission simulation: `toolNames`, `autoApprove`, `denyTools` |
+| `MockLLMToolCall` | type | Experimental | Tool call simulation: `toolName`, `args`, `result`, `toolCallId` |
+
 ### `@witqq/agent-sdk/testing`
 
 | Export | Kind | Stability | Description |
 |--------|------|-----------|-------------|
 | `createMockSession` | function | Stable | Mock ChatSession with valid defaults |
 | `createMockMessage` | function | Stable | Mock ChatMessage with text part |
-| `createMockAgentService` | function | Stable | Mock IAgentService with configurable handlers |
+| `createMockAgentService` | function | Stable | Mock IAgentService with configurable handlers. Accepts `mockLLMBackend` option for full MockLLMAgent delegation |
 | `createMockRuntime` | function | Stable | Mock IChatRuntime with in-memory sessions |
 | `createMockChatClient` | function | Stable | Mock IChatClient with provider CRUD |
 
