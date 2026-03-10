@@ -1,0 +1,52 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/index.ts",
+    "src/auth/index.ts",
+    "src/backends/copilot.ts",
+    "src/backends/claude.ts",
+    "src/backends/vercel-ai.ts",
+    "src/backends/mock-llm.ts",
+    "src/chat/index.ts",
+    "src/chat/storage.ts",
+    "src/chat/sessions.ts",
+    "src/chat/context.ts",
+    "src/chat/accumulator.ts",
+    "src/chat/state.ts",
+    "src/chat/runtime.ts",
+    "src/chat/events.ts",
+    "src/chat/errors.ts",
+    "src/chat/core.ts",
+    "src/chat/backends/index.ts",
+    "src/chat/react/index.ts",
+    "src/chat/server/index.ts",
+    "src/chat/sqlite/index.ts",
+    "src/testing/index.ts"
+  ],
+  "entryPointStrategy": "expand",
+  "out": "docs/api",
+  "plugin": ["typedoc-plugin-markdown"],
+  "outputFileStrategy": "modules",
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeInternal": true,
+  "excludeExternals": true,
+  "tsconfig": "tsconfig.json",
+  "readme": "none",
+  "githubPages": false,
+  "disableSources": false,
+  "categorizeByGroup": true,
+  "sort": ["static-first", "alphabetical"],
+  "kindSortOrder": [
+    "Function",
+    "Class",
+    "Interface",
+    "TypeAlias",
+    "Variable",
+    "Enum"
+  ],
+  "navigation": {
+    "includeCategories": true,
+    "includeGroups": true
+  }
+}
