@@ -1,0 +1,16 @@
+{
+  "serviceName": "agent-sdk-docs",
+  "dockerComposePath": "docker-compose.remote.yml",
+  "dockerfile": "packages/docs-site/Dockerfile",
+  "buildContext": ".",
+  "platform": "linux/amd64",
+  "remoteDir": "/opt/agent-sdk-docs",
+  "imageName": "agent-sdk-docs",
+  "projectDir": "./project",
+  "deploymentType": "build",
+  "healthCheck": {
+    "containerName": "agent-sdk-docs",
+    "timeout": 120,
+    "interval": 3
+  }
+}
