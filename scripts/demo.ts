@@ -11,10 +11,12 @@
  */
 
 import { execSync } from "node:child_process";
-import { resolve } from "node:path";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = resolve(import.meta.dirname, "..");
-const COMPOSE_FILE = "examples/demo/docker-compose.yml";
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = resolve(__dirname, "..");
+const COMPOSE_FILE = "packages/demo/docker-compose.yml";
 const CONTAINER_NAME = "demo-demo-1";
 const PORT = 3456;
 const HEALTH_URL = `http://localhost:${PORT}/api/health`;
