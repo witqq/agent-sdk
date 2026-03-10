@@ -6,7 +6,7 @@
   "platform": "linux/amd64",
   "remoteDir": "/opt/agent-sdk-docs",
   "imageName": "agent-sdk-docs",
-  "projectDir": "./project",
+  "projectDir": ".",
   "deploymentType": "build",
   "healthCheck": {
     "containerName": "agent-sdk-docs",
