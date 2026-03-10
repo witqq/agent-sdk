@@ -1,0 +1,9 @@
+services:
+  docs-site:
+    build:
+      context: .
+      dockerfile: packages/docs-site/Dockerfile
+    container_name: agent-sdk-docs
+    ports:
+      - "3457:80"
+    restart: unless-stopped

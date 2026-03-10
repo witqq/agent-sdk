@@ -2,7 +2,7 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 
 export default defineConfig({
-  site: "https://agent-sdk.witqq.com",
+  site: "https://agent-sdk.witqq.dev",
   integrations: [
     starlight({
       title: "@witqq/agent-sdk",
@@ -12,7 +12,7 @@ export default defineConfig({
         {
           icon: "github",
           label: "GitHub",
-          href: "https://github.com/nicyuvi/agent-sdk",
+          href: "https://github.com/witqq/agent-sdk",
         },
       ],
       sidebar: [
@@ -81,7 +81,7 @@ export default defineConfig({
       customCss: ["./src/styles/custom.css"],
       pagefind: true,
       editLink: {
-        baseUrl: "https://github.com/nicyuvi/agent-sdk/edit/main/packages/docs-site/",
+        baseUrl: "https://github.com/witqq/agent-sdk/edit/master/packages/docs-site/",
       },
     }),
   ],

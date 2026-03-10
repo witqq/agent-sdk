@@ -1,0 +1,57 @@
+---
+import '../styles/landing.css';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@witqq/agent-sdk — AI agent abstraction layer</title>
+    <meta name="description" content="Multi-backend AI agent SDK. One interface for Copilot CLI, Claude CLI, Vercel AI, and Mock LLM. Type-safe tools, streaming events, React UI components." />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="@witqq/agent-sdk — AI agent abstraction layer" />
+    <meta property="og:description" content="Multi-backend AI agent SDK. One interface for Copilot CLI, Claude CLI, Vercel AI, and Mock LLM. Type-safe tools, streaming events, React UI components." />
+    <meta property="og:url" content={Astro.url.href} />
+    <meta property="og:site_name" content="@witqq/agent-sdk" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@witqq/agent-sdk — AI agent abstraction layer" />
+    <meta name="twitter:description" content="Multi-backend AI agent SDK. One interface for Copilot CLI, Claude CLI, Vercel AI, and Mock LLM." />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareSourceCode",
+      "name": "@witqq/agent-sdk",
+      "description": "AI agent abstraction layer for Copilot CLI, Claude CLI, Vercel AI, and Mock LLM backends.",
+      "codeRepository": "https://github.com/witqq/agent-sdk",
+      "license": "https://opensource.org/licenses/MIT",
+      "programmingLanguage": ["TypeScript", "JavaScript"],
+      "runtimePlatform": "Node.js",
+      "version": "0.9.0",
+      "keywords": "ai, agent, sdk, copilot, claude, vercel-ai, tools, streaming, typescript",
+      "author": {
+        "@type": "Organization",
+        "name": "witqq",
+        "url": "https://github.com/witqq"
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <nav class="landing-nav">
+      <a href="/" class="nav-logo">@witqq/agent-sdk</a>
+      <div class="nav-links">
+        <a href="/getting-started/introduction/">Docs</a>
+        <a href="/getting-started/quick-start/">Quick Start</a>
+        <a href="/api-reference/">API</a>
+        <a href="https://github.com/witqq/agent-sdk" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </nav>
+    <slot />
+  </body>
+</html>
