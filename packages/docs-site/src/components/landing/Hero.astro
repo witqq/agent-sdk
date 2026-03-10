@@ -1,0 +1,50 @@
+---
+const installCmd = 'npm install @witqq/agent-sdk';
+---
+
+<section class="hero">
+  <h1>@witqq/agent-sdk</h1>
+  <p class="subtitle">AI agent abstraction layer for Node.js</p>
+  <div class="metrics">
+    <span>4 backends</span>
+    <span>·</span>
+    <span>22 entry points</span>
+    <span>·</span>
+    <span>2365+ tests</span>
+    <span>·</span>
+    <span>MIT</span>
+  </div>
+  <div class="cta-buttons">
+    <a href="/getting-started/introduction/" class="btn btn-primary">Get Started</a>
+    <a href="/getting-started/quick-start/" class="btn btn-secondary">Quick Start</a>
+    <a href="https://github.com/witqq/agent-sdk" class="btn btn-secondary" target="_blank" rel="noopener">GitHub</a>
+  </div>
+  <div class="install-box">
+    <code>{installCmd}</code>
+    <button
+      class="copy-btn"
+      aria-label="Copy install command"
+      onclick={`navigator.clipboard.writeText('${installCmd}').then(()=>{this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)})`}
+    >📋</button>
+  </div>
+
+  <div class="code-example">
+    <div class="code-block">
+      <div class="code-block-header">
+        <span>example.ts</span>
+      </div>
+      <pre><span class="kw">import</span> {'{'} createAgentService {'}'} <span class="kw">from</span> <span class="str">'@witqq/agent-sdk'</span>;
+
+<span class="kw">const</span> service = <span class="fn">createAgentService</span>(<span class="str">'copilot'</span>, {'{}'});
+
+<span class="kw">const</span> agent = service.<span class="fn">createAgent</span>({'{'}
+  systemPrompt: <span class="str">'You are a helpful assistant.'</span>,
+  tools: [myTool],
+{'}'});
+
+<span class="kw">const</span> result = <span class="kw">await</span> agent.<span class="fn">run</span>(<span class="str">'Analyze this repo'</span>, {'{'}
+  model: <span class="str">'gpt-5-mini'</span>,
+{'}'});</pre>
+    </div>
+  </div>
+</section>

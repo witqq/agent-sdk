@@ -1,0 +1,73 @@
+---
+const features = [
+  {
+    icon: '🔀',
+    title: 'Multi-Backend',
+    desc: 'Copilot CLI, Claude CLI, Vercel AI SDK, Mock LLM. One interface, swap backends with a string.',
+  },
+  {
+    icon: '🔧',
+    title: 'Type-Safe Tools',
+    desc: 'Define tools with Zod v3/v4 schemas. Permission scoping: once, session, project, always.',
+  },
+  {
+    icon: '📡',
+    title: 'Streaming Events',
+    desc: '15 typed event types via AsyncIterable. Text deltas, thinking, tool calls, usage tracking.',
+  },
+  {
+    icon: '💬',
+    title: 'Chat SDK',
+    desc: 'Server sessions, React components, SSE/WebSocket transports. SQLite persistence out of the box.',
+  },
+  {
+    icon: '🧪',
+    title: 'Testing Infrastructure',
+    desc: 'Mock LLM backend with deterministic modes. Mock factories for services, runtimes, React components.',
+  },
+  {
+    icon: '🏗️',
+    title: 'Structured Output',
+    desc: 'Type-safe structured responses with Zod validation. Works across all backends.',
+  },
+];
+---
+
+<section class="features" id="features">
+  <h2 class="section-title">Capabilities</h2>
+  <div class="features-grid">
+    {features.map((f) => (
+      <div class="feature-card">
+        <div class="icon">{f.icon}</div>
+        <h3>{f.title}</h3>
+        <p>{f.desc}</p>
+      </div>
+    ))}
+  </div>
+</section>
+
+<section class="backends" id="backends">
+  <h2 class="section-title">Backends</h2>
+  <div class="backends-grid">
+    <div class="backend-card">
+      <div class="backend-type">CLI</div>
+      <h3>Copilot</h3>
+      <p>GitHub Copilot CLI. OAuth auth, GitHub subscription.</p>
+    </div>
+    <div class="backend-card">
+      <div class="backend-type">CLI</div>
+      <h3>Claude</h3>
+      <p>Anthropic Claude CLI. OAuth auth, pay-per-use.</p>
+    </div>
+    <div class="backend-card">
+      <div class="backend-type">API</div>
+      <h3>Vercel AI</h3>
+      <p>Any LLM via Vercel AI SDK v6. API key, full control.</p>
+    </div>
+    <div class="backend-card">
+      <div class="backend-type">Test</div>
+      <h3>Mock LLM</h3>
+      <p>Deterministic responses. No API keys, no cost.</p>
+    </div>
+  </div>
+</section>

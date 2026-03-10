@@ -140,7 +140,7 @@ Full documentation at **[agent-sdk.witqq.dev](https://agent-sdk.witqq.dev)** —
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/witqq/agent-sdk/blob/master/LICENSE)
 
 ## Links
 
