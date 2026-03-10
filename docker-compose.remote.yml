@@ -1,0 +1,17 @@
+services:
+  agent-sdk-docs:
+    image: agent-sdk-docs:latest
+    container_name: agent-sdk-docs
+    restart: unless-stopped
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.agent-sdk-docs.rule=Host(`${AGENT_SDK_DOCS_HOST:-agent-sdk.witqq.dev}`)"
+      - "traefik.http.routers.agent-sdk-docs.entrypoints=websecure"
+      - "traefik.http.routers.agent-sdk-docs.tls.certresolver=letsencrypt"
+      - "traefik.http.services.agent-sdk-docs.loadbalancer.server.port=80"
+
+networks:
+  traefik:
+    external: true
