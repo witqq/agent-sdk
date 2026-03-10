@@ -1,0 +1,18 @@
+{
+  "name": "@witqq/agent-sdk-docs",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "node scripts/sync-api-docs.mjs && astro build",
+    "sync-api": "node scripts/sync-api-docs.mjs",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^5.18.0",
+    "@astrojs/starlight": "^0.37.7",
+    "sharp": "^0.33.0",
+    "zod": "^3.23.0"
+  }
+}

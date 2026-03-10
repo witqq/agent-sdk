@@ -1,0 +1,8 @@
+node_modules
+**/node_modules
+dist
+.git
+.astro
+test-results
+moira-ws
+*.tgz

@@ -1,5 +1,31 @@
 # Changelog
 
+## [Unreleased]
+
+### Infrastructure
+
+- **Monorepo restructure** — migrated from flat layout to npm workspaces monorepo with three packages: `packages/sdk/` (publishable SDK), `packages/demo/` (Express + React demo), `packages/docs-site/` (Astro/Starlight docs). All Docker builds, scripts, and documentation paths updated.
+
+### New Features
+
+- **Mock LLM backend** — new backend (`@witqq/agent-sdk/mock-llm`) for automated testing. Extends `BaseAgent` with configurable response modes: echo, static, scripted (with loop), error. Full streaming support, structured output, and BaseAgent lifecycle participation (retry, heartbeat, activity timeout, middleware, usage enrichment).
+- **Mock LLM advanced modes** — latency simulation (fixed/random delay), streaming control (chunkSize, chunkDelayMs), configurable finishReason, permission simulation (autoApprove, denyTools, supervisor callback delegation). All modes composable.
+- **Mock LLM tool simulation** — configurable tool call events (`toolCalls` option) with `tool_call_start`/`tool_call_end` emission in streams, tool calls in `run()` results, custom `toolCallId` support. Configurable `structuredOutput` for `runStructured()` with JSON.parse fallback.
+- **createMockAgentService delegation** — `mockLLMBackend` option delegates to full MockLLMAgent for richer simulation with BaseAgent lifecycle.
+- **MockLLMChatAdapter** — chat backend adapter for Mock LLM (`@witqq/agent-sdk/chat/backends`). Extends `BaseBackendAdapter` with zero-auth support. Enables mock demo server (`packages/demo/server-mock.ts`) for E2E testing without API keys.
+- **Mock demo server** — drop-in replacement demo server on port 3457 using `MockLLMChatAdapter`. Pre-seeds token and provider. 3 mock models (echo, scripted, static).
+- **E2E mock-demo tests** — 17 tests covering health, session CRUD, SSE chat streaming with strict event ordering, model listing, and provider CRUD. Zero external dependencies.
+- **Comprehensive E2E test suite** — 42 tests across 9 categories: echo mode, streaming, error handling, tool calls, finishReason propagation, structured output, scripted mode, session management, permission simulation. All deterministic — no API keys, no network. Runs against mock demo server via `vitest.e2e.config.ts`.
+
+### Bug Fixes
+
+- **`getOrCreateAgent()` ignores `options.tools`** (Issue #10) — per-call tools passed via `ChatRuntime.send()` were silently dropped because `getOrCreateAgent()` only forwarded `model` from options. Now merges `options.tools` into agent config alongside model override.
+- **`useChat` silently swallows non-recoverable stream errors** (Issue #11) — error events from the agent stream were accumulated but never thrown, so the catch block couldn't set error state or call `onError`. Now throws on non-recoverable error events before `accumulator.apply()`.
+- **`availableTools: []` ignored by Copilot backend** (Issue #12) — empty array was incorrectly treated as falsy, preventing tool override. Fixed: truthiness check on `config.availableTools` correctly passes empty arrays through.
+- **`GITHUB_TOKEN` not propagated to Copilot CLI** (Issue #13) — token from `options.githubToken` was not included in the child process environment. Fixed: env spread now includes `GITHUB_TOKEN` when set.
+- **finishReason propagation** (Issue #7) — `done` event now includes optional `finishReason` field captured from Vercel AI SDK `finish-step` and `finish` stream parts. Enables consumers to detect stop reason (`stop`, `length`, `content-filter`, `tool-calls`).
+- **ChatEvent bridge `done` type narrowing** — separated `done` from `ask_user`/`session_info`/`ask_user_response` fallthrough in `bridge.ts`. The `done` case now correctly returns `{ type: "done", finalOutput, finishReason }` instead of `null`. Fixes DTS build error and enables finishReason propagation through the chat layer.
+
 ## [0.8.0]
 
 ### Step 20: Demo Actualization & Documentation
@@ -29,8 +55,8 @@
 ### Improvements
 
 - Demo app uses `ThreadProvider` with custom tool call renderer (slot override pattern)
-- Custom transport guide in `docs/chat-sdk/custom-transports.md`
-- Custom renderer guide in `docs/chat-sdk/custom-renderers.md`
+- Custom transport guide in `packages/sdk/docs/chat-sdk/custom-transports.md`
+- Custom renderer guide in `packages/sdk/docs/chat-sdk/custom-renderers.md`
 - Phase 5 roadmap items (M11 + M12) checked off
 - Project checklist updated with M11 and M12 items
 

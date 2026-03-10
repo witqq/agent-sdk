@@ -1,0 +1,56 @@
+---
+title: "@witqq/agent-sdk"
+description: AI agent abstraction layer for Copilot CLI, Claude CLI, Vercel AI, and Mock LLM backends
+template: splash
+hero:
+  tagline: One SDK, four AI backends. Type-safe tools, streaming events, and React UI components.
+  actions:
+    - text: Get Started
+      link: /getting-started/introduction/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/nicyuvi/agent-sdk
+      icon: external
+    - text: Examples
+      link: /examples/getting-started-tutorial/
+      icon: open-book
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+<CardGrid stagger>
+  <Card title="Multi-Backend" icon="rocket">
+    Switch between Copilot CLI (GitHub), Claude CLI (Anthropic), Vercel AI SDK,
+    and Mock LLM for testing. Same interface everywhere.
+  </Card>
+  <Card title="Type-Safe Tools" icon="setting">
+    Define tools with Zod schemas. Permission scoping (once, session, project,
+    always). Supervisor hooks for approval workflows.
+  </Card>
+  <Card title="Streaming Events" icon="list-format">
+    15 typed event types via AsyncIterable. Text deltas, thinking, tool calls,
+    permissions, usage tracking. Custom middleware pipeline.
+  </Card>
+  <Card title="Testing Built In" icon="approve-check">
+    Mock LLM backend with deterministic response modes. Mock factories for
+    services, runtimes, and React components. No API keys needed.
+  </Card>
+</CardGrid>
+
+## Quick Install
+
+```bash
+npm install @witqq/agent-sdk
+```
+
+## Backend Comparison
+
+| Feature | Copilot CLI | Claude CLI | Vercel AI | Mock LLM |
+|---------|-------------|------------|-----------|----------|
+| Auth | GitHub OAuth | Anthropic OAuth | API key | None |
+| Streaming | Yes | Yes | Yes | Yes |
+| Tool calls | Yes | Yes | Yes | Simulated |
+| Structured output | Yes | Yes | Yes | Configurable |
+| Requires CLI | Yes | Yes | No | No |
+| Cost | Copilot subscription | Pay-per-use | Pay-per-use | Free |

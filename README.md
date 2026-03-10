@@ -1,6 +1,6 @@
 # agent-sdk
 
-Multi-backend AI agent abstraction layer for Node.js. Switch between Copilot CLI, Claude CLI, and Vercel AI SDK backends with a unified API.
+Multi-backend AI agent abstraction layer for Node.js. Switch between Copilot CLI, Claude CLI, Vercel AI, and Mock LLM backends with a unified API.
 
 ## Install
 
@@ -17,6 +17,7 @@ npm install @witqq/agent-sdk zod
 | `copilot` | `@github/copilot-sdk` ^0.1.22 | optional | CLI subprocess |
 | `claude` | `@anthropic-ai/claude-agent-sdk` >=0.2.0 | optional | CLI subprocess |
 | `vercel-ai` | `ai` >=4.0.0 + `@ai-sdk/openai-compatible` >=2.0.0 | optional | API-based |
+| `mock-llm` | — (built-in) | — | In-process mock |
 
 Install only the backend you need:
 
@@ -24,7 +25,21 @@ Install only the backend you need:
 npm install @github/copilot-sdk            # copilot
 npm install @anthropic-ai/claude-agent-sdk  # claude
 npm install ai @ai-sdk/openai-compatible   # vercel-ai
+# mock-llm — built-in, no extra install
 ```
+
+### Feature Matrix
+
+| Feature | Copilot | Claude | Vercel AI | Mock LLM |
+|---------|---------|--------|-----------|----------|
+| `run()` / `stream()` | ✓ | ✓ | ✓ | ✓ |
+| `runStructured()` | ✓ | ✓ | ✓ | ✓ |
+| Persistent sessions | ✓ | ✓ | — | — |
+| Tool execution | External | External | Internal | Simulated |
+| Permission callbacks | ✓ | ✓ | — | ✓ |
+| Ask user | ✓ | — | ✓ | — |
+| Auth | Device Flow | OAuth+PKCE | API key | — |
+| `listModels()` | ✓ | ✓ | ✓ | ✓ |
 
 ## Quick Start
 
@@ -417,6 +432,27 @@ const agent = service.createAgent({
 });
 ```
 
+### Mock LLM (Testing)
+
+```typescript
+import { createMockLLMService } from "@witqq/agent-sdk/mock-llm";
+
+const service = createMockLLMService({
+  mode: { type: "echo" },             // { type: "echo" | "static" | "scripted" | "error", ... }
+  // mode: { type: "static", response: "fixed response" },
+  // mode: { type: "scripted", responses: ["first", "second"], loop: true },
+  // mode: { type: "error", error: "Timeout", code: "TIMEOUT", recoverable: true },
+  latency: { type: "fixed", ms: 100 },     // optional delay
+  streaming: { chunkSize: 5, chunkDelayMs: 10 }, // optional streaming control
+  toolCalls: [                     // optional simulated tool calls
+    { toolName: "search", args: { query: "test" }, result: { found: true } },
+  ],
+  structuredOutput: { key: "value" }, // optional structured output override
+});
+```
+
+Extends `BaseAgent` — supports retry, heartbeat, middleware pipeline, and usage enrichment. No external dependencies. See the [Mock LLM Guide](packages/sdk/docs/mock-llm.md) for testing patterns.
+
 ## Switching Backends
 
 All backends share the same `AgentConfig` and return the same `AgentResult`. To switch backends, change only the service creation:
@@ -444,6 +480,10 @@ const service = await createAgentService("copilot", { useLoggedInUser: true });
 // const service = await createAgentService("claude", { workingDirectory: "." });
 // const service = await createAgentService("vercel-ai", { apiKey: "..." });
 
+// Mock LLM — use direct import (not registered in createAgentService):
+// import { createMockLLMService } from "@witqq/agent-sdk/mock-llm";
+// const service = createMockLLMService({ mode: { type: "echo" } });
+
 const agent = service.createAgent(config);
 const result = await agent.run("Greet Alice", { model: "gpt-5-mini" });
 ```
@@ -454,6 +494,7 @@ Or use direct backend imports to avoid lazy loading:
 import { createCopilotService } from "@witqq/agent-sdk/copilot";
 import { createClaudeService } from "@witqq/agent-sdk/claude";
 import { createVercelAIService } from "@witqq/agent-sdk/vercel-ai";
+import { createMockLLMService } from "@witqq/agent-sdk/mock-llm";
 ```
 
 ## Model Names
@@ -465,6 +506,7 @@ The `model` parameter (in `RunOptions` or `CallDefaults`) accepts both full mode
 | Copilot | `gpt-4o` | (same) |
 | Claude | `claude-sonnet-4-5-20250514` | `sonnet` |
 | Vercel AI | `anthropic/claude-sonnet-4-5` | (provider-specific) |
+| Mock LLM | `mock-model` | (any string) |
 
 Use `service.listModels()` to get available model IDs for each backend. Copilot lists models from GitHub API. Claude queries the Anthropic `/v1/models` endpoint when `oauthToken` is provided (returns empty list without token). Vercel AI queries the provider's `/models` endpoint (returns empty list on failure).
 
@@ -591,9 +633,9 @@ const client = new RemoteChatClient({ baseUrl: "/api/chat" });
 
 Modules: core types, events, errors, storage, sessions, context window, accumulator, state machines, backend adapters (Copilot/Claude/Vercel AI), transports (SSE/WebSocket/in-process), runtime, server utilities, React bindings, and SQLite storage.
 
-**→ Full module docs: [docs/chat-sdk/README.md](docs/chat-sdk/README.md)**
-**→ API surface & exports: [docs/architecture/api-surface.md](docs/architecture/api-surface.md)**
-**→ Server setup: [docs/chat-sdk/server-quickstart.md](docs/chat-sdk/server-quickstart.md)**
+**→ Full module docs: [docs/chat-sdk/README.md](packages/sdk/docs/chat-sdk/README.md)**
+**→ API surface & exports: [docs/architecture/api-surface.md](packages/sdk/docs/architecture/api-surface.md)**
+**→ Server setup: [docs/chat-sdk/server-quickstart.md](packages/sdk/docs/chat-sdk/server-quickstart.md)**
 
 ### Agent-Layer-Only Usage
 
@@ -647,7 +689,7 @@ npm run demo -- dev       # Local dev without Docker
 
 Features: multi-backend auth (Copilot Device Flow, Claude OAuth+PKCE, Vercel AI API key), provider management, model selection, SSE streaming with thinking blocks, tool calls with approval, token usage display, error handling, session management, SQLite persistence.
 
-Server uses `createChatServer` for zero custom routing with stateless backend factories (credentials per-request). Frontend uses `ChatUI` for zero custom components. See [demo README](examples/demo/README.md) for details.
+Server uses `createChatServer` for zero custom routing with stateless backend factories (credentials per-request). Frontend uses `ChatUI` for zero custom components. See [demo README](packages/demo/README.md) for details.
 
 ## React Bindings
 
@@ -660,18 +702,43 @@ const client = new RemoteChatClient({ baseUrl: "/api/chat" });
 <ChatUI runtime={client} authBaseUrl="/api" />
 ```
 
-**→ Full React API reference: [docs/chat-sdk/README.md#react-bindings](docs/chat-sdk/README.md#react-bindings-chatreact)**
+**→ Full React API reference: [docs/chat-sdk/README.md#react-bindings](packages/sdk/docs/chat-sdk/README.md#react-bindings-chatreact)**
+
+## Repository Structure
+
+This is an npm workspaces monorepo:
+
+```
+packages/
+  sdk/          # Publishable SDK (@witqq/agent-sdk)
+  demo/         # Express + React demo app (private)
+  docs-site/    # Astro/Starlight documentation site (private)
+```
+
+Workspace commands (run from root):
+
+```bash
+npm run build       # Build SDK (tsup → ESM + CJS + DTS)
+npm run test        # Run unit tests (vitest)
+npm run typecheck   # tsc --noEmit
+npm run demo        # Build & start demo in Docker (port 3456)
+npm run docs:site   # Build docs site locally
+npm run docs:docker # Build & start docs in Docker (port 4321)
+```
 
 ## Documentation
 
 | Document | Description |
 |----------|-------------|
-| [Chat SDK Modules](docs/chat-sdk/README.md) | Module-by-module API docs for chat primitives |
-| [Server Quickstart](docs/chat-sdk/server-quickstart.md) | Standalone server setup with framework integration |
-| [API Surface](docs/architecture/api-surface.md) | Complete export inventory by entry point |
-| [Custom Transports](docs/chat-sdk/custom-transports.md) | Guide to building custom IChatTransport implementations |
-| [Custom Renderers](docs/chat-sdk/custom-renderers.md) | Three approaches to customizing React UI components |
-| [Demo App](examples/demo/README.md) | Full-stack demo with architecture and API reference |
+| [Getting Started](packages/sdk/docs/getting-started.md) | Install, first agent, core concepts |
+| [Backends Guide](packages/sdk/docs/backends.md) | All four backends — setup, features, comparison |
+| [Mock LLM Guide](packages/sdk/docs/mock-llm.md) | Testing with the mock backend — modes, patterns, integration |
+| [Chat SDK Modules](packages/sdk/docs/chat-sdk/README.md) | Module-by-module API docs for chat primitives |
+| [Server Quickstart](packages/sdk/docs/chat-sdk/server-quickstart.md) | Standalone server setup with framework integration |
+| [API Surface](packages/sdk/docs/architecture/api-surface.md) | Complete export inventory by entry point |
+| [Custom Transports](packages/sdk/docs/chat-sdk/custom-transports.md) | Guide to building custom IChatTransport implementations |
+| [Custom Renderers](packages/sdk/docs/chat-sdk/custom-renderers.md) | Three approaches to customizing React UI components |
+| [Demo App](packages/demo/README.md) | Full-stack demo with architecture and API reference |
 | [Changelog](CHANGELOG.md) | Release history and breaking changes |
 
 ## License
