@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.10.0]
+
 ### Infrastructure
 
 - **Monorepo restructure** — migrated from flat layout to npm workspaces monorepo with three packages: `packages/sdk/` (publishable SDK), `packages/demo/` (Express + React demo), `packages/docs-site/` (Astro/Starlight docs). All Docker builds, scripts, and documentation paths updated.
