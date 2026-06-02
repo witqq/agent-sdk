@@ -42,6 +42,8 @@ interface MockSDKOptions {
   generateTextResult?: Record<string, unknown>;
   streamParts?: Array<Record<string, unknown>>;
   generateObjectResult?: Record<string, unknown>;
+  /** Provider metadata resolved by the streamText result's providerMetadata promise. */
+  streamProviderMetadata?: Record<string, Record<string, unknown>>;
 }
 
 function createMockSDK(opts?: MockSDKOptions) {
@@ -101,6 +103,7 @@ function createMockSDK(opts?: MockSDKOptions) {
         },
         totalUsage: Promise.resolve({ inputTokens: 80, outputTokens: 30 }),
         text: Promise.resolve("Hello world!"),
+        providerMetadata: Promise.resolve(opts?.streamProviderMetadata),
       };
     }),
     generateObject: vi.fn(async () => opts?.generateObjectResult ?? defaultGenerateObjectResult),
@@ -1689,5 +1692,177 @@ describe("VercelAIAgent tool error handling", () => {
 
     const toolDef = sdk.tool.mock.results[0].value;
     await expect(toolDef.execute({})).rejects.toThrow(ToolExecutionError);
+  });
+});
+
+// ─── Provider Response Metadata (cost, cache, passthrough) — Issue #16 ──
+
+/** OpenRouter-shaped providerMetadata as surfaced by the Vercel AI SDK. */
+const OPENROUTER_METADATA = {
+  openrouter: {
+    usage: {
+      cost: 7.32e-5,
+      cost_details: { upstream_inference_cost: 7.32e-5 },
+      prompt_tokens_details: { cached_tokens: 12 },
+    },
+  },
+} as const;
+
+function generateResultWith(providerMetadata: unknown): Record<string, unknown> {
+  return {
+    text: "Hello from Vercel AI!",
+    toolCalls: [],
+    toolResults: [],
+    steps: [
+      {
+        text: "Hello from Vercel AI!",
+        toolCalls: [],
+        toolResults: [],
+        usage: { inputTokens: 100, outputTokens: 50 },
+        finishReason: "stop",
+      },
+    ],
+    totalUsage: { inputTokens: 100, outputTokens: 50 },
+    finishReason: "stop",
+    response: { messages: [] },
+    providerMetadata,
+  };
+}
+
+describe("VercelAIAgent provider metadata (Issue #16)", () => {
+  it("extracts normalized cost and cachedTokens from OpenRouter metadata on run", async () => {
+    const sdk = createMockSDK({ generateTextResult: generateResultWith(OPENROUTER_METADATA) });
+    _injectSDK(sdk);
+    _injectCompat(createMockCompatModule());
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+    const result = await agent.run("Hello", { model: "test/model" });
+
+    expect(result.usage?.cost).toBe(7.32e-5);
+    expect(result.usage?.cachedTokens).toBe(12);
+    expect(result.usage?.providerMetadata).toEqual(OPENROUTER_METADATA);
+    // token + enrichment fields preserved alongside the new ones
+    expect(result.usage?.promptTokens).toBe(100);
+    expect(result.usage?.completionTokens).toBe(50);
+    expect(result.usage?.model).toBe("test/model");
+    expect(result.usage?.backend).toBe("vercel-ai");
+  });
+
+  it("passes through arbitrary provider metadata untouched and leaves cost/cache undefined", async () => {
+    const arbitrary = { someProvider: { foo: "bar", nested: { n: 1 } } };
+    const sdk = createMockSDK({ generateTextResult: generateResultWith(arbitrary) });
+    _injectSDK(sdk);
+    _injectCompat(createMockCompatModule());
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+    const result = await agent.run("Hello", { model: "test/model" });
+
+    expect(result.usage?.providerMetadata).toEqual(arbitrary);
+    expect(result.usage?.cost).toBeUndefined();
+    expect(result.usage?.cachedTokens).toBeUndefined();
+  });
+
+  it("leaves all metadata fields undefined when the provider returns none", async () => {
+    const sdk = createMockSDK(); // default result has no providerMetadata
+    _injectSDK(sdk);
+    _injectCompat(createMockCompatModule());
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+    const result = await agent.run("Hello", { model: "test/model" });
+
+    expect(result.usage).toEqual({
+      promptTokens: 100,
+      completionTokens: 50,
+      model: "test/model",
+      backend: "vercel-ai",
+    });
+    expect(result.usage?.cost).toBeUndefined();
+    expect(result.usage?.cachedTokens).toBeUndefined();
+    expect(result.usage?.providerMetadata).toBeUndefined();
+  });
+
+  it("extracts metadata on the structured (generateObject) path", async () => {
+    const sdk = createMockSDK({
+      generateObjectResult: {
+        object: { city: "Paris", population: 2161000 },
+        usage: { inputTokens: 60, outputTokens: 30 },
+        providerMetadata: OPENROUTER_METADATA,
+      },
+    });
+    _injectSDK(sdk);
+    _injectCompat(createMockCompatModule());
+
+    const schema = z.object({ city: z.string(), population: z.number() });
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+    const result = await agent.runStructured("Tell me about Paris", { schema }, { model: "test/model" });
+
+    expect(result.usage?.cost).toBe(7.32e-5);
+    expect(result.usage?.cachedTokens).toBe(12);
+    expect(result.usage?.providerMetadata).toEqual(OPENROUTER_METADATA);
+  });
+
+  it("propagates metadata through the stream usage_update event and enrichment", async () => {
+    const sdk = createMockSDK({ streamProviderMetadata: OPENROUTER_METADATA });
+    _injectSDK(sdk);
+    _injectCompat(createMockCompatModule());
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig());
+
+    const usageEvents: Array<Record<string, unknown>> = [];
+    for await (const event of agent.stream("Hello", { model: "test/model" })) {
+      if (event.type === "usage_update") usageEvents.push(event as Record<string, unknown>);
+    }
+
+    // The final usage_update (from the awaited stream result) carries metadata.
+    const finalUsage = usageEvents[usageEvents.length - 1];
+    expect(finalUsage.cost).toBe(7.32e-5);
+    expect(finalUsage.cachedTokens).toBe(12);
+    expect(finalUsage.providerMetadata).toEqual(OPENROUTER_METADATA);
+    // enrichment still adds model + backend
+    expect(finalUsage.model).toBe("test/model");
+    expect(finalUsage.backend).toBe("vercel-ai");
+  });
+
+  it("delivers metadata to the onUsage callback", async () => {
+    const sdk = createMockSDK({ generateTextResult: generateResultWith(OPENROUTER_METADATA) });
+    _injectSDK(sdk);
+    _injectCompat(createMockCompatModule());
+
+    const seen: Array<Record<string, unknown>> = [];
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(
+      baseConfig({ onUsage: (u) => seen.push(u as unknown as Record<string, unknown>) }),
+    );
+    await agent.run("Hello", { model: "test/model" });
+
+    expect(seen).toHaveLength(1);
+    expect(seen[0].cost).toBe(7.32e-5);
+    expect(seen[0].cachedTokens).toBe(12);
+    expect(seen[0].providerMetadata).toEqual(OPENROUTER_METADATA);
+  });
+
+  it("forwards providerOptions to generateText, generateObject, and streamText", async () => {
+    const providerOptions = { openrouter: { usage: { include: true } } };
+    const sdk = createMockSDK();
+    _injectSDK(sdk);
+    _injectCompat(createMockCompatModule());
+
+    const service = createVercelAIService(BACKEND_OPTIONS);
+    const agent = service.createAgent(baseConfig({ providerOptions }));
+
+    await agent.run("Hello", { model: "test/model" });
+    expect(sdk.generateText.mock.calls[0][0].providerOptions).toEqual(providerOptions);
+
+    const schema = z.object({ name: z.string(), value: z.number() });
+    await agent.runStructured("Test", { schema }, { model: "test/model" });
+    expect(sdk.generateObject.mock.calls[0][0].providerOptions).toEqual(providerOptions);
+
+    for await (const _ of agent.stream("Hello", { model: "test/model" })) { /* drain */ }
+    expect(sdk.streamText.mock.calls[0][0].providerOptions).toEqual(providerOptions);
   });
 });

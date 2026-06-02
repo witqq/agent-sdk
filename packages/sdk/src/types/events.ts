@@ -8,6 +8,15 @@ export interface UsageData {
   completionTokens: number;
   model?: string;
   backend?: string;
+  /** Best-effort normalized request cost in USD, when the provider reports it.
+   *  Populated by backends that can extract a numeric cost from provider metadata
+   *  (e.g. OpenRouter via the Vercel AI backend). Undefined when unavailable. */
+  cost?: number;
+  /** Number of prompt tokens served from the provider's cache, when reported. */
+  cachedTokens?: number;
+  /** Raw, provider-specific response metadata passed through untouched.
+   *  Provider-agnostic escape hatch for fields the SDK does not normalize. */
+  providerMetadata?: Record<string, JSONValue>;
 }
 
 /** Events emitted during streaming agent execution */
@@ -32,6 +41,9 @@ export type AgentEvent =
       completionTokens: number;
       model?: string;
       backend?: string;
+      cost?: number;
+      cachedTokens?: number;
+      providerMetadata?: Record<string, JSONValue>;
     }
   | { type: "session_info"; sessionId: string; transcriptPath?: string; backend: string }
   | { type: "heartbeat" }

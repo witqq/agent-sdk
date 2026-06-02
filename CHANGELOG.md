@@ -8,6 +8,7 @@
 
 ### New Features
 
+- **Provider response metadata in usage** (Issue #16) — `UsageData` (and the `usage_update` / chat `usage` events) gain optional `cost`, `cachedTokens`, and `providerMetadata` fields. The Vercel AI backend populates them from `result.providerMetadata` on generate, structured, and stream paths via a provider-agnostic, null-safe extractor (OpenRouter cost/cache as the reference case). All fields are optional and additive — providers that report no metadata leave them undefined. `providerOptions` remains the supported path for per-provider request extras (e.g. OpenRouter `usage: { include: true }`).
 - **Mock LLM backend** — new backend (`@witqq/agent-sdk/mock-llm`) for automated testing. Extends `BaseAgent` with configurable response modes: echo, static, scripted (with loop), error. Full streaming support, structured output, and BaseAgent lifecycle participation (retry, heartbeat, activity timeout, middleware, usage enrichment).
 - **Mock LLM advanced modes** — latency simulation (fixed/random delay), streaming control (chunkSize, chunkDelayMs), configurable finishReason, permission simulation (autoApprove, denyTools, supervisor callback delegation). All modes composable.
 - **Mock LLM tool simulation** — configurable tool call events (`toolCalls` option) with `tool_call_start`/`tool_call_end` emission in streams, tool calls in `run()` results, custom `toolCallId` support. Configurable `structuredOutput` for `runStructured()` with JSON.parse fallback.

@@ -116,6 +116,32 @@ const agent = service.createAgent({
 });
 ```
 
+### Cost & Provider Metadata
+
+`providerOptions` is also the supported path for per-provider request extras — e.g. opting into OpenRouter's per-request cost reporting. It reaches `generateText`, `generateObject`, and `streamText` on all paths.
+
+```typescript
+const agent = service.createAgent({
+  model: "openai/gpt-4.1-mini",
+  systemPrompt: "Answer concisely.",
+  providerOptions: {
+    // OpenRouter: include exact cost + cache details in the response usage
+    openrouter: { usage: { include: true } },
+  },
+});
+```
+
+Provider response metadata is surfaced back on `UsageData` (and the `usage` / `usage_update` events). Cost and cached tokens are normalized best-effort when the provider reports them; the untouched raw blob is always available:
+
+```typescript
+const result = await agent.run("Hello", { model: "openai/gpt-4.1-mini" });
+result.usage?.cost;             // number | undefined — normalized USD cost (e.g. OpenRouter)
+result.usage?.cachedTokens;     // number | undefined — prompt tokens served from cache
+result.usage?.providerMetadata; // raw provider metadata, untouched
+```
+
+Normalization is provider-agnostic and null-safe — providers that report no cost simply leave `cost`/`cachedTokens` undefined while still passing `providerMetadata` through.
+
 ### Notes
 
 - Uses `generateText()` for runs, `generateObject()` for structured output, `streamText()` for streaming.

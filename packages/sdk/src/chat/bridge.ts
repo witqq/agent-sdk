@@ -57,6 +57,9 @@ export function agentEventToChatEvent(
         promptTokens: event.promptTokens,
         completionTokens: event.completionTokens,
         model: event.model,
+        ...(event.cost !== undefined && { cost: event.cost }),
+        ...(event.cachedTokens !== undefined && { cachedTokens: event.cachedTokens }),
+        ...(event.providerMetadata !== undefined && { providerMetadata: event.providerMetadata }),
       };
     case "error":
       return {

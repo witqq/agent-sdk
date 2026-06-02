@@ -365,6 +365,11 @@ export abstract class BaseAgent implements IAgent {
           completionTokens: event.completionTokens,
           model,
           backend: this.backendName,
+          // Preserve any provider-supplied metadata the backend attached
+          // (cost, cached tokens, raw passthrough) instead of dropping it.
+          ...(event.cost !== undefined && { cost: event.cost }),
+          ...(event.cachedTokens !== undefined && { cachedTokens: event.cachedTokens }),
+          ...(event.providerMetadata !== undefined && { providerMetadata: event.providerMetadata }),
         };
         this.callOnUsage(usage);
         yield { type: "usage_update", ...usage };
