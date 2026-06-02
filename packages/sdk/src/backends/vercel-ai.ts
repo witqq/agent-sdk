@@ -34,6 +34,10 @@ interface SDKToolDefinition {
   needsApproval?: boolean | ((input: unknown, options: unknown) => Promise<boolean>);
 }
 
+/** @internal Provider-specific response metadata blob exposed by the Vercel AI SDK.
+ *  Shape is provider-defined and open; we treat it as a nested record. */
+type SDKProviderMetadata = Record<string, Record<string, unknown>>;
+
 /** @internal Vercel AI SDK v6 generateText result */
 interface SDKGenerateTextResult {
   text: string;
@@ -49,12 +53,14 @@ interface SDKGenerateTextResult {
   totalUsage: { inputTokens?: number; outputTokens?: number };
   finishReason: string;
   response: { messages: unknown[] };
+  providerMetadata?: SDKProviderMetadata;
 }
 
 /** @internal Vercel AI SDK generateObject result */
 interface SDKGenerateObjectResult {
   object: unknown;
   usage: { inputTokens?: number; outputTokens?: number };
+  providerMetadata?: SDKProviderMetadata;
 }
 
 /** @internal Vercel AI SDK streamText result */
@@ -62,6 +68,7 @@ interface SDKStreamTextResult {
   fullStream: AsyncIterable<SDKStreamPart>;
   totalUsage: PromiseLike<{ inputTokens?: number; outputTokens?: number }>;
   text: PromiseLike<string>;
+  providerMetadata: PromiseLike<SDKProviderMetadata | undefined>;
 }
 
 /** @internal Vercel AI SDK v6 stream part union */
@@ -148,6 +155,65 @@ export function _resetSDK(): void {
 const DEFAULT_BASE_URL = "https://openrouter.ai/api/v1";
 const DEFAULT_PROVIDER = "openrouter";
 const DEFAULT_MAX_TURNS = 10;
+
+// ─── Provider Metadata Extraction ───────────────────────────────
+
+/** Usage fields extracted from provider response metadata. */
+interface ExtractedMetadata {
+  cost?: number;
+  cachedTokens?: number;
+  providerMetadata?: Record<string, JSONValue>;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/** Read a finite number from an unknown value, else undefined. */
+function asFiniteNumber(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+/**
+ * Provider-agnostic extraction of cost / cached tokens / raw metadata from the
+ * Vercel AI SDK `providerMetadata` blob. Normalization is best-effort and
+ * null-safe: it scans every provider entry for the well-known OpenRouter-style
+ * `usage.cost` and `usage.prompt_tokens_details.cached_tokens` locations, so the
+ * reference provider works without being hardcoded, and any other provider's
+ * data is passed through untouched. Returns an empty object when nothing is
+ * present, so absent fields stay undefined.
+ */
+function extractProviderMetadata(
+  metadata: SDKProviderMetadata | undefined,
+): ExtractedMetadata {
+  if (!isRecord(metadata)) return {};
+
+  let cost: number | undefined;
+  let cachedTokens: number | undefined;
+
+  for (const providerEntry of Object.values(metadata)) {
+    if (!isRecord(providerEntry)) continue;
+    const usage = providerEntry.usage;
+    if (!isRecord(usage)) continue;
+
+    if (cost === undefined) {
+      cost = asFiniteNumber(usage.cost);
+    }
+    if (cachedTokens === undefined) {
+      const details = usage.prompt_tokens_details;
+      if (isRecord(details)) {
+        cachedTokens = asFiniteNumber(details.cached_tokens);
+      }
+    }
+  }
+
+  const result: ExtractedMetadata = {
+    providerMetadata: metadata as Record<string, JSONValue>,
+  };
+  if (cost !== undefined) result.cost = cost;
+  if (cachedTokens !== undefined) result.cachedTokens = cachedTokens;
+  return result;
+}
 
 // ─── Tool Mapping ───────────────────────────────────────────────
 
@@ -496,6 +562,7 @@ class VercelAIAgent extends BaseAgent {
     const usage = {
       promptTokens: Number(result.totalUsage?.inputTokens ?? 0),
       completionTokens: Number(result.totalUsage?.outputTokens ?? 0),
+      ...extractProviderMetadata(result.providerMetadata),
     };
 
     // In multi-step flows, result.text includes intermediate reasoning from all steps.
@@ -563,6 +630,7 @@ class VercelAIAgent extends BaseAgent {
     const usage = {
       promptTokens: Number(result.usage?.inputTokens ?? 0),
       completionTokens: Number(result.usage?.outputTokens ?? 0),
+      ...extractProviderMetadata(result.providerMetadata),
     };
 
     return {
@@ -649,12 +717,15 @@ class VercelAIAgent extends BaseAgent {
         }
       }
 
-      // Emit final usage from totalUsage
+      // Emit final usage from totalUsage. Provider metadata (cost, cache, raw)
+      // surfaces on the awaited stream result, not the per-step finish parts.
       const totalUsage = await result.totalUsage;
+      const streamMetadata = extractProviderMetadata(await result.providerMetadata);
       yield {
         type: "usage_update",
         promptTokens: Number(totalUsage?.inputTokens ?? 0),
         completionTokens: Number(totalUsage?.outputTokens ?? 0),
+        ...streamMetadata,
       };
 
       const hasStreamed = finalText.length > 0;

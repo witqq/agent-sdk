@@ -24,7 +24,7 @@ import type { AgentEvent } from "@witqq/agent-sdk";
 | `permission_response` | `toolName`, `decision: PermissionDecision` | Approval decision |
 | `ask_user` | `request: UserInputRequest` | Agent asks user a question |
 | `ask_user_response` | `answer: string` | User answered |
-| `usage_update` | `promptTokens`, `completionTokens`, `model?`, `backend?` | Token usage report |
+| `usage_update` | `promptTokens`, `completionTokens`, `model?`, `backend?`, `cost?`, `cachedTokens?`, `providerMetadata?` | Token usage report (cost/cache/raw metadata when the provider reports them) |
 | `session_info` | `sessionId`, `transcriptPath?`, `backend` | Session metadata |
 | `heartbeat` | -- | Keep-alive signal |
 | `error` | `error: string`, `recoverable: boolean`, `code?: ErrorCode` | Error occurred |
@@ -44,7 +44,7 @@ type AgentEvent =
   | { type: "permission_response"; toolName: string; decision: PermissionDecision }
   | { type: "ask_user"; request: UserInputRequest }
   | { type: "ask_user_response"; answer: string }
-  | { type: "usage_update"; promptTokens: number; completionTokens: number; model?: string; backend?: string }
+  | { type: "usage_update"; promptTokens: number; completionTokens: number; model?: string; backend?: string; cost?: number; cachedTokens?: number; providerMetadata?: Record<string, JSONValue> }
   | { type: "session_info"; sessionId: string; transcriptPath?: string; backend: string }
   | { type: "heartbeat" }
   | { type: "error"; error: string; recoverable: boolean; code?: ErrorCode }
@@ -269,6 +269,14 @@ for await (const event of stream) {
   if (event.type === "usage_update") {
     recordUsage(event.promptTokens, event.completionTokens, event.model);
   }
+}
+```
+
+`UsageData` also carries optional provider-reported fields when available: `cost` (normalized USD), `cachedTokens`, and `providerMetadata` (raw passthrough). These are populated by the Vercel AI backend from `result.providerMetadata` — see [Backends](./backends.md#cost--provider-metadata). They are undefined for providers that do not report them, so existing consumers are unaffected.
+
+```typescript
+onUsage: (usage) => {
+  if (usage.cost !== undefined) recordCost(usage.cost);
 }
 ```
 

@@ -5,7 +5,7 @@
  * Pure types + ChatId generation (tightly coupled to branded type).
  */
 
-import type { UsageData, ToolDefinition, ErrorCode } from "../types.js";
+import type { UsageData, ToolDefinition, ErrorCode, JSONValue } from "../types.js";
 import type { AuthToken } from "../auth/types.js";
 
 // ─── Unique ID ─────────────────────────────────────────────────
@@ -216,6 +216,9 @@ export type ChatEvent =
       promptTokens: number;
       completionTokens: number;
       model?: string;
+      cost?: number;
+      cachedTokens?: number;
+      providerMetadata?: Record<string, JSONValue>;
     }
   | { type: "session:created"; sessionId: ChatId }
   | { type: "session:updated"; sessionId: ChatId }
