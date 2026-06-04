@@ -378,11 +378,18 @@ describe("VercelAIAgent.run", () => {
     const agent = service.createAgent(baseConfig());
     await agent.run("Test", { model: "test-model" });
 
-    expect(compat.createOpenAICompatible).toHaveBeenCalledWith({
-      name: "test-provider",
-      baseURL: "https://test.example.com/api/v1",
-      apiKey: "test-api-key",
-    });
+    expect(compat.createOpenAICompatible).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "test-provider",
+        baseURL: "https://test.example.com/api/v1",
+        apiKey: "test-api-key",
+        transformRequestBody: expect.any(Function),
+        metadataExtractor: expect.objectContaining({
+          extractMetadata: expect.any(Function),
+          createStreamExtractor: expect.any(Function),
+        }),
+      }),
+    );
   });
 
   it("should use default provider/baseUrl when not specified", async () => {
@@ -395,11 +402,18 @@ describe("VercelAIAgent.run", () => {
     const agent = service.createAgent(baseConfig());
     await agent.run("Test", { model: "test-model" });
 
-    expect(compat.createOpenAICompatible).toHaveBeenCalledWith({
-      name: "openrouter",
-      baseURL: "https://openrouter.ai/api/v1",
-      apiKey: "key-123",
-    });
+    expect(compat.createOpenAICompatible).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "openrouter",
+        baseURL: "https://openrouter.ai/api/v1",
+        apiKey: "key-123",
+        transformRequestBody: expect.any(Function),
+        metadataExtractor: expect.objectContaining({
+          extractMetadata: expect.any(Function),
+          createStreamExtractor: expect.any(Function),
+        }),
+      }),
+    );
   });
 });
 
@@ -1864,5 +1878,203 @@ describe("VercelAIAgent provider metadata (Issue #16)", () => {
 
     for await (const _ of agent.stream("Hello", { model: "test/model" })) { /* drain */ }
     expect(sdk.streamText.mock.calls[0][0].providerOptions).toEqual(providerOptions);
+  });
+});
+
+// ─── Provider Creation Hooks (write side) — Issue #18 ──────────────────
+//
+// The base @ai-sdk/openai-compatible provider drops non-standard `usage` fields
+// (cost, cost_details, prompt_tokens_details) reported by OpenRouter-style gateways.
+// getModel wires a transformRequestBody (ask the gateway to include usage) and a
+// metadataExtractor (surface the raw usage block under the provider id, where the
+// read-side extractProviderMetadata looks) so those fields reach UsageData.cost.
+
+interface CapturedHooks {
+  transformRequestBody: (body: Record<string, unknown>) => Record<string, unknown>;
+  metadataExtractor: {
+    extractMetadata: (args: { parsedBody: unknown }) => Promise<Record<string, unknown> | undefined>;
+    createStreamExtractor: () => {
+      processChunk(chunk: unknown): void;
+      buildMetadata(): Record<string, unknown> | undefined;
+    };
+  };
+}
+
+/** Run the backend once and return the options passed to createOpenAICompatible. */
+async function captureProviderHooks(
+  backendOptions: Record<string, unknown>,
+): Promise<CapturedHooks> {
+  const sdk = createMockSDK();
+  const compat = createMockCompatModule();
+  _injectSDK(sdk);
+  _injectCompat(compat);
+
+  const service = createVercelAIService(backendOptions as never);
+  const agent = service.createAgent(baseConfig());
+  await agent.run("Test", { model: "test-model" });
+
+  return compat.createOpenAICompatible.mock.calls[0][0] as unknown as CapturedHooks;
+}
+
+describe("VercelAIAgent provider creation hooks (Issue #18)", () => {
+  it("transformRequestBody adds usage:{include:true} while preserving existing fields", async () => {
+    const { transformRequestBody } = await captureProviderHooks(BACKEND_OPTIONS);
+
+    const original = { model: "x", messages: [{ role: "user", content: "hi" }], temperature: 0.5 };
+    const transformed = transformRequestBody(original);
+
+    expect(transformed).toEqual({ ...original, usage: { include: true } });
+    // Additive, not mutating the input object.
+    expect(original).not.toHaveProperty("usage");
+  });
+
+  it("extractMetadata surfaces a present usage block under the provider id", async () => {
+    const { metadataExtractor } = await captureProviderHooks(BACKEND_OPTIONS);
+
+    const usage = { cost: 4.2e-5, prompt_tokens_details: { cached_tokens: 7 } };
+    const meta = await metadataExtractor.extractMetadata({
+      parsedBody: { id: "resp_1", usage },
+    });
+
+    expect(meta).toEqual({ "test-provider": { usage } });
+  });
+
+  it("extractMetadata returns undefined when the body has no usage (no fabrication)", async () => {
+    const { metadataExtractor } = await captureProviderHooks(BACKEND_OPTIONS);
+
+    expect(await metadataExtractor.extractMetadata({ parsedBody: { id: "resp_2" } })).toBeUndefined();
+    expect(await metadataExtractor.extractMetadata({ parsedBody: null })).toBeUndefined();
+    expect(await metadataExtractor.extractMetadata({ parsedBody: "not-an-object" })).toBeUndefined();
+  });
+
+  it("stream extractor keeps the last usage-bearing chunk under the provider id", async () => {
+    const { metadataExtractor } = await captureProviderHooks(BACKEND_OPTIONS);
+    const stream = metadataExtractor.createStreamExtractor();
+
+    stream.processChunk({ choices: [{ delta: { content: "Hi" } }] }); // no usage
+    stream.processChunk({ usage: { cost: 1e-6 } }); // earlier usage
+    stream.processChunk({ usage: { cost: 9e-5, prompt_tokens_details: { cached_tokens: 3 } } }); // last wins
+    stream.processChunk({ choices: [{ finish_reason: "stop" }] }); // no usage, must not clear
+
+    expect(stream.buildMetadata()).toEqual({
+      "test-provider": { usage: { cost: 9e-5, prompt_tokens_details: { cached_tokens: 3 } } },
+    });
+  });
+
+  it("stream extractor returns undefined when no chunk carries usage", async () => {
+    const { metadataExtractor } = await captureProviderHooks(BACKEND_OPTIONS);
+    const stream = metadataExtractor.createStreamExtractor();
+
+    stream.processChunk({ choices: [{ delta: { content: "Hi" } }] });
+    stream.processChunk({ choices: [{ finish_reason: "stop" }] });
+
+    expect(stream.buildMetadata()).toBeUndefined();
+  });
+
+  it("uses the default provider id (openrouter) as the metadata key", async () => {
+    const { metadataExtractor } = await captureProviderHooks({ apiKey: "key-123" });
+
+    const usage = { cost: 5e-5 };
+    expect(await metadataExtractor.extractMetadata({ parsedBody: { usage } })).toEqual({
+      openrouter: { usage },
+    });
+  });
+});
+
+// ─── End-to-end cost surfacing via the hooks (write + read) — Issue #18 ──
+//
+// Wire the real metadataExtractor (captured from getModel) into a mock SDK so the
+// raw gateway usage flows through providerMetadata into UsageData.cost, on both
+// the non-streaming and streaming paths — without any live gateway call.
+
+const RAW_GATEWAY_USAGE = {
+  prompt_tokens: 181,
+  completion_tokens: 26,
+  cost: 4.542e-5,
+  cost_details: { upstream_inference_cost: 4.542e-5 },
+  prompt_tokens_details: { cached_tokens: 167 },
+} as const;
+
+describe("VercelAIAgent end-to-end cost surfacing through hooks (Issue #18)", () => {
+  it("non-streaming: hook-built metadata yields finite cost and cachedTokens", async () => {
+    const { metadataExtractor } = await captureProviderHooks(BACKEND_OPTIONS);
+    const metadata = await metadataExtractor.extractMetadata({
+      parsedBody: { id: "r", usage: RAW_GATEWAY_USAGE },
+    });
+
+    const sdk = createMockSDK({ generateTextResult: generateResultWith(metadata) });
+    _injectSDK(sdk);
+    _injectCompat(createMockCompatModule());
+
+    const result = await createVercelAIService(BACKEND_OPTIONS)
+      .createAgent(baseConfig())
+      .run("Hello", { model: "test/model" });
+
+    expect(result.usage?.cost).toBe(4.542e-5);
+    expect(result.usage?.cachedTokens).toBe(167);
+  });
+
+  it("non-streaming: no gateway usage yields undefined cost (no fabrication)", async () => {
+    const { metadataExtractor } = await captureProviderHooks(BACKEND_OPTIONS);
+    const metadata = await metadataExtractor.extractMetadata({ parsedBody: { id: "r" } });
+    expect(metadata).toBeUndefined();
+
+    const sdk = createMockSDK({ generateTextResult: generateResultWith(metadata) });
+    _injectSDK(sdk);
+    _injectCompat(createMockCompatModule());
+
+    const result = await createVercelAIService(BACKEND_OPTIONS)
+      .createAgent(baseConfig())
+      .run("Hello", { model: "test/model" });
+
+    expect(result.usage?.cost).toBeUndefined();
+    expect(result.usage?.cachedTokens).toBeUndefined();
+  });
+
+  it("streaming: hook-built metadata yields finite cost and cachedTokens", async () => {
+    const { metadataExtractor } = await captureProviderHooks(BACKEND_OPTIONS);
+    const stream = metadataExtractor.createStreamExtractor();
+    stream.processChunk({ usage: RAW_GATEWAY_USAGE });
+    const metadata = stream.buildMetadata();
+
+    const sdk = createMockSDK({
+      streamProviderMetadata: metadata as Record<string, Record<string, unknown>>,
+    });
+    _injectSDK(sdk);
+    _injectCompat(createMockCompatModule());
+
+    const agent = createVercelAIService(BACKEND_OPTIONS).createAgent(baseConfig());
+    const usageEvents: Array<Record<string, unknown>> = [];
+    for await (const event of agent.stream("Hello", { model: "test/model" })) {
+      if (event.type === "usage_update") usageEvents.push(event as Record<string, unknown>);
+    }
+    const finalUsage = usageEvents[usageEvents.length - 1];
+
+    expect(finalUsage.cost).toBe(4.542e-5);
+    expect(finalUsage.cachedTokens).toBe(167);
+  });
+
+  it("streaming: no gateway usage yields undefined cost (no fabrication)", async () => {
+    const { metadataExtractor } = await captureProviderHooks(BACKEND_OPTIONS);
+    const stream = metadataExtractor.createStreamExtractor();
+    stream.processChunk({ choices: [{ delta: { content: "Hi" } }] });
+    const metadata = stream.buildMetadata();
+    expect(metadata).toBeUndefined();
+
+    const sdk = createMockSDK({
+      streamProviderMetadata: metadata as Record<string, Record<string, unknown>> | undefined,
+    });
+    _injectSDK(sdk);
+    _injectCompat(createMockCompatModule());
+
+    const agent = createVercelAIService(BACKEND_OPTIONS).createAgent(baseConfig());
+    const usageEvents: Array<Record<string, unknown>> = [];
+    for await (const event of agent.stream("Hello", { model: "test/model" })) {
+      if (event.type === "usage_update") usageEvents.push(event as Record<string, unknown>);
+    }
+    const finalUsage = usageEvents[usageEvents.length - 1];
+
+    expect(finalUsage.cost).toBeUndefined();
+    expect(finalUsage.cachedTokens).toBeUndefined();
   });
 });
