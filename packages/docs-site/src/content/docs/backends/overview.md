@@ -119,6 +119,19 @@ const agent = service.createAgent({
 });
 ```
 
+### Cost & Provider Metadata
+
+Per-request cost reporting is enabled automatically. The backend asks the gateway to include cost/cache details in the response usage and lifts that block into `providerMetadata`, so cost surfaces with no extra configuration — for both streaming and non-streaming, and for any OpenAI-compatible gateway that reports cost (OpenRouter and similar).
+
+```typescript
+const result = await agent.run("Hello", { model: "openai/gpt-4.1-mini" });
+result.usage?.cost;             // number | undefined — normalized USD cost (e.g. OpenRouter)
+result.usage?.cachedTokens;     // number | undefined — prompt tokens served from cache
+result.usage?.providerMetadata; // raw provider metadata, untouched
+```
+
+Normalization is provider-agnostic and null-safe — providers that report no cost simply leave `cost`/`cachedTokens` undefined while still passing `providerMetadata` through.
+
 ### Notes
 
 - Uses `generateText()` for runs, `generateObject()` for structured output, `streamText()` for streaming.
