@@ -215,6 +215,64 @@ function extractProviderMetadata(
   return result;
 }
 
+// ─── Provider Metadata Capture (write side) ─────────────────────
+
+/**
+ * Augment the outgoing request body so cost-reporting OpenAI-compatible gateways
+ * (OpenRouter and similar) include the `usage` block — with `cost`, `cost_details`
+ * and `prompt_tokens_details` — in the response. Purely additive: every other body
+ * field is preserved. Gateways that don't understand the flag ignore it.
+ */
+function transformRequestBody(
+  body: Record<string, unknown>,
+): Record<string, unknown> {
+  return { ...body, usage: { include: true } };
+}
+
+/**
+ * Build a `metadataExtractor` for `createOpenAICompatible` that lifts the gateway's
+ * raw top-level `usage` block into `providerMetadata` under the provider id — exactly
+ * where {@link extractProviderMetadata} (the read side) looks. `@ai-sdk/openai-compatible`
+ * does not copy non-standard `usage` fields (`cost`, `cost_details`,
+ * `prompt_tokens_details`) by default, so without this they never reach the reader.
+ *
+ * Provider-agnostic and non-fabricating: it surfaces whatever `usage` the gateway
+ * returns and nothing when there is none, so absent cost stays undefined. Covers both
+ * the non-streaming response (whole parsed body) and the streaming response (the last
+ * chunk that carries `usage` wins).
+ */
+function createUsageMetadataExtractor(providerName: string): {
+  extractMetadata: (args: {
+    parsedBody: unknown;
+  }) => Promise<Record<string, unknown> | undefined>;
+  createStreamExtractor: () => {
+    processChunk(parsedChunk: unknown): void;
+    buildMetadata(): Record<string, unknown> | undefined;
+  };
+} {
+  const wrap = (usage: Record<string, unknown>) => ({
+    [providerName]: { usage },
+  });
+
+  return {
+    extractMetadata: async ({ parsedBody }) =>
+      isRecord(parsedBody) && isRecord(parsedBody.usage)
+        ? wrap(parsedBody.usage)
+        : undefined,
+    createStreamExtractor: () => {
+      let usage: Record<string, unknown> | undefined;
+      return {
+        processChunk(parsedChunk: unknown): void {
+          if (isRecord(parsedChunk) && isRecord(parsedChunk.usage)) {
+            usage = parsedChunk.usage;
+          }
+        },
+        buildMetadata: () => (usage ? wrap(usage) : undefined),
+      };
+    },
+  };
+}
+
 // ─── Tool Mapping ───────────────────────────────────────────────
 
 function mapToolsToSDK(
@@ -485,10 +543,16 @@ class VercelAIAgent extends BaseAgent {
     if (requestedModel === defaultModel && this.model) return this.model;
 
     const compat = await loadCompat();
+    const providerName = this.backendOptions.provider ?? DEFAULT_PROVIDER;
     const provider = compat.createOpenAICompatible({
-      name: this.backendOptions.provider ?? DEFAULT_PROVIDER,
+      name: providerName,
       baseURL: this.backendOptions.baseUrl ?? DEFAULT_BASE_URL,
       apiKey: this.backendOptions.apiKey,
+      // Surface gateway-reported cost / cached tokens (OpenRouter et al.) into
+      // providerMetadata where extractProviderMetadata reads them. The base
+      // openai-compatible provider drops these non-standard usage fields otherwise.
+      transformRequestBody,
+      metadataExtractor: createUsageMetadataExtractor(providerName),
     });
 
     const model = provider.chatModel(requestedModel);

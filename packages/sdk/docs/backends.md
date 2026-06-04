@@ -118,20 +118,7 @@ const agent = service.createAgent({
 
 ### Cost & Provider Metadata
 
-`providerOptions` is also the supported path for per-provider request extras — e.g. opting into OpenRouter's per-request cost reporting. It reaches `generateText`, `generateObject`, and `streamText` on all paths.
-
-```typescript
-const agent = service.createAgent({
-  model: "openai/gpt-4.1-mini",
-  systemPrompt: "Answer concisely.",
-  providerOptions: {
-    // OpenRouter: include exact cost + cache details in the response usage
-    openrouter: { usage: { include: true } },
-  },
-});
-```
-
-Provider response metadata is surfaced back on `UsageData` (and the `usage` / `usage_update` events). Cost and cached tokens are normalized best-effort when the provider reports them; the untouched raw blob is always available:
+Per-request cost reporting is enabled automatically. The backend asks the gateway to include cost/cache details in the response usage and lifts that block into `providerMetadata`, so cost surfaces with no extra configuration — for both streaming and non-streaming, and for any OpenAI-compatible gateway that reports cost (OpenRouter and similar).
 
 ```typescript
 const result = await agent.run("Hello", { model: "openai/gpt-4.1-mini" });
@@ -141,6 +128,18 @@ result.usage?.providerMetadata; // raw provider metadata, untouched
 ```
 
 Normalization is provider-agnostic and null-safe — providers that report no cost simply leave `cost`/`cachedTokens` undefined while still passing `providerMetadata` through.
+
+`providerOptions` remains the supported path for other per-provider request extras. It reaches `generateText`, `generateObject`, and `streamText` on all paths.
+
+```typescript
+const agent = service.createAgent({
+  model: "google/gemini-2.0-flash",
+  systemPrompt: "Think step by step.",
+  providerOptions: {
+    google: { thinkingConfig: { thinkingBudget: 1024 } },
+  },
+});
+```
 
 ### Notes
 
