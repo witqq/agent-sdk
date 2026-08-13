@@ -49,6 +49,7 @@ interface SDKGenerateTextResult {
     toolResults: Array<{ toolCallId: string; toolName: string; output: unknown }>;
     usage: { inputTokens?: number; outputTokens?: number };
     finishReason: string;
+    providerMetadata?: SDKProviderMetadata;
   }>;
   totalUsage: { inputTokens?: number; outputTokens?: number };
   finishReason: string;
@@ -80,7 +81,12 @@ type SDKStreamPart =
   | { type: "reasoning-start" }
   | { type: "reasoning-end" }
   | { type: "reasoning-delta"; text: string }
-  | { type: "finish-step"; usage: { inputTokens?: number; outputTokens?: number }; finishReason: string }
+  | {
+      type: "finish-step";
+      usage: { inputTokens?: number; outputTokens?: number };
+      finishReason: string;
+      providerMetadata?: SDKProviderMetadata;
+    }
   | { type: "finish"; finishReason: string; totalUsage: { inputTokens?: number; outputTokens?: number } }
   | { type: "error"; error: unknown }
   | { type: string };
@@ -213,6 +219,53 @@ function extractProviderMetadata(
   if (cost !== undefined) result.cost = cost;
   if (cachedTokens !== undefined) result.cachedTokens = cachedTokens;
   return result;
+}
+
+/**
+ * Aggregate normalized billing fields over the same set of AI SDK steps as
+ * `totalUsage`. The AI SDK's top-level `providerMetadata` belongs only to the
+ * final step, so using it beside `totalUsage` under-reports multi-step runs.
+ *
+ * Raw metadata remains the final available step blob for backwards
+ * compatibility; only the normalized additive fields are summed. When no step
+ * exposes metadata (older compatible SDKs/mocks), `fallback` is used once.
+ */
+function aggregateProviderMetadata(
+  steps: Array<{ providerMetadata?: SDKProviderMetadata }>,
+  fallback?: SDKProviderMetadata,
+): ExtractedMetadata {
+  const stepMetadata = steps
+    .map((step) => step.providerMetadata)
+    .filter((metadata): metadata is SDKProviderMetadata => metadata !== undefined);
+  const metadataEntries = stepMetadata.length > 0
+    ? stepMetadata
+    : (fallback === undefined ? [] : [fallback]);
+
+  let cost = 0;
+  let cachedTokens = 0;
+  let hasCost = false;
+  let hasCachedTokens = false;
+
+  for (const metadata of metadataEntries) {
+    const extracted = extractProviderMetadata(metadata);
+    if (extracted.cost !== undefined) {
+      cost += extracted.cost;
+      hasCost = true;
+    }
+    if (extracted.cachedTokens !== undefined) {
+      cachedTokens += extracted.cachedTokens;
+      hasCachedTokens = true;
+    }
+  }
+
+  const providerMetadata = metadataEntries.at(-1);
+  return {
+    ...(hasCost ? { cost } : {}),
+    ...(hasCachedTokens ? { cachedTokens } : {}),
+    ...(providerMetadata !== undefined
+      ? { providerMetadata: providerMetadata as Record<string, JSONValue> }
+      : {}),
+  };
 }
 
 // ─── Provider Metadata Capture (write side) ─────────────────────
@@ -491,14 +544,10 @@ function mapStreamPart(part: SDKStreamPart): AgentEvent | null {
       return { type: "thinking_delta", text: p.text ?? "" };
     }
 
-    case "finish-step": {
-      const p = part as Extract<SDKStreamPart, { type: "finish-step" }>;
-      return {
-        type: "usage_update",
-        promptTokens: Number(p.usage?.inputTokens ?? 0),
-        completionTokens: Number(p.usage?.outputTokens ?? 0),
-      };
-    }
+    // executeStream emits cumulative snapshots after each completed step. Mapping
+    // the raw per-step usage here as well would double-report the same step.
+    case "finish-step":
+      return null;
 
     case "error": {
       const p = part as Extract<SDKStreamPart, { type: "error" }>;
@@ -626,7 +675,7 @@ class VercelAIAgent extends BaseAgent {
     const usage = {
       promptTokens: Number(result.totalUsage?.inputTokens ?? 0),
       completionTokens: Number(result.totalUsage?.outputTokens ?? 0),
-      ...extractProviderMetadata(result.providerMetadata),
+      ...aggregateProviderMetadata(result.steps, result.providerMetadata),
     };
 
     // In multi-step flows, result.text includes intermediate reasoning from all steps.
@@ -751,6 +800,9 @@ class VercelAIAgent extends BaseAgent {
 
     let finalText = "";
     let lastFinishReason: string | undefined;
+    const usageSteps: Array<{ providerMetadata?: SDKProviderMetadata }> = [];
+    let cumulativePromptTokens = 0;
+    let cumulativeCompletionTokens = 0;
 
     try {
       for await (const part of result.fullStream) {
@@ -768,6 +820,15 @@ class VercelAIAgent extends BaseAgent {
         // the final step's text becomes the output.
         if ((part as SDKStreamPart).type === "finish-step") {
           const p = part as Extract<SDKStreamPart, { type: "finish-step" }>;
+          usageSteps.push({ providerMetadata: p.providerMetadata });
+          cumulativePromptTokens += Number(p.usage?.inputTokens ?? 0);
+          cumulativeCompletionTokens += Number(p.usage?.outputTokens ?? 0);
+          yield {
+            type: "usage_update",
+            promptTokens: cumulativePromptTokens,
+            completionTokens: cumulativeCompletionTokens,
+            ...aggregateProviderMetadata(usageSteps),
+          };
           lastFinishReason = p.finishReason;
           if (p.finishReason === "tool-calls") {
             finalText = "";
@@ -781,16 +842,30 @@ class VercelAIAgent extends BaseAgent {
         }
       }
 
-      // Emit final usage from totalUsage. Provider metadata (cost, cache, raw)
-      // surfaces on the awaited stream result, not the per-step finish parts.
+      // AI SDK v6 exposes usage and provider metadata on every finish-step, so
+      // the last cumulative snapshot above is already the run total. Older
+      // compatible SDKs/mocks may expose only terminal totals; emit one fallback
+      // snapshot in that case, or when their terminal total differs.
       const totalUsage = await result.totalUsage;
-      const streamMetadata = extractProviderMetadata(await result.providerMetadata);
-      yield {
-        type: "usage_update",
-        promptTokens: Number(totalUsage?.inputTokens ?? 0),
-        completionTokens: Number(totalUsage?.outputTokens ?? 0),
-        ...streamMetadata,
-      };
+      const totalPromptTokens = Number(totalUsage?.inputTokens ?? 0);
+      const totalCompletionTokens = Number(totalUsage?.outputTokens ?? 0);
+      const terminalProviderMetadata = await result.providerMetadata;
+      const hasStepProviderMetadata = usageSteps.some(
+        (step) => step.providerMetadata !== undefined,
+      );
+      if (
+        usageSteps.length === 0
+        || totalPromptTokens !== cumulativePromptTokens
+        || totalCompletionTokens !== cumulativeCompletionTokens
+        || (!hasStepProviderMetadata && terminalProviderMetadata !== undefined)
+      ) {
+        yield {
+          type: "usage_update",
+          promptTokens: totalPromptTokens,
+          completionTokens: totalCompletionTokens,
+          ...aggregateProviderMetadata(usageSteps, terminalProviderMetadata),
+        };
+      }
 
       const hasStreamed = finalText.length > 0;
       yield {
