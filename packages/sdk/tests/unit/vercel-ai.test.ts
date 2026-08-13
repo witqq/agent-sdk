@@ -44,6 +44,10 @@ interface MockSDKOptions {
   generateObjectResult?: Record<string, unknown>;
   /** Provider metadata resolved by the streamText result's providerMetadata promise. */
   streamProviderMetadata?: Record<string, Record<string, unknown>>;
+  /** Run-level total usage resolved by streamText. */
+  streamTotalUsage?: { inputTokens?: number; outputTokens?: number };
+  /** Throw after this many stream parts to exercise partial usage on failure. */
+  streamErrorAfter?: number;
 }
 
 function createMockSDK(opts?: MockSDKOptions) {
@@ -93,6 +97,9 @@ function createMockSDK(opts?: MockSDKOptions) {
             let idx = 0;
             return {
               async next() {
+                if (opts?.streamErrorAfter === idx) {
+                  throw new Error("stream failed after completed step");
+                }
                 if (idx < parts.length) {
                   return { value: parts[idx++], done: false };
                 }
@@ -101,7 +108,7 @@ function createMockSDK(opts?: MockSDKOptions) {
             };
           },
         },
-        totalUsage: Promise.resolve({ inputTokens: 80, outputTokens: 30 }),
+        totalUsage: Promise.resolve(opts?.streamTotalUsage ?? { inputTokens: 80, outputTokens: 30 }),
         text: Promise.resolve("Hello world!"),
         providerMetadata: Promise.resolve(opts?.streamProviderMetadata),
       };
@@ -1652,12 +1659,14 @@ describe("Usage metadata and onUsage callback", () => {
       // consume
     }
 
-    // Called for each usage_update event (finish-step + final totalUsage)
-    expect(onUsage).toHaveBeenCalled();
-    for (const call of onUsage.mock.calls) {
-      expect(call[0].backend).toBe("vercel-ai");
-      expect(call[0].model).toBe("s-model");
-    }
+    // One run-level callback: per-step usage is already included in totalUsage.
+    expect(onUsage).toHaveBeenCalledOnce();
+    expect(onUsage).toHaveBeenCalledWith(expect.objectContaining({
+      promptTokens: 80,
+      completionTokens: 30,
+      backend: "vercel-ai",
+      model: "s-model",
+    }));
   });
 
   it("should not propagate onUsage callback errors", async () => {
@@ -1763,6 +1772,59 @@ describe("VercelAIAgent provider metadata (Issue #16)", () => {
     expect(result.usage?.backend).toBe("vercel-ai");
   });
 
+  it("sums billing metadata across the same multi-step run as totalUsage", async () => {
+    const firstMetadata = {
+      openrouter: { usage: { cost: 0.01, prompt_tokens_details: { cached_tokens: 40 } } },
+    };
+    const finalMetadata = {
+      openrouter: { usage: { cost: 0.02, prompt_tokens_details: { cached_tokens: 10 } } },
+    };
+    const sdk = createMockSDK({
+      generateTextResult: {
+        text: "Final answer",
+        toolCalls: [{ toolCallId: "tc-1", toolName: "search", input: { q: "news" } }],
+        toolResults: [{ toolCallId: "tc-1", toolName: "search", output: "found" }],
+        steps: [
+          {
+            text: "",
+            toolCalls: [{ toolCallId: "tc-1", toolName: "search", input: { q: "news" } }],
+            toolResults: [{ toolCallId: "tc-1", toolName: "search", output: "found" }],
+            usage: { inputTokens: 100, outputTokens: 20 },
+            finishReason: "tool-calls",
+            providerMetadata: firstMetadata,
+          },
+          {
+            text: "Final answer",
+            toolCalls: [],
+            toolResults: [],
+            usage: { inputTokens: 200, outputTokens: 30 },
+            finishReason: "stop",
+            providerMetadata: finalMetadata,
+          },
+        ],
+        totalUsage: { inputTokens: 300, outputTokens: 50 },
+        finishReason: "stop",
+        response: { messages: [] },
+        // AI SDK exposes final-step metadata here; it must not be counted twice.
+        providerMetadata: finalMetadata,
+      },
+    });
+    _injectSDK(sdk);
+    _injectCompat(createMockCompatModule());
+
+    const result = await createVercelAIService(BACKEND_OPTIONS)
+      .createAgent(baseConfig())
+      .run("Find news", { model: "test/model" });
+
+    expect(result.usage).toMatchObject({
+      promptTokens: 300,
+      completionTokens: 50,
+      cost: 0.03,
+      cachedTokens: 50,
+      providerMetadata: finalMetadata,
+    });
+  });
+
   it("passes through arbitrary provider metadata untouched and leaves cost/cache undefined", async () => {
     const arbitrary = { someProvider: { foo: "bar", nested: { n: 1 } } };
     const sdk = createMockSDK({ generateTextResult: generateResultWith(arbitrary) });
@@ -1840,6 +1902,84 @@ describe("VercelAIAgent provider metadata (Issue #16)", () => {
     // enrichment still adds model + backend
     expect(finalUsage.model).toBe("test/model");
     expect(finalUsage.backend).toBe("vercel-ai");
+  });
+
+  it("emits one streaming usage total with multi-step billing and no double count", async () => {
+    const firstMetadata = {
+      openrouter: { usage: { cost: 0.01, prompt_tokens_details: { cached_tokens: 40 } } },
+    };
+    const finalMetadata = {
+      openrouter: { usage: { cost: 0.02, prompt_tokens_details: { cached_tokens: 10 } } },
+    };
+    const onUsage = vi.fn();
+    const sdk = createMockSDK({
+      streamParts: [
+        { type: "finish-step", usage: { inputTokens: 100, outputTokens: 20 }, finishReason: "tool-calls", providerMetadata: firstMetadata },
+        { type: "text-delta", text: "Final answer" },
+        { type: "finish-step", usage: { inputTokens: 200, outputTokens: 30 }, finishReason: "stop", providerMetadata: finalMetadata },
+      ],
+      streamTotalUsage: { inputTokens: 300, outputTokens: 50 },
+      // The top-level value is the final step and must not be added a second time.
+      streamProviderMetadata: finalMetadata,
+    });
+    _injectSDK(sdk);
+    _injectCompat(createMockCompatModule());
+
+    const usageEvents: AgentEvent[] = [];
+    const agent = createVercelAIService(BACKEND_OPTIONS)
+      .createAgent(baseConfig({ onUsage }));
+    for await (const event of agent.stream("Find news", { model: "test/model" })) {
+      if (event.type === "usage_update") usageEvents.push(event);
+    }
+
+    expect(usageEvents).toHaveLength(2);
+    expect(usageEvents[0]).toMatchObject({
+      promptTokens: 100,
+      completionTokens: 20,
+      cost: 0.01,
+      cachedTokens: 40,
+    });
+    expect(usageEvents[1]).toMatchObject({
+      promptTokens: 300,
+      completionTokens: 50,
+      cost: 0.03,
+      cachedTokens: 50,
+      providerMetadata: finalMetadata,
+    });
+    expect(onUsage).toHaveBeenCalledTimes(2);
+    expect(onUsage).toHaveBeenLastCalledWith(expect.objectContaining({ cost: 0.03, cachedTokens: 50 }));
+  });
+
+  it("reports the cumulative usage of completed steps before a stream failure", async () => {
+    const firstMetadata = {
+      openrouter: { usage: { cost: 0.01, prompt_tokens_details: { cached_tokens: 40 } } },
+    };
+    const onUsage = vi.fn();
+    const sdk = createMockSDK({
+      streamParts: [
+        { type: "finish-step", usage: { inputTokens: 100, outputTokens: 20 }, finishReason: "tool-calls", providerMetadata: firstMetadata },
+        { type: "text-delta", text: "never delivered" },
+      ],
+      streamErrorAfter: 1,
+    });
+    _injectSDK(sdk);
+    _injectCompat(createMockCompatModule());
+
+    const agent = createVercelAIService(BACKEND_OPTIONS)
+      .createAgent(baseConfig({ onUsage }));
+    await expect(async () => {
+      for await (const _event of agent.stream("Find news", { model: "test/model" })) {
+        // drain until injected failure
+      }
+    }).rejects.toThrow("stream failed after completed step");
+
+    expect(onUsage).toHaveBeenCalledOnce();
+    expect(onUsage).toHaveBeenCalledWith(expect.objectContaining({
+      promptTokens: 100,
+      completionTokens: 20,
+      cost: 0.01,
+      cachedTokens: 40,
+    }));
   });
 
   it("delivers metadata to the onUsage callback", async () => {

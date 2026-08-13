@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.10.2]
+
+### Bug Fixes
+
+- **Vercel AI multi-step usage accounting** — aggregate OpenRouter-reported cost and cached prompt tokens across the same AI SDK steps as total token usage. Streaming now emits cumulative usage snapshots after completed steps, preserves partial usage when a later step fails, and avoids emitting a duplicate terminal total.
+
 ## [0.10.0]
 
 ### Infrastructure
