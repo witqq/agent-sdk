@@ -1,15 +1,24 @@
 {
   "name": "agent-sdk-monorepo",
   "private": true,
+  "packageManager": "npm@11.19.0",
+  "engines": {
+    "node": ">=24.20.0"
+  },
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
     "build": "npm run build -w packages/sdk",
+    "install:demo-frontend": "npm ci --prefix packages/demo/frontend --no-audit --no-fund",
+    "build:demo-frontend": "npm run --prefix packages/demo/frontend build",
     "test": "npm run test -w packages/sdk",
     "test:e2e": "npm run test:e2e -w packages/sdk",
     "test:all": "npm run test:all -w packages/sdk",
     "typecheck": "npm run typecheck -w packages/sdk",
+    "check:workflows": "node scripts/check-workflows.mjs",
+    "pack:check": "npm run build && node scripts/check-package.mjs",
+    "verify": "npm run build && npm run install:demo-frontend && npm run build:demo-frontend && npm run typecheck && npm test && npm run check:workflows && node scripts/check-package.mjs",
     "demo": "tsx scripts/demo.ts",
     "demo:start": "npm run start -w packages/demo",
     "demo:mock": "npm run start:mock -w packages/demo",
@@ -19,6 +28,7 @@
     "docs:docker:stop": "cd packages/docs-site && docker compose down"
   },
   "devDependencies": {
-    "typescript": "^5.8.0"
+    "typescript": "^5.8.0",
+    "yaml": "2.9.0"
   }
 }
