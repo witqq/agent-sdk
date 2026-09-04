@@ -308,7 +308,7 @@
     "react-dom": "^19.2.4",
     "tsup": "^8.4.0",
     "typedoc": "^0.28.17",
-    "typedoc-plugin-markdown": "^4.10.0",
+    "typedoc-plugin-markdown": "^4.13.0",
     "typescript": "^5.8.0",
     "vitest": "^4.0.18",
     "zod": "^4.3.6"
