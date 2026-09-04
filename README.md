@@ -131,6 +131,8 @@ Node.js 24.20.0 or newer and npm 11.19.0 are required.
 ```bash
 npm install          # Install all workspace dependencies
 npm run build        # Build SDK (tsup → ESM + CJS + DTS)
+npm run install:demo-frontend # Install the nested demo frontend from its lockfile
+npm run build:demo-frontend   # Build the demo output required by its contract tests
 npm run test         # Unit tests (Vitest)
 npm run typecheck    # TypeScript strict mode (tsc --noEmit)
 npm run verify       # Complete CI and exact-package release gate

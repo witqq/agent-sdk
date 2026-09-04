@@ -28,6 +28,8 @@ assertStepUses(testJob, setupNode);
 assertStepRun(testJob, 'npm install --global npm@11.19.0');
 assertStepRun(testJob, 'npm ci --no-audit --no-fund');
 assertStepRun(testJob, 'npm run build');
+assertStepRun(testJob, 'npm run install:demo-frontend');
+assertStepRun(testJob, 'npm run build:demo-frontend');
 assertStepRun(testJob, 'npm run typecheck');
 assertStepRun(testJob, 'npm test');
 assertNodeVersion(testJob);
