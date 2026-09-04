@@ -1,6 +1,6 @@
 {
   "name": "@witqq/agent-sdk",
-  "version": "0.10.2",
+  "version": "0.11.0",
   "description": "Universal AI agent abstraction layer supporting Copilot CLI, Claude CLI, and Vercel AI SDK backends",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -221,7 +221,8 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsup && mkdir -p dist/chat/react && cp src/chat/react/theme.css dist/chat/react/theme.css",
@@ -230,7 +231,7 @@
     "test:all": "vitest run && vitest run --config vitest.e2e.config.ts",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build",
+    "prepack": "npm run build",
     "docs:api": "typedoc"
   },
   "keywords": [
@@ -244,8 +245,20 @@
     "sdk"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/witqq/agent-sdk.git",
+    "directory": "packages/sdk"
+  },
+  "homepage": "https://agent-sdk.witqq.dev/",
+  "bugs": {
+    "url": "https://github.com/witqq/agent-sdk/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
-    "node": ">=18"
+    "node": ">=24.20.0"
   },
   "peerDependencies": {
     "@ai-sdk/openai-compatible": ">=2.0.0",

@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [0.11.0] — 2026-09-04
+
+### Infrastructure
+
+- Require Node.js 24.20.0 or newer across the monorepo.
+- Add pinned continuous integration, exact npm candidate validation, immutable GitHub Release assets, and npm OpenID Connect trusted publishing without rebuilding release bytes.
+
 ## [0.10.2]
 
 ### Bug Fixes

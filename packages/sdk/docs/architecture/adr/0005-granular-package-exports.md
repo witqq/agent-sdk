@@ -16,7 +16,7 @@ Accepted
 - Quality attributes affected: QA-6 (Developer Experience), Portability
 
 ## Decision
-Use 21 granular `exports` entries in package.json, each mapping to a separate tsup entry point. Consumers import only what they need via deep paths (e.g., `@witqq/agent-sdk/chat/react`, `@witqq/agent-sdk/copilot`).
+Use 21 granular JavaScript module entries plus one CSS entry in `package.json`. Each module export maps to a separate tsup entry point. Consumers import only what they need via deep paths (e.g., `@witqq/agent-sdk/chat/react`, `@witqq/agent-sdk/copilot`).
 
 ## Options Considered
 
@@ -26,7 +26,7 @@ Use 21 granular `exports` entries in package.json, each mapping to a separate ts
 
 ### Option 2: Granular Package Exports (chosen)
 - Pros: True tree-shaking at package boundary; optional peers only resolved when their entry point is imported; each export is independently testable; consumers pay only for what they use
-- Cons: 21 entry points to maintain in package.json + tsup config; more import paths for consumers to learn; breaking change risk when restructuring exports
+- Cons: 21 module entry points plus one CSS export to maintain in package.json and tsup config; more import paths for consumers to learn; breaking change risk when restructuring exports
 
 ### Option 3: Separate npm Packages per Module
 - Pros: Maximum isolation; independent versioning per module
@@ -34,7 +34,7 @@ Use 21 granular `exports` entries in package.json, each mapping to a separate ts
 
 ## Consequences
 - Positive: Server-only consumers get ~50KB instead of 762KB. React is never bundled unless `@witqq/agent-sdk/chat/react` is imported. Backend SDK peer deps don't cause resolution errors unless their specific entry is used.
-- Negative: 21 entry points in package.json require maintenance. Adding a new export is a public API commitment. Consumers must know which entry point to use.
+- Negative: 21 module entry points plus one CSS export in package.json require maintenance. Adding a new export is a public API commitment. Consumers must know which entry point to use.
 - Risks: Entry point restructuring is a breaking change. Must document which types come from which entry point.
 
 ## Related

@@ -50,7 +50,7 @@ const service = createCopilotService({
 
 ### Notes
 
-- **System requirements:** `@github/copilot-sdk` includes a native binary requiring glibc. Alpine Linux (musl) is not supported — use `node:20-bookworm-slim` or similar.
+- **System requirements:** `@github/copilot-sdk` includes a native binary requiring glibc. Alpine Linux (musl) is not supported — use `node:24.20.0-bookworm-slim` or similar.
 - **Headless mode:** Without `supervisor.onPermission` / `supervisor.onAskUser`, the backend auto-approves permissions and auto-answers user questions to prevent hanging.
 - **System prompt mode:** Default `mode: "append"` adds your prompt to the Copilot built-in prompt. Use `systemMessageMode: "replace"` to fully replace it (removes built-in tool instructions).
 - **Available tools filter:** Restrict Copilot built-in tools with `availableTools: ["web_search", "web_fetch"]` in `AgentConfig`.

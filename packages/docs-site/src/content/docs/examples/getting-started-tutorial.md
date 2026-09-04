@@ -9,7 +9,7 @@ Follow this tutorial to create a working AI agent in under 5 minutes. By the end
 
 ## Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 24.20.0+ and npm 11.19.0+
 - One of: GitHub Copilot subscription, Anthropic API key, or an OpenRouter API key
 
 ## Step 1: Project Setup

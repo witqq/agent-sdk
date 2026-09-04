@@ -3,6 +3,7 @@
 Universal AI agent abstraction layer for Node.js. Write agent code once — run on GitHub Copilot CLI, Claude CLI, Vercel AI SDK, or Mock LLM for testing.
 
 [![npm](https://img.shields.io/npm/v/@witqq/agent-sdk.svg)](https://www.npmjs.com/package/@witqq/agent-sdk)
+[![CI](https://github.com/witqq/agent-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/witqq/agent-sdk/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ```bash
@@ -116,20 +117,23 @@ Additional chat sub-entry points: `chat/core`, `chat/errors`, `chat/events`, `ch
 
 | Metric | Value |
 |--------|-------|
-| npm package size | 7.4 MB unpacked (151 files, ESM + CJS + DTS) |
+| npm package size | 1.6 MB tarball / 7.6 MB unpacked (152 files, ESM + CJS + DTS) |
 | Entry points | 22 (tree-shakeable — import only what you need) |
-| Unit tests | 2,498 (77 files) |
+| Unit tests | 2,518 (77 files) |
 | Backends | 4 (Copilot, Claude, Vercel AI, Mock LLM) |
 | Zod compatibility | v3.23+ and v4.x |
-| Peer dependencies | All optional — install only what you use |
+| Peer dependencies | `zod` required; backend, UI, and storage peers optional |
 
 ## Development
+
+Node.js 24.20.0 or newer and npm 11.19.0 are required.
 
 ```bash
 npm install          # Install all workspace dependencies
 npm run build        # Build SDK (tsup → ESM + CJS + DTS)
 npm run test         # Unit tests (Vitest)
 npm run typecheck    # TypeScript strict mode (tsc --noEmit)
+npm run verify       # Complete CI and exact-package release gate
 npm run demo         # Build & start demo in Docker (port 3456)
 npm run demo -- stop # Stop demo container
 ```
@@ -137,6 +141,8 @@ npm run demo -- stop # Stop demo container
 ## Documentation
 
 Full documentation at **[agent-sdk.witqq.dev](https://agent-sdk.witqq.dev)** — getting started, backend guides, tools & permissions, streaming, auth, storage, testing, Chat SDK, and API reference.
+
+Release operators follow [`docs/RELEASE.md`](docs/RELEASE.md). npm publication uses one accepted GitHub Release tarball and GitHub Actions trusted publishing; it does not rebuild package bytes or require an `NPM_TOKEN` secret.
 
 ## License
 

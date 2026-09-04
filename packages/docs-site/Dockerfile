@@ -1,7 +1,8 @@
 # Stage 1: Build static site
-FROM node:22-alpine AS builder
+FROM node:24.20.0-alpine AS builder
 
 WORKDIR /build
+RUN npm install --global npm@11.19.0
 
 # Copy workspace root manifest and lock file
 COPY package.json package-lock.json tsconfig.json ./

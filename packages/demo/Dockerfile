@@ -1,6 +1,7 @@
 # Stage 1: Build SDK
-FROM node:22-slim AS sdk-builder
+FROM node:24.20.0-bookworm-slim AS sdk-builder
 RUN apt-get update && apt-get install -y git python3 make g++ && rm -rf /var/lib/apt/lists/*
+RUN npm install --global npm@11.19.0
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY packages/sdk/package.json packages/sdk/
@@ -13,8 +14,9 @@ COPY packages/sdk/src/ packages/sdk/src/
 RUN npm run build -w packages/sdk
 
 # Stage 2: Build frontend
-FROM node:22-slim AS frontend-builder
+FROM node:24.20.0-bookworm-slim AS frontend-builder
 # Frontend resolves @witqq/agent-sdk via file:../../sdk
+RUN npm install --global npm@11.19.0
 WORKDIR /app/packages/demo/frontend
 COPY --from=sdk-builder /app/packages/sdk/package.json /app/packages/sdk/package.json
 COPY --from=sdk-builder /app/packages/sdk/dist/ /app/packages/sdk/dist/
@@ -25,8 +27,9 @@ COPY packages/demo/frontend/ ./
 RUN npx vite build
 
 # Stage 3: Runtime
-FROM node:22-slim
+FROM node:24.20.0-bookworm-slim
 RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
+RUN npm install --global npm@11.19.0
 WORKDIR /app
 
 # Copy full workspace with SDK (node_modules for runtime deps)
