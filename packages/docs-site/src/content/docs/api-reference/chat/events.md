@@ -10,7 +10,7 @@ sidebar:
 
 ### ChatEventBus
 
-Defined in: [chat/events.ts:222](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L222)
+Defined in: [chat/events.ts:222](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L222)
 
 Chat event bus: a typed event emitter specialized for ChatEvent types
 with middleware pipeline support.
@@ -62,7 +62,7 @@ bus.emit("message:delta", { type: "message:delta", messageId: id, text: "hi" });
 
 > **clearMiddleware**(): `void`
 
-Defined in: [chat/events.ts:296](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L296)
+Defined in: [chat/events.ts:296](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L296)
 
 Remove all middleware functions.
 
@@ -74,7 +74,7 @@ Remove all middleware functions.
 
 > **emit**\<`K`\>(`event`, `payload`): `void`
 
-Defined in: [chat/events.ts:246](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L246)
+Defined in: [chat/events.ts:246](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L246)
 
 Emit a chat event through the middleware pipeline, then to listeners.
 
@@ -110,7 +110,7 @@ The full ChatEvent object
 
 > **eventNames**(): (`"heartbeat"` \| `"error"` \| `"done"` \| `"usage"` \| `"message:start"` \| `"message:delta"` \| `"message:complete"` \| `"tool:start"` \| `"tool:complete"` \| `"thinking:start"` \| `"thinking:delta"` \| `"thinking:end"` \| `"permission:request"` \| `"permission:response"` \| `"session:created"` \| `"session:updated"` \| `"typing:start"` \| `"typing:end"`)[]
 
-Defined in: [chat/events.ts:138](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L138)
+Defined in: [chat/events.ts:138](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L138)
 
 Get all event names that have at least one listener.
 
@@ -128,7 +128,7 @@ Array of event names
 
 > **listenerCount**\<`K`\>(`event`): `number`
 
-Defined in: [chat/events.ts:129](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L129)
+Defined in: [chat/events.ts:129](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L129)
 
 Get the number of listeners for a specific event.
 
@@ -160,7 +160,7 @@ Number of listeners
 
 > **middlewareCount**(): `number`
 
-Defined in: [chat/events.ts:304](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L304)
+Defined in: [chat/events.ts:304](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L304)
 
 Get the number of registered middleware functions.
 
@@ -174,7 +174,7 @@ Number of middleware
 
 > **off**\<`K`\>(`event`, `listener`): `void`
 
-Defined in: [chat/events.ts:90](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L90)
+Defined in: [chat/events.ts:90](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L90)
 
 Remove a specific listener from an event.
 
@@ -210,7 +210,7 @@ The listener to remove
 
 > **on**\<`K`\>(`event`, `listener`): [`Unsubscribe`](#unsubscribe)
 
-Defined in: [chat/events.ts:55](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L55)
+Defined in: [chat/events.ts:55](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L55)
 
 Subscribe to an event.
 
@@ -248,7 +248,7 @@ Unsubscribe function
 
 > **once**\<`K`\>(`event`, `listener`): [`Unsubscribe`](#unsubscribe)
 
-Defined in: [chat/events.ts:77](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L77)
+Defined in: [chat/events.ts:77](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L77)
 
 Subscribe to an event, firing the listener at most once.
 
@@ -286,7 +286,7 @@ Unsubscribe function
 
 > **removeAllListeners**\<`K`\>(`event?`): `void`
 
-Defined in: [chat/events.ts:116](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L116)
+Defined in: [chat/events.ts:116](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L116)
 
 Remove all listeners for a specific event, or all events if no event specified.
 
@@ -316,7 +316,7 @@ Optional event name
 
 > **use**(`middleware`): [`Unsubscribe`](#unsubscribe)
 
-Defined in: [chat/events.ts:230](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L230)
+Defined in: [chat/events.ts:230](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L230)
 
 Register a middleware function. Middleware runs in registration order.
 
@@ -338,7 +338,7 @@ Unsubscribe function to remove the middleware
 
 ### TypedEventEmitter
 
-Defined in: [chat/events.ts:46](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L46)
+Defined in: [chat/events.ts:46](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L46)
 
 Generic type-safe event emitter parameterized by an EventMap.
 
@@ -383,7 +383,7 @@ Map of event names to payload types
 
 > **emit**\<`K`\>(`event`, `payload`): `void`
 
-Defined in: [chat/events.ts:104](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L104)
+Defined in: [chat/events.ts:104](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L104)
 
 Emit an event, calling all registered listeners synchronously.
 
@@ -415,7 +415,7 @@ Event payload
 
 > **eventNames**(): keyof `T`[]
 
-Defined in: [chat/events.ts:138](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L138)
+Defined in: [chat/events.ts:138](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L138)
 
 Get all event names that have at least one listener.
 
@@ -429,7 +429,7 @@ Array of event names
 
 > **listenerCount**\<`K`\>(`event`): `number`
 
-Defined in: [chat/events.ts:129](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L129)
+Defined in: [chat/events.ts:129](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L129)
 
 Get the number of listeners for a specific event.
 
@@ -457,7 +457,7 @@ Number of listeners
 
 > **off**\<`K`\>(`event`, `listener`): `void`
 
-Defined in: [chat/events.ts:90](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L90)
+Defined in: [chat/events.ts:90](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L90)
 
 Remove a specific listener from an event.
 
@@ -489,7 +489,7 @@ The listener to remove
 
 > **on**\<`K`\>(`event`, `listener`): [`Unsubscribe`](#unsubscribe)
 
-Defined in: [chat/events.ts:55](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L55)
+Defined in: [chat/events.ts:55](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L55)
 
 Subscribe to an event.
 
@@ -523,7 +523,7 @@ Unsubscribe function
 
 > **once**\<`K`\>(`event`, `listener`): [`Unsubscribe`](#unsubscribe)
 
-Defined in: [chat/events.ts:77](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L77)
+Defined in: [chat/events.ts:77](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L77)
 
 Subscribe to an event, firing the listener at most once.
 
@@ -557,7 +557,7 @@ Unsubscribe function
 
 > **removeAllListeners**\<`K`\>(`event?`): `void`
 
-Defined in: [chat/events.ts:116](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L116)
+Defined in: [chat/events.ts:116](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L116)
 
 Remove all listeners for a specific event, or all events if no event specified.
 
@@ -583,7 +583,7 @@ Optional event name
 
 ### MiddlewareContext
 
-Defined in: [chat/events.ts:159](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L159)
+Defined in: [chat/events.ts:159](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L159)
 
 Context passed to middleware functions.
 Contains the event and control methods for the middleware pipeline.
@@ -594,15 +594,15 @@ Contains the event and control methods for the middleware pipeline.
 
 > **event**: [`ChatEvent`](/api-reference/chat/index-exports/#chatevent)
 
-Defined in: [chat/events.ts:161](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L161)
+Defined in: [chat/events.ts:161](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L161)
 
 The current event (may be transformed by prior middleware)
 
-##### next()
+##### next
 
 > **next**: () => `void`
 
-Defined in: [chat/events.ts:163](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L163)
+Defined in: [chat/events.ts:163](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L163)
 
 Call the next middleware in the chain, or deliver to listeners if last
 
@@ -610,11 +610,11 @@ Call the next middleware in the chain, or deliver to listeners if last
 
 `void`
 
-##### suppress()
+##### suppress
 
 > **suppress**: () => `void`
 
-Defined in: [chat/events.ts:165](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L165)
+Defined in: [chat/events.ts:165](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L165)
 
 Suppress the event — do not deliver to listeners or subsequent middleware
 
@@ -628,7 +628,7 @@ Suppress the event — do not deliver to listeners or subsequent middleware
 
 > **ChatEventMap** = `{ [K in ChatEventType]: Extract<ChatEvent, { type: K }> }`
 
-Defined in: [chat/events.ts:149](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L149)
+Defined in: [chat/events.ts:149](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L149)
 
 Map of ChatEvent type strings to their corresponding ChatEvent payloads.
 Used to parameterize TypedEventEmitter for chat events.
@@ -639,17 +639,17 @@ Used to parameterize TypedEventEmitter for chat events.
 
 > **EventMap** = `Record`\<`string`, `any`\>
 
-Defined in: [chat/events.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L17)
+Defined in: [chat/events.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L17)
 
 Constraint for event maps: keys are strings, values are payloads
 
 ***
 
-### EventMiddleware()
+### EventMiddleware
 
 > **EventMiddleware** = (`ctx`) => `void`
 
-Defined in: [chat/events.ts:192](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L192)
+Defined in: [chat/events.ts:192](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L192)
 
 Middleware function for intercepting, transforming, or suppressing events.
 EventMiddleware operates at the ChatEventBus level.
@@ -687,11 +687,11 @@ const filter: EventMiddleware = (ctx) => {
 
 ***
 
-### Listener()
+### Listener
 
 > **Listener**\<`T`\> = (`payload`) => `void`
 
-Defined in: [chat/events.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L22)
+Defined in: [chat/events.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L22)
 
 Listener callback for a specific event
 
@@ -713,11 +713,11 @@ Listener callback for a specific event
 
 ***
 
-### Unsubscribe()
+### Unsubscribe
 
 > **Unsubscribe** = () => `void`
 
-Defined in: [chat/events.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L25)
+Defined in: [chat/events.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L25)
 
 Unsubscribe function returned by on/once
 
@@ -731,7 +731,7 @@ Unsubscribe function returned by on/once
 
 > **collectText**(`source`): `Promise`\<`string`\>
 
-Defined in: [chat/events.ts:396](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L396)
+Defined in: [chat/events.ts:396](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L396)
 
 Collect text from message:delta events into a single string.
 
@@ -761,7 +761,7 @@ const fullText = await collectText(stream);
 
 > **eventFilter**(...`types`): (`event`) => `boolean`
 
-Defined in: [chat/events.ts:323](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L323)
+Defined in: [chat/events.ts:323](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L323)
 
 Create a filter function that passes only events of specified types.
 
@@ -777,17 +777,7 @@ Event types to allow through
 
 Predicate function for filtering ChatEvents
 
-> (`event`): `boolean`
-
-##### Parameters
-
-###### event
-
-[`ChatEvent`](/api-reference/chat/index-exports/#chatevent)
-
-##### Returns
-
-`boolean`
+(`event`) => `boolean`
 
 #### Example
 
@@ -802,7 +792,7 @@ const textEvents = allEvents.filter(isTextEvent);
 
 > **filterEvents**(`source`, ...`types`): `AsyncIterable`\<[`ChatEvent`](/api-reference/chat/index-exports/#chatevent)\>
 
-Defined in: [chat/events.ts:344](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L344)
+Defined in: [chat/events.ts:344](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L344)
 
 Filter an async iterable of ChatEvents to only specified types.
 
@@ -840,7 +830,7 @@ for await (const event of filterEvents(stream, "message:delta", "message:complet
 
 > **mapEvents**\<`R`\>(`source`, `transform`): `AsyncIterable`\<`R`\>
 
-Defined in: [chat/events.ts:373](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/events.ts#L373)
+Defined in: [chat/events.ts:373](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/events.ts#L373)
 
 Map/transform events from an async iterable.
 

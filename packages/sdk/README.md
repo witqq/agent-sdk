@@ -117,7 +117,7 @@ Additional chat sub-entry points: `chat/core`, `chat/errors`, `chat/events`, `ch
 
 | Metric | Value |
 |--------|-------|
-| npm package size | 1.6 MB tarball / 7.6 MB unpacked (152 files, ESM + CJS + DTS) |
+| npm package size | ~747 kB tarball / ~3.45 MB unpacked (254 files, ESM + CJS + DTS) |
 | Entry points | 22 (tree-shakeable — import only what you need) |
 | Unit tests | 2,518 (77 files) |
 | Backends | 4 (Copilot, Claude, Vercel AI, Mock LLM) |
@@ -126,11 +126,11 @@ Additional chat sub-entry points: `chat/core`, `chat/errors`, `chat/events`, `ch
 
 ## Development
 
-Node.js 24.20.0 or newer and npm 11.19.0 are required.
+Node.js 24.20.0 or newer and npm 12.0.2 are required.
 
 ```bash
-npm install          # Install all workspace dependencies
-npm run build        # Build SDK (tsup → ESM + CJS + DTS)
+npm ci               # Install all workspace dependencies from the lockfile
+npm run build        # Build SDK (tsdown → ESM + CJS + DTS)
 npm run install:demo-frontend # Install the nested demo frontend from its lockfile
 npm run build:demo-frontend   # Build the demo output required by its contract tests
 npm run test         # Unit tests (Vitest)

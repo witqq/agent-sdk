@@ -10,7 +10,7 @@ sidebar:
 
 ### ChatSessionMetadata
 
-Defined in: [chat/types.ts:127](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/types.ts#L127)
+Defined in: [chat/types.ts:127](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/types.ts#L127)
 
 Session metadata tracking usage statistics and custom extensions.
 
@@ -30,9 +30,9 @@ Shape of the `custom` field (defaults to `Record<string, unknown>`)
 
 ##### custom?
 
-> `optional` **custom**: `TCustom`
+> `optional` **custom?**: `TCustom`
 
-Defined in: [chat/types.ts:135](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/types.ts#L135)
+Defined in: [chat/types.ts:135](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/types.ts#L135)
 
 Application-specific metadata — typed via the TCustom generic parameter
 
@@ -40,15 +40,15 @@ Application-specific metadata — typed via the TCustom generic parameter
 
 > **messageCount**: `number`
 
-Defined in: [chat/types.ts:129](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/types.ts#L129)
+Defined in: [chat/types.ts:129](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/types.ts#L129)
 
 Number of messages in the session (updated by session store)
 
 ##### tags?
 
-> `optional` **tags**: `string`[]
+> `optional` **tags?**: `string`[]
 
-Defined in: [chat/types.ts:133](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/types.ts#L133)
+Defined in: [chat/types.ts:133](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/types.ts#L133)
 
 Optional tags for session categorization and filtering
 
@@ -56,7 +56,7 @@ Optional tags for session categorization and filtering
 
 > **totalTokens**: `number`
 
-Defined in: [chat/types.ts:131](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/types.ts#L131)
+Defined in: [chat/types.ts:131](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/types.ts#L131)
 
 Total token count across all messages in the session
 
@@ -66,7 +66,7 @@ Total token count across all messages in the session
 
 > **chatEventToAgentEvent**(`event`): [`AgentEvent`](/api-reference/core/#agentevent) \| `null`
 
-Defined in: [chat/bridge.ts:101](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/bridge.ts#L101)
+Defined in: [chat/bridge.ts:104](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/bridge.ts#L104)
 
 Map a ChatEvent back to an AgentEvent for accumulator consumption.
 Returns null for events that don't map to accumulator-relevant AgentEvents.
@@ -87,7 +87,7 @@ Returns null for events that don't map to accumulator-relevant AgentEvents.
 
 > **extractToolResults**(`message`): [`ToolResult`](/api-reference/core/#toolresult)[]
 
-Defined in: [chat/conversion.ts:121](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/conversion.ts#L121)
+Defined in: [chat/conversion.ts:121](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/conversion.ts#L121)
 
 Extract ToolResults from ToolCallParts that have results
 

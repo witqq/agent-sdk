@@ -10,7 +10,7 @@ Install `@witqq/agent-sdk` and create your first AI agent.
 ## Prerequisites
 
 - Node.js 24.20.0+
-- npm 11.19.0+
+- npm 12.0.2
 
 ## Installation
 

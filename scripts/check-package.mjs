@@ -21,7 +21,8 @@ const packResult = await runNpm(
   root,
   packCache,
 );
-const packRecords = JSON.parse(packResult.stdout);
+const packOutput = JSON.parse(packResult.stdout);
+const packRecords = Array.isArray(packOutput) ? packOutput : Object.values(packOutput);
 assert(Array.isArray(packRecords) && packRecords.length === 1, 'npm pack returns one package');
 const packRecord = packRecords[0];
 const filename = requireString(packRecord.filename, 'tarball filename');

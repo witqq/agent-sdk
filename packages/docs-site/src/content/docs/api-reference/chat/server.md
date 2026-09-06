@@ -10,7 +10,7 @@ sidebar:
 
 ### AdapterPool
 
-Defined in: [chat/server/adapter-pool.ts:48](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/adapter-pool.ts#L48)
+Defined in: [chat/server/adapter-pool.ts:48](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/adapter-pool.ts#L48)
 
 Lazy adapter pool with concurrent dedup and eviction.
 Thread-safe: concurrent getAdapter() calls for the same backend share a single creation promise.
@@ -27,7 +27,7 @@ Thread-safe: concurrent getAdapter() calls for the same backend share a single c
 
 > **new AdapterPool**\<`T`\>(`options`): [`AdapterPool`](#adapterpool)\<`T`\>
 
-Defined in: [chat/server/adapter-pool.ts:54](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/adapter-pool.ts#L54)
+Defined in: [chat/server/adapter-pool.ts:54](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/adapter-pool.ts#L54)
 
 ###### Parameters
 
@@ -47,7 +47,7 @@ Defined in: [chat/server/adapter-pool.ts:54](https://github.com/witqq/agent-sdk/
 
 > **get** **activeBackends**(): `string`[]
 
-Defined in: [chat/server/adapter-pool.ts:108](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/adapter-pool.ts#L108)
+Defined in: [chat/server/adapter-pool.ts:108](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/adapter-pool.ts#L108)
 
 Get all backend names with cached adapters.
 
@@ -61,7 +61,7 @@ Get all backend names with cached adapters.
 
 > **dispose**(): `Promise`\<`void`\>
 
-Defined in: [chat/server/adapter-pool.ts:113](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/adapter-pool.ts#L113)
+Defined in: [chat/server/adapter-pool.ts:113](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/adapter-pool.ts#L113)
 
 Dispose all cached adapters and mark pool as unusable.
 
@@ -73,7 +73,7 @@ Dispose all cached adapters and mark pool as unusable.
 
 > **evict**(`backend`): `Promise`\<`void`\>
 
-Defined in: [chat/server/adapter-pool.ts:94](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/adapter-pool.ts#L94)
+Defined in: [chat/server/adapter-pool.ts:94](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/adapter-pool.ts#L94)
 
 Evict (dispose and remove) the cached adapter for a backend.
 Use after token rotation to force re-creation on next getAdapter().
@@ -92,7 +92,7 @@ Use after token rotation to force re-creation on next getAdapter().
 
 > **getAdapter**(`backend`): `Promise`\<`T`\>
 
-Defined in: [chat/server/adapter-pool.ts:63](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/adapter-pool.ts#L63)
+Defined in: [chat/server/adapter-pool.ts:63](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/adapter-pool.ts#L63)
 
 Get or create an adapter for the given backend.
 Concurrent calls for the same backend share one creation promise.
@@ -112,7 +112,7 @@ Failed creations are NOT cached — next call retries.
 
 > **has**(`backend`): `boolean`
 
-Defined in: [chat/server/adapter-pool.ts:103](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/adapter-pool.ts#L103)
+Defined in: [chat/server/adapter-pool.ts:103](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/adapter-pool.ts#L103)
 
 Check if a backend has a cached adapter.
 
@@ -130,7 +130,7 @@ Check if a backend has a cached adapter.
 
 ### BodyParseError
 
-Defined in: [chat/server/utils.ts:8](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/utils.ts#L8)
+Defined in: [chat/server/utils.ts:8](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/utils.ts#L8)
 
 Error thrown by readBody with an HTTP status code
 
@@ -144,7 +144,7 @@ Error thrown by readBody with an HTTP status code
 
 > **new BodyParseError**(`message`, `statusCode`): [`BodyParseError`](#bodyparseerror)
 
-Defined in: [chat/server/utils.ts:10](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/utils.ts#L10)
+Defined in: [chat/server/utils.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/utils.ts#L10)
 
 ###### Parameters
 
@@ -170,13 +170,13 @@ Defined in: [chat/server/utils.ts:10](https://github.com/witqq/agent-sdk/blob/9c
 
 > `readonly` **statusCode**: `number`
 
-Defined in: [chat/server/utils.ts:9](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/utils.ts#L9)
+Defined in: [chat/server/utils.ts:9](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/utils.ts#L9)
 
 ***
 
 ### FileProviderStore
 
-Defined in: [chat/server/provider-store.ts:58](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/provider-store.ts#L58)
+Defined in: [chat/server/provider-store.ts:58](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/provider-store.ts#L58)
 
 Filesystem-based provider store using JSON files (one per provider)
 
@@ -190,7 +190,7 @@ Filesystem-based provider store using JSON files (one per provider)
 
 > **new FileProviderStore**(`options`): [`FileProviderStore`](#fileproviderstore)
 
-Defined in: [chat/server/provider-store.ts:61](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/provider-store.ts#L61)
+Defined in: [chat/server/provider-store.ts:61](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/provider-store.ts#L61)
 
 ###### Parameters
 
@@ -208,7 +208,7 @@ Defined in: [chat/server/provider-store.ts:61](https://github.com/witqq/agent-sd
 
 > **create**(`config`): `Promise`\<`void`\>
 
-Defined in: [chat/server/provider-store.ts:65](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/provider-store.ts#L65)
+Defined in: [chat/server/provider-store.ts:65](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/provider-store.ts#L65)
 
 Create a new provider. Generates UUID if id not set on config.
 
@@ -230,7 +230,7 @@ Create a new provider. Generates UUID if id not set on config.
 
 > **delete**(`id`): `Promise`\<`void`\>
 
-Defined in: [chat/server/provider-store.ts:90](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/provider-store.ts#L90)
+Defined in: [chat/server/provider-store.ts:90](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/provider-store.ts#L90)
 
 Delete a provider by id.
 
@@ -252,7 +252,7 @@ Delete a provider by id.
 
 > **get**(`id`): `Promise`\<[`ProviderConfig`](/api-reference/chat/index-exports/#providerconfig) \| `null`\>
 
-Defined in: [chat/server/provider-store.ts:72](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/provider-store.ts#L72)
+Defined in: [chat/server/provider-store.ts:72](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/provider-store.ts#L72)
 
 Get a provider by id. Returns null if not found.
 
@@ -274,7 +274,7 @@ Get a provider by id. Returns null if not found.
 
 > **list**(): `Promise`\<[`ProviderConfig`](/api-reference/chat/index-exports/#providerconfig)[]\>
 
-Defined in: [chat/server/provider-store.ts:98](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/provider-store.ts#L98)
+Defined in: [chat/server/provider-store.ts:98](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/provider-store.ts#L98)
 
 List all providers.
 
@@ -290,7 +290,7 @@ List all providers.
 
 > **update**(`id`, `changes`): `Promise`\<`void`\>
 
-Defined in: [chat/server/provider-store.ts:81](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/provider-store.ts#L81)
+Defined in: [chat/server/provider-store.ts:81](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/provider-store.ts#L81)
 
 Update an existing provider. Throws if not found.
 
@@ -316,7 +316,7 @@ Update an existing provider. Throws if not found.
 
 ### FileTokenStore
 
-Defined in: [chat/server/token-store.ts:64](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L64)
+Defined in: [chat/server/token-store.ts:64](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L64)
 
 Filesystem-based token store using JSON files (one per provider)
 
@@ -330,7 +330,7 @@ Filesystem-based token store using JSON files (one per provider)
 
 > **new FileTokenStore**(`options`): [`FileTokenStore`](#filetokenstore)
 
-Defined in: [chat/server/token-store.ts:67](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L67)
+Defined in: [chat/server/token-store.ts:67](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L67)
 
 ###### Parameters
 
@@ -348,7 +348,7 @@ Defined in: [chat/server/token-store.ts:67](https://github.com/witqq/agent-sdk/b
 
 > **clear**(`provider`): `Promise`\<`void`\>
 
-Defined in: [chat/server/token-store.ts:85](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L85)
+Defined in: [chat/server/token-store.ts:85](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L85)
 
 Remove a specific provider's token.
 
@@ -370,7 +370,7 @@ Remove a specific provider's token.
 
 > **clearAll**(): `Promise`\<`void`\>
 
-Defined in: [chat/server/token-store.ts:93](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L93)
+Defined in: [chat/server/token-store.ts:93](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L93)
 
 Remove all stored tokens.
 
@@ -386,7 +386,7 @@ Remove all stored tokens.
 
 > **list**(): `Promise`\<`string`[]\>
 
-Defined in: [chat/server/token-store.ts:106](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L106)
+Defined in: [chat/server/token-store.ts:106](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L106)
 
 List provider names that have saved tokens.
 
@@ -402,7 +402,7 @@ List provider names that have saved tokens.
 
 > **load**(`provider`): `Promise`\<[`AuthToken`](/api-reference/auth/#authtoken) \| `null`\>
 
-Defined in: [chat/server/token-store.ts:76](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L76)
+Defined in: [chat/server/token-store.ts:76](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L76)
 
 Load a previously saved token. Returns null if not found.
 
@@ -424,7 +424,7 @@ Load a previously saved token. Returns null if not found.
 
 > **save**(`provider`, `token`): `Promise`\<`void`\>
 
-Defined in: [chat/server/token-store.ts:71](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L71)
+Defined in: [chat/server/token-store.ts:71](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L71)
 
 Save a token for a provider. Overwrites if exists.
 
@@ -450,7 +450,7 @@ Save a token for a provider. Overwrites if exists.
 
 ### InMemoryProviderStore
 
-Defined in: [chat/server/provider-store.ts:19](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/provider-store.ts#L19)
+Defined in: [chat/server/provider-store.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/provider-store.ts#L19)
 
 In-memory provider store for testing and ephemeral use
 
@@ -474,7 +474,7 @@ In-memory provider store for testing and ephemeral use
 
 > **create**(`config`): `Promise`\<`void`\>
 
-Defined in: [chat/server/provider-store.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/provider-store.ts#L22)
+Defined in: [chat/server/provider-store.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/provider-store.ts#L22)
 
 Create a new provider. Generates UUID if id not set on config.
 
@@ -496,7 +496,7 @@ Create a new provider. Generates UUID if id not set on config.
 
 > **delete**(`id`): `Promise`\<`void`\>
 
-Defined in: [chat/server/provider-store.ts:40](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/provider-store.ts#L40)
+Defined in: [chat/server/provider-store.ts:40](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/provider-store.ts#L40)
 
 Delete a provider by id.
 
@@ -518,7 +518,7 @@ Delete a provider by id.
 
 > **get**(`id`): `Promise`\<[`ProviderConfig`](/api-reference/chat/index-exports/#providerconfig) \| `null`\>
 
-Defined in: [chat/server/provider-store.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/provider-store.ts#L27)
+Defined in: [chat/server/provider-store.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/provider-store.ts#L27)
 
 Get a provider by id. Returns null if not found.
 
@@ -540,7 +540,7 @@ Get a provider by id. Returns null if not found.
 
 > **list**(): `Promise`\<[`ProviderConfig`](/api-reference/chat/index-exports/#providerconfig)[]\>
 
-Defined in: [chat/server/provider-store.ts:44](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/provider-store.ts#L44)
+Defined in: [chat/server/provider-store.ts:44](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/provider-store.ts#L44)
 
 List all providers.
 
@@ -556,7 +556,7 @@ List all providers.
 
 > **update**(`id`, `changes`): `Promise`\<`void`\>
 
-Defined in: [chat/server/provider-store.ts:32](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/provider-store.ts#L32)
+Defined in: [chat/server/provider-store.ts:32](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/provider-store.ts#L32)
 
 Update an existing provider. Throws if not found.
 
@@ -582,7 +582,7 @@ Update an existing provider. Throws if not found.
 
 ### InMemoryTokenStore
 
-Defined in: [chat/server/token-store.ts:30](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L30)
+Defined in: [chat/server/token-store.ts:30](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L30)
 
 In-memory token store for testing and ephemeral use
 
@@ -606,7 +606,7 @@ In-memory token store for testing and ephemeral use
 
 > **clear**(`provider`): `Promise`\<`void`\>
 
-Defined in: [chat/server/token-store.ts:42](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L42)
+Defined in: [chat/server/token-store.ts:42](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L42)
 
 Remove a specific provider's token.
 
@@ -628,7 +628,7 @@ Remove a specific provider's token.
 
 > **clearAll**(): `Promise`\<`void`\>
 
-Defined in: [chat/server/token-store.ts:46](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L46)
+Defined in: [chat/server/token-store.ts:46](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L46)
 
 Remove all stored tokens.
 
@@ -644,7 +644,7 @@ Remove all stored tokens.
 
 > **list**(): `Promise`\<`string`[]\>
 
-Defined in: [chat/server/token-store.ts:50](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L50)
+Defined in: [chat/server/token-store.ts:50](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L50)
 
 List provider names that have saved tokens.
 
@@ -660,7 +660,7 @@ List provider names that have saved tokens.
 
 > **load**(`provider`): `Promise`\<[`AuthToken`](/api-reference/auth/#authtoken) \| `null`\>
 
-Defined in: [chat/server/token-store.ts:37](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L37)
+Defined in: [chat/server/token-store.ts:37](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L37)
 
 Load a previously saved token. Returns null if not found.
 
@@ -682,7 +682,7 @@ Load a previously saved token. Returns null if not found.
 
 > **save**(`provider`, `token`): `Promise`\<`void`\>
 
-Defined in: [chat/server/token-store.ts:33](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L33)
+Defined in: [chat/server/token-store.ts:33](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L33)
 
 Save a token for a provider. Overwrites if exists.
 
@@ -708,7 +708,7 @@ Save a token for a provider. Overwrites if exists.
 
 ### ServiceManager
 
-Defined in: [chat/server/service-manager.ts:59](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/service-manager.ts#L59)
+Defined in: [chat/server/service-manager.ts:59](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/service-manager.ts#L59)
 
 Manages IAgentService lifecycle: create, cache, and dispose on re-auth or logout.
 Optionally starts background token refresh when `refreshFactory` is configured.
@@ -719,7 +719,7 @@ Optionally starts background token refresh when `refreshFactory` is configured.
 
 > **new ServiceManager**(`options`): [`ServiceManager`](#servicemanager-1)
 
-Defined in: [chat/server/service-manager.ts:64](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/service-manager.ts#L64)
+Defined in: [chat/server/service-manager.ts:64](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/service-manager.ts#L64)
 
 ###### Parameters
 
@@ -739,7 +739,7 @@ Defined in: [chat/server/service-manager.ts:64](https://github.com/witqq/agent-s
 
 > **get** **activeBackends**(): `string`[]
 
-Defined in: [chat/server/service-manager.ts:126](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/service-manager.ts#L126)
+Defined in: [chat/server/service-manager.ts:126](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/service-manager.ts#L126)
 
 Get all backend names with active services.
 
@@ -753,7 +753,7 @@ Get all backend names with active services.
 
 > **dispose**(): `Promise`\<`void`\>
 
-Defined in: [chat/server/service-manager.ts:111](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/service-manager.ts#L111)
+Defined in: [chat/server/service-manager.ts:111](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/service-manager.ts#L111)
 
 Dispose the ServiceManager — stops all refresh managers and disposes all services.
 
@@ -765,7 +765,7 @@ Dispose the ServiceManager — stops all refresh managers and disposes all servi
 
 > **getRefreshManager**(`backend`): [`TokenRefreshManager`](/api-reference/auth/#tokenrefreshmanager) \| `undefined`
 
-Defined in: [chat/server/service-manager.ts:131](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/service-manager.ts#L131)
+Defined in: [chat/server/service-manager.ts:131](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/service-manager.ts#L131)
 
 Get active refresh manager for a backend (for testing/introspection).
 
@@ -783,7 +783,7 @@ Get active refresh manager for a backend (for testing/introspection).
 
 > **getService**(`backend`): [`ManagedService`](#managedservice) \| `undefined`
 
-Defined in: [chat/server/service-manager.ts:116](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/service-manager.ts#L116)
+Defined in: [chat/server/service-manager.ts:116](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/service-manager.ts#L116)
 
 Get cached service for a backend (undefined if not authenticated).
 
@@ -801,7 +801,7 @@ Get cached service for a backend (undefined if not authenticated).
 
 > **handleAuth**(`backend`, `token`): `Promise`\<[`ManagedService`](#managedservice)\>
 
-Defined in: [chat/server/service-manager.ts:73](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/service-manager.ts#L73)
+Defined in: [chat/server/service-manager.ts:73](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/service-manager.ts#L73)
 
 Handle auth event: dispose old service (if any) and create new one.
 If the token is refreshable and refreshFactory is configured, starts a
@@ -825,7 +825,7 @@ TokenRefreshManager that auto-refreshes and recreates the service.
 
 > **handleLogout**(): `Promise`\<`void`\>
 
-Defined in: [chat/server/service-manager.ts:96](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/service-manager.ts#L96)
+Defined in: [chat/server/service-manager.ts:96](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/service-manager.ts#L96)
 
 Handle logout: dispose all services, stop all refresh managers, clear cache.
 
@@ -837,7 +837,7 @@ Handle logout: dispose all services, stop all refresh managers, clear cache.
 
 > **hasService**(`backend`): `boolean`
 
-Defined in: [chat/server/service-manager.ts:121](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/service-manager.ts#L121)
+Defined in: [chat/server/service-manager.ts:121](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/service-manager.ts#L121)
 
 Check if a service exists for the given backend.
 
@@ -855,7 +855,7 @@ Check if a service exists for the given backend.
 
 ### AdapterPoolOptions
 
-Defined in: [chat/server/adapter-pool.ts:39](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/adapter-pool.ts#L39)
+Defined in: [chat/server/adapter-pool.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/adapter-pool.ts#L39)
 
 Configuration for AdapterPool
 
@@ -871,7 +871,7 @@ Configuration for AdapterPool
 
 > **factory**: [`AdapterFactory`](#adapterfactory)\<`T`\>
 
-Defined in: [chat/server/adapter-pool.ts:41](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/adapter-pool.ts#L41)
+Defined in: [chat/server/adapter-pool.ts:41](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/adapter-pool.ts#L41)
 
 Factory to create an adapter for a backend. Called lazily on first getAdapter().
 
@@ -879,17 +879,17 @@ Factory to create an adapter for a backend. Called lazily on first getAdapter().
 
 ### AuthHandlerOptions
 
-Defined in: [chat/server/auth-handler.ts:55](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/auth-handler.ts#L55)
+Defined in: [chat/server/auth-handler.ts:55](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/auth-handler.ts#L55)
 
 Configuration for createAuthHandler
 
 #### Properties
 
-##### createClaudeAuth()?
+##### createClaudeAuth?
 
-> `optional` **createClaudeAuth**: () => [`IClaudeAuth`](#iclaudeauth)
+> `optional` **createClaudeAuth?**: () => [`IClaudeAuth`](#iclaudeauth)
 
-Defined in: [chat/server/auth-handler.ts:61](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/auth-handler.ts#L61)
+Defined in: [chat/server/auth-handler.ts:61](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/auth-handler.ts#L61)
 
 Factory for creating ClaudeAuth instances
 
@@ -897,11 +897,11 @@ Factory for creating ClaudeAuth instances
 
 [`IClaudeAuth`](#iclaudeauth)
 
-##### createCopilotAuth()?
+##### createCopilotAuth?
 
-> `optional` **createCopilotAuth**: () => [`ICopilotAuth`](#icopilotauth)
+> `optional` **createCopilotAuth?**: () => [`ICopilotAuth`](#icopilotauth)
 
-Defined in: [chat/server/auth-handler.ts:59](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/auth-handler.ts#L59)
+Defined in: [chat/server/auth-handler.ts:59](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/auth-handler.ts#L59)
 
 Factory for creating CopilotAuth instances
 
@@ -911,25 +911,25 @@ Factory for creating CopilotAuth instances
 
 ##### maxBodySize?
 
-> `optional` **maxBodySize**: `number`
+> `optional` **maxBodySize?**: `number`
 
-Defined in: [chat/server/auth-handler.ts:69](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/auth-handler.ts#L69)
+Defined in: [chat/server/auth-handler.ts:69](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/auth-handler.ts#L69)
 
 Maximum request body size in bytes. Default: 1MB
 
 ##### onAuth?
 
-> `optional` **onAuth**: [`OnAuthCallback`](#onauthcallback)
+> `optional` **onAuth?**: [`OnAuthCallback`](#onauthcallback)
 
-Defined in: [chat/server/auth-handler.ts:63](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/auth-handler.ts#L63)
+Defined in: [chat/server/auth-handler.ts:63](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/auth-handler.ts#L63)
 
 Called after successful authentication for any provider
 
-##### onLogout()?
+##### onLogout?
 
-> `optional` **onLogout**: () => `void` \| `Promise`\<`void`\>
+> `optional` **onLogout?**: () => `void` \| `Promise`\<`void`\>
 
-Defined in: [chat/server/auth-handler.ts:65](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/auth-handler.ts#L65)
+Defined in: [chat/server/auth-handler.ts:65](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/auth-handler.ts#L65)
 
 Called when dispose/logout is requested
 
@@ -939,9 +939,9 @@ Called when dispose/logout is requested
 
 ##### prefix?
 
-> `optional` **prefix**: `string`
+> `optional` **prefix?**: `string`
 
-Defined in: [chat/server/auth-handler.ts:67](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/auth-handler.ts#L67)
+Defined in: [chat/server/auth-handler.ts:67](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/auth-handler.ts#L67)
 
 Route prefix to strip from URL before matching. Default: ""
 
@@ -949,7 +949,7 @@ Route prefix to strip from URL before matching. Default: ""
 
 > **tokenStore**: [`ITokenStore`](#itokenstore)
 
-Defined in: [chat/server/auth-handler.ts:57](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/auth-handler.ts#L57)
+Defined in: [chat/server/auth-handler.ts:57](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/auth-handler.ts#L57)
 
 Token storage implementation
 
@@ -957,7 +957,7 @@ Token storage implementation
 
 ### ChatHandlerOptions
 
-Defined in: [chat/server/handler.ts:59](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L59)
+Defined in: [chat/server/handler.ts:59](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L59)
 
 Configuration for createChatHandler
 
@@ -965,57 +965,57 @@ Configuration for createChatHandler
 
 ##### heartbeatMs?
 
-> `optional` **heartbeatMs**: `number`
+> `optional` **heartbeatMs?**: `number`
 
-Defined in: [chat/server/handler.ts:65](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L65)
+Defined in: [chat/server/handler.ts:65](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L65)
 
 SSE heartbeat interval in milliseconds. 0 or undefined disables heartbeat.
 
 ##### hooks?
 
-> `optional` **hooks**: [`ChatServerHooks`](#chatserverhooks)
+> `optional` **hooks?**: [`ChatServerHooks`](#chatserverhooks)
 
-Defined in: [chat/server/handler.ts:71](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L71)
+Defined in: [chat/server/handler.ts:71](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L71)
 
 Consolidated server hooks.
 
 ##### maxBodySize?
 
-> `optional` **maxBodySize**: `number`
+> `optional` **maxBodySize?**: `number`
 
-Defined in: [chat/server/handler.ts:63](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L63)
+Defined in: [chat/server/handler.ts:63](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L63)
 
 Maximum request body size in bytes. Default: 1MB (1048576)
 
 ##### prefix?
 
-> `optional` **prefix**: `string`
+> `optional` **prefix?**: `string`
 
-Defined in: [chat/server/handler.ts:61](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L61)
+Defined in: [chat/server/handler.ts:61](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L61)
 
 Route prefix to strip from URL before matching. Default: "" (no prefix)
 
 ##### providerStore?
 
-> `optional` **providerStore**: [`IProviderStore`](/api-reference/chat/index-exports/#iproviderstore)
+> `optional` **providerStore?**: [`IProviderStore`](/api-reference/chat/index-exports/#iproviderstore)
 
-Defined in: [chat/server/handler.ts:67](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L67)
+Defined in: [chat/server/handler.ts:67](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L67)
 
 Optional provider store for provider CRUD routes.
 
 ##### tokenStore?
 
-> `optional` **tokenStore**: [`ITokenStore`](#itokenstore)
+> `optional` **tokenStore?**: [`ITokenStore`](#itokenstore)
 
-Defined in: [chat/server/handler.ts:69](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L69)
+Defined in: [chat/server/handler.ts:69](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L69)
 
 Optional token store for resolveRequestContext in /send.
 
 ##### transportFactory?
 
-> `optional` **transportFactory**: [`TransportFactory`](#transportfactory-2)
+> `optional` **transportFactory?**: [`TransportFactory`](#transportfactory-2)
 
-Defined in: [chat/server/handler.ts:73](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L73)
+Defined in: [chat/server/handler.ts:73](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L73)
 
 Custom transport factory for /send endpoint. Default: SSEChatTransport.
 
@@ -1023,7 +1023,7 @@ Custom transport factory for /send endpoint. Default: SSEChatTransport.
 
 ### ChatServerHooks
 
-Defined in: [chat/server/handler.ts:36](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L36)
+Defined in: [chat/server/handler.ts:36](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L36)
 
 Server-side hooks for customizing chat handler behavior.
 Consolidates filter, guard, and lifecycle callbacks into a single interface.
@@ -1034,7 +1034,7 @@ Consolidates filter, guard, and lifecycle callbacks into a single interface.
 
 > `optional` **filterModels**(`models`): [`ModelInfo`](/api-reference/core/#modelinfo)[]
 
-Defined in: [chat/server/handler.ts:38](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L38)
+Defined in: [chat/server/handler.ts:38](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L38)
 
 Filter the model list before returning to client.
 
@@ -1052,7 +1052,7 @@ Filter the model list before returning to client.
 
 > `optional` **onBackendSwitch**(`backend`): `void` \| `Promise`\<`void`\>
 
-Defined in: [chat/server/handler.ts:44](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L44)
+Defined in: [chat/server/handler.ts:44](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L44)
 
 Called before backend switch. Throw to reject.
 
@@ -1070,7 +1070,7 @@ Called before backend switch. Throw to reject.
 
 > `optional` **onBeforeSend**(`sessionId`, `message`): `void` \| `Promise`\<`void`\>
 
-Defined in: [chat/server/handler.ts:46](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L46)
+Defined in: [chat/server/handler.ts:46](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L46)
 
 Called before sending a message. Throw to reject.
 
@@ -1092,7 +1092,7 @@ Called before sending a message. Throw to reject.
 
 > `optional` **onError**(`error`, `context`): `void`
 
-Defined in: [chat/server/handler.ts:48](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L48)
+Defined in: [chat/server/handler.ts:48](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L48)
 
 Global error handler for unhandled route errors.
 
@@ -1120,7 +1120,7 @@ Global error handler for unhandled route errors.
 
 > `optional` **onModelSwitch**(`model`): `void` \| `Promise`\<`void`\>
 
-Defined in: [chat/server/handler.ts:40](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L40)
+Defined in: [chat/server/handler.ts:40](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L40)
 
 Validate model selection on /model/switch and /send model override. Throw to reject.
 
@@ -1138,7 +1138,7 @@ Validate model selection on /model/switch and /send model override. Throw to rej
 
 > `optional` **onProviderSwitch**(`info`): `void` \| `Promise`\<`void`\>
 
-Defined in: [chat/server/handler.ts:42](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L42)
+Defined in: [chat/server/handler.ts:42](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L42)
 
 Called before provider switch. Receives providerId and resolved backend name. Throw to reject.
 
@@ -1162,7 +1162,7 @@ Called before provider switch. Receives providerId and resolved backend name. Th
 
 ### ChatServerOptions
 
-Defined in: [chat/server/chat-server.ts:39](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L39)
+Defined in: [chat/server/chat-server.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L39)
 
 Configuration for createChatServer
 
@@ -1170,25 +1170,25 @@ Configuration for createChatServer
 
 ##### auth?
 
-> `optional` **auth**: [`AuthHandlerOptions`](#authhandleroptions)
+> `optional` **auth?**: [`AuthHandlerOptions`](#authhandleroptions)
 
-Defined in: [chat/server/chat-server.ts:53](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L53)
+Defined in: [chat/server/chat-server.ts:53](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L53)
 
 Auth handler options. If provided, auth routes are mounted.
 
 ##### authPrefix?
 
-> `optional` **authPrefix**: `string`
+> `optional` **authPrefix?**: `string`
 
-Defined in: [chat/server/chat-server.ts:56](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L56)
+Defined in: [chat/server/chat-server.ts:56](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L56)
 
 Prefix for auth routes. Default: "/api/auth"
 
 ##### autoCreateProviders?
 
-> `optional` **autoCreateProviders**: `boolean` \| `Record`\<`string`, `string`\>
+> `optional` **autoCreateProviders?**: `boolean` \| `Record`\<`string`, `string`\>
 
-Defined in: [chat/server/chat-server.ts:91](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L91)
+Defined in: [chat/server/chat-server.ts:91](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L91)
 
 Auto-create a default provider when a backend authenticates for the first time.
 
@@ -1200,82 +1200,82 @@ Requires both `auth` and `providers` to be configured.
 
 ##### chatHandlerOptions?
 
-> `optional` **chatHandlerOptions**: `Omit`\<[`ChatHandlerOptions`](#chathandleroptions), `"prefix"`\>
+> `optional` **chatHandlerOptions?**: `Omit`\<[`ChatHandlerOptions`](#chathandleroptions), `"prefix"`\>
 
-Defined in: [chat/server/chat-server.ts:74](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L74)
+Defined in: [chat/server/chat-server.ts:74](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L74)
 
 Chat handler options (maxBodySize, etc.)
 
 ##### chatPrefix?
 
-> `optional` **chatPrefix**: `string`
+> `optional` **chatPrefix?**: `string`
 
-Defined in: [chat/server/chat-server.ts:50](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L50)
+Defined in: [chat/server/chat-server.ts:50](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L50)
 
 Prefix for chat API routes. Default: "/api/chat"
 
 ##### cors?
 
-> `optional` **cors**: `false` \| [`CorsOptions`](#corsoptions)
+> `optional` **cors?**: `false` \| [`CorsOptions`](#corsoptions)
 
-Defined in: [chat/server/chat-server.ts:59](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L59)
+Defined in: [chat/server/chat-server.ts:59](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L59)
 
 CORS options. Pass false to disable CORS. Default: enabled with permissive settings
 
 ##### healthPath?
 
-> `optional` **healthPath**: `string` \| `false`
+> `optional` **healthPath?**: `string` \| `false`
 
-Defined in: [chat/server/chat-server.ts:80](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L80)
+Defined in: [chat/server/chat-server.ts:80](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L80)
 
 Path for the health check endpoint. Default: "/api/health".
 Set to `false` to disable. Returns `{ ok: true }`.
 
 ##### hooks?
 
-> `optional` **hooks**: [`ChatServerHooks`](#chatserverhooks)
+> `optional` **hooks?**: [`ChatServerHooks`](#chatserverhooks)
 
-Defined in: [chat/server/chat-server.ts:47](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L47)
+Defined in: [chat/server/chat-server.ts:47](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L47)
 
 Server-side hooks for customizing handler behavior.
 
 ##### providerPrefix?
 
-> `optional` **providerPrefix**: `string`
+> `optional` **providerPrefix?**: `string`
 
-Defined in: [chat/server/chat-server.ts:71](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L71)
+Defined in: [chat/server/chat-server.ts:71](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L71)
 
 Prefix for provider routes. Default: "/api/providers"
 
 ##### providers?
 
-> `optional` **providers**: [`ProviderHandlerOptions`](#providerhandleroptions)
+> `optional` **providers?**: [`ProviderHandlerOptions`](#providerhandleroptions)
 
-Defined in: [chat/server/chat-server.ts:68](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L68)
+Defined in: [chat/server/chat-server.ts:68](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L68)
 
 Provider handler options. If provided, provider routes are mounted.
 
 ##### runtime?
 
-> `optional` **runtime**: [`IChatRuntime`](/api-reference/chat/runtime/#ichatruntime)\<`Record`\<`string`, `unknown`\>\>
+> `optional` **runtime?**: [`IChatRuntime`](/api-reference/chat/runtime/#ichatruntime)\<`Record`\<`string`, `unknown`\>\>
 
-Defined in: [chat/server/chat-server.ts:41](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L41)
+Defined in: [chat/server/chat-server.ts:41](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L41)
 
 Pre-built runtime instance. Either `runtime` or `runtimeConfig` must be provided.
 
 ##### runtimeConfig?
 
-> `optional` **runtimeConfig**: [`ChatRuntimeOptions`](/api-reference/chat/runtime/#chatruntimeoptions)
+> `optional` **runtimeConfig?**: [`ChatRuntimeOptions`](/api-reference/chat/runtime/#chatruntimeoptions)
 
-Defined in: [chat/server/chat-server.ts:44](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L44)
+Defined in: [chat/server/chat-server.ts:44](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L44)
 
 Config to auto-create a runtime. Used when `runtime` is not provided.
 
 ##### serviceManager?
 
-> `optional` **serviceManager**: [`ServiceManager`](#servicemanager-1)
+> `optional` **serviceManager?**: [`ServiceManager`](#servicemanager-1)
 
-Defined in: [chat/server/chat-server.ts:100](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L100)
+Defined in: [chat/server/chat-server.ts:100](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L100)
 
 Service lifecycle manager. When provided with `auth`, automatically wires:
 - `onAuth` → `serviceManager.handleAuth(backend, token)` (creates/caches service)
@@ -1285,17 +1285,17 @@ User's own `onAuth`/`onLogout` callbacks in `auth` are still called first.
 
 ##### staticDir?
 
-> `optional` **staticDir**: `string`
+> `optional` **staticDir?**: `string`
 
-Defined in: [chat/server/chat-server.ts:62](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L62)
+Defined in: [chat/server/chat-server.ts:62](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L62)
 
 Directory to serve static files from. Omit to disable static serving.
 
 ##### staticPrefix?
 
-> `optional` **staticPrefix**: `string`
+> `optional` **staticPrefix?**: `string`
 
-Defined in: [chat/server/chat-server.ts:65](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L65)
+Defined in: [chat/server/chat-server.ts:65](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L65)
 
 Prefix for static file routes. Default: "/"
 
@@ -1303,7 +1303,7 @@ Prefix for static file routes. Default: "/"
 
 ### CorsOptions
 
-Defined in: [chat/server/cors.ts:8](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/cors.ts#L8)
+Defined in: [chat/server/cors.ts:8](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/cors.ts#L8)
 
 Configuration for CORS middleware
 
@@ -1311,33 +1311,33 @@ Configuration for CORS middleware
 
 ##### headers?
 
-> `optional` **headers**: `string`[]
+> `optional` **headers?**: `string`[]
 
-Defined in: [chat/server/cors.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/cors.ts#L14)
+Defined in: [chat/server/cors.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/cors.ts#L14)
 
 Allowed request headers. Default: ["Content-Type"]
 
 ##### maxAge?
 
-> `optional` **maxAge**: `number`
+> `optional` **maxAge?**: `number`
 
-Defined in: [chat/server/cors.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/cors.ts#L16)
+Defined in: [chat/server/cors.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/cors.ts#L16)
 
 Max age for preflight cache in seconds. Default: 86400 (24h)
 
 ##### methods?
 
-> `optional` **methods**: `string`[]
+> `optional` **methods?**: `string`[]
 
-Defined in: [chat/server/cors.ts:12](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/cors.ts#L12)
+Defined in: [chat/server/cors.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/cors.ts#L12)
 
 Allowed HTTP methods. Default: common REST methods
 
 ##### origin?
 
-> `optional` **origin**: `string` \| `string`[]
+> `optional` **origin?**: `string` \| `string`[]
 
-Defined in: [chat/server/cors.ts:10](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/cors.ts#L10)
+Defined in: [chat/server/cors.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/cors.ts#L10)
 
 Allowed origins. Default: "*" (any origin)
 
@@ -1345,7 +1345,7 @@ Allowed origins. Default: "*" (any origin)
 
 ### FileProviderStoreOptions
 
-Defined in: [chat/server/provider-store.ts:52](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/provider-store.ts#L52)
+Defined in: [chat/server/provider-store.ts:52](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/provider-store.ts#L52)
 
 Options for FileProviderStore
 
@@ -1355,7 +1355,7 @@ Options for FileProviderStore
 
 > **directory**: `string`
 
-Defined in: [chat/server/provider-store.ts:54](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/provider-store.ts#L54)
+Defined in: [chat/server/provider-store.ts:54](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/provider-store.ts#L54)
 
 Directory to store provider JSON files
 
@@ -1363,7 +1363,7 @@ Directory to store provider JSON files
 
 ### FileTokenStoreOptions
 
-Defined in: [chat/server/token-store.ts:58](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L58)
+Defined in: [chat/server/token-store.ts:58](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L58)
 
 Options for FileTokenStore
 
@@ -1373,7 +1373,7 @@ Options for FileTokenStore
 
 > **directory**: `string`
 
-Defined in: [chat/server/token-store.ts:60](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L60)
+Defined in: [chat/server/token-store.ts:60](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L60)
 
 Directory to store token JSON files. Default: ".tokens" in cwd
 
@@ -1381,7 +1381,7 @@ Directory to store token JSON files. Default: ".tokens" in cwd
 
 ### ~~HandlerState~~
 
-Defined in: [chat/server/routes/types.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/routes/types.ts#L17)
+Defined in: [chat/server/routes/types.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/routes/types.ts#L17)
 
 Handler state — intentionally empty after stateless refactor (STAT-01).
 Preserved as a type for backward compatibility with custom route modules.
@@ -1395,9 +1395,9 @@ Will be removed in next major version.
 
 ##### ~~currentModel?~~
 
-> `optional` **currentModel**: `string`
+> `optional` **currentModel?**: `string`
 
-Defined in: [chat/server/routes/types.ts:19](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/routes/types.ts#L19)
+Defined in: [chat/server/routes/types.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/routes/types.ts#L19)
 
 ###### Deprecated
 
@@ -1407,7 +1407,7 @@ Model is now resolved per-request. This field is never set.
 
 ### IClaudeAuth
 
-Defined in: [chat/server/auth-handler.ts:38](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/auth-handler.ts#L38)
+Defined in: [chat/server/auth-handler.ts:38](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/auth-handler.ts#L38)
 
 Claude auth class interface (matches ClaudeAuth public API)
 
@@ -1417,7 +1417,7 @@ Claude auth class interface (matches ClaudeAuth public API)
 
 > **startOAuthFlow**(`options?`): `object`
 
-Defined in: [chat/server/auth-handler.ts:39](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/auth-handler.ts#L39)
+Defined in: [chat/server/auth-handler.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/auth-handler.ts#L39)
 
 ###### Parameters
 
@@ -1439,7 +1439,7 @@ Defined in: [chat/server/auth-handler.ts:39](https://github.com/witqq/agent-sdk/
 
 > **authorizeUrl**: `string`
 
-###### completeAuth()
+###### completeAuth
 
 > **completeAuth**: (`codeOrUrl`) => `Promise`\<[`ClaudeAuthToken`](/api-reference/auth/#claudeauthtoken)\>
 
@@ -1457,7 +1457,7 @@ Defined in: [chat/server/auth-handler.ts:39](https://github.com/witqq/agent-sdk/
 
 ### ICopilotAuth
 
-Defined in: [chat/server/auth-handler.ts:26](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/auth-handler.ts#L26)
+Defined in: [chat/server/auth-handler.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/auth-handler.ts#L26)
 
 Copilot auth class interface (matches CopilotAuth public API)
 
@@ -1467,7 +1467,7 @@ Copilot auth class interface (matches CopilotAuth public API)
 
 > **startDeviceFlow**(`options?`): `Promise`\<\{ `userCode`: `string`; `verificationUrl`: `string`; `waitForToken`: (`signal?`) => `Promise`\<[`CopilotAuthToken`](/api-reference/auth/#copilotauthtoken)\>; \}\>
 
-Defined in: [chat/server/auth-handler.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/auth-handler.ts#L27)
+Defined in: [chat/server/auth-handler.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/auth-handler.ts#L27)
 
 ###### Parameters
 
@@ -1489,7 +1489,7 @@ Defined in: [chat/server/auth-handler.ts:27](https://github.com/witqq/agent-sdk/
 
 ### ITokenStore
 
-Defined in: [chat/server/token-store.ts:12](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L12)
+Defined in: [chat/server/token-store.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L12)
 
 Token storage interface for server-side token management
 
@@ -1499,7 +1499,7 @@ Token storage interface for server-side token management
 
 > **clear**(`provider`): `Promise`\<`void`\>
 
-Defined in: [chat/server/token-store.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L18)
+Defined in: [chat/server/token-store.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L18)
 
 Remove a specific provider's token.
 
@@ -1517,7 +1517,7 @@ Remove a specific provider's token.
 
 > **clearAll**(): `Promise`\<`void`\>
 
-Defined in: [chat/server/token-store.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L20)
+Defined in: [chat/server/token-store.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L20)
 
 Remove all stored tokens.
 
@@ -1529,7 +1529,7 @@ Remove all stored tokens.
 
 > `optional` **dispose**(): `Promise`\<`void`\>
 
-Defined in: [chat/server/token-store.ts:24](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L24)
+Defined in: [chat/server/token-store.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L24)
 
 Release any resources held by this store (optional).
 
@@ -1541,7 +1541,7 @@ Release any resources held by this store (optional).
 
 > **list**(): `Promise`\<`string`[]\>
 
-Defined in: [chat/server/token-store.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L22)
+Defined in: [chat/server/token-store.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L22)
 
 List provider names that have saved tokens.
 
@@ -1553,7 +1553,7 @@ List provider names that have saved tokens.
 
 > **load**(`provider`): `Promise`\<[`AuthToken`](/api-reference/auth/#authtoken) \| `null`\>
 
-Defined in: [chat/server/token-store.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L16)
+Defined in: [chat/server/token-store.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L16)
 
 Load a previously saved token. Returns null if not found.
 
@@ -1571,7 +1571,7 @@ Load a previously saved token. Returns null if not found.
 
 > **save**(`provider`, `token`): `Promise`\<`void`\>
 
-Defined in: [chat/server/token-store.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/token-store.ts#L14)
+Defined in: [chat/server/token-store.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/token-store.ts#L14)
 
 Save a token for a provider. Overwrites if exists.
 
@@ -1593,7 +1593,7 @@ Save a token for a provider. Overwrites if exists.
 
 ### ManagedService
 
-Defined in: [chat/server/service-manager.ts:28](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/service-manager.ts#L28)
+Defined in: [chat/server/service-manager.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/service-manager.ts#L28)
 
 Minimal IAgentService interface (avoids importing from main package)
 
@@ -1603,7 +1603,7 @@ Minimal IAgentService interface (avoids importing from main package)
 
 > **dispose**(): `void` \| `Promise`\<`void`\>
 
-Defined in: [chat/server/service-manager.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/service-manager.ts#L29)
+Defined in: [chat/server/service-manager.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/service-manager.ts#L29)
 
 ###### Returns
 
@@ -1613,7 +1613,7 @@ Defined in: [chat/server/service-manager.ts:29](https://github.com/witqq/agent-s
 
 ### PooledAdapter
 
-Defined in: [chat/server/adapter-pool.ts:30](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/adapter-pool.ts#L30)
+Defined in: [chat/server/adapter-pool.ts:30](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/adapter-pool.ts#L30)
 
 Minimal adapter interface (avoids importing full IChatBackend)
 
@@ -1623,7 +1623,7 @@ Minimal adapter interface (avoids importing full IChatBackend)
 
 > **dispose**(): `void` \| `Promise`\<`void`\>
 
-Defined in: [chat/server/adapter-pool.ts:31](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/adapter-pool.ts#L31)
+Defined in: [chat/server/adapter-pool.ts:31](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/adapter-pool.ts#L31)
 
 ###### Returns
 
@@ -1633,7 +1633,7 @@ Defined in: [chat/server/adapter-pool.ts:31](https://github.com/witqq/agent-sdk/
 
 ### ProviderHandlerOptions
 
-Defined in: [chat/server/provider-handler.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/provider-handler.ts#L20)
+Defined in: [chat/server/provider-handler.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/provider-handler.ts#L20)
 
 Configuration for createProviderHandler
 
@@ -1643,7 +1643,7 @@ Configuration for createProviderHandler
 
 > **providerStore**: [`IProviderStore`](/api-reference/chat/index-exports/#iproviderstore)
 
-Defined in: [chat/server/provider-handler.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/provider-handler.ts#L22)
+Defined in: [chat/server/provider-handler.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/provider-handler.ts#L22)
 
 Provider storage implementation
 
@@ -1651,7 +1651,7 @@ Provider storage implementation
 
 ### ReadableRequest
 
-Defined in: [chat/server/handler.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L20)
+Defined in: [chat/server/handler.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L20)
 
 Minimal readable request interface (node:http IncomingMessage subset)
 
@@ -1659,15 +1659,15 @@ Minimal readable request interface (node:http IncomingMessage subset)
 
 ##### method?
 
-> `readonly` `optional` **method**: `string`
+> `readonly` `optional` **method?**: `string`
 
-Defined in: [chat/server/handler.ts:21](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L21)
+Defined in: [chat/server/handler.ts:21](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L21)
 
 ##### url?
 
-> `readonly` `optional` **url**: `string`
+> `readonly` `optional` **url?**: `string`
 
-Defined in: [chat/server/handler.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L22)
+Defined in: [chat/server/handler.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L22)
 
 #### Methods
 
@@ -1677,7 +1677,7 @@ Defined in: [chat/server/handler.ts:22](https://github.com/witqq/agent-sdk/blob/
 
 > **on**(`event`, `listener`): `unknown`
 
-Defined in: [chat/server/handler.ts:23](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L23)
+Defined in: [chat/server/handler.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L23)
 
 ###### Parameters
 
@@ -1697,7 +1697,7 @@ Defined in: [chat/server/handler.ts:23](https://github.com/witqq/agent-sdk/blob/
 
 > **on**(`event`, `listener`): `unknown`
 
-Defined in: [chat/server/handler.ts:24](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L24)
+Defined in: [chat/server/handler.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L24)
 
 ###### Parameters
 
@@ -1717,7 +1717,7 @@ Defined in: [chat/server/handler.ts:24](https://github.com/witqq/agent-sdk/blob/
 
 ### RequestContext
 
-Defined in: [chat/server/request-context.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/request-context.ts#L27)
+Defined in: [chat/server/request-context.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/request-context.ts#L27)
 
 Per-request context carrying backend, credentials, and model
 
@@ -1727,7 +1727,7 @@ Per-request context carrying backend, credentials, and model
 
 > **backend**: `string`
 
-Defined in: [chat/server/request-context.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/request-context.ts#L29)
+Defined in: [chat/server/request-context.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/request-context.ts#L29)
 
 Backend name (e.g. "copilot", "claude", "vercel-ai")
 
@@ -1735,7 +1735,7 @@ Backend name (e.g. "copilot", "claude", "vercel-ai")
 
 > **credentials**: [`AuthToken`](/api-reference/auth/#authtoken)
 
-Defined in: [chat/server/request-context.ts:31](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/request-context.ts#L31)
+Defined in: [chat/server/request-context.ts:31](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/request-context.ts#L31)
 
 Resolved authentication token
 
@@ -1743,7 +1743,7 @@ Resolved authentication token
 
 > **model**: `string`
 
-Defined in: [chat/server/request-context.ts:33](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/request-context.ts#L33)
+Defined in: [chat/server/request-context.ts:33](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/request-context.ts#L33)
 
 Model identifier from provider config
 
@@ -1751,7 +1751,7 @@ Model identifier from provider config
 
 > **provider**: [`ProviderConfig`](/api-reference/chat/index-exports/#providerconfig)
 
-Defined in: [chat/server/request-context.ts:35](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/request-context.ts#L35)
+Defined in: [chat/server/request-context.ts:35](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/request-context.ts#L35)
 
 Original provider config for reference
 
@@ -1759,7 +1759,7 @@ Original provider config for reference
 
 ### RequestContextDeps
 
-Defined in: [chat/server/request-context.ts:39](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/request-context.ts#L39)
+Defined in: [chat/server/request-context.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/request-context.ts#L39)
 
 Dependencies for context resolution
 
@@ -1769,7 +1769,7 @@ Dependencies for context resolution
 
 > **providerStore**: [`IProviderStore`](/api-reference/chat/index-exports/#iproviderstore)
 
-Defined in: [chat/server/request-context.ts:41](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/request-context.ts#L41)
+Defined in: [chat/server/request-context.ts:41](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/request-context.ts#L41)
 
 Provider store to look up provider config
 
@@ -1777,7 +1777,7 @@ Provider store to look up provider config
 
 > **tokenStore**: [`ITokenStore`](#itokenstore)
 
-Defined in: [chat/server/request-context.ts:43](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/request-context.ts#L43)
+Defined in: [chat/server/request-context.ts:43](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/request-context.ts#L43)
 
 Token store to load credentials for the backend
 
@@ -1785,7 +1785,7 @@ Token store to load credentials for the backend
 
 ### RouteContext
 
-Defined in: [chat/server/routes/types.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/routes/types.ts#L25)
+Defined in: [chat/server/routes/types.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/routes/types.ts#L25)
 
 Shared context passed to every route module.
 
@@ -1793,67 +1793,67 @@ Shared context passed to every route module.
 
 ##### heartbeatMs?
 
-> `readonly` `optional` **heartbeatMs**: `number`
+> `readonly` `optional` **heartbeatMs?**: `number`
 
-Defined in: [chat/server/routes/types.ts:28](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/routes/types.ts#L28)
+Defined in: [chat/server/routes/types.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/routes/types.ts#L28)
 
 ##### hooks?
 
-> `readonly` `optional` **hooks**: [`ChatServerHooks`](#chatserverhooks)
+> `readonly` `optional` **hooks?**: [`ChatServerHooks`](#chatserverhooks)
 
-Defined in: [chat/server/routes/types.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/routes/types.ts#L29)
+Defined in: [chat/server/routes/types.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/routes/types.ts#L29)
 
 ##### maxBodySize
 
 > `readonly` **maxBodySize**: `number`
 
-Defined in: [chat/server/routes/types.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/routes/types.ts#L27)
+Defined in: [chat/server/routes/types.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/routes/types.ts#L27)
 
 ##### providerStore?
 
-> `readonly` `optional` **providerStore**: [`IProviderStore`](/api-reference/chat/index-exports/#iproviderstore)
+> `readonly` `optional` **providerStore?**: [`IProviderStore`](/api-reference/chat/index-exports/#iproviderstore)
 
-Defined in: [chat/server/routes/types.ts:30](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/routes/types.ts#L30)
+Defined in: [chat/server/routes/types.ts:30](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/routes/types.ts#L30)
 
 ##### runtime
 
 > `readonly` **runtime**: [`IChatRuntime`](/api-reference/chat/runtime/#ichatruntime)
 
-Defined in: [chat/server/routes/types.ts:26](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/routes/types.ts#L26)
+Defined in: [chat/server/routes/types.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/routes/types.ts#L26)
 
 ##### state
 
 > `readonly` **state**: [`HandlerState`](#handlerstate)
 
-Defined in: [chat/server/routes/types.ts:33](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/routes/types.ts#L33)
+Defined in: [chat/server/routes/types.ts:33](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/routes/types.ts#L33)
 
 ##### tokenStore?
 
-> `readonly` `optional` **tokenStore**: [`ITokenStore`](#itokenstore)
+> `readonly` `optional` **tokenStore?**: [`ITokenStore`](#itokenstore)
 
-Defined in: [chat/server/routes/types.ts:31](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/routes/types.ts#L31)
+Defined in: [chat/server/routes/types.ts:31](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/routes/types.ts#L31)
 
 ##### transportFactory?
 
-> `readonly` `optional` **transportFactory**: [`TransportFactory`](#transportfactory-2)
+> `readonly` `optional` **transportFactory?**: [`TransportFactory`](#transportfactory-2)
 
-Defined in: [chat/server/routes/types.ts:32](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/routes/types.ts#L32)
+Defined in: [chat/server/routes/types.ts:32](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/routes/types.ts#L32)
 
 ***
 
 ### ServiceManagerOptions
 
-Defined in: [chat/server/service-manager.ts:36](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/service-manager.ts#L36)
+Defined in: [chat/server/service-manager.ts:36](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/service-manager.ts#L36)
 
 Configuration for ServiceManager
 
 #### Properties
 
-##### createService()
+##### createService
 
 > **createService**: (`backend`, `token`) => [`ManagedService`](#managedservice) \| `Promise`\<[`ManagedService`](#managedservice)\>
 
-Defined in: [chat/server/service-manager.ts:41](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/service-manager.ts#L41)
+Defined in: [chat/server/service-manager.ts:41](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/service-manager.ts#L41)
 
 Factory to create a service for a backend.
 Called on every auth event (old service is disposed first).
@@ -1872,11 +1872,11 @@ Called on every auth event (old service is disposed first).
 
 [`ManagedService`](#managedservice) \| `Promise`\<[`ManagedService`](#managedservice)\>
 
-##### onTokenExpired()?
+##### onTokenExpired?
 
-> `optional` **onTokenExpired**: (`backend`) => `void`
+> `optional` **onTokenExpired?**: (`backend`) => `void`
 
-Defined in: [chat/server/service-manager.ts:52](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/service-manager.ts#L52)
+Defined in: [chat/server/service-manager.ts:52](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/service-manager.ts#L52)
 
 Called when a token expires (before logout).
 
@@ -1892,9 +1892,9 @@ Called when a token expires (before logout).
 
 ##### refreshFactory?
 
-> `optional` **refreshFactory**: [`RefreshFactory`](#refreshfactory)
+> `optional` **refreshFactory?**: [`RefreshFactory`](#refreshfactory)
 
-Defined in: [chat/server/service-manager.ts:48](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/service-manager.ts#L48)
+Defined in: [chat/server/service-manager.ts:48](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/service-manager.ts#L48)
 
 Optional factory returning a refresh function per backend.
 If provided and the token has expiresIn, a TokenRefreshManager is started.
@@ -1903,19 +1903,19 @@ On expiry → handleLogout() for that backend is called.
 
 ##### refreshOptions?
 
-> `optional` **refreshOptions**: `Partial`\<`Pick`\<[`TokenRefreshOptions`](/api-reference/auth/#tokenrefreshoptions), `"maxRetries"` \| `"refreshThreshold"` \| `"retryDelayMs"`\>\>
+> `optional` **refreshOptions?**: `Partial`\<`Pick`\<[`TokenRefreshOptions`](/api-reference/auth/#tokenrefreshoptions), `"maxRetries"` \| `"refreshThreshold"` \| `"retryDelayMs"`\>\>
 
-Defined in: [chat/server/service-manager.ts:50](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/service-manager.ts#L50)
+Defined in: [chat/server/service-manager.ts:50](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/service-manager.ts#L50)
 
 Override TokenRefreshManager options (threshold, retries, etc.)
 
 ## Type Aliases
 
-### AdapterFactory()
+### AdapterFactory
 
 > **AdapterFactory**\<`T`\> = (`backend`) => `Promise`\<`T`\>
 
-Defined in: [chat/server/adapter-pool.ts:35](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/adapter-pool.ts#L35)
+Defined in: [chat/server/adapter-pool.ts:35](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/adapter-pool.ts#L35)
 
 Factory function to create an adapter for a given backend
 
@@ -1941,7 +1941,7 @@ Factory function to create an adapter for a given backend
 
 > **AuthProvider** = `"copilot"` \| `"claude"` \| `"vercel-ai"`
 
-Defined in: [chat/server/auth-handler.ts:23](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/auth-handler.ts#L23)
+Defined in: [chat/server/auth-handler.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/auth-handler.ts#L23)
 
 Auth provider names recognized by the handler
 
@@ -1951,7 +1951,7 @@ Auth provider names recognized by the handler
 
 > **ChatRuntimeConfig** = [`ChatRuntimeOptions`](/api-reference/chat/runtime/#chatruntimeoptions)
 
-Defined in: [chat/server/chat-server.ts:36](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L36)
+Defined in: [chat/server/chat-server.ts:36](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L36)
 
 Configuration for auto-creating a ChatRuntime from options.
 Alternative to providing a pre-built IChatRuntime instance.
@@ -1959,11 +1959,11 @@ Uses the same shape as ChatRuntimeOptions from the runtime module.
 
 ***
 
-### OnAuthCallback()
+### OnAuthCallback
 
 > **OnAuthCallback** = (`provider`, `token`) => `void` \| `Promise`\<`void`\>
 
-Defined in: [chat/server/auth-handler.ts:49](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/auth-handler.ts#L49)
+Defined in: [chat/server/auth-handler.ts:49](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/auth-handler.ts#L49)
 
 Callback invoked after successful authentication
 
@@ -1983,11 +1983,11 @@ Callback invoked after successful authentication
 
 ***
 
-### RefreshFactory()
+### RefreshFactory
 
-> **RefreshFactory** = (`backend`) => (`token`) => `Promise`\<[`AuthToken`](/api-reference/auth/#authtoken)\> \| `undefined`
+> **RefreshFactory** = (`backend`) => ((`token`) => `Promise`\<[`AuthToken`](/api-reference/auth/#authtoken)\>) \| `undefined`
 
-Defined in: [chat/server/service-manager.ts:33](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/service-manager.ts#L33)
+Defined in: [chat/server/service-manager.ts:33](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/service-manager.ts#L33)
 
 Callback for building a token refresh function per backend
 
@@ -1999,15 +1999,15 @@ Callback for building a token refresh function per backend
 
 #### Returns
 
-(`token`) => `Promise`\<[`AuthToken`](/api-reference/auth/#authtoken)\> \| `undefined`
+((`token`) => `Promise`\<[`AuthToken`](/api-reference/auth/#authtoken)\>) \| `undefined`
 
 ***
 
-### RequestHandler()
+### RequestHandler
 
 > **RequestHandler** = (`req`, `res`) => `Promise`\<`void`\>
 
-Defined in: [chat/server/chat-server.ts:134](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L134)
+Defined in: [chat/server/chat-server.ts:134](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L134)
 
 Request handler type returned by createChatServer
 
@@ -2027,11 +2027,11 @@ Request handler type returned by createChatServer
 
 ***
 
-### RouteHandler()
+### RouteHandler
 
 > **RouteHandler** = (`method`, `path`, `req`, `res`, `ctx`) => `Promise`\<`boolean`\>
 
-Defined in: [chat/server/routes/types.ts:40](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/routes/types.ts#L40)
+Defined in: [chat/server/routes/types.ts:40](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/routes/types.ts#L40)
 
 A route module handler.
 Returns `true` if the request was handled, `false` to try next module.
@@ -2064,11 +2064,11 @@ Returns `true` if the request was handled, `false` to try next module.
 
 ***
 
-### TransportFactory()
+### TransportFactory
 
 > **TransportFactory** = (`req`, `res`) => [`IChatTransport`](/api-reference/chat/index-exports/#ichattransport)
 
-Defined in: [chat/server/handler.ts:56](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L56)
+Defined in: [chat/server/handler.ts:56](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L56)
 
 Factory for creating a chat transport for a /send request.
 Return an IChatTransport instance that will receive the event stream.
@@ -2094,7 +2094,7 @@ Default: SSEChatTransport.
 
 > `const` **configRoutes**: [`RouteHandler`](#routehandler)
 
-Defined in: [chat/server/routes/config.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/routes/config.ts#L14)
+Defined in: [chat/server/routes/config.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/routes/config.ts#L14)
 
 ***
 
@@ -2102,7 +2102,7 @@ Defined in: [chat/server/routes/config.ts:14](https://github.com/witqq/agent-sdk
 
 > `const` **DEFAULT\_PROVIDER\_MODELS**: `Record`\<`string`, `string`\>
 
-Defined in: [chat/server/chat-server.ts:106](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L106)
+Defined in: [chat/server/chat-server.ts:106](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L106)
 
 Default model per backend for auto-created providers
 
@@ -2112,7 +2112,7 @@ Default model per backend for auto-created providers
 
 > `const` **messageRoutes**: [`RouteHandler`](#routehandler)
 
-Defined in: [chat/server/routes/messages.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/routes/messages.ts#L18)
+Defined in: [chat/server/routes/messages.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/routes/messages.ts#L18)
 
 ***
 
@@ -2120,7 +2120,7 @@ Defined in: [chat/server/routes/messages.ts:18](https://github.com/witqq/agent-s
 
 > `const` **providerRoutes**: [`RouteHandler`](#routehandler)
 
-Defined in: [chat/server/routes/providers.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/routes/providers.ts#L17)
+Defined in: [chat/server/routes/providers.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/routes/providers.ts#L17)
 
 ***
 
@@ -2128,7 +2128,7 @@ Defined in: [chat/server/routes/providers.ts:17](https://github.com/witqq/agent-
 
 > `const` **sessionRoutes**: [`RouteHandler`](#routehandler)
 
-Defined in: [chat/server/routes/sessions.ts:15](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/routes/sessions.ts#L15)
+Defined in: [chat/server/routes/sessions.ts:15](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/routes/sessions.ts#L15)
 
 ## Functions
 
@@ -2136,7 +2136,7 @@ Defined in: [chat/server/routes/sessions.ts:15](https://github.com/witqq/agent-s
 
 > **corsMiddleware**(`options?`): (`req`, `res`) => `boolean`
 
-Defined in: [chat/server/cors.ts:39](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/cors.ts#L39)
+Defined in: [chat/server/cors.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/cors.ts#L39)
 
 Create a CORS middleware function.
 
@@ -2152,21 +2152,7 @@ A function that sets CORS headers and handles OPTIONS preflight.
          Returns `true` if the request was fully handled (preflight),
          `false` if the caller should continue processing.
 
-> (`req`, `res`): `boolean`
-
-##### Parameters
-
-###### req
-
-`CorsRequest`
-
-###### res
-
-`CorsResponse`
-
-##### Returns
-
-`boolean`
+(`req`, `res`) => `boolean`
 
 ***
 
@@ -2174,7 +2160,7 @@ A function that sets CORS headers and handles OPTIONS preflight.
 
 > **createAuthHandler**(`options`): (`req`, `res`) => `Promise`\<`void`\>
 
-Defined in: [chat/server/auth-handler.ts:104](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/auth-handler.ts#L104)
+Defined in: [chat/server/auth-handler.ts:104](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/auth-handler.ts#L104)
 
 Create an HTTP request handler for server-mediated authentication.
 
@@ -2190,21 +2176,7 @@ Auth handler configuration (token store, auth factories, callbacks)
 
 Async request handler `(req, res) => Promise<void>`
 
-> (`req`, `res`): `Promise`\<`void`\>
-
-##### Parameters
-
-###### req
-
-[`ReadableRequest`](#readablerequest)
-
-###### res
-
-[`WritableResponse`](/api-reference/chat/backends/#writableresponse)
-
-##### Returns
-
-`Promise`\<`void`\>
+(`req`, `res`) => `Promise`\<`void`\>
 
 #### Example
 
@@ -2227,7 +2199,7 @@ const authHandler = createAuthHandler({
 
 > **createChatHandler**(`runtime`, `options?`): (`req`, `res`) => `Promise`\<`void`\>
 
-Defined in: [chat/server/handler.ts:94](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/handler.ts#L94)
+Defined in: [chat/server/handler.ts:94](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/handler.ts#L94)
 
 Create an HTTP request handler that maps RemoteChatClient contract
 endpoints to IChatRuntime method calls.
@@ -2247,21 +2219,7 @@ Model state is managed in a shared HandlerState object.
 
 #### Returns
 
-> (`req`, `res`): `Promise`\<`void`\>
-
-##### Parameters
-
-###### req
-
-[`ReadableRequest`](#readablerequest)
-
-###### res
-
-[`WritableResponse`](/api-reference/chat/backends/#writableresponse)
-
-##### Returns
-
-`Promise`\<`void`\>
+(`req`, `res`) => `Promise`\<`void`\>
 
 ***
 
@@ -2269,7 +2227,7 @@ Model state is managed in a shared HandlerState object.
 
 > **createChatServer**(`options`): [`RequestHandler`](#requesthandler)
 
-Defined in: [chat/server/chat-server.ts:156](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/chat-server.ts#L156)
+Defined in: [chat/server/chat-server.ts:156](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/chat-server.ts#L156)
 
 Create a combined HTTP request handler that routes to chat, auth, static, or 404.
 
@@ -2308,7 +2266,7 @@ http.createServer(handler).listen(3000);
 
 > **createProviderHandler**(`options`): (`req`, `res`) => `Promise`\<`void`\>
 
-Defined in: [chat/server/provider-handler.ts:33](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/provider-handler.ts#L33)
+Defined in: [chat/server/provider-handler.ts:33](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/provider-handler.ts#L33)
 
 Create an HTTP request handler for provider CRUD operations.
 
@@ -2324,21 +2282,7 @@ Provider handler configuration
 
 Async request handler `(req, res) => Promise<void>`
 
-> (`req`, `res`): `Promise`\<`void`\>
-
-##### Parameters
-
-###### req
-
-[`ReadableRequest`](#readablerequest)
-
-###### res
-
-[`WritableResponse`](/api-reference/chat/backends/#writableresponse)
-
-##### Returns
-
-`Promise`\<`void`\>
+(`req`, `res`) => `Promise`\<`void`\>
 
 ***
 
@@ -2346,7 +2290,7 @@ Async request handler `(req, res) => Promise<void>`
 
 > **json**(`res`, `data`, `status?`): `void`
 
-Defined in: [chat/server/utils.ts:54](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/utils.ts#L54)
+Defined in: [chat/server/utils.ts:54](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/utils.ts#L54)
 
 Send a JSON response with given status code.
 
@@ -2374,7 +2318,7 @@ Send a JSON response with given status code.
 
 > **readBody**(`req`, `maxSize?`): `Promise`\<`Record`\<`string`, `unknown`\>\>
 
-Defined in: [chat/server/utils.ts:21](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/utils.ts#L21)
+Defined in: [chat/server/utils.ts:21](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/utils.ts#L21)
 
 Read and parse JSON request body with size limit.
 Throws BodyParseError on oversized, malformed, or errored requests.
@@ -2399,7 +2343,7 @@ Throws BodyParseError on oversized, malformed, or errored requests.
 
 > **resolveRequestContext**(`providerId`, `deps`): `Promise`\<[`RequestContext`](#requestcontext)\>
 
-Defined in: [chat/server/request-context.ts:56](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/server/request-context.ts#L56)
+Defined in: [chat/server/request-context.ts:56](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/server/request-context.ts#L56)
 
 Resolve a providerId into a full RequestContext.
 

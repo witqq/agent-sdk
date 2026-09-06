@@ -2193,7 +2193,12 @@
   animation: agent-sdk-slide-down 200ms ease-out;
 }
 
-[data-theme="dark"] [data-chat-error],
+[data-theme="dark"] [data-chat-error] {
+  background: rgba(220, 38, 38, 0.1);
+  border-color: rgba(220, 38, 38, 0.3);
+  color: #fca5a5;
+}
+
 @media (prefers-color-scheme: dark) {
   [data-chat-error]:not([data-theme="light"] *) {
     background: rgba(220, 38, 38, 0.1);

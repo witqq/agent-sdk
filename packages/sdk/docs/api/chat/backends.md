@@ -10,7 +10,7 @@
 
 ### `abstract` ResumableChatAdapter
 
-Defined in: [chat/backends/resumable.ts:28](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/resumable.ts#L28)
+Defined in: [chat/backends/resumable.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/resumable.ts#L28)
 
 Abstract base for backend adapters that support session resume.
 Handles backendSessionId tracking, canResume(), resume(), captureSessionId().
@@ -35,7 +35,7 @@ Subclasses only define constructor (with backend-specific options) and createSer
 
 > **new ResumableChatAdapter**(`name`, `options`): [`ResumableChatAdapter`](#abstract-resumablechatadapter)
 
-Defined in: [chat/backends/resumable.ts:31](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/resumable.ts#L31)
+Defined in: [chat/backends/resumable.ts:31](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/resumable.ts#L31)
 
 ###### Parameters
 
@@ -61,7 +61,7 @@ Defined in: [chat/backends/resumable.ts:31](https://github.com/witqq/agent-sdk/b
 
 > `protected` `readonly` **\_agentConfig**: [`FullAgentConfig`](../index.md#fullagentconfig)
 
-Defined in: [chat/backends/base.ts:39](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/base.ts#L39)
+Defined in: [chat/backends/base.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/base.ts#L39)
 
 ###### Inherited from
 
@@ -71,7 +71,7 @@ Defined in: [chat/backends/base.ts:39](https://github.com/witqq/agent-sdk/blob/9
 
 > `readonly` **name**: `string`
 
-Defined in: [chat/backends/base.ts:35](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/base.ts#L35)
+Defined in: [chat/backends/base.ts:35](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/base.ts#L35)
 
 Backend name (e.g. "copilot", "claude", "vercel-ai")
 
@@ -91,7 +91,7 @@ Backend name (e.g. "copilot", "claude", "vercel-ai")
 
 > **get** **agentService**(): [`IAgentService`](../index.md#iagentservice)
 
-Defined in: [chat/backends/base.ts:64](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/base.ts#L64)
+Defined in: [chat/backends/base.ts:64](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/base.ts#L64)
 
 ###### Returns
 
@@ -107,7 +107,7 @@ Defined in: [chat/backends/base.ts:64](https://github.com/witqq/agent-sdk/blob/9
 
 > **get** **backendSessionId**(): `string` \| `null`
 
-Defined in: [chat/backends/resumable.ts:40](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/resumable.ts#L40)
+Defined in: [chat/backends/resumable.ts:40](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/resumable.ts#L40)
 
 The backend session ID from the last stream, or null if not yet streamed
 
@@ -127,7 +127,7 @@ The backend session ID from the last stream, or null if not yet streamed
 
 > **get** **currentModel**(): `string` \| `undefined`
 
-Defined in: [chat/backends/base.ts:78](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/base.ts#L78)
+Defined in: [chat/backends/base.ts:78](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/base.ts#L78)
 
 Current effective model
 
@@ -151,7 +151,7 @@ Current effective model
 
 > `protected` **assertNotDisposed**(): `void`
 
-Defined in: [chat/backends/base.ts:243](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/base.ts#L243)
+Defined in: [chat/backends/base.ts:244](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/base.ts#L244)
 
 ###### Returns
 
@@ -165,7 +165,7 @@ Defined in: [chat/backends/base.ts:243](https://github.com/witqq/agent-sdk/blob/
 
 > **canResume**(): `boolean`
 
-Defined in: [chat/backends/resumable.ts:44](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/resumable.ts#L44)
+Defined in: [chat/backends/resumable.ts:44](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/resumable.ts#L44)
 
 Whether this adapter supports session resume
 
@@ -181,7 +181,7 @@ Whether this adapter supports session resume
 
 > `protected` **captureSessionId**(`agent`): `void`
 
-Defined in: [chat/backends/resumable.ts:82](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/resumable.ts#L82)
+Defined in: [chat/backends/resumable.ts:82](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/resumable.ts#L82)
 
 Subclasses capture backend session ID from agent after streaming
 
@@ -203,7 +203,7 @@ Subclasses capture backend session ID from agent after streaming
 
 > `abstract` `protected` **createService**(): [`IAgentService`](../index.md#iagentservice)
 
-Defined in: [chat/backends/base.ts:62](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/base.ts#L62)
+Defined in: [chat/backends/base.ts:62](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/base.ts#L62)
 
 Subclasses create their specific IAgentService
 
@@ -219,7 +219,7 @@ Subclasses create their specific IAgentService
 
 > **dispose**(): `Promise`\<`void`\>
 
-Defined in: [chat/backends/base.ts:196](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/base.ts#L196)
+Defined in: [chat/backends/base.ts:196](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/base.ts#L196)
 
 Dispose resources
 
@@ -239,7 +239,7 @@ Dispose resources
 
 > `protected` **getOrCreateAgent**(`options?`): [`IAgent`](../index.md#iagent)
 
-Defined in: [chat/backends/base.ts:211](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/base.ts#L211)
+Defined in: [chat/backends/base.ts:211](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/base.ts#L211)
 
 Get or create an agent. Model is passed per-call via RunOptions.
  Tools are passed per-call via SendMessageOptions — not baked into config.
@@ -263,7 +263,7 @@ Get or create an agent. Model is passed per-call via RunOptions.
 
 > **listModels**(): `Promise`\<[`ModelInfo`](../index.md#modelinfo)[]\>
 
-Defined in: [chat/backends/base.ts:186](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/base.ts#L186)
+Defined in: [chat/backends/base.ts:186](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/base.ts#L186)
 
 List available models
 
@@ -283,7 +283,7 @@ List available models
 
 > **resume**(`session`, `backendSessionId`, `options?`): `AsyncIterable`\<[`ChatEvent`](../chat.md#chatevent)\>
 
-Defined in: [chat/backends/resumable.ts:48](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/resumable.ts#L48)
+Defined in: [chat/backends/resumable.ts:48](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/resumable.ts#L48)
 
 Resume a previous session by its backend session ID.
 Streams events from the resumed session.
@@ -322,7 +322,7 @@ ChatError with SESSION_NOT_FOUND if session ID is unknown
 
 > **sendMessage**(`session`, `message`, `options?`): `Promise`\<[`ChatMessage`](../chat.md#chatmessage)\<`unknown`\>\>
 
-Defined in: [chat/backends/base.ts:90](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/base.ts#L90)
+Defined in: [chat/backends/base.ts:90](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/base.ts#L90)
 
 Send a message and receive a complete response
 
@@ -356,7 +356,7 @@ Send a message and receive a complete response
 
 > **setTools**(): `void`
 
-Defined in: [chat/backends/base.ts:86](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/base.ts#L86)
+Defined in: [chat/backends/base.ts:86](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/base.ts#L86)
 
 ###### Returns
 
@@ -375,7 +375,7 @@ Kept for backward compatibility with code that calls setTools() directly.
 
 > `protected` **streamAgentEvents**(`agent`, `messages`, `options?`): `AsyncIterable`\<[`ChatEvent`](../chat.md#chatevent)\>
 
-Defined in: [chat/backends/base.ts:144](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/base.ts#L144)
+Defined in: [chat/backends/base.ts:144](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/base.ts#L144)
 
 Shared streaming helper: bridges agent events to chat events.
 Used by both streamMessage() and resume() to avoid duplication.
@@ -406,7 +406,7 @@ Used by both streamMessage() and resume() to avoid duplication.
 
 > **streamMessage**(`session`, `message`, `options?`): `AsyncIterable`\<[`ChatEvent`](../chat.md#chatevent)\>
 
-Defined in: [chat/backends/base.ts:124](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/base.ts#L124)
+Defined in: [chat/backends/base.ts:124](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/base.ts#L124)
 
 Stream a message response as ChatEvents
 
@@ -440,7 +440,7 @@ Stream a message response as ChatEvents
 
 > **validate**(): `Promise`\<\{ `errors`: `string`[]; `valid`: `boolean`; \}\>
 
-Defined in: [chat/backends/base.ts:191](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/base.ts#L191)
+Defined in: [chat/backends/base.ts:191](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/base.ts#L191)
 
 Validate backend configuration/credentials
 
@@ -460,7 +460,7 @@ Validate backend configuration/credentials
 
 ### ClaudeChatAdapterOptions
 
-Defined in: [chat/backends/claude.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/claude.ts#L18)
+Defined in: [chat/backends/claude.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/claude.ts#L18)
 
 Options for creating a ClaudeChatAdapter
 
@@ -474,7 +474,7 @@ Options for creating a ClaudeChatAdapter
 
 > **agentConfig**: [`FullAgentConfig`](../index.md#fullagentconfig)
 
-Defined in: [chat/backends/types.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/types.ts#L25)
+Defined in: [chat/backends/types.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/types.ts#L25)
 
 Agent configuration (model, systemPrompt, tools, etc.)
 
@@ -484,9 +484,9 @@ Agent configuration (model, systemPrompt, tools, etc.)
 
 ##### agentService?
 
-> `optional` **agentService**: [`IAgentService`](../index.md#iagentservice)
+> `optional` **agentService?**: [`IAgentService`](../index.md#iagentservice)
 
-Defined in: [chat/backends/types.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/types.ts#L27)
+Defined in: [chat/backends/types.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/types.ts#L27)
 
 Pre-created agent service (if adapter should not own lifecycle)
 
@@ -494,11 +494,11 @@ Pre-created agent service (if adapter should not own lifecycle)
 
 [`BackendAdapterOptions`](../chat.md#backendadapteroptions).[`agentService`](../chat.md#agentservice)
 
-##### agentServiceFactory()?
+##### agentServiceFactory?
 
-> `optional` **agentServiceFactory**: () => [`IAgentService`](../index.md#iagentservice)
+> `optional` **agentServiceFactory?**: () => [`IAgentService`](../index.md#iagentservice)
 
-Defined in: [chat/backends/types.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/types.ts#L29)
+Defined in: [chat/backends/types.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/types.ts#L29)
 
 Factory for lazy service creation (called on first use, not at construction)
 
@@ -512,9 +512,9 @@ Factory for lazy service creation (called on first use, not at construction)
 
 ##### claudeOptions?
 
-> `optional` **claudeOptions**: [`ClaudeBackendOptions`](../index.md#claudebackendoptions)
+> `optional` **claudeOptions?**: [`ClaudeBackendOptions`](../index.md#claudebackendoptions)
 
-Defined in: [chat/backends/claude.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/claude.ts#L20)
+Defined in: [chat/backends/claude.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/claude.ts#L20)
 
 Claude backend options (cliPath, model, etc.)
 
@@ -522,7 +522,7 @@ Claude backend options (cliPath, model, etc.)
 
 ### CloseDetectable
 
-Defined in: [chat/backends/transport.ts:42](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/transport.ts#L42)
+Defined in: [chat/backends/transport.ts:42](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/transport.ts#L42)
 
 Minimal interface for detecting client disconnection
 
@@ -532,7 +532,7 @@ Minimal interface for detecting client disconnection
 
 > **on**(`event`, `listener`): `void`
 
-Defined in: [chat/backends/transport.ts:43](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/transport.ts#L43)
+Defined in: [chat/backends/transport.ts:43](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/transport.ts#L43)
 
 ###### Parameters
 
@@ -552,7 +552,7 @@ Defined in: [chat/backends/transport.ts:43](https://github.com/witqq/agent-sdk/b
 
 ### CopilotChatAdapterOptions
 
-Defined in: [chat/backends/copilot.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/copilot.ts#L18)
+Defined in: [chat/backends/copilot.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/copilot.ts#L18)
 
 Options for creating a CopilotChatAdapter
 
@@ -566,7 +566,7 @@ Options for creating a CopilotChatAdapter
 
 > **agentConfig**: [`FullAgentConfig`](../index.md#fullagentconfig)
 
-Defined in: [chat/backends/types.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/types.ts#L25)
+Defined in: [chat/backends/types.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/types.ts#L25)
 
 Agent configuration (model, systemPrompt, tools, etc.)
 
@@ -576,9 +576,9 @@ Agent configuration (model, systemPrompt, tools, etc.)
 
 ##### agentService?
 
-> `optional` **agentService**: [`IAgentService`](../index.md#iagentservice)
+> `optional` **agentService?**: [`IAgentService`](../index.md#iagentservice)
 
-Defined in: [chat/backends/types.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/types.ts#L27)
+Defined in: [chat/backends/types.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/types.ts#L27)
 
 Pre-created agent service (if adapter should not own lifecycle)
 
@@ -586,11 +586,11 @@ Pre-created agent service (if adapter should not own lifecycle)
 
 [`BackendAdapterOptions`](../chat.md#backendadapteroptions).[`agentService`](../chat.md#agentservice)
 
-##### agentServiceFactory()?
+##### agentServiceFactory?
 
-> `optional` **agentServiceFactory**: () => [`IAgentService`](../index.md#iagentservice)
+> `optional` **agentServiceFactory?**: () => [`IAgentService`](../index.md#iagentservice)
 
-Defined in: [chat/backends/types.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/types.ts#L29)
+Defined in: [chat/backends/types.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/types.ts#L29)
 
 Factory for lazy service creation (called on first use, not at construction)
 
@@ -604,9 +604,9 @@ Factory for lazy service creation (called on first use, not at construction)
 
 ##### copilotOptions?
 
-> `optional` **copilotOptions**: [`CopilotBackendOptions`](../index.md#copilotbackendoptions)
+> `optional` **copilotOptions?**: [`CopilotBackendOptions`](../index.md#copilotbackendoptions)
 
-Defined in: [chat/backends/copilot.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/copilot.ts#L20)
+Defined in: [chat/backends/copilot.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/copilot.ts#L20)
 
 Copilot backend options (cliPath, token, etc.)
 
@@ -614,7 +614,7 @@ Copilot backend options (cliPath, token, etc.)
 
 ### InterceptorContext
 
-Defined in: [chat/backends/interceptors.ts:24](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/interceptors.ts#L24)
+Defined in: [chat/backends/interceptors.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/interceptors.ts#L24)
 
 Context passed to interceptor hooks
 
@@ -624,7 +624,7 @@ Context passed to interceptor hooks
 
 > **event**: [`ChatEvent`](../chat.md#chatevent)
 
-Defined in: [chat/backends/interceptors.ts:26](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/interceptors.ts#L26)
+Defined in: [chat/backends/interceptors.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/interceptors.ts#L26)
 
 The event being intercepted (mutable for beforeSend)
 
@@ -632,7 +632,7 @@ The event being intercepted (mutable for beforeSend)
 
 > **transport**: [`IChatTransport`](../chat.md#ichattransport)
 
-Defined in: [chat/backends/interceptors.ts:28](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/interceptors.ts#L28)
+Defined in: [chat/backends/interceptors.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/interceptors.ts#L28)
 
 The underlying transport being wrapped
 
@@ -640,7 +640,7 @@ The underlying transport being wrapped
 
 ### MockLLMChatAdapterOptions
 
-Defined in: [chat/backends/mock-llm.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/mock-llm.ts#L16)
+Defined in: [chat/backends/mock-llm.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/mock-llm.ts#L16)
 
 Options for creating a MockLLMChatAdapter
 
@@ -654,7 +654,7 @@ Options for creating a MockLLMChatAdapter
 
 > **agentConfig**: [`FullAgentConfig`](../index.md#fullagentconfig)
 
-Defined in: [chat/backends/types.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/types.ts#L25)
+Defined in: [chat/backends/types.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/types.ts#L25)
 
 Agent configuration (model, systemPrompt, tools, etc.)
 
@@ -664,9 +664,9 @@ Agent configuration (model, systemPrompt, tools, etc.)
 
 ##### agentService?
 
-> `optional` **agentService**: [`IAgentService`](../index.md#iagentservice)
+> `optional` **agentService?**: [`IAgentService`](../index.md#iagentservice)
 
-Defined in: [chat/backends/types.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/types.ts#L27)
+Defined in: [chat/backends/types.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/types.ts#L27)
 
 Pre-created agent service (if adapter should not own lifecycle)
 
@@ -674,11 +674,11 @@ Pre-created agent service (if adapter should not own lifecycle)
 
 [`BackendAdapterOptions`](../chat.md#backendadapteroptions).[`agentService`](../chat.md#agentservice)
 
-##### agentServiceFactory()?
+##### agentServiceFactory?
 
-> `optional` **agentServiceFactory**: () => [`IAgentService`](../index.md#iagentservice)
+> `optional` **agentServiceFactory?**: () => [`IAgentService`](../index.md#iagentservice)
 
-Defined in: [chat/backends/types.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/types.ts#L29)
+Defined in: [chat/backends/types.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/types.ts#L29)
 
 Factory for lazy service creation (called on first use, not at construction)
 
@@ -692,9 +692,9 @@ Factory for lazy service creation (called on first use, not at construction)
 
 ##### mockOptions?
 
-> `optional` **mockOptions**: [`MockLLMBackendOptions`](../backends/mock-llm.md#mockllmbackendoptions)
+> `optional` **mockOptions?**: [`MockLLMBackendOptions`](../backends/mock-llm.md#mockllmbackendoptions)
 
-Defined in: [chat/backends/mock-llm.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/mock-llm.ts#L18)
+Defined in: [chat/backends/mock-llm.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/mock-llm.ts#L18)
 
 MockLLM backend options (mode, latency, streaming, etc.)
 
@@ -702,7 +702,7 @@ MockLLM backend options (mode, latency, streaming, etc.)
 
 ### SSETransportOptions
 
-Defined in: [chat/backends/transport.ts:47](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/transport.ts#L47)
+Defined in: [chat/backends/transport.ts:47](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/transport.ts#L47)
 
 Configuration options for SSEChatTransport
 
@@ -710,17 +710,17 @@ Configuration options for SSEChatTransport
 
 ##### heartbeatMs?
 
-> `optional` **heartbeatMs**: `number`
+> `optional` **heartbeatMs?**: `number`
 
-Defined in: [chat/backends/transport.ts:49](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/transport.ts#L49)
+Defined in: [chat/backends/transport.ts:49](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/transport.ts#L49)
 
 Heartbeat interval in milliseconds. 0 or undefined disables heartbeat.
 
 ##### request?
 
-> `optional` **request**: [`CloseDetectable`](#closedetectable)
+> `optional` **request?**: [`CloseDetectable`](#closedetectable)
 
-Defined in: [chat/backends/transport.ts:51](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/transport.ts#L51)
+Defined in: [chat/backends/transport.ts:51](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/transport.ts#L51)
 
 Request object for detecting client disconnection (listens for 'close' event)
 
@@ -728,7 +728,7 @@ Request object for detecting client disconnection (listens for 'close' event)
 
 ### TransportInterceptor
 
-Defined in: [chat/backends/interceptors.ts:35](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/interceptors.ts#L35)
+Defined in: [chat/backends/interceptors.ts:35](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/interceptors.ts#L35)
 
 Transport interceptor with lifecycle hooks.
 All hooks are optional — implement only what you need.
@@ -737,9 +737,9 @@ All hooks are optional — implement only what you need.
 
 ##### name?
 
-> `optional` **name**: `string`
+> `optional` **name?**: `string`
 
-Defined in: [chat/backends/interceptors.ts:37](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/interceptors.ts#L37)
+Defined in: [chat/backends/interceptors.ts:37](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/interceptors.ts#L37)
 
 Optional name for debugging
 
@@ -749,7 +749,7 @@ Optional name for debugging
 
 > `optional` **afterSend**(`event`, `transport`): `void`
 
-Defined in: [chat/backends/interceptors.ts:46](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/interceptors.ts#L46)
+Defined in: [chat/backends/interceptors.ts:46](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/interceptors.ts#L46)
 
 Called after each event is sent to the transport
 
@@ -771,7 +771,7 @@ Called after each event is sent to the transport
 
 > `optional` **beforeClose**(`transport`): `void`
 
-Defined in: [chat/backends/interceptors.ts:49](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/interceptors.ts#L49)
+Defined in: [chat/backends/interceptors.ts:49](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/interceptors.ts#L49)
 
 Called before the transport is closed
 
@@ -789,7 +789,7 @@ Called before the transport is closed
 
 > `optional` **beforeSend**(`event`, `transport`): [`ChatEvent`](../chat.md#chatevent) \| `null`
 
-Defined in: [chat/backends/interceptors.ts:43](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/interceptors.ts#L43)
+Defined in: [chat/backends/interceptors.ts:43](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/interceptors.ts#L43)
 
 Called before each event is sent to the transport.
 Return the event to send, a modified event, or null to suppress.
@@ -812,7 +812,7 @@ Return the event to send, a modified event, or null to suppress.
 
 > `optional` **onError**(`error`, `transport`): `void`
 
-Defined in: [chat/backends/interceptors.ts:52](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/interceptors.ts#L52)
+Defined in: [chat/backends/interceptors.ts:52](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/interceptors.ts#L52)
 
 Called when an error is signaled on the transport
 
@@ -834,7 +834,7 @@ Called when an error is signaled on the transport
 
 ### VercelAIChatAdapterOptions
 
-Defined in: [chat/backends/vercel-ai.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/vercel-ai.ts#L20)
+Defined in: [chat/backends/vercel-ai.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/vercel-ai.ts#L20)
 
 Options for creating a VercelAIChatAdapter
 
@@ -848,7 +848,7 @@ Options for creating a VercelAIChatAdapter
 
 > **agentConfig**: [`FullAgentConfig`](../index.md#fullagentconfig)
 
-Defined in: [chat/backends/types.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/types.ts#L25)
+Defined in: [chat/backends/types.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/types.ts#L25)
 
 Agent configuration (model, systemPrompt, tools, etc.)
 
@@ -858,9 +858,9 @@ Agent configuration (model, systemPrompt, tools, etc.)
 
 ##### agentService?
 
-> `optional` **agentService**: [`IAgentService`](../index.md#iagentservice)
+> `optional` **agentService?**: [`IAgentService`](../index.md#iagentservice)
 
-Defined in: [chat/backends/types.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/types.ts#L27)
+Defined in: [chat/backends/types.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/types.ts#L27)
 
 Pre-created agent service (if adapter should not own lifecycle)
 
@@ -868,11 +868,11 @@ Pre-created agent service (if adapter should not own lifecycle)
 
 [`BackendAdapterOptions`](../chat.md#backendadapteroptions).[`agentService`](../chat.md#agentservice)
 
-##### agentServiceFactory()?
+##### agentServiceFactory?
 
-> `optional` **agentServiceFactory**: () => [`IAgentService`](../index.md#iagentservice)
+> `optional` **agentServiceFactory?**: () => [`IAgentService`](../index.md#iagentservice)
 
-Defined in: [chat/backends/types.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/types.ts#L29)
+Defined in: [chat/backends/types.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/types.ts#L29)
 
 Factory for lazy service creation (called on first use, not at construction)
 
@@ -886,9 +886,9 @@ Factory for lazy service creation (called on first use, not at construction)
 
 ##### vercelOptions?
 
-> `optional` **vercelOptions**: [`VercelAIBackendOptions`](../index.md#vercelaibackendoptions)
+> `optional` **vercelOptions?**: [`VercelAIBackendOptions`](../index.md#vercelaibackendoptions)
 
-Defined in: [chat/backends/vercel-ai.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/vercel-ai.ts#L22)
+Defined in: [chat/backends/vercel-ai.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/vercel-ai.ts#L22)
 
 Vercel AI backend options (baseURL, apiKey, provider, etc.)
 
@@ -896,7 +896,7 @@ Vercel AI backend options (baseURL, apiKey, provider, etc.)
 
 ### WebSocketLike
 
-Defined in: [chat/backends/ws-transport.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/ws-transport.ts#L25)
+Defined in: [chat/backends/ws-transport.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/ws-transport.ts#L25)
 
 Minimal WebSocket interface compatible with `ws`, browser WebSocket, Deno, Bun.
 Only the methods/properties used by WsChatTransport.
@@ -907,7 +907,7 @@ Only the methods/properties used by WsChatTransport.
 
 > `readonly` **readyState**: `number`
 
-Defined in: [chat/backends/ws-transport.ts:26](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/ws-transport.ts#L26)
+Defined in: [chat/backends/ws-transport.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/ws-transport.ts#L26)
 
 #### Methods
 
@@ -917,7 +917,7 @@ Defined in: [chat/backends/ws-transport.ts:26](https://github.com/witqq/agent-sd
 
 > **addEventListener**(`type`, `listener`): `void`
 
-Defined in: [chat/backends/ws-transport.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/ws-transport.ts#L29)
+Defined in: [chat/backends/ws-transport.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/ws-transport.ts#L29)
 
 ###### Parameters
 
@@ -937,7 +937,7 @@ Defined in: [chat/backends/ws-transport.ts:29](https://github.com/witqq/agent-sd
 
 > **addEventListener**(`type`, `listener`): `void`
 
-Defined in: [chat/backends/ws-transport.ts:30](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/ws-transport.ts#L30)
+Defined in: [chat/backends/ws-transport.ts:30](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/ws-transport.ts#L30)
 
 ###### Parameters
 
@@ -957,7 +957,7 @@ Defined in: [chat/backends/ws-transport.ts:30](https://github.com/witqq/agent-sd
 
 > **close**(`code?`, `reason?`): `void`
 
-Defined in: [chat/backends/ws-transport.ts:28](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/ws-transport.ts#L28)
+Defined in: [chat/backends/ws-transport.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/ws-transport.ts#L28)
 
 ###### Parameters
 
@@ -977,7 +977,7 @@ Defined in: [chat/backends/ws-transport.ts:28](https://github.com/witqq/agent-sd
 
 > **send**(`data`): `void`
 
-Defined in: [chat/backends/ws-transport.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/ws-transport.ts#L27)
+Defined in: [chat/backends/ws-transport.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/ws-transport.ts#L27)
 
 ###### Parameters
 
@@ -993,7 +993,7 @@ Defined in: [chat/backends/ws-transport.ts:27](https://github.com/witqq/agent-sd
 
 ### WritableResponse
 
-Defined in: [chat/backends/transport.ts:33](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/transport.ts#L33)
+Defined in: [chat/backends/transport.ts:33](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/transport.ts#L33)
 
 Writable HTTP response interface — minimal type satisfied by Express, Fastify (raw), and Node http.ServerResponse without casts.
 
@@ -1003,7 +1003,7 @@ Writable HTTP response interface — minimal type satisfied by Express, Fastify 
 
 > `readonly` **writableEnded**: `boolean`
 
-Defined in: [chat/backends/transport.ts:38](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/transport.ts#L38)
+Defined in: [chat/backends/transport.ts:38](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/transport.ts#L38)
 
 #### Methods
 
@@ -1011,7 +1011,7 @@ Defined in: [chat/backends/transport.ts:38](https://github.com/witqq/agent-sdk/b
 
 > **end**(`body?`): `unknown`
 
-Defined in: [chat/backends/transport.ts:37](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/transport.ts#L37)
+Defined in: [chat/backends/transport.ts:37](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/transport.ts#L37)
 
 ###### Parameters
 
@@ -1027,7 +1027,7 @@ Defined in: [chat/backends/transport.ts:37](https://github.com/witqq/agent-sdk/b
 
 > **setHeader**(`name`, `value`): `unknown`
 
-Defined in: [chat/backends/transport.ts:35](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/transport.ts#L35)
+Defined in: [chat/backends/transport.ts:35](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/transport.ts#L35)
 
 ###### Parameters
 
@@ -1047,7 +1047,7 @@ Defined in: [chat/backends/transport.ts:35](https://github.com/witqq/agent-sdk/b
 
 > **write**(`chunk`): `boolean`
 
-Defined in: [chat/backends/transport.ts:36](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/transport.ts#L36)
+Defined in: [chat/backends/transport.ts:36](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/transport.ts#L36)
 
 ###### Parameters
 
@@ -1063,7 +1063,7 @@ Defined in: [chat/backends/transport.ts:36](https://github.com/witqq/agent-sdk/b
 
 > **writeHead**(`statusCode`, `headers?`): `unknown`
 
-Defined in: [chat/backends/transport.ts:34](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/transport.ts#L34)
+Defined in: [chat/backends/transport.ts:34](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/transport.ts#L34)
 
 ###### Parameters
 
@@ -1083,7 +1083,7 @@ Defined in: [chat/backends/transport.ts:34](https://github.com/witqq/agent-sdk/b
 
 ### WsTransportOptions
 
-Defined in: [chat/backends/ws-transport.ts:34](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/ws-transport.ts#L34)
+Defined in: [chat/backends/ws-transport.ts:34](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/ws-transport.ts#L34)
 
 Configuration options for WsChatTransport
 
@@ -1091,17 +1091,17 @@ Configuration options for WsChatTransport
 
 ##### heartbeatMs?
 
-> `optional` **heartbeatMs**: `number`
+> `optional` **heartbeatMs?**: `number`
 
-Defined in: [chat/backends/ws-transport.ts:36](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/ws-transport.ts#L36)
+Defined in: [chat/backends/ws-transport.ts:36](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/ws-transport.ts#L36)
 
 Heartbeat interval in ms. 0 or undefined disables heartbeat.
 
-##### serialize()?
+##### serialize?
 
-> `optional` **serialize**: (`event`) => `string`
+> `optional` **serialize?**: (`event`) => `string`
 
-Defined in: [chat/backends/ws-transport.ts:38](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/ws-transport.ts#L38)
+Defined in: [chat/backends/ws-transport.ts:38](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/ws-transport.ts#L38)
 
 Custom JSON serializer (defaults to JSON.stringify)
 
@@ -1121,7 +1121,7 @@ Custom JSON serializer (defaults to JSON.stringify)
 
 > `const` **WS\_READY\_STATE**: `object`
 
-Defined in: [chat/backends/ws-transport.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/ws-transport.ts#L14)
+Defined in: [chat/backends/ws-transport.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/ws-transport.ts#L14)
 
 Ready states matching the WebSocket spec (ws, browser, Deno, Bun)
 
@@ -1149,7 +1149,7 @@ Ready states matching the WebSocket spec (ws, browser, Deno, Bun)
 
 > **withInterceptors**(`transport`, `interceptors`): [`IChatTransport`](../chat.md#ichattransport)
 
-Defined in: [chat/backends/interceptors.ts:128](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/backends/interceptors.ts#L128)
+Defined in: [chat/backends/interceptors.ts:128](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/backends/interceptors.ts#L128)
 
 Wrap a transport with one or more interceptors.
 Interceptors are applied in order: first interceptor's beforeSend runs first.

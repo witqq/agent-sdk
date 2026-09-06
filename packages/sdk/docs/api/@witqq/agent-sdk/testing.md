@@ -15,7 +15,7 @@ Provides mock factories for IAgentService, IChatRuntime, and IChatClient.
 
 ### MockAgentServiceOptions
 
-Defined in: [testing/mock-agent-service.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-agent-service.ts#L22)
+Defined in: [testing/mock-agent-service.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-agent-service.ts#L22)
 
 Options for createMockAgentService.
 
@@ -23,9 +23,9 @@ Options for createMockAgentService.
 
 ##### mockLLMBackend?
 
-> `optional` **mockLLMBackend**: [`MockLLMBackendOptions`](../../backends/mock-llm.md#mockllmbackendoptions)
+> `optional` **mockLLMBackend?**: [`MockLLMBackendOptions`](../../backends/mock-llm.md#mockllmbackendoptions)
 
-Defined in: [testing/mock-agent-service.ts:36](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-agent-service.ts#L36)
+Defined in: [testing/mock-agent-service.ts:36](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-agent-service.ts#L36)
 
 Opt-in: delegate to Mock LLM backend for richer simulation.
  When provided, createAgent() returns a full MockLLMAgent that participates
@@ -33,25 +33,25 @@ Opt-in: delegate to Mock LLM backend for richer simulation.
 
 ##### models?
 
-> `optional` **models**: [`ModelInfo`](../../index.md#modelinfo)[]
+> `optional` **models?**: [`ModelInfo`](../../index.md#modelinfo)[]
 
-Defined in: [testing/mock-agent-service.ts:26](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-agent-service.ts#L26)
+Defined in: [testing/mock-agent-service.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-agent-service.ts#L26)
 
 Models to return from listModels().
 
 ##### name?
 
-> `optional` **name**: `string`
+> `optional` **name?**: `string`
 
-Defined in: [testing/mock-agent-service.ts:24](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-agent-service.ts#L24)
+Defined in: [testing/mock-agent-service.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-agent-service.ts#L24)
 
 Service name. Default: "mock".
 
-##### onRun()?
+##### onRun?
 
-> `optional` **onRun**: (`prompt`, `options?`) => `Promise`\<[`AgentResult`](../../index.md#agentresult)\<`void`\>\>
+> `optional` **onRun?**: (`prompt`, `options?`) => `Promise`\<[`AgentResult`](../../index.md#agentresult)\<`void`\>\>
 
-Defined in: [testing/mock-agent-service.ts:30](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-agent-service.ts#L30)
+Defined in: [testing/mock-agent-service.ts:30](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-agent-service.ts#L30)
 
 Custom run handler. Default: returns "Mock response".
 
@@ -69,11 +69,11 @@ Custom run handler. Default: returns "Mock response".
 
 `Promise`\<[`AgentResult`](../../index.md#agentresult)\<`void`\>\>
 
-##### onStream()?
+##### onStream?
 
-> `optional` **onStream**: (`prompt`, `options?`) => `AsyncIterable`\<[`AgentEvent`](../../index.md#agentevent)\>
+> `optional` **onStream?**: (`prompt`, `options?`) => `AsyncIterable`\<[`AgentEvent`](../../index.md#agentevent)\>
 
-Defined in: [testing/mock-agent-service.ts:32](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-agent-service.ts#L32)
+Defined in: [testing/mock-agent-service.ts:32](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-agent-service.ts#L32)
 
 Custom stream handler. Default: yields text_delta + result events.
 
@@ -93,9 +93,9 @@ Custom stream handler. Default: yields text_delta + result events.
 
 ##### validationResult?
 
-> `optional` **validationResult**: [`ValidationResult`](../../index.md#validationresult)
+> `optional` **validationResult?**: [`ValidationResult`](../../index.md#validationresult)
 
-Defined in: [testing/mock-agent-service.ts:28](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-agent-service.ts#L28)
+Defined in: [testing/mock-agent-service.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-agent-service.ts#L28)
 
 Custom validation result. Default: { valid: true, errors: [] }.
 
@@ -103,7 +103,7 @@ Custom validation result. Default: { valid: true, errors: [] }.
 
 ### MockChatClientOptions
 
-Defined in: [testing/mock-chat-client.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-chat-client.ts#L14)
+Defined in: [testing/mock-chat-client.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-chat-client.ts#L14)
 
 Options for createMockChatClient.
 
@@ -111,17 +111,17 @@ Options for createMockChatClient.
 
 ##### models?
 
-> `optional` **models**: [`ModelInfo`](../../index.md#modelinfo)[]
+> `optional` **models?**: [`ModelInfo`](../../index.md#modelinfo)[]
 
-Defined in: [testing/mock-chat-client.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-chat-client.ts#L18)
+Defined in: [testing/mock-chat-client.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-chat-client.ts#L18)
 
 Models to return from listModels().
 
-##### onSend()?
+##### onSend?
 
-> `optional` **onSend**: (`sessionId`, `message`, `options?`) => `AsyncIterable`\<[`ChatEvent`](../../chat.md#chatevent)\>
+> `optional` **onSend?**: (`sessionId`, `message`, `options?`) => `AsyncIterable`\<[`ChatEvent`](../../chat.md#chatevent)\>
 
-Defined in: [testing/mock-chat-client.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-chat-client.ts#L22)
+Defined in: [testing/mock-chat-client.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-chat-client.ts#L22)
 
 Custom send handler.
 
@@ -145,17 +145,17 @@ Custom send handler.
 
 ##### providers?
 
-> `optional` **providers**: [`ProviderConfig`](../../chat.md#providerconfig)[]
+> `optional` **providers?**: [`ProviderConfig`](../../chat.md#providerconfig)[]
 
-Defined in: [testing/mock-chat-client.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-chat-client.ts#L20)
+Defined in: [testing/mock-chat-client.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-chat-client.ts#L20)
 
 Providers to return from listProviders().
 
 ##### sessions?
 
-> `optional` **sessions**: [`ChatSession`](../../chat.md#chatsession)\<`Record`\<`string`, `unknown`\>\>[]
+> `optional` **sessions?**: [`ChatSession`](../../chat.md#chatsession)\<`Record`\<`string`, `unknown`\>\>[]
 
-Defined in: [testing/mock-chat-client.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-chat-client.ts#L16)
+Defined in: [testing/mock-chat-client.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-chat-client.ts#L16)
 
 Pre-seeded sessions.
 
@@ -163,7 +163,7 @@ Pre-seeded sessions.
 
 ### MockMessageOptions
 
-Defined in: [testing/mock-data.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-data.ts#L18)
+Defined in: [testing/mock-data.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-data.ts#L18)
 
 Options for createMockMessage.
 
@@ -171,45 +171,45 @@ Options for createMockMessage.
 
 ##### id?
 
-> `optional` **id**: `string`
+> `optional` **id?**: `string`
 
-Defined in: [testing/mock-data.ts:19](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-data.ts#L19)
+Defined in: [testing/mock-data.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-data.ts#L19)
 
 ##### metadata?
 
-> `optional` **metadata**: `Record`\<`string`, `unknown`\>
+> `optional` **metadata?**: `Record`\<`string`, `unknown`\>
 
-Defined in: [testing/mock-data.ts:24](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-data.ts#L24)
+Defined in: [testing/mock-data.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-data.ts#L24)
 
 ##### parts?
 
-> `optional` **parts**: [`MessagePart`](../../chat.md#messagepart)[]
+> `optional` **parts?**: [`MessagePart`](../../chat.md#messagepart)[]
 
-Defined in: [testing/mock-data.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-data.ts#L22)
+Defined in: [testing/mock-data.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-data.ts#L22)
 
 ##### role?
 
-> `optional` **role**: `"user"` \| `"assistant"` \| `"system"`
+> `optional` **role?**: `"user"` \| `"assistant"` \| `"system"`
 
-Defined in: [testing/mock-data.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-data.ts#L20)
+Defined in: [testing/mock-data.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-data.ts#L20)
 
 ##### status?
 
-> `optional` **status**: `"error"` \| `"streaming"` \| `"pending"` \| `"complete"`
+> `optional` **status?**: `"error"` \| `"streaming"` \| `"pending"` \| `"complete"`
 
-Defined in: [testing/mock-data.ts:23](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-data.ts#L23)
+Defined in: [testing/mock-data.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-data.ts#L23)
 
 ##### text?
 
-> `optional` **text**: `string`
+> `optional` **text?**: `string`
 
-Defined in: [testing/mock-data.ts:21](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-data.ts#L21)
+Defined in: [testing/mock-data.ts:21](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-data.ts#L21)
 
 ***
 
 ### MockRuntimeOptions
 
-Defined in: [testing/mock-runtime.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-runtime.ts#L14)
+Defined in: [testing/mock-runtime.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-runtime.ts#L14)
 
 Options for createMockRuntime.
 
@@ -217,33 +217,33 @@ Options for createMockRuntime.
 
 ##### defaultBackend?
 
-> `optional` **defaultBackend**: `string`
+> `optional` **defaultBackend?**: `string`
 
-Defined in: [testing/mock-runtime.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-runtime.ts#L16)
+Defined in: [testing/mock-runtime.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-runtime.ts#L16)
 
 Default backend name. Default: "mock".
 
 ##### defaultModel?
 
-> `optional` **defaultModel**: `string`
+> `optional` **defaultModel?**: `string`
 
-Defined in: [testing/mock-runtime.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-runtime.ts#L18)
+Defined in: [testing/mock-runtime.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-runtime.ts#L18)
 
 Default model.
 
 ##### models?
 
-> `optional` **models**: [`ModelInfo`](../../index.md#modelinfo)[]
+> `optional` **models?**: [`ModelInfo`](../../index.md#modelinfo)[]
 
-Defined in: [testing/mock-runtime.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-runtime.ts#L22)
+Defined in: [testing/mock-runtime.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-runtime.ts#L22)
 
 Models to return from listModels().
 
-##### onSend()?
+##### onSend?
 
-> `optional` **onSend**: (`sessionId`, `message`, `options?`) => `AsyncIterable`\<[`ChatEvent`](../../chat.md#chatevent)\>
+> `optional` **onSend?**: (`sessionId`, `message`, `options?`) => `AsyncIterable`\<[`ChatEvent`](../../chat.md#chatevent)\>
 
-Defined in: [testing/mock-runtime.ts:24](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-runtime.ts#L24)
+Defined in: [testing/mock-runtime.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-runtime.ts#L24)
 
 Custom send handler. When not provided, yields a single text_delta + done event.
 
@@ -267,9 +267,9 @@ Custom send handler. When not provided, yields a single text_delta + done event.
 
 ##### sessions?
 
-> `optional` **sessions**: [`ChatSession`](../../chat.md#chatsession)\<`Record`\<`string`, `unknown`\>\>[]
+> `optional` **sessions?**: [`ChatSession`](../../chat.md#chatsession)\<`Record`\<`string`, `unknown`\>\>[]
 
-Defined in: [testing/mock-runtime.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-runtime.ts#L20)
+Defined in: [testing/mock-runtime.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-runtime.ts#L20)
 
 Pre-seeded sessions.
 
@@ -277,7 +277,7 @@ Pre-seeded sessions.
 
 ### MockSessionOptions
 
-Defined in: [testing/mock-data.ts:8](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-data.ts#L8)
+Defined in: [testing/mock-data.ts:8](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-data.ts#L8)
 
 Options for createMockSession.
 
@@ -285,39 +285,39 @@ Options for createMockSession.
 
 ##### config?
 
-> `optional` **config**: `Partial`\<[`ChatSessionConfig`](../../chat.md#chatsessionconfig-1)\>
+> `optional` **config?**: `Partial`\<[`ChatSessionConfig`](../../chat.md#chatsessionconfig-1)\>
 
-Defined in: [testing/mock-data.ts:12](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-data.ts#L12)
+Defined in: [testing/mock-data.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-data.ts#L12)
 
 ##### id?
 
-> `optional` **id**: `string`
+> `optional` **id?**: `string`
 
-Defined in: [testing/mock-data.ts:9](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-data.ts#L9)
+Defined in: [testing/mock-data.ts:9](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-data.ts#L9)
 
 ##### messages?
 
-> `optional` **messages**: [`ChatMessage`](../../chat.md#chatmessage)\<`unknown`\>[]
+> `optional` **messages?**: [`ChatMessage`](../../chat.md#chatmessage)\<`unknown`\>[]
 
-Defined in: [testing/mock-data.ts:11](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-data.ts#L11)
+Defined in: [testing/mock-data.ts:11](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-data.ts#L11)
 
 ##### metadata?
 
-> `optional` **metadata**: `Record`\<`string`, `unknown`\>
+> `optional` **metadata?**: `Record`\<`string`, `unknown`\>
 
-Defined in: [testing/mock-data.ts:13](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-data.ts#L13)
+Defined in: [testing/mock-data.ts:13](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-data.ts#L13)
 
 ##### status?
 
-> `optional` **status**: `"active"`
+> `optional` **status?**: `"active"`
 
-Defined in: [testing/mock-data.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-data.ts#L14)
+Defined in: [testing/mock-data.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-data.ts#L14)
 
 ##### title?
 
-> `optional` **title**: `string`
+> `optional` **title?**: `string`
 
-Defined in: [testing/mock-data.ts:10](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-data.ts#L10)
+Defined in: [testing/mock-data.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-data.ts#L10)
 
 ## Functions
 
@@ -325,7 +325,7 @@ Defined in: [testing/mock-data.ts:10](https://github.com/witqq/agent-sdk/blob/9c
 
 > **createMockAgentService**(`options?`): [`IAgentService`](../../index.md#iagentservice)
 
-Defined in: [testing/mock-agent-service.ts:125](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-agent-service.ts#L125)
+Defined in: [testing/mock-agent-service.ts:125](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-agent-service.ts#L125)
 
 Create a mock IAgentService for testing agent-level code.
 
@@ -358,7 +358,7 @@ const service = createMockAgentService({
 
 > **createMockChatClient**(`options?`): [`IChatClient`](../../chat/runtime.md#ichatclient)
 
-Defined in: [testing/mock-chat-client.ts:33](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-chat-client.ts#L33)
+Defined in: [testing/mock-chat-client.ts:33](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-chat-client.ts#L33)
 
 Create a mock IChatClient for testing React hooks that talk to RemoteChatClient.
 
@@ -383,7 +383,7 @@ const providers = await client.listProviders();
 
 > **createMockMessage**(`options?`): [`ChatMessage`](../../chat.md#chatmessage)
 
-Defined in: [testing/mock-data.ts:64](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-data.ts#L64)
+Defined in: [testing/mock-data.ts:64](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-data.ts#L64)
 
 Create a mock ChatMessage for testing.
 
@@ -407,7 +407,7 @@ const msg = createMockMessage({ role: "user", text: "Hello" });
 
 > **createMockRuntime**(`options?`): [`IChatRuntime`](../../chat/runtime.md#ichatruntime)
 
-Defined in: [testing/mock-runtime.ts:35](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-runtime.ts#L35)
+Defined in: [testing/mock-runtime.ts:35](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-runtime.ts#L35)
 
 Create a mock IChatRuntime for testing chat UI hooks and components.
 
@@ -432,7 +432,7 @@ const session = await runtime.createSession({});
 
 > **createMockSession**(`options?`): [`ChatSession`](../../chat.md#chatsession)
 
-Defined in: [testing/mock-data.ts:34](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/testing/mock-data.ts#L34)
+Defined in: [testing/mock-data.ts:34](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/testing/mock-data.ts#L34)
 
 Create a mock ChatSession for testing.
 

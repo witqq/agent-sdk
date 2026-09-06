@@ -10,7 +10,7 @@
 
 ### ChatAbortController
 
-Defined in: [chat/state.ts:154](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L154)
+Defined in: [chat/state.ts:154](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L154)
 
 Abort controller with external signal linking.
 Wraps an AbortController and optionally links an external AbortSignal
@@ -22,7 +22,7 @@ so aborting either side cancels the operation.
 
 > **new ChatAbortController**(`externalSignal?`): [`ChatAbortController`](#chatabortcontroller)
 
-Defined in: [chat/state.ts:159](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L159)
+Defined in: [chat/state.ts:159](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L159)
 
 ###### Parameters
 
@@ -42,7 +42,7 @@ Defined in: [chat/state.ts:159](https://github.com/witqq/agent-sdk/blob/9c35a744
 
 > **get** **isAborted**(): `boolean`
 
-Defined in: [chat/state.ts:183](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L183)
+Defined in: [chat/state.ts:183](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L183)
 
 Whether the operation has been aborted
 
@@ -56,7 +56,7 @@ Whether the operation has been aborted
 
 > **get** **signal**(): `AbortSignal`
 
-Defined in: [chat/state.ts:178](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L178)
+Defined in: [chat/state.ts:178](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L178)
 
 The AbortSignal for this controller
 
@@ -70,7 +70,7 @@ The AbortSignal for this controller
 
 > **abort**(`reason?`): `void`
 
-Defined in: [chat/state.ts:191](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L191)
+Defined in: [chat/state.ts:191](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L191)
 
 Abort the operation.
 
@@ -90,7 +90,7 @@ Optional abort reason
 
 > **dispose**(): `void`
 
-Defined in: [chat/state.ts:196](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L196)
+Defined in: [chat/state.ts:196](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L196)
 
 Clean up external signal listener to prevent memory leaks
 
@@ -102,7 +102,7 @@ Clean up external signal listener to prevent memory leaks
 
 ### ChatReentrancyGuard
 
-Defined in: [chat/state.ts:119](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L119)
+Defined in: [chat/state.ts:119](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L119)
 
 Guards against concurrent send() calls in a chat runtime.
 acquire() before work, release() after (use try/finally).
@@ -126,7 +126,7 @@ Throws ChatError(REENTRANCY) if already acquired.
 
 > **get** **isAcquired**(): `boolean`
 
-Defined in: [chat/state.ts:123](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L123)
+Defined in: [chat/state.ts:123](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L123)
 
 Whether the guard is currently held
 
@@ -140,7 +140,7 @@ Whether the guard is currently held
 
 > **acquire**(): `void`
 
-Defined in: [chat/state.ts:131](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L131)
+Defined in: [chat/state.ts:131](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L131)
 
 Acquire the guard. Throws if already acquired.
 
@@ -156,7 +156,7 @@ ChatError with code REENTRANCY
 
 > **release**(): `void`
 
-Defined in: [chat/state.ts:142](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L142)
+Defined in: [chat/state.ts:142](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L142)
 
 Release the guard. Safe to call even if not acquired.
 
@@ -168,7 +168,7 @@ Release the guard. Safe to call even if not acquired.
 
 ### StateMachine
 
-Defined in: [chat/state.ts:21](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L21)
+Defined in: [chat/state.ts:21](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L21)
 
 Generic validated state machine.
 Enforces that every transition is declared in the transition map.
@@ -186,7 +186,7 @@ Throws ChatError(INVALID_TRANSITION) on illegal moves.
 
 > **new StateMachine**\<`S`\>(`initial`, `transitions`): [`StateMachine`](#statemachine)\<`S`\>
 
-Defined in: [chat/state.ts:24](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L24)
+Defined in: [chat/state.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L24)
 
 ###### Parameters
 
@@ -208,13 +208,13 @@ Defined in: [chat/state.ts:24](https://github.com/witqq/agent-sdk/blob/9c35a744e
 
 > `readonly` **initial**: `S`
 
-Defined in: [chat/state.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L25)
+Defined in: [chat/state.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L25)
 
 ##### transitions
 
 > `readonly` **transitions**: [`TransitionMap`](#transitionmap)\<`S`\>
 
-Defined in: [chat/state.ts:26](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L26)
+Defined in: [chat/state.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L26)
 
 #### Accessors
 
@@ -224,7 +224,7 @@ Defined in: [chat/state.ts:26](https://github.com/witqq/agent-sdk/blob/9c35a744e
 
 > **get** **current**(): `S`
 
-Defined in: [chat/state.ts:32](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L32)
+Defined in: [chat/state.ts:32](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L32)
 
 Current state
 
@@ -238,7 +238,7 @@ Current state
 
 > **canTransition**(`next`): `boolean`
 
-Defined in: [chat/state.ts:41](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L41)
+Defined in: [chat/state.ts:41](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L41)
 
 Check whether transitioning to `next` is allowed from current state
 
@@ -260,7 +260,7 @@ True if transition is allowed
 
 > **reset**(): `void`
 
-Defined in: [chat/state.ts:61](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L61)
+Defined in: [chat/state.ts:61](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L61)
 
 Reset to initial state
 
@@ -272,7 +272,7 @@ Reset to initial state
 
 > **transition**(`next`): `void`
 
-Defined in: [chat/state.ts:50](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L50)
+Defined in: [chat/state.ts:50](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L50)
 
 Transition to `next` state.
 
@@ -296,7 +296,7 @@ ChatError(INVALID_TRANSITION) if the transition is not allowed
 
 > **TransitionMap**\<`S`\> = `Readonly`\<`Record`\<`S`, readonly `S`[]\>\>
 
-Defined in: [chat/state.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L14)
+Defined in: [chat/state.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L14)
 
 Map of allowed transitions: current state → set of valid next states
 
@@ -312,7 +312,7 @@ Map of allowed transitions: current state → set of valid next states
 
 > `const` **MESSAGE\_TRANSITIONS**: [`TransitionMap`](#transitionmap)\<[`MessageStatus`](../chat.md#messagestatus)\>
 
-Defined in: [chat/state.ts:77](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L77)
+Defined in: [chat/state.ts:77](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L77)
 
 Allowed transitions for MessageStatus (pending → streaming → complete, etc.)
 
@@ -322,7 +322,7 @@ Allowed transitions for MessageStatus (pending → streaming → complete, etc.)
 
 > `const` **RUNTIME\_TRANSITIONS**: [`TransitionMap`](#transitionmap)\<[`RuntimeStatus`](../chat.md#runtimestatus)\>
 
-Defined in: [chat/state.ts:69](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L69)
+Defined in: [chat/state.ts:69](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L69)
 
 Allowed transitions for RuntimeStatus (idle → streaming/disposed, etc.)
 
@@ -332,7 +332,7 @@ Allowed transitions for RuntimeStatus (idle → streaming/disposed, etc.)
 
 > `const` **TOOL\_CALL\_TRANSITIONS**: [`TransitionMap`](#transitionmap)\<[`ToolCallStatus`](../chat.md#toolcallstatus)\>
 
-Defined in: [chat/state.ts:86](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L86)
+Defined in: [chat/state.ts:86](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L86)
 
 Allowed transitions for ToolCallStatus (pending → running → complete, etc.)
 
@@ -342,7 +342,7 @@ Allowed transitions for ToolCallStatus (pending → running → complete, etc.)
 
 > **createMessageStateMachine**(): [`StateMachine`](#statemachine)\<[`MessageStatus`](../chat.md#messagestatus)\>
 
-Defined in: [chat/state.ts:103](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L103)
+Defined in: [chat/state.ts:103](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L103)
 
 Create a MessageStatus state machine starting at "pending"
 
@@ -356,7 +356,7 @@ Create a MessageStatus state machine starting at "pending"
 
 > **createRuntimeStateMachine**(): [`StateMachine`](#statemachine)\<[`RuntimeStatus`](../chat.md#runtimestatus)\>
 
-Defined in: [chat/state.ts:98](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L98)
+Defined in: [chat/state.ts:98](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L98)
 
 Create a RuntimeStatus state machine starting at "idle"
 
@@ -370,7 +370,7 @@ Create a RuntimeStatus state machine starting at "idle"
 
 > **createToolCallStateMachine**(): [`StateMachine`](#statemachine)\<[`ToolCallStatus`](../chat.md#toolcallstatus)\>
 
-Defined in: [chat/state.ts:108](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/state.ts#L108)
+Defined in: [chat/state.ts:108](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/state.ts#L108)
 
 Create a ToolCallStatus state machine starting at "pending"
 

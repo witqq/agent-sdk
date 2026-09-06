@@ -3,15 +3,15 @@
 ## Project
 
 AI agent abstraction layer (npm package `@witqq/agent-sdk`).
-npm workspaces monorepo: `packages/sdk/` (publishable), `packages/demo/` (demo app), `packages/docs-site/` (Starlight docs).
-4 backends: Copilot CLI SDK, Claude CLI SDK, Vercel AI SDK v6, Mock LLM (testing).
+npm 12 workspaces monorepo: `packages/sdk/` (publishable), `packages/demo/` (demo app), `packages/docs-site/` (Starlight docs).
+4 backends: Copilot CLI SDK, Claude CLI SDK, Vercel AI SDK v7, Mock LLM (testing).
 Shared interfaces for tools, permissions, streaming, structured output.
 
 ## Build
 
 ```bash
-npm run build     # tsup → ESM + CJS + DTS (delegates to packages/sdk)
-npm run test      # vitest (2498+ tests, packages/sdk)
+npm run build     # tsdown → ESM + CJS + DTS (delegates to packages/sdk)
+npm run test      # vitest (2518+ tests, packages/sdk)
 npm run typecheck # tsc --noEmit (packages/sdk)
 ```
 
@@ -31,13 +31,13 @@ Error hierarchy: `AgentSDKError` base → `StorageError`, `AuthError`, `ChatErro
 ## Code Style
 
 - TypeScript strict mode
-- ESM-first, CJS via tsup
+- ESM-first, CJS via tsdown
 - Backend SDKs as optional peer deps
 - Separate entry points per backend (tree-shaking)
 
 ## Testing
 
-Unit: vitest (`packages/sdk/tests/unit/`), 2498+ tests.
+Unit: vitest (`packages/sdk/tests/unit/`), 2518+ tests.
 Integration: `packages/sdk/tests/integration/` — requires real CLI auth.
 E2E: `packages/sdk/tests/e2e/` — tests against running demo server.
 

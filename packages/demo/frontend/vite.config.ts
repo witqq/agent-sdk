@@ -2,6 +2,11 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
+  resolve: {
+    // The SDK is linked from outside this package, so force its React peer
+    // imports to resolve from the frontend application's dependency tree.
+    dedupe: ["react", "react-dom"],
+  },
   plugins: [
     {
       name: "stub-crypto",

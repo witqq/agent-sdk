@@ -10,7 +10,7 @@
 
 ### MockLLMBackendOptions
 
-Defined in: [types/backends.ts:35](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L35)
+Defined in: [types/backends.ts:35](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L35)
 
 Options for Mock LLM backend
 
@@ -18,39 +18,39 @@ Options for Mock LLM backend
 
 ##### finishReason?
 
-> `optional` **finishReason**: `string`
+> `optional` **finishReason?**: `string`
 
-Defined in: [types/backends.ts:45](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L45)
+Defined in: [types/backends.ts:45](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L45)
 
 Override finishReason in done events (default: "stop")
 
 ##### latency?
 
-> `optional` **latency**: [`MockLLMLatency`](#mockllmlatency)
+> `optional` **latency?**: [`MockLLMLatency`](#mockllmlatency)
 
-Defined in: [types/backends.ts:41](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L41)
+Defined in: [types/backends.ts:41](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L41)
 
 Latency simulation — delay before each response
 
 ##### mode?
 
-> `optional` **mode**: [`MockLLMResponseMode`](#mockllmresponsemode)
+> `optional` **mode?**: [`MockLLMResponseMode`](#mockllmresponsemode)
 
-Defined in: [types/backends.ts:37](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L37)
+Defined in: [types/backends.ts:37](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L37)
 
 Response mode configuration
 
 ##### models?
 
-> `optional` **models**: `object`[]
+> `optional` **models?**: `object`[]
 
-Defined in: [types/backends.ts:39](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L39)
+Defined in: [types/backends.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L39)
 
 Models to advertise from listModels()
 
 ###### description?
 
-> `optional` **description**: `string`
+> `optional` **description?**: `string`
 
 ###### id
 
@@ -58,37 +58,37 @@ Models to advertise from listModels()
 
 ###### name?
 
-> `optional` **name**: `string`
+> `optional` **name?**: `string`
 
 ##### permissions?
 
-> `optional` **permissions**: [`MockLLMPermissionOptions`](#mockllmpermissionoptions)
+> `optional` **permissions?**: [`MockLLMPermissionOptions`](#mockllmpermissionoptions)
 
-Defined in: [types/backends.ts:47](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L47)
+Defined in: [types/backends.ts:47](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L47)
 
 Permission simulation for tool calls
 
 ##### streaming?
 
-> `optional` **streaming**: [`MockLLMStreamingOptions`](#mockllmstreamingoptions)
+> `optional` **streaming?**: [`MockLLMStreamingOptions`](#mockllmstreamingoptions)
 
-Defined in: [types/backends.ts:43](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L43)
+Defined in: [types/backends.ts:43](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L43)
 
 Streaming behavior control
 
 ##### structuredOutput?
 
-> `optional` **structuredOutput**: `unknown`
+> `optional` **structuredOutput?**: `unknown`
 
-Defined in: [types/backends.ts:51](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L51)
+Defined in: [types/backends.ts:51](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L51)
 
 Structured output — return specific JSON from runStructured()
 
 ##### toolCalls?
 
-> `optional` **toolCalls**: [`MockLLMToolCall`](#mockllmtoolcall)[]
+> `optional` **toolCalls?**: [`MockLLMToolCall`](#mockllmtoolcall)[]
 
-Defined in: [types/backends.ts:49](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L49)
+Defined in: [types/backends.ts:49](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L49)
 
 Tool call simulation — emit tool_call_start/end events during streaming
 
@@ -96,7 +96,7 @@ Tool call simulation — emit tool_call_start/end events during streaming
 
 ### MockLLMPermissionOptions
 
-Defined in: [types/backends.ts:75](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L75)
+Defined in: [types/backends.ts:75](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L75)
 
 Permission simulation options
 
@@ -104,17 +104,17 @@ Permission simulation options
 
 ##### autoApprove?
 
-> `optional` **autoApprove**: `boolean`
+> `optional` **autoApprove?**: `boolean`
 
-Defined in: [types/backends.ts:79](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L79)
+Defined in: [types/backends.ts:79](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L79)
 
 Auto-approve all permission requests (default: false — uses supervisor callback)
 
 ##### denyTools?
 
-> `optional` **denyTools**: `string`[]
+> `optional` **denyTools?**: `string`[]
 
-Defined in: [types/backends.ts:81](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L81)
+Defined in: [types/backends.ts:81](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L81)
 
 Tool names to always deny
 
@@ -122,7 +122,7 @@ Tool names to always deny
 
 > **toolNames**: `string`[]
 
-Defined in: [types/backends.ts:77](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L77)
+Defined in: [types/backends.ts:77](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L77)
 
 Tool names to simulate permission requests for
 
@@ -130,7 +130,7 @@ Tool names to simulate permission requests for
 
 ### MockLLMStreamingOptions
 
-Defined in: [types/backends.ts:67](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L67)
+Defined in: [types/backends.ts:67](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L67)
 
 Streaming chunk control
 
@@ -138,17 +138,17 @@ Streaming chunk control
 
 ##### chunkDelayMs?
 
-> `optional` **chunkDelayMs**: `number`
+> `optional` **chunkDelayMs?**: `number`
 
-Defined in: [types/backends.ts:71](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L71)
+Defined in: [types/backends.ts:71](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L71)
 
 Delay in ms between chunks (default: 0)
 
 ##### chunkSize?
 
-> `optional` **chunkSize**: `number`
+> `optional` **chunkSize?**: `number`
 
-Defined in: [types/backends.ts:69](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L69)
+Defined in: [types/backends.ts:69](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L69)
 
 Characters per chunk (default: word-boundary splitting)
 
@@ -156,7 +156,7 @@ Characters per chunk (default: word-boundary splitting)
 
 ### MockLLMToolCall
 
-Defined in: [types/backends.ts:85](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L85)
+Defined in: [types/backends.ts:85](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L85)
 
 Tool call simulation — emitted as tool_call_start/end events in stream
 
@@ -164,25 +164,25 @@ Tool call simulation — emitted as tool_call_start/end events in stream
 
 ##### args?
 
-> `optional` **args**: `Record`\<`string`, `unknown`\>
+> `optional` **args?**: `Record`\<`string`, `unknown`\>
 
-Defined in: [types/backends.ts:89](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L89)
+Defined in: [types/backends.ts:89](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L89)
 
 Tool call arguments
 
 ##### result?
 
-> `optional` **result**: `unknown`
+> `optional` **result?**: `unknown`
 
-Defined in: [types/backends.ts:91](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L91)
+Defined in: [types/backends.ts:91](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L91)
 
 Tool execution result
 
 ##### toolCallId?
 
-> `optional` **toolCallId**: `string`
+> `optional` **toolCallId?**: `string`
 
-Defined in: [types/backends.ts:93](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L93)
+Defined in: [types/backends.ts:93](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L93)
 
 Tool call ID (auto-generated if not provided)
 
@@ -190,7 +190,7 @@ Tool call ID (auto-generated if not provided)
 
 > **toolName**: `string`
 
-Defined in: [types/backends.ts:87](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L87)
+Defined in: [types/backends.ts:87](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L87)
 
 Tool name (e.g. "bash", "file_write")
 
@@ -200,7 +200,7 @@ Tool name (e.g. "bash", "file_write")
 
 > **MockLLMLatency** = \{ `ms`: `number`; `type`: `"fixed"`; \} \| \{ `maxMs`: `number`; `minMs`: `number`; `type`: `"random"`; \}
 
-Defined in: [types/backends.ts:62](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L62)
+Defined in: [types/backends.ts:62](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L62)
 
 Latency simulation configuration
 
@@ -210,7 +210,7 @@ Latency simulation configuration
 
 > **MockLLMResponseMode** = \{ `type`: `"echo"`; \} \| \{ `response`: `string`; `type`: `"static"`; \} \| \{ `loop?`: `boolean`; `responses`: `string`[]; `type`: `"scripted"`; \} \| \{ `code?`: `string`; `error`: `string`; `recoverable?`: `boolean`; `type`: `"error"`; \}
 
-Defined in: [types/backends.ts:55](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/types/backends.ts#L55)
+Defined in: [types/backends.ts:55](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L55)
 
 Response mode — determines how the mock agent generates responses
 
@@ -220,7 +220,7 @@ Response mode — determines how the mock agent generates responses
 
 > **createMockLLMService**(`options?`): [`IAgentService`](../index.md#iagentservice)
 
-Defined in: [backends/mock-llm.ts:418](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/backends/mock-llm.ts#L418)
+Defined in: [backends/mock-llm.ts:418](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/backends/mock-llm.ts#L418)
 
 Create a mock LLM backend service for automated testing.
 

@@ -4,7 +4,7 @@ The public `@witqq/agent-sdk` package lives in `packages/sdk`; the repository ro
 
 ## Runtime and trusted publisher
 
-Use Node.js 24.20.0 and npm 11.19.0 or newer. `.nvmrc`, `.node-version`, root `engines`, workspace `engines` and GitHub Actions use the same Node release.
+Use Node.js 24.20.0 and npm 12.0.2. `.nvmrc`, `.node-version`, root `engines`, workspace `engines`, `packageManager` and GitHub Actions define the same toolchain.
 
 On npm, configure a GitHub Actions trusted publisher for `@witqq/agent-sdk`:
 
@@ -67,6 +67,6 @@ gh run watch "<databaseId>" --exit-status
 npm view @witqq/agent-sdk version dist-tags dist --json
 ```
 
-The workflow requires the one expected Release asset, matches GitHub's stored digest, downloads it over verified HTTPS, recomputes SHA-256, checks package/version/repository/workspace identity and publishes the asset URL through OIDC. It performs no checkout, dependency installation or build.
+The workflow requires an annotated tag contained in the dispatched revision and the one expected Release asset. It matches GitHub's stored digest, downloads the asset over verified HTTPS, recomputes SHA-256, checks package/version/repository/workspace identity and publishes that local verified tarball through OIDC. It performs no checkout, dependency installation or build. A retry accepts an existing npm version only when its registry tarball has the same digest, and every successful run verifies the final registry bytes.
 
 The release is complete only when npm `latest` equals the released version, the registry tarball SHA-256 matches the GitHub asset and a new empty consumer can install and import the published ESM/CommonJS/types/CSS surface. Stop at the failed stage and repair its owner; never weaken identity, digest, TLS or authentication checks and never substitute a rebuilt tarball.

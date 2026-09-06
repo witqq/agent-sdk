@@ -23,7 +23,7 @@ import type { IPermissionStore } from "../permission-store.js";
 
 export type { VercelAIBackendOptions } from "../types.js";
 
-// ─── Local Type Definitions (matching Vercel AI SDK v6 shapes) ──
+// ─── Local Type Definitions (matching Vercel AI SDK v7 shapes) ──
 // Avoids requiring the SDK to be installed at compile time.
 
 /** @internal Vercel AI SDK tool result */
@@ -38,7 +38,7 @@ interface SDKToolDefinition {
  *  Shape is provider-defined and open; we treat it as a nested record. */
 type SDKProviderMetadata = Record<string, Record<string, unknown>>;
 
-/** @internal Vercel AI SDK v6 generateText result */
+/** @internal Vercel AI SDK v7 generateText result */
 interface SDKGenerateTextResult {
   text: string;
   toolCalls: Array<{ toolCallId: string; toolName: string; input: unknown }>;
@@ -72,7 +72,7 @@ interface SDKStreamTextResult {
   providerMetadata: PromiseLike<SDKProviderMetadata | undefined>;
 }
 
-/** @internal Vercel AI SDK v6 stream part union */
+/** @internal Vercel AI SDK v7 stream part union */
 type SDKStreamPart =
   | { type: "text-delta"; text: string }
   | { type: "tool-call"; toolCallId: string; toolName: string; input: unknown }
@@ -842,7 +842,7 @@ class VercelAIAgent extends BaseAgent {
         }
       }
 
-      // AI SDK v6 exposes usage and provider metadata on every finish-step, so
+      // AI SDK v7 exposes usage and provider metadata on every finish-step, so
       // the last cumulative snapshot above is already the run total. Older
       // compatible SDKs/mocks may expose only terminal totals; emit one fallback
       // snapshot in that case, or when their terminal total differs.

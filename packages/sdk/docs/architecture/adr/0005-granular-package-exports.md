@@ -16,7 +16,7 @@ Accepted
 - Quality attributes affected: QA-6 (Developer Experience), Portability
 
 ## Decision
-Use 21 granular JavaScript module entries plus one CSS entry in `package.json`. Each module export maps to a separate tsup entry point. Consumers import only what they need via deep paths (e.g., `@witqq/agent-sdk/chat/react`, `@witqq/agent-sdk/copilot`).
+Use 21 granular JavaScript module entries plus one CSS entry in `package.json`. Each module export maps to a separate tsdown entry point. Consumers import only what they need via deep paths (e.g., `@witqq/agent-sdk/chat/react`, `@witqq/agent-sdk/copilot`).
 
 ## Options Considered
 
@@ -26,7 +26,7 @@ Use 21 granular JavaScript module entries plus one CSS entry in `package.json`. 
 
 ### Option 2: Granular Package Exports (chosen)
 - Pros: True tree-shaking at package boundary; optional peers only resolved when their entry point is imported; each export is independently testable; consumers pay only for what they use
-- Cons: 21 module entry points plus one CSS export to maintain in package.json and tsup config; more import paths for consumers to learn; breaking change risk when restructuring exports
+- Cons: 21 module entry points plus one CSS export to maintain in package.json and tsdown config; more import paths for consumers to learn; breaking change risk when restructuring exports
 
 ### Option 3: Separate npm Packages per Module
 - Pros: Maximum isolation; independent versioning per module

@@ -15,7 +15,7 @@ for building chat UIs with minimal boilerplate.
 
 ### RemoteChatClient
 
-Defined in: [chat/react/RemoteChatClient.ts:59](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L59)
+Defined in: [chat/react/RemoteChatClient.ts:59](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L59)
 
 Client-side interface for interacting with a remote chat server.
 Fully self-contained — no shared base with IChatRuntime.
@@ -32,7 +32,7 @@ Used by React components and remote clients.
 
 > **new RemoteChatClient**(`options`): [`RemoteChatClient`](#remotechatclient)
 
-Defined in: [chat/react/RemoteChatClient.ts:70](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L70)
+Defined in: [chat/react/RemoteChatClient.ts:70](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L70)
 
 ###### Parameters
 
@@ -52,7 +52,7 @@ Defined in: [chat/react/RemoteChatClient.ts:70](https://github.com/witqq/agent-s
 
 > **get** **activeSessionId**(): [`ChatId`](../../../chat.md#chatid) \| `null`
 
-Defined in: [chat/react/RemoteChatClient.ts:115](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L115)
+Defined in: [chat/react/RemoteChatClient.ts:115](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L115)
 
 ###### Returns
 
@@ -68,7 +68,7 @@ Defined in: [chat/react/RemoteChatClient.ts:115](https://github.com/witqq/agent-
 
 > **get** **selectedProviderId**(): `string` \| `null`
 
-Defined in: [chat/react/RemoteChatClient.ts:95](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L95)
+Defined in: [chat/react/RemoteChatClient.ts:95](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L95)
 
 ###### Returns
 
@@ -84,7 +84,7 @@ Defined in: [chat/react/RemoteChatClient.ts:95](https://github.com/witqq/agent-s
 
 > **get** **status**(): [`RuntimeStatus`](../../../chat.md#runtimestatus)
 
-Defined in: [chat/react/RemoteChatClient.ts:78](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L78)
+Defined in: [chat/react/RemoteChatClient.ts:78](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L78)
 
 ###### Returns
 
@@ -100,7 +100,7 @@ Defined in: [chat/react/RemoteChatClient.ts:78](https://github.com/witqq/agent-s
 
 > **abort**(): `void`
 
-Defined in: [chat/react/RemoteChatClient.ts:223](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L223)
+Defined in: [chat/react/RemoteChatClient.ts:223](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L223)
 
 ###### Returns
 
@@ -114,7 +114,7 @@ Defined in: [chat/react/RemoteChatClient.ts:223](https://github.com/witqq/agent-
 
 > **createProvider**(`config`): `Promise`\<[`ProviderConfig`](../../../chat.md#providerconfig)\>
 
-Defined in: [chat/react/RemoteChatClient.ts:257](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L257)
+Defined in: [chat/react/RemoteChatClient.ts:257](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L257)
 
 ###### Parameters
 
@@ -134,7 +134,7 @@ Defined in: [chat/react/RemoteChatClient.ts:257](https://github.com/witqq/agent-
 
 > **createSession**(`options`): `Promise`\<[`ChatSession`](../../../chat.md#chatsession)\<`Record`\<`string`, `unknown`\>\>\>
 
-Defined in: [chat/react/RemoteChatClient.ts:119](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L119)
+Defined in: [chat/react/RemoteChatClient.ts:119](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L119)
 
 ###### Parameters
 
@@ -154,7 +154,7 @@ Defined in: [chat/react/RemoteChatClient.ts:119](https://github.com/witqq/agent-
 
 > **deleteProvider**(`id`): `Promise`\<`void`\>
 
-Defined in: [chat/react/RemoteChatClient.ts:268](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L268)
+Defined in: [chat/react/RemoteChatClient.ts:268](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L268)
 
 ###### Parameters
 
@@ -174,7 +174,7 @@ Defined in: [chat/react/RemoteChatClient.ts:268](https://github.com/witqq/agent-
 
 > **deleteSession**(`id`): `Promise`\<`void`\>
 
-Defined in: [chat/react/RemoteChatClient.ts:141](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L141)
+Defined in: [chat/react/RemoteChatClient.ts:141](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L141)
 
 ###### Parameters
 
@@ -194,7 +194,7 @@ Defined in: [chat/react/RemoteChatClient.ts:141](https://github.com/witqq/agent-
 
 > **dispose**(): `Promise`\<`void`\>
 
-Defined in: [chat/react/RemoteChatClient.ts:82](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L82)
+Defined in: [chat/react/RemoteChatClient.ts:82](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L82)
 
 ###### Returns
 
@@ -208,7 +208,7 @@ Defined in: [chat/react/RemoteChatClient.ts:82](https://github.com/witqq/agent-s
 
 > **getContextStats**(`sessionId`): `Promise`\<[`ContextStats`](../../../chat/context.md#contextstats) \| `null`\>
 
-Defined in: [chat/react/RemoteChatClient.ts:154](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L154)
+Defined in: [chat/react/RemoteChatClient.ts:154](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L154)
 
 Fetch context window stats from server.
 Returns null if stats not available (e.g. no messages sent yet).
@@ -231,7 +231,7 @@ Returns null if stats not available (e.g. no messages sent yet).
 
 > **getSession**(`id`): `Promise`\<[`ChatSession`](../../../chat.md#chatsession)\<`Record`\<`string`, `unknown`\>\> \| `null`\>
 
-Defined in: [chat/react/RemoteChatClient.ts:128](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L128)
+Defined in: [chat/react/RemoteChatClient.ts:128](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L128)
 
 ###### Parameters
 
@@ -251,7 +251,7 @@ Defined in: [chat/react/RemoteChatClient.ts:128](https://github.com/witqq/agent-
 
 > **listBackends**(): `Promise`\<[`BackendInfo`](../../../chat/runtime.md#backendinfo)[]\>
 
-Defined in: [chat/react/RemoteChatClient.ts:243](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L243)
+Defined in: [chat/react/RemoteChatClient.ts:243](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L243)
 
 ###### Returns
 
@@ -265,7 +265,7 @@ Defined in: [chat/react/RemoteChatClient.ts:243](https://github.com/witqq/agent-
 
 > **listModels**(): `Promise`\<[`ModelInfo`](../../../index.md#modelinfo)[]\>
 
-Defined in: [chat/react/RemoteChatClient.ts:237](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L237)
+Defined in: [chat/react/RemoteChatClient.ts:237](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L237)
 
 ###### Returns
 
@@ -279,7 +279,7 @@ Defined in: [chat/react/RemoteChatClient.ts:237](https://github.com/witqq/agent-
 
 > **listProviders**(): `Promise`\<[`ProviderConfig`](../../../chat.md#providerconfig)[]\>
 
-Defined in: [chat/react/RemoteChatClient.ts:251](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L251)
+Defined in: [chat/react/RemoteChatClient.ts:251](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L251)
 
 ###### Returns
 
@@ -293,7 +293,7 @@ Defined in: [chat/react/RemoteChatClient.ts:251](https://github.com/witqq/agent-
 
 > **listSessions**(`_options?`): `Promise`\<[`ChatSession`](../../../chat.md#chatsession)\<`Record`\<`string`, `unknown`\>\>[]\>
 
-Defined in: [chat/react/RemoteChatClient.ts:135](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L135)
+Defined in: [chat/react/RemoteChatClient.ts:135](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L135)
 
 ###### Parameters
 
@@ -313,7 +313,7 @@ Defined in: [chat/react/RemoteChatClient.ts:135](https://github.com/witqq/agent-
 
 > **onSelectionChange**(`callback`): () => `void`
 
-Defined in: [chat/react/RemoteChatClient.ts:105](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L105)
+Defined in: [chat/react/RemoteChatClient.ts:105](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L105)
 
 ###### Parameters
 
@@ -323,11 +323,7 @@ Defined in: [chat/react/RemoteChatClient.ts:105](https://github.com/witqq/agent-
 
 ###### Returns
 
-> (): `void`
-
-###### Returns
-
-`void`
+() => `void`
 
 ###### Implementation of
 
@@ -337,7 +333,7 @@ Defined in: [chat/react/RemoteChatClient.ts:105](https://github.com/witqq/agent-
 
 > **onSessionChange**(`callback`): () => `void`
 
-Defined in: [chat/react/RemoteChatClient.ts:277](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L277)
+Defined in: [chat/react/RemoteChatClient.ts:277](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L277)
 
 ###### Parameters
 
@@ -347,11 +343,7 @@ Defined in: [chat/react/RemoteChatClient.ts:277](https://github.com/witqq/agent-
 
 ###### Returns
 
-> (): `void`
-
-###### Returns
-
-`void`
+() => `void`
 
 ###### Implementation of
 
@@ -361,7 +353,7 @@ Defined in: [chat/react/RemoteChatClient.ts:277](https://github.com/witqq/agent-
 
 > **selectProvider**(`providerId`): `void`
 
-Defined in: [chat/react/RemoteChatClient.ts:99](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L99)
+Defined in: [chat/react/RemoteChatClient.ts:99](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L99)
 
 ###### Parameters
 
@@ -381,7 +373,7 @@ Defined in: [chat/react/RemoteChatClient.ts:99](https://github.com/witqq/agent-s
 
 > **send**(`sessionId`, `message`, `options?`): `AsyncIterable`\<[`ChatEvent`](../../../chat.md#chatevent)\>
 
-Defined in: [chat/react/RemoteChatClient.ts:172](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L172)
+Defined in: [chat/react/RemoteChatClient.ts:172](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L172)
 
 Send a message. Options are optional — the server handler resolves
 model and backend from provider selection state.
@@ -413,7 +405,7 @@ Compare with IChatRuntime.send() where RuntimeSendOptions is required.
 
 > **switchSession**(`id`): `Promise`\<[`ChatSession`](../../../chat.md#chatsession)\<`Record`\<`string`, `unknown`\>\>\>
 
-Defined in: [chat/react/RemoteChatClient.ts:161](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L161)
+Defined in: [chat/react/RemoteChatClient.ts:161](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L161)
 
 ###### Parameters
 
@@ -433,7 +425,7 @@ Defined in: [chat/react/RemoteChatClient.ts:161](https://github.com/witqq/agent-
 
 > **updateProvider**(`id`, `changes`): `Promise`\<`void`\>
 
-Defined in: [chat/react/RemoteChatClient.ts:263](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L263)
+Defined in: [chat/react/RemoteChatClient.ts:263](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L263)
 
 ###### Parameters
 
@@ -457,7 +449,7 @@ Defined in: [chat/react/RemoteChatClient.ts:263](https://github.com/witqq/agent-
 
 ### AuthFormProps
 
-Defined in: [chat/react/auth/types.ts:8](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/types.ts#L8)
+Defined in: [chat/react/auth/types.ts:8](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/types.ts#L8)
 
 Props passed to per-backend auth form components.
 Each backend implements its own form using these props.
@@ -468,15 +460,15 @@ Each backend implements its own form using these props.
 
 > **auth**: [`UseRemoteAuthReturn`](#useremoteauthreturn)
 
-Defined in: [chat/react/auth/types.ts:10](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/types.ts#L10)
+Defined in: [chat/react/auth/types.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/types.ts#L10)
 
 The remote auth hook instance, pre-configured for this backend.
 
-##### onAuthComplete()
+##### onAuthComplete
 
 > **onAuthComplete**: () => `void`
 
-Defined in: [chat/react/auth/types.ts:12](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/types.ts#L12)
+Defined in: [chat/react/auth/types.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/types.ts#L12)
 
 Called when authentication completes successfully.
 
@@ -488,7 +480,7 @@ Called when authentication completes successfully.
 
 ### BackendSelectorProps
 
-Defined in: [chat/react/BackendSelector.ts:9](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/BackendSelector.ts#L9)
+Defined in: [chat/react/BackendSelector.ts:9](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/BackendSelector.ts#L9)
 
 Props for the BackendSelector component.
 
@@ -498,19 +490,19 @@ Props for the BackendSelector component.
 
 > **backends**: [`BackendInfo`](../../../chat/runtime.md#backendinfo)[]
 
-Defined in: [chat/react/BackendSelector.ts:10](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/BackendSelector.ts#L10)
+Defined in: [chat/react/BackendSelector.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/BackendSelector.ts#L10)
 
 ##### className?
 
-> `optional` **className**: `string`
+> `optional` **className?**: `string`
 
-Defined in: [chat/react/BackendSelector.ts:12](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/BackendSelector.ts#L12)
+Defined in: [chat/react/BackendSelector.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/BackendSelector.ts#L12)
 
-##### onSelect()
+##### onSelect
 
 > **onSelect**: (`name`) => `void`
 
-Defined in: [chat/react/BackendSelector.ts:11](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/BackendSelector.ts#L11)
+Defined in: [chat/react/BackendSelector.ts:11](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/BackendSelector.ts#L11)
 
 ###### Parameters
 
@@ -526,7 +518,7 @@ Defined in: [chat/react/BackendSelector.ts:11](https://github.com/witqq/agent-sd
 
 ### ChatHeaderProps
 
-Defined in: [chat/react/ChatHeader.ts:15](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatHeader.ts#L15)
+Defined in: [chat/react/ChatHeader.ts:15](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatHeader.ts#L15)
 
 Props for the ChatHeader component.
 
@@ -534,49 +526,49 @@ Props for the ChatHeader component.
 
 ##### backends?
 
-> `optional` **backends**: [`BackendInfo`](../../../chat/runtime.md#backendinfo)[]
+> `optional` **backends?**: [`BackendInfo`](../../../chat/runtime.md#backendinfo)[]
 
-Defined in: [chat/react/ChatHeader.ts:23](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatHeader.ts#L23)
+Defined in: [chat/react/ChatHeader.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatHeader.ts#L23)
 
 Available backends list.
 
 ##### BackendSelectorComponent?
 
-> `optional` **BackendSelectorComponent**: `ComponentType`\<[`BackendSelectorProps`](#backendselectorprops)\>
+> `optional` **BackendSelectorComponent?**: `ComponentType`\<[`BackendSelectorProps`](#backendselectorprops)\>
 
-Defined in: [chat/react/ChatHeader.ts:33](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatHeader.ts#L33)
+Defined in: [chat/react/ChatHeader.ts:33](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatHeader.ts#L33)
 
 Slot override for BackendSelector.
 
 ##### hasProviders?
 
-> `optional` **hasProviders**: `boolean`
+> `optional` **hasProviders?**: `boolean`
 
-Defined in: [chat/react/ChatHeader.ts:21](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatHeader.ts#L21)
+Defined in: [chat/react/ChatHeader.ts:21](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatHeader.ts#L21)
 
 Whether providers are configured (hides model selector when true).
 
 ##### models?
 
-> `optional` **models**: [`ModelOption`](#modeloption)[]
+> `optional` **models?**: [`ModelOption`](#modeloption)[]
 
-Defined in: [chat/react/ChatHeader.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatHeader.ts#L25)
+Defined in: [chat/react/ChatHeader.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatHeader.ts#L25)
 
 Available models list.
 
 ##### ModelSelectorComponent?
 
-> `optional` **ModelSelectorComponent**: `ComponentType`\<[`ModelSelectorProps`](#modelselectorprops)\>
+> `optional` **ModelSelectorComponent?**: `ComponentType`\<[`ModelSelectorProps`](#modelselectorprops)\>
 
-Defined in: [chat/react/ChatHeader.ts:35](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatHeader.ts#L35)
+Defined in: [chat/react/ChatHeader.ts:35](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatHeader.ts#L35)
 
 Slot override for ModelSelector.
 
-##### onBackendSelect()?
+##### onBackendSelect?
 
-> `optional` **onBackendSelect**: (`name`) => `void`
+> `optional` **onBackendSelect?**: (`name`) => `void`
 
-Defined in: [chat/react/ChatHeader.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatHeader.ts#L29)
+Defined in: [chat/react/ChatHeader.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatHeader.ts#L29)
 
 Backend selection handler.
 
@@ -590,11 +582,11 @@ Backend selection handler.
 
 `void`
 
-##### onModelSelect()?
+##### onModelSelect?
 
-> `optional` **onModelSelect**: (`modelId`) => `void`
+> `optional` **onModelSelect?**: (`modelId`) => `void`
 
-Defined in: [chat/react/ChatHeader.ts:31](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatHeader.ts#L31)
+Defined in: [chat/react/ChatHeader.ts:31](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatHeader.ts#L31)
 
 Model selection handler.
 
@@ -610,25 +602,25 @@ Model selection handler.
 
 ##### selectedModel?
 
-> `optional` **selectedModel**: `string`
+> `optional` **selectedModel?**: `string`
 
-Defined in: [chat/react/ChatHeader.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatHeader.ts#L27)
+Defined in: [chat/react/ChatHeader.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatHeader.ts#L27)
 
 Currently selected model.
 
 ##### showBackendSelector?
 
-> `optional` **showBackendSelector**: `boolean`
+> `optional` **showBackendSelector?**: `boolean`
 
-Defined in: [chat/react/ChatHeader.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatHeader.ts#L17)
+Defined in: [chat/react/ChatHeader.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatHeader.ts#L17)
 
 Whether to show backend selector. Default: false.
 
 ##### showModelSelector?
 
-> `optional` **showModelSelector**: `boolean`
+> `optional` **showModelSelector?**: `boolean`
 
-Defined in: [chat/react/ChatHeader.ts:19](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatHeader.ts#L19)
+Defined in: [chat/react/ChatHeader.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatHeader.ts#L19)
 
 Whether to show model selector. Default: true.
 
@@ -636,7 +628,7 @@ Whether to show model selector. Default: true.
 
 ### ChatInputAreaProps
 
-Defined in: [chat/react/ChatInputArea.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatInputArea.ts#L16)
+Defined in: [chat/react/ChatInputArea.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatInputArea.ts#L16)
 
 Props for the ChatInputArea component.
 
@@ -644,41 +636,41 @@ Props for the ChatInputArea component.
 
 ##### activeProviderId?
 
-> `optional` **activeProviderId**: `string`
+> `optional` **activeProviderId?**: `string`
 
-Defined in: [chat/react/ChatInputArea.ts:30](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatInputArea.ts#L30)
+Defined in: [chat/react/ChatInputArea.ts:30](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatInputArea.ts#L30)
 
 Active provider ID.
 
 ##### ComposerComponent?
 
-> `optional` **ComposerComponent**: `ComponentType`\<[`ComposerProps`](#composerprops)\>
+> `optional` **ComposerComponent?**: `ComponentType`\<[`ComposerProps`](#composerprops)\>
 
-Defined in: [chat/react/ChatInputArea.ts:40](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatInputArea.ts#L40)
+Defined in: [chat/react/ChatInputArea.ts:40](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatInputArea.ts#L40)
 
 Slot override for Composer.
 
 ##### isGenerating?
 
-> `optional` **isGenerating**: `boolean`
+> `optional` **isGenerating?**: `boolean`
 
-Defined in: [chat/react/ChatInputArea.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatInputArea.ts#L22)
+Defined in: [chat/react/ChatInputArea.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatInputArea.ts#L22)
 
 Whether generation is in progress.
 
 ##### models?
 
-> `optional` **models**: [`ModelOption`](#modeloption)[]
+> `optional` **models?**: [`ModelOption`](#modeloption)[]
 
-Defined in: [chat/react/ChatInputArea.ts:28](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatInputArea.ts#L28)
+Defined in: [chat/react/ChatInputArea.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatInputArea.ts#L28)
 
 Available models.
 
-##### onSelectModel()?
+##### onSelectModel?
 
-> `optional` **onSelectModel**: (`modelId`) => `void`
+> `optional` **onSelectModel?**: (`modelId`) => `void`
 
-Defined in: [chat/react/ChatInputArea.ts:36](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatInputArea.ts#L36)
+Defined in: [chat/react/ChatInputArea.ts:36](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatInputArea.ts#L36)
 
 Model selection handler.
 
@@ -692,11 +684,11 @@ Model selection handler.
 
 `void`
 
-##### onSelectProvider()?
+##### onSelectProvider?
 
-> `optional` **onSelectProvider**: (`id`) => `void`
+> `optional` **onSelectProvider?**: (`id`) => `void`
 
-Defined in: [chat/react/ChatInputArea.ts:34](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatInputArea.ts#L34)
+Defined in: [chat/react/ChatInputArea.ts:34](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatInputArea.ts#L34)
 
 Provider selection handler.
 
@@ -710,11 +702,11 @@ Provider selection handler.
 
 `void`
 
-##### onSend()
+##### onSend
 
 > **onSend**: (`message`) => `void`
 
-Defined in: [chat/react/ChatInputArea.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatInputArea.ts#L18)
+Defined in: [chat/react/ChatInputArea.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatInputArea.ts#L18)
 
 Send message handler.
 
@@ -728,11 +720,11 @@ Send message handler.
 
 `void`
 
-##### onSettingsClick()?
+##### onSettingsClick?
 
-> `optional` **onSettingsClick**: () => `void`
+> `optional` **onSettingsClick?**: () => `void`
 
-Defined in: [chat/react/ChatInputArea.ts:38](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatInputArea.ts#L38)
+Defined in: [chat/react/ChatInputArea.ts:38](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatInputArea.ts#L38)
 
 Settings button handler.
 
@@ -740,11 +732,11 @@ Settings button handler.
 
 `void`
 
-##### onStop()?
+##### onStop?
 
-> `optional` **onStop**: () => `void`
+> `optional` **onStop?**: () => `void`
 
-Defined in: [chat/react/ChatInputArea.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatInputArea.ts#L20)
+Defined in: [chat/react/ChatInputArea.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatInputArea.ts#L20)
 
 Stop generation handler.
 
@@ -754,41 +746,41 @@ Stop generation handler.
 
 ##### placeholder?
 
-> `optional` **placeholder**: `string`
+> `optional` **placeholder?**: `string`
 
-Defined in: [chat/react/ChatInputArea.ts:24](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatInputArea.ts#L24)
+Defined in: [chat/react/ChatInputArea.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatInputArea.ts#L24)
 
 Placeholder text for the textarea.
 
 ##### ProviderModelSelectorComponent?
 
-> `optional` **ProviderModelSelectorComponent**: `ComponentType`\<[`ProviderModelSelectorProps`](#providermodelselectorprops)\>
+> `optional` **ProviderModelSelectorComponent?**: `ComponentType`\<[`ProviderModelSelectorProps`](#providermodelselectorprops)\>
 
-Defined in: [chat/react/ChatInputArea.ts:42](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatInputArea.ts#L42)
+Defined in: [chat/react/ChatInputArea.ts:42](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatInputArea.ts#L42)
 
 Slot override for ProviderModelSelector.
 
 ##### providers?
 
-> `optional` **providers**: [`ProviderConfig`](../../../chat.md#providerconfig)[]
+> `optional` **providers?**: [`ProviderConfig`](../../../chat.md#providerconfig)[]
 
-Defined in: [chat/react/ChatInputArea.ts:26](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatInputArea.ts#L26)
+Defined in: [chat/react/ChatInputArea.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatInputArea.ts#L26)
 
 Available providers.
 
 ##### selectedModel?
 
-> `optional` **selectedModel**: `string`
+> `optional` **selectedModel?**: `string`
 
-Defined in: [chat/react/ChatInputArea.ts:32](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatInputArea.ts#L32)
+Defined in: [chat/react/ChatInputArea.ts:32](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatInputArea.ts#L32)
 
 Selected model.
 
 ##### usage?
 
-> `optional` **usage**: [`ChatUsage`](#chatusage) \| `null`
+> `optional` **usage?**: [`ChatUsage`](#chatusage) \| `null`
 
-Defined in: [chat/react/ChatInputArea.ts:44](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatInputArea.ts#L44)
+Defined in: [chat/react/ChatInputArea.ts:44](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatInputArea.ts#L44)
 
 Token usage data to display.
 
@@ -796,7 +788,7 @@ Token usage data to display.
 
 ### ChatLayoutProps
 
-Defined in: [chat/react/ChatLayout.ts:11](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatLayout.ts#L11)
+Defined in: [chat/react/ChatLayout.ts:11](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatLayout.ts#L11)
 
 Props for the ChatLayout component.
 
@@ -806,31 +798,31 @@ Props for the ChatLayout component.
 
 > **children**: `ReactNode`
 
-Defined in: [chat/react/ChatLayout.ts:13](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatLayout.ts#L13)
+Defined in: [chat/react/ChatLayout.ts:13](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatLayout.ts#L13)
 
 Main chat content (thread, input area, etc.).
 
 ##### className?
 
-> `optional` **className**: `string`
+> `optional` **className?**: `string`
 
-Defined in: [chat/react/ChatLayout.ts:19](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatLayout.ts#L19)
+Defined in: [chat/react/ChatLayout.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatLayout.ts#L19)
 
 CSS class on the root element.
 
 ##### overlay?
 
-> `optional` **overlay**: `ReactNode` \| `ReactNode`[]
+> `optional` **overlay?**: `ReactNode` \| `ReactNode`[]
 
-Defined in: [chat/react/ChatLayout.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatLayout.ts#L17)
+Defined in: [chat/react/ChatLayout.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatLayout.ts#L17)
 
 Modal/overlay content. Accepts a single node or array of nodes.
 
 ##### sidebar?
 
-> `optional` **sidebar**: `ReactNode`
+> `optional` **sidebar?**: `ReactNode`
 
-Defined in: [chat/react/ChatLayout.ts:15](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatLayout.ts#L15)
+Defined in: [chat/react/ChatLayout.ts:15](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatLayout.ts#L15)
 
 Sidebar content (thread list, session list, etc.).
 
@@ -838,7 +830,7 @@ Sidebar content (thread list, session list, etc.).
 
 ### ChatSettingsOverlayProps
 
-Defined in: [chat/react/ChatSettingsOverlay.ts:13](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L13)
+Defined in: [chat/react/ChatSettingsOverlay.ts:13](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L13)
 
 Props for the ChatSettingsOverlay component.
 
@@ -846,17 +838,17 @@ Props for the ChatSettingsOverlay component.
 
 ##### authBaseUrl?
 
-> `optional` **authBaseUrl**: `string`
+> `optional` **authBaseUrl?**: `string`
 
-Defined in: [chat/react/ChatSettingsOverlay.ts:21](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L21)
+Defined in: [chat/react/ChatSettingsOverlay.ts:21](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L21)
 
 Auth API base URL.
 
-##### onAuthCompleted()?
+##### onAuthCompleted?
 
-> `optional` **onAuthCompleted**: (`backend`) => `void`
+> `optional` **onAuthCompleted?**: (`backend`) => `void`
 
-Defined in: [chat/react/ChatSettingsOverlay.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L29)
+Defined in: [chat/react/ChatSettingsOverlay.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L29)
 
 Called when authentication succeeds. Parent should refresh providers.
 
@@ -870,11 +862,11 @@ Called when authentication succeeds. Parent should refresh providers.
 
 `void`
 
-##### onClose()
+##### onClose
 
 > **onClose**: () => `void`
 
-Defined in: [chat/react/ChatSettingsOverlay.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L17)
+Defined in: [chat/react/ChatSettingsOverlay.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L17)
 
 Close handler.
 
@@ -882,11 +874,11 @@ Close handler.
 
 `void`
 
-##### onProviderCreated()?
+##### onProviderCreated?
 
-> `optional` **onProviderCreated**: (`provider`) => `void`
+> `optional` **onProviderCreated?**: (`provider`) => `void`
 
-Defined in: [chat/react/ChatSettingsOverlay.ts:23](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L23)
+Defined in: [chat/react/ChatSettingsOverlay.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L23)
 
 Provider created handler.
 
@@ -910,11 +902,11 @@ Provider created handler.
 
 `void`
 
-##### onProviderDeleted()?
+##### onProviderDeleted?
 
-> `optional` **onProviderDeleted**: (`id`) => `void`
+> `optional` **onProviderDeleted?**: (`id`) => `void`
 
-Defined in: [chat/react/ChatSettingsOverlay.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L25)
+Defined in: [chat/react/ChatSettingsOverlay.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L25)
 
 Provider deleted handler.
 
@@ -928,11 +920,11 @@ Provider deleted handler.
 
 `void`
 
-##### onProviderUpdated()?
+##### onProviderUpdated?
 
-> `optional` **onProviderUpdated**: (`id`, `changes`) => `void`
+> `optional` **onProviderUpdated?**: (`id`, `changes`) => `void`
 
-Defined in: [chat/react/ChatSettingsOverlay.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L27)
+Defined in: [chat/react/ChatSettingsOverlay.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L27)
 
 Provider updated handler.
 
@@ -954,23 +946,23 @@ Provider updated handler.
 
 > **open**: `boolean`
 
-Defined in: [chat/react/ChatSettingsOverlay.ts:15](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L15)
+Defined in: [chat/react/ChatSettingsOverlay.ts:15](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L15)
 
 Whether the overlay is visible.
 
 ##### providers?
 
-> `optional` **providers**: [`ProviderConfig`](../../../chat.md#providerconfig)[]
+> `optional` **providers?**: [`ProviderConfig`](../../../chat.md#providerconfig)[]
 
-Defined in: [chat/react/ChatSettingsOverlay.ts:19](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L19)
+Defined in: [chat/react/ChatSettingsOverlay.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L19)
 
 Available providers.
 
 ##### ProviderSettingsComponent?
 
-> `optional` **ProviderSettingsComponent**: `ComponentType`\<[`ProviderSettingsProps`](#providersettingsprops)\>
+> `optional` **ProviderSettingsComponent?**: `ComponentType`\<[`ProviderSettingsProps`](#providersettingsprops)\>
 
-Defined in: [chat/react/ChatSettingsOverlay.ts:31](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L31)
+Defined in: [chat/react/ChatSettingsOverlay.ts:31](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L31)
 
 Slot override for ProviderSettings.
 
@@ -978,7 +970,7 @@ Slot override for ProviderSettings.
 
 ### ChatUIProps
 
-Defined in: [chat/react/ChatUI.ts:80](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L80)
+Defined in: [chat/react/ChatUI.ts:80](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L80)
 
 Props for the ChatUI composite component.
 
@@ -986,25 +978,25 @@ Props for the ChatUI composite component.
 
 ##### authBaseUrl?
 
-> `optional` **authBaseUrl**: `string`
+> `optional` **authBaseUrl?**: `string`
 
-Defined in: [chat/react/ChatUI.ts:96](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L96)
+Defined in: [chat/react/ChatUI.ts:96](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L96)
 
 Base URL for auth API (needed by ProviderSettings).
 
 ##### className?
 
-> `optional` **className**: `string`
+> `optional` **className?**: `string`
 
-Defined in: [chat/react/ChatUI.ts:86](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L86)
+Defined in: [chat/react/ChatUI.ts:86](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L86)
 
 CSS class on the root element.
 
 ##### placeholder?
 
-> `optional` **placeholder**: `string`
+> `optional` **placeholder?**: `string`
 
-Defined in: [chat/react/ChatUI.ts:98](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L98)
+Defined in: [chat/react/ChatUI.ts:98](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L98)
 
 Placeholder text for the Composer textarea.
 
@@ -1012,47 +1004,47 @@ Placeholder text for the Composer textarea.
 
 > **runtime**: [`IChatClient`](../../../chat/runtime.md#ichatclient)
 
-Defined in: [chat/react/ChatUI.ts:82](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L82)
+Defined in: [chat/react/ChatUI.ts:82](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L82)
 
 The chat runtime or client instance. ChatUI wraps it in ChatProvider. Accepts IChatClient.
 
 ##### showBackendSelector?
 
-> `optional` **showBackendSelector**: `boolean`
+> `optional` **showBackendSelector?**: `boolean`
 
-Defined in: [chat/react/ChatUI.ts:92](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L92)
+Defined in: [chat/react/ChatUI.ts:92](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L92)
 
 Show the backend selector in header. Default: false.
 
 ##### showModelSelector?
 
-> `optional` **showModelSelector**: `boolean`
+> `optional` **showModelSelector?**: `boolean`
 
-Defined in: [chat/react/ChatUI.ts:90](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L90)
+Defined in: [chat/react/ChatUI.ts:90](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L90)
 
 Show the model selector header. Default: true.
 
 ##### showProviderSelector?
 
-> `optional` **showProviderSelector**: `boolean`
+> `optional` **showProviderSelector?**: `boolean`
 
-Defined in: [chat/react/ChatUI.ts:94](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L94)
+Defined in: [chat/react/ChatUI.ts:94](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L94)
 
 Show the provider selector near composer. Default: auto (true when providers available).
 
 ##### showSidebar?
 
-> `optional` **showSidebar**: `boolean`
+> `optional` **showSidebar?**: `boolean`
 
-Defined in: [chat/react/ChatUI.ts:88](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L88)
+Defined in: [chat/react/ChatUI.ts:88](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L88)
 
 Show the session sidebar. Default: true.
 
 ##### slots?
 
-> `optional` **slots**: [`ChatUISlots`](#chatuislots)
+> `optional` **slots?**: [`ChatUISlots`](#chatuislots)
 
-Defined in: [chat/react/ChatUI.ts:84](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L84)
+Defined in: [chat/react/ChatUI.ts:84](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L84)
 
 Slot overrides for sub-components.
 
@@ -1060,7 +1052,7 @@ Slot overrides for sub-components.
 
 ### ChatUISlots
 
-Defined in: [chat/react/ChatUI.ts:50](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L50)
+Defined in: [chat/react/ChatUI.ts:50](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L50)
 
 Slot overrides for ChatUI sub-components.
 
@@ -1068,73 +1060,73 @@ Slot overrides for ChatUI sub-components.
 
 ##### authDialog?
 
-> `optional` **authDialog**: `ReactNode`
+> `optional` **authDialog?**: `ReactNode`
 
-Defined in: [chat/react/ChatUI.ts:70](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L70)
+Defined in: [chat/react/ChatUI.ts:70](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L70)
 
 Custom auth dialog element rendered when provided.
 
 ##### backendSelector?
 
-> `optional` **backendSelector**: `ComponentType`\<[`BackendSelectorProps`](#backendselectorprops)\>
+> `optional` **backendSelector?**: `ComponentType`\<[`BackendSelectorProps`](#backendselectorprops)\>
 
-Defined in: [chat/react/ChatUI.ts:60](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L60)
+Defined in: [chat/react/ChatUI.ts:60](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L60)
 
 Replace the BackendSelector component.
 
 ##### composer?
 
-> `optional` **composer**: `ComponentType`\<[`ComposerProps`](#composerprops)\>
+> `optional` **composer?**: `ComponentType`\<[`ComposerProps`](#composerprops)\>
 
-Defined in: [chat/react/ChatUI.ts:54](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L54)
+Defined in: [chat/react/ChatUI.ts:54](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L54)
 
 Replace the Composer component.
 
 ##### contextStats?
 
-> `optional` **contextStats**: `ComponentType`\<[`ContextStatsDisplayProps`](#contextstatsdisplayprops)\>
+> `optional` **contextStats?**: `ComponentType`\<[`ContextStatsDisplayProps`](#contextstatsdisplayprops)\>
 
-Defined in: [chat/react/ChatUI.ts:68](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L68)
+Defined in: [chat/react/ChatUI.ts:68](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L68)
 
 Replace the ContextStatsDisplay component.
 
 ##### modelSelector?
 
-> `optional` **modelSelector**: `ComponentType`\<[`ModelSelectorProps`](#modelselectorprops)\>
+> `optional` **modelSelector?**: `ComponentType`\<[`ModelSelectorProps`](#modelselectorprops)\>
 
-Defined in: [chat/react/ChatUI.ts:58](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L58)
+Defined in: [chat/react/ChatUI.ts:58](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L58)
 
 Replace the ModelSelector component (used in header when no providers).
 
 ##### providerModelSelector?
 
-> `optional` **providerModelSelector**: `ComponentType`\<[`ProviderModelSelectorProps`](#providermodelselectorprops)\>
+> `optional` **providerModelSelector?**: `ComponentType`\<[`ProviderModelSelectorProps`](#providermodelselectorprops)\>
 
-Defined in: [chat/react/ChatUI.ts:64](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L64)
+Defined in: [chat/react/ChatUI.ts:64](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L64)
 
 Replace the unified ProviderModelSelector component (near composer).
 
 ##### providerSelector?
 
-> `optional` **providerSelector**: `ComponentType`\<[`ProviderSelectorProps`](#providerselectorprops)\>
+> `optional` **providerSelector?**: `ComponentType`\<[`ProviderSelectorProps`](#providerselectorprops)\>
 
-Defined in: [chat/react/ChatUI.ts:62](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L62)
+Defined in: [chat/react/ChatUI.ts:62](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L62)
 
 Replace the ProviderSelector component (legacy, use providerModelSelector).
 
 ##### providerSettings?
 
-> `optional` **providerSettings**: `ComponentType`\<[`ProviderSettingsProps`](#providersettingsprops)\>
+> `optional` **providerSettings?**: `ComponentType`\<[`ProviderSettingsProps`](#providersettingsprops)\>
 
-Defined in: [chat/react/ChatUI.ts:66](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L66)
+Defined in: [chat/react/ChatUI.ts:66](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L66)
 
 Replace the ProviderSettings component.
 
-##### renderMessage()?
+##### renderMessage?
 
-> `optional` **renderMessage**: (`message`, `index`) => `ReactNode`
+> `optional` **renderMessage?**: (`message`, `index`) => `ReactNode`
 
-Defined in: [chat/react/ChatUI.ts:72](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L72)
+Defined in: [chat/react/ChatUI.ts:72](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L72)
 
 Custom message renderer (forwarded to ThreadProvider).
 
@@ -1152,11 +1144,11 @@ Custom message renderer (forwarded to ThreadProvider).
 
 `ReactNode`
 
-##### renderThinkingBlock()?
+##### renderThinkingBlock?
 
-> `optional` **renderThinkingBlock**: (`part`, `index`) => `ReactNode`
+> `optional` **renderThinkingBlock?**: (`part`, `index`) => `ReactNode`
 
-Defined in: [chat/react/ChatUI.ts:76](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L76)
+Defined in: [chat/react/ChatUI.ts:76](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L76)
 
 Custom thinking block renderer (forwarded to ThreadProvider).
 
@@ -1174,11 +1166,11 @@ Custom thinking block renderer (forwarded to ThreadProvider).
 
 `ReactNode`
 
-##### renderToolCall()?
+##### renderToolCall?
 
-> `optional` **renderToolCall**: (`part`, `index`) => `ReactNode`
+> `optional` **renderToolCall?**: (`part`, `index`) => `ReactNode`
 
-Defined in: [chat/react/ChatUI.ts:74](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L74)
+Defined in: [chat/react/ChatUI.ts:74](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L74)
 
 Custom tool call renderer (forwarded to ThreadProvider).
 
@@ -1198,17 +1190,17 @@ Custom tool call renderer (forwarded to ThreadProvider).
 
 ##### thread?
 
-> `optional` **thread**: `ComponentType`\<[`ThreadProps`](#threadprops)\>
+> `optional` **thread?**: `ComponentType`\<[`ThreadProps`](#threadprops)\>
 
-Defined in: [chat/react/ChatUI.ts:52](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L52)
+Defined in: [chat/react/ChatUI.ts:52](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L52)
 
 Replace the Thread component.
 
 ##### threadList?
 
-> `optional` **threadList**: `ComponentType`\<[`ThreadListProps`](#threadlistprops)\>
+> `optional` **threadList?**: `ComponentType`\<[`ThreadListProps`](#threadlistprops)\>
 
-Defined in: [chat/react/ChatUI.ts:56](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L56)
+Defined in: [chat/react/ChatUI.ts:56](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L56)
 
 Replace the ThreadList (sidebar) component.
 
@@ -1216,7 +1208,7 @@ Replace the ThreadList (sidebar) component.
 
 ### ChatUsage
 
-Defined in: [chat/react/useChat.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L18)
+Defined in: [chat/react/useChat.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L18)
 
 Token usage data from the last completed response.
 
@@ -1226,31 +1218,31 @@ Token usage data from the last completed response.
 
 > **completionTokens**: `number`
 
-Defined in: [chat/react/useChat.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L20)
+Defined in: [chat/react/useChat.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L20)
 
 ##### model?
 
-> `optional` **model**: `string`
+> `optional` **model?**: `string`
 
-Defined in: [chat/react/useChat.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L22)
+Defined in: [chat/react/useChat.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L22)
 
 ##### promptTokens
 
 > **promptTokens**: `number`
 
-Defined in: [chat/react/useChat.ts:19](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L19)
+Defined in: [chat/react/useChat.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L19)
 
 ##### totalTokens
 
 > **totalTokens**: `number`
 
-Defined in: [chat/react/useChat.ts:21](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L21)
+Defined in: [chat/react/useChat.ts:21](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L21)
 
 ***
 
 ### ComposerProps
 
-Defined in: [chat/react/Composer.ts:11](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Composer.ts#L11)
+Defined in: [chat/react/Composer.ts:11](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Composer.ts#L11)
 
 Props for the Composer component.
 
@@ -1258,33 +1250,33 @@ Props for the Composer component.
 
 ##### className?
 
-> `optional` **className**: `string`
+> `optional` **className?**: `string`
 
-Defined in: [chat/react/Composer.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Composer.ts#L18)
+Defined in: [chat/react/Composer.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Composer.ts#L18)
 
 ##### disabled?
 
-> `optional` **disabled**: `boolean`
+> `optional` **disabled?**: `boolean`
 
-Defined in: [chat/react/Composer.ts:15](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Composer.ts#L15)
+Defined in: [chat/react/Composer.ts:15](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Composer.ts#L15)
 
 ##### isGenerating?
 
-> `optional` **isGenerating**: `boolean`
+> `optional` **isGenerating?**: `boolean`
 
-Defined in: [chat/react/Composer.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Composer.ts#L14)
+Defined in: [chat/react/Composer.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Composer.ts#L14)
 
 ##### maxRows?
 
-> `optional` **maxRows**: `number`
+> `optional` **maxRows?**: `number`
 
-Defined in: [chat/react/Composer.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Composer.ts#L17)
+Defined in: [chat/react/Composer.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Composer.ts#L17)
 
-##### onSend()
+##### onSend
 
 > **onSend**: (`text`) => `void`
 
-Defined in: [chat/react/Composer.ts:12](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Composer.ts#L12)
+Defined in: [chat/react/Composer.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Composer.ts#L12)
 
 ###### Parameters
 
@@ -1296,11 +1288,11 @@ Defined in: [chat/react/Composer.ts:12](https://github.com/witqq/agent-sdk/blob/
 
 `void`
 
-##### onStop()?
+##### onStop?
 
-> `optional` **onStop**: () => `void`
+> `optional` **onStop?**: () => `void`
 
-Defined in: [chat/react/Composer.ts:13](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Composer.ts#L13)
+Defined in: [chat/react/Composer.ts:13](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Composer.ts#L13)
 
 ###### Returns
 
@@ -1308,15 +1300,15 @@ Defined in: [chat/react/Composer.ts:13](https://github.com/witqq/agent-sdk/blob/
 
 ##### placeholder?
 
-> `optional` **placeholder**: `string`
+> `optional` **placeholder?**: `string`
 
-Defined in: [chat/react/Composer.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Composer.ts#L16)
+Defined in: [chat/react/Composer.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Composer.ts#L16)
 
 ***
 
 ### ContextStatsDisplayProps
 
-Defined in: [chat/react/ContextStatsDisplay.ts:5](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ContextStatsDisplay.ts#L5)
+Defined in: [chat/react/ContextStatsDisplay.ts:5](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ContextStatsDisplay.ts#L5)
 
 Props for the ContextStatsDisplay component.
 
@@ -1324,9 +1316,9 @@ Props for the ContextStatsDisplay component.
 
 ##### className?
 
-> `optional` **className**: `string`
+> `optional` **className?**: `string`
 
-Defined in: [chat/react/ContextStatsDisplay.ts:9](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ContextStatsDisplay.ts#L9)
+Defined in: [chat/react/ContextStatsDisplay.ts:9](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ContextStatsDisplay.ts#L9)
 
 CSS class on the root element.
 
@@ -1334,7 +1326,7 @@ CSS class on the root element.
 
 > **stats**: [`ContextStats`](../../../chat/context.md#contextstats) \| `null`
 
-Defined in: [chat/react/ContextStatsDisplay.ts:7](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ContextStatsDisplay.ts#L7)
+Defined in: [chat/react/ContextStatsDisplay.ts:7](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ContextStatsDisplay.ts#L7)
 
 Context stats from runtime.getContextStats(sessionId). Null = nothing to display.
 
@@ -1342,7 +1334,7 @@ Context stats from runtime.getContextStats(sessionId). Null = nothing to display
 
 ### MarkdownRendererProps
 
-Defined in: [chat/react/MarkdownRenderer.ts:4](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/MarkdownRenderer.ts#L4)
+Defined in: [chat/react/MarkdownRenderer.ts:4](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/MarkdownRenderer.ts#L4)
 
 Props for the MarkdownRenderer component.
 
@@ -1352,13 +1344,13 @@ Props for the MarkdownRenderer component.
 
 > **content**: `string`
 
-Defined in: [chat/react/MarkdownRenderer.ts:5](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/MarkdownRenderer.ts#L5)
+Defined in: [chat/react/MarkdownRenderer.ts:5](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/MarkdownRenderer.ts#L5)
 
-##### renderCode()?
+##### renderCode?
 
-> `optional` **renderCode**: (`code`, `language?`) => `ReactNode`
+> `optional` **renderCode?**: (`code`, `language?`) => `ReactNode`
 
-Defined in: [chat/react/MarkdownRenderer.ts:6](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/MarkdownRenderer.ts#L6)
+Defined in: [chat/react/MarkdownRenderer.ts:6](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/MarkdownRenderer.ts#L6)
 
 ###### Parameters
 
@@ -1374,11 +1366,11 @@ Defined in: [chat/react/MarkdownRenderer.ts:6](https://github.com/witqq/agent-sd
 
 `ReactNode`
 
-##### renderLink()?
+##### renderLink?
 
-> `optional` **renderLink**: (`href`, `text`) => `ReactNode`
+> `optional` **renderLink?**: (`href`, `text`) => `ReactNode`
 
-Defined in: [chat/react/MarkdownRenderer.ts:7](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/MarkdownRenderer.ts#L7)
+Defined in: [chat/react/MarkdownRenderer.ts:7](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/MarkdownRenderer.ts#L7)
 
 ###### Parameters
 
@@ -1398,7 +1390,7 @@ Defined in: [chat/react/MarkdownRenderer.ts:7](https://github.com/witqq/agent-sd
 
 ### MessageProps
 
-Defined in: [chat/react/Message.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Message.ts#L16)
+Defined in: [chat/react/Message.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Message.ts#L16)
 
 Props for the Message component.
 
@@ -1408,13 +1400,13 @@ Props for the Message component.
 
 > **message**: [`ChatMessage`](../../../chat.md#chatmessage)
 
-Defined in: [chat/react/Message.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Message.ts#L17)
+Defined in: [chat/react/Message.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Message.ts#L17)
 
-##### renderFile()?
+##### renderFile?
 
-> `optional` **renderFile**: (`part`, `index`) => `ReactNode`
+> `optional` **renderFile?**: (`part`, `index`) => `ReactNode`
 
-Defined in: [chat/react/Message.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Message.ts#L22)
+Defined in: [chat/react/Message.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Message.ts#L22)
 
 ###### Parameters
 
@@ -1430,11 +1422,11 @@ Defined in: [chat/react/Message.ts:22](https://github.com/witqq/agent-sdk/blob/9
 
 `ReactNode`
 
-##### renderReasoning()?
+##### renderReasoning?
 
-> `optional` **renderReasoning**: (`part`, `index`) => `ReactNode`
+> `optional` **renderReasoning?**: (`part`, `index`) => `ReactNode`
 
-Defined in: [chat/react/Message.ts:19](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Message.ts#L19)
+Defined in: [chat/react/Message.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Message.ts#L19)
 
 ###### Parameters
 
@@ -1450,11 +1442,11 @@ Defined in: [chat/react/Message.ts:19](https://github.com/witqq/agent-sdk/blob/9
 
 `ReactNode`
 
-##### renderSource()?
+##### renderSource?
 
-> `optional` **renderSource**: (`part`, `index`) => `ReactNode`
+> `optional` **renderSource?**: (`part`, `index`) => `ReactNode`
 
-Defined in: [chat/react/Message.ts:21](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Message.ts#L21)
+Defined in: [chat/react/Message.ts:21](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Message.ts#L21)
 
 ###### Parameters
 
@@ -1470,11 +1462,11 @@ Defined in: [chat/react/Message.ts:21](https://github.com/witqq/agent-sdk/blob/9
 
 `ReactNode`
 
-##### renderText()?
+##### renderText?
 
-> `optional` **renderText**: (`part`, `index`) => `ReactNode`
+> `optional` **renderText?**: (`part`, `index`) => `ReactNode`
 
-Defined in: [chat/react/Message.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Message.ts#L18)
+Defined in: [chat/react/Message.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Message.ts#L18)
 
 ###### Parameters
 
@@ -1490,11 +1482,11 @@ Defined in: [chat/react/Message.ts:18](https://github.com/witqq/agent-sdk/blob/9
 
 `ReactNode`
 
-##### renderToolCall()?
+##### renderToolCall?
 
-> `optional` **renderToolCall**: (`part`, `index`) => `ReactNode`
+> `optional` **renderToolCall?**: (`part`, `index`) => `ReactNode`
 
-Defined in: [chat/react/Message.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Message.ts#L20)
+Defined in: [chat/react/Message.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Message.ts#L20)
 
 ###### Parameters
 
@@ -1514,7 +1506,7 @@ Defined in: [chat/react/Message.ts:20](https://github.com/witqq/agent-sdk/blob/9
 
 ### ModelOption
 
-Defined in: [chat/react/useModels.ts:5](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useModels.ts#L5)
+Defined in: [chat/react/useModels.ts:5](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useModels.ts#L5)
 
 Model display option returned by useModels (mapped from core ModelInfo).
 
@@ -1524,33 +1516,33 @@ Model display option returned by useModels (mapped from core ModelInfo).
 
 > **id**: `string`
 
-Defined in: [chat/react/useModels.ts:6](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useModels.ts#L6)
+Defined in: [chat/react/useModels.ts:6](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useModels.ts#L6)
 
 ##### name
 
 > **name**: `string`
 
-Defined in: [chat/react/useModels.ts:7](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useModels.ts#L7)
+Defined in: [chat/react/useModels.ts:7](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useModels.ts#L7)
 
 ##### provider?
 
-> `optional` **provider**: `string`
+> `optional` **provider?**: `string`
 
-Defined in: [chat/react/useModels.ts:10](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useModels.ts#L10)
+Defined in: [chat/react/useModels.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useModels.ts#L10)
 
 Provider/backend name for multi-provider context.
 
 ##### tier?
 
-> `optional` **tier**: `string`
+> `optional` **tier?**: `string`
 
-Defined in: [chat/react/useModels.ts:8](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useModels.ts#L8)
+Defined in: [chat/react/useModels.ts:8](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useModels.ts#L8)
 
 ***
 
 ### ModelSelectorProps
 
-Defined in: [chat/react/ModelSelector.ts:13](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ModelSelector.ts#L13)
+Defined in: [chat/react/ModelSelector.ts:13](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ModelSelector.ts#L13)
 
 Props for the ModelSelector component.
 
@@ -1558,29 +1550,29 @@ Props for the ModelSelector component.
 
 ##### allowFreeText?
 
-> `optional` **allowFreeText**: `boolean`
+> `optional` **allowFreeText?**: `boolean`
 
-Defined in: [chat/react/ModelSelector.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ModelSelector.ts#L20)
+Defined in: [chat/react/ModelSelector.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ModelSelector.ts#L20)
 
 Allow free-text model input when models list is empty. Default: true.
 
 ##### className?
 
-> `optional` **className**: `string`
+> `optional` **className?**: `string`
 
-Defined in: [chat/react/ModelSelector.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ModelSelector.ts#L18)
+Defined in: [chat/react/ModelSelector.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ModelSelector.ts#L18)
 
 ##### models
 
 > **models**: [`ModelOption`](#modeloption)[]
 
-Defined in: [chat/react/ModelSelector.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ModelSelector.ts#L14)
+Defined in: [chat/react/ModelSelector.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ModelSelector.ts#L14)
 
-##### onSelect()
+##### onSelect
 
 > **onSelect**: (`modelId`) => `void`
 
-Defined in: [chat/react/ModelSelector.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ModelSelector.ts#L16)
+Defined in: [chat/react/ModelSelector.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ModelSelector.ts#L16)
 
 ###### Parameters
 
@@ -1594,21 +1586,21 @@ Defined in: [chat/react/ModelSelector.ts:16](https://github.com/witqq/agent-sdk/
 
 ##### placeholder?
 
-> `optional` **placeholder**: `string`
+> `optional` **placeholder?**: `string`
 
-Defined in: [chat/react/ModelSelector.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ModelSelector.ts#L17)
+Defined in: [chat/react/ModelSelector.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ModelSelector.ts#L17)
 
 ##### selectedModel?
 
-> `optional` **selectedModel**: `string`
+> `optional` **selectedModel?**: `string`
 
-Defined in: [chat/react/ModelSelector.ts:15](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ModelSelector.ts#L15)
+Defined in: [chat/react/ModelSelector.ts:15](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ModelSelector.ts#L15)
 
 ***
 
 ### PendingToolRequest
 
-Defined in: [chat/react/useToolApproval.ts:5](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useToolApproval.ts#L5)
+Defined in: [chat/react/useToolApproval.ts:5](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useToolApproval.ts#L5)
 
 A pending tool call requiring user approval.
 
@@ -1618,31 +1610,31 @@ A pending tool call requiring user approval.
 
 > **messageId**: `string`
 
-Defined in: [chat/react/useToolApproval.ts:9](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useToolApproval.ts#L9)
+Defined in: [chat/react/useToolApproval.ts:9](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useToolApproval.ts#L9)
 
 ##### toolArgs
 
 > **toolArgs**: `Record`\<`string`, `unknown`\>
 
-Defined in: [chat/react/useToolApproval.ts:8](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useToolApproval.ts#L8)
+Defined in: [chat/react/useToolApproval.ts:8](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useToolApproval.ts#L8)
 
 ##### toolCallId
 
 > **toolCallId**: `string`
 
-Defined in: [chat/react/useToolApproval.ts:6](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useToolApproval.ts#L6)
+Defined in: [chat/react/useToolApproval.ts:6](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useToolApproval.ts#L6)
 
 ##### toolName
 
 > **toolName**: `string`
 
-Defined in: [chat/react/useToolApproval.ts:7](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useToolApproval.ts#L7)
+Defined in: [chat/react/useToolApproval.ts:7](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useToolApproval.ts#L7)
 
 ***
 
 ### PermissionDialogProps
 
-Defined in: [chat/react/PermissionDialog.ts:5](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/PermissionDialog.ts#L5)
+Defined in: [chat/react/PermissionDialog.ts:5](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/PermissionDialog.ts#L5)
 
 Props for PermissionDialog.
 
@@ -1650,15 +1642,15 @@ Props for PermissionDialog.
 
 ##### className?
 
-> `optional` **className**: `string`
+> `optional` **className?**: `string`
 
-Defined in: [chat/react/PermissionDialog.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/PermissionDialog.ts#L18)
+Defined in: [chat/react/PermissionDialog.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/PermissionDialog.ts#L18)
 
-##### onApprove()
+##### onApprove
 
 > **onApprove**: (`toolCallId`) => `void`
 
-Defined in: [chat/react/PermissionDialog.ts:9](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/PermissionDialog.ts#L9)
+Defined in: [chat/react/PermissionDialog.ts:9](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/PermissionDialog.ts#L9)
 
 Called when user approves a tool call.
 
@@ -1672,11 +1664,11 @@ Called when user approves a tool call.
 
 `void`
 
-##### onApproveAll()?
+##### onApproveAll?
 
-> `optional` **onApproveAll**: () => `void`
+> `optional` **onApproveAll?**: () => `void`
 
-Defined in: [chat/react/PermissionDialog.ts:13](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/PermissionDialog.ts#L13)
+Defined in: [chat/react/PermissionDialog.ts:13](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/PermissionDialog.ts#L13)
 
 Optional: approve all pending at once.
 
@@ -1684,11 +1676,11 @@ Optional: approve all pending at once.
 
 `void`
 
-##### onDeny()
+##### onDeny
 
 > **onDeny**: (`toolCallId`) => `void`
 
-Defined in: [chat/react/PermissionDialog.ts:11](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/PermissionDialog.ts#L11)
+Defined in: [chat/react/PermissionDialog.ts:11](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/PermissionDialog.ts#L11)
 
 Called when user denies a tool call.
 
@@ -1702,11 +1694,11 @@ Called when user denies a tool call.
 
 `void`
 
-##### onDenyAll()?
+##### onDenyAll?
 
-> `optional` **onDenyAll**: () => `void`
+> `optional` **onDenyAll?**: () => `void`
 
-Defined in: [chat/react/PermissionDialog.ts:15](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/PermissionDialog.ts#L15)
+Defined in: [chat/react/PermissionDialog.ts:15](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/PermissionDialog.ts#L15)
 
 Optional: deny all pending at once.
 
@@ -1714,11 +1706,11 @@ Optional: deny all pending at once.
 
 `void`
 
-##### renderArgs()?
+##### renderArgs?
 
-> `optional` **renderArgs**: (`args`, `toolName`) => `ReactNode`
+> `optional` **renderArgs?**: (`args`, `toolName`) => `ReactNode`
 
-Defined in: [chat/react/PermissionDialog.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/PermissionDialog.ts#L17)
+Defined in: [chat/react/PermissionDialog.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/PermissionDialog.ts#L17)
 
 Custom renderer for tool arguments.
 
@@ -1740,7 +1732,7 @@ Custom renderer for tool arguments.
 
 > **requests**: [`PendingToolRequest`](#pendingtoolrequest)[]
 
-Defined in: [chat/react/PermissionDialog.ts:7](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/PermissionDialog.ts#L7)
+Defined in: [chat/react/PermissionDialog.ts:7](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/PermissionDialog.ts#L7)
 
 List of pending tool requests awaiting approval.
 
@@ -1748,7 +1740,7 @@ List of pending tool requests awaiting approval.
 
 ### ProviderModelItem
 
-Defined in: [chat/react/ProviderModelSelector.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderModelSelector.ts#L14)
+Defined in: [chat/react/ProviderModelSelector.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderModelSelector.ts#L14)
 
 A unified item rendered in the ProviderModelSelector dropdown.
 
@@ -1758,37 +1750,37 @@ A unified item rendered in the ProviderModelSelector dropdown.
 
 > **id**: `string`
 
-Defined in: [chat/react/ProviderModelSelector.ts:15](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderModelSelector.ts#L15)
+Defined in: [chat/react/ProviderModelSelector.ts:15](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderModelSelector.ts#L15)
 
 ##### label
 
 > **label**: `string`
 
-Defined in: [chat/react/ProviderModelSelector.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderModelSelector.ts#L16)
+Defined in: [chat/react/ProviderModelSelector.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderModelSelector.ts#L16)
 
 ##### sublabel?
 
-> `optional` **sublabel**: `string`
+> `optional` **sublabel?**: `string`
 
-Defined in: [chat/react/ProviderModelSelector.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderModelSelector.ts#L17)
+Defined in: [chat/react/ProviderModelSelector.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderModelSelector.ts#L17)
 
 ##### tier?
 
-> `optional` **tier**: `string`
+> `optional` **tier?**: `string`
 
-Defined in: [chat/react/ProviderModelSelector.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderModelSelector.ts#L18)
+Defined in: [chat/react/ProviderModelSelector.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderModelSelector.ts#L18)
 
 ##### type
 
 > **type**: `"model"` \| `"provider"`
 
-Defined in: [chat/react/ProviderModelSelector.ts:19](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderModelSelector.ts#L19)
+Defined in: [chat/react/ProviderModelSelector.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderModelSelector.ts#L19)
 
 ***
 
 ### ProviderModelSelectorProps
 
-Defined in: [chat/react/ProviderModelSelector.ts:23](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderModelSelector.ts#L23)
+Defined in: [chat/react/ProviderModelSelector.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderModelSelector.ts#L23)
 
 Props for the ProviderModelSelector component.
 
@@ -1796,31 +1788,31 @@ Props for the ProviderModelSelector component.
 
 ##### activeProviderId?
 
-> `optional` **activeProviderId**: `string`
+> `optional` **activeProviderId?**: `string`
 
-Defined in: [chat/react/ProviderModelSelector.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderModelSelector.ts#L29)
+Defined in: [chat/react/ProviderModelSelector.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderModelSelector.ts#L29)
 
 Currently selected provider ID.
 
 ##### className?
 
-> `optional` **className**: `string`
+> `optional` **className?**: `string`
 
-Defined in: [chat/react/ProviderModelSelector.ts:40](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderModelSelector.ts#L40)
+Defined in: [chat/react/ProviderModelSelector.ts:40](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderModelSelector.ts#L40)
 
 ##### models?
 
-> `optional` **models**: [`ModelOption`](#modeloption)[]
+> `optional` **models?**: [`ModelOption`](#modeloption)[]
 
-Defined in: [chat/react/ProviderModelSelector.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderModelSelector.ts#L27)
+Defined in: [chat/react/ProviderModelSelector.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderModelSelector.ts#L27)
 
 Available models. Used when providers is empty or undefined.
 
-##### onSelectModel()?
+##### onSelectModel?
 
-> `optional` **onSelectModel**: (`modelId`) => `void`
+> `optional` **onSelectModel?**: (`modelId`) => `void`
 
-Defined in: [chat/react/ProviderModelSelector.ts:35](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderModelSelector.ts#L35)
+Defined in: [chat/react/ProviderModelSelector.ts:35](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderModelSelector.ts#L35)
 
 Called when a model is selected (fallback mode).
 
@@ -1834,11 +1826,11 @@ Called when a model is selected (fallback mode).
 
 `void`
 
-##### onSelectProvider()?
+##### onSelectProvider?
 
-> `optional` **onSelectProvider**: (`id`) => `void`
+> `optional` **onSelectProvider?**: (`id`) => `void`
 
-Defined in: [chat/react/ProviderModelSelector.ts:33](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderModelSelector.ts#L33)
+Defined in: [chat/react/ProviderModelSelector.ts:33](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderModelSelector.ts#L33)
 
 Called when a provider is selected.
 
@@ -1852,11 +1844,11 @@ Called when a provider is selected.
 
 `void`
 
-##### onSettingsClick()?
+##### onSettingsClick?
 
-> `optional` **onSettingsClick**: () => `void`
+> `optional` **onSettingsClick?**: () => `void`
 
-Defined in: [chat/react/ProviderModelSelector.ts:37](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderModelSelector.ts#L37)
+Defined in: [chat/react/ProviderModelSelector.ts:37](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderModelSelector.ts#L37)
 
 Called when settings gear is clicked.
 
@@ -1866,25 +1858,25 @@ Called when settings gear is clicked.
 
 ##### placeholder?
 
-> `optional` **placeholder**: `string`
+> `optional` **placeholder?**: `string`
 
-Defined in: [chat/react/ProviderModelSelector.ts:39](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderModelSelector.ts#L39)
+Defined in: [chat/react/ProviderModelSelector.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderModelSelector.ts#L39)
 
 Placeholder text for the trigger button.
 
 ##### providers?
 
-> `optional` **providers**: [`ProviderConfig`](../../../chat.md#providerconfig)[]
+> `optional` **providers?**: [`ProviderConfig`](../../../chat.md#providerconfig)[]
 
-Defined in: [chat/react/ProviderModelSelector.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderModelSelector.ts#L25)
+Defined in: [chat/react/ProviderModelSelector.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderModelSelector.ts#L25)
 
 Configured providers (backend + model combos). When non-empty, provider mode is used.
 
 ##### selectedModel?
 
-> `optional` **selectedModel**: `string`
+> `optional` **selectedModel?**: `string`
 
-Defined in: [chat/react/ProviderModelSelector.ts:31](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderModelSelector.ts#L31)
+Defined in: [chat/react/ProviderModelSelector.ts:31](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderModelSelector.ts#L31)
 
 Currently selected model ID (fallback mode).
 
@@ -1892,7 +1884,7 @@ Currently selected model ID (fallback mode).
 
 ### ProviderSelectorProps
 
-Defined in: [chat/react/ProviderSelector.ts:13](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderSelector.ts#L13)
+Defined in: [chat/react/ProviderSelector.ts:13](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderSelector.ts#L13)
 
 Props for the ProviderSelector component.
 
@@ -1900,21 +1892,21 @@ Props for the ProviderSelector component.
 
 ##### activeProviderId?
 
-> `optional` **activeProviderId**: `string`
+> `optional` **activeProviderId?**: `string`
 
-Defined in: [chat/react/ProviderSelector.ts:15](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderSelector.ts#L15)
+Defined in: [chat/react/ProviderSelector.ts:15](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderSelector.ts#L15)
 
 ##### className?
 
-> `optional` **className**: `string`
+> `optional` **className?**: `string`
 
-Defined in: [chat/react/ProviderSelector.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderSelector.ts#L18)
+Defined in: [chat/react/ProviderSelector.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderSelector.ts#L18)
 
-##### onSelect()
+##### onSelect
 
 > **onSelect**: (`id`) => `void`
 
-Defined in: [chat/react/ProviderSelector.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderSelector.ts#L16)
+Defined in: [chat/react/ProviderSelector.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderSelector.ts#L16)
 
 ###### Parameters
 
@@ -1926,11 +1918,11 @@ Defined in: [chat/react/ProviderSelector.ts:16](https://github.com/witqq/agent-s
 
 `void`
 
-##### onSettingsClick()?
+##### onSettingsClick?
 
-> `optional` **onSettingsClick**: () => `void`
+> `optional` **onSettingsClick?**: () => `void`
 
-Defined in: [chat/react/ProviderSelector.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderSelector.ts#L17)
+Defined in: [chat/react/ProviderSelector.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderSelector.ts#L17)
 
 ###### Returns
 
@@ -1940,13 +1932,13 @@ Defined in: [chat/react/ProviderSelector.ts:17](https://github.com/witqq/agent-s
 
 > **providers**: [`ProviderConfig`](../../../chat.md#providerconfig)[]
 
-Defined in: [chat/react/ProviderSelector.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderSelector.ts#L14)
+Defined in: [chat/react/ProviderSelector.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderSelector.ts#L14)
 
 ***
 
 ### ProviderSettingsProps
 
-Defined in: [chat/react/ProviderSettings.ts:19](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderSettings.ts#L19)
+Defined in: [chat/react/ProviderSettings.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderSettings.ts#L19)
 
 Props for the ProviderSettings component.
 
@@ -1954,21 +1946,21 @@ Props for the ProviderSettings component.
 
 ##### authBaseUrl?
 
-> `optional` **authBaseUrl**: `string`
+> `optional` **authBaseUrl?**: `string`
 
-Defined in: [chat/react/ProviderSettings.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderSettings.ts#L27)
+Defined in: [chat/react/ProviderSettings.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderSettings.ts#L27)
 
 ##### className?
 
-> `optional` **className**: `string`
+> `optional` **className?**: `string`
 
-Defined in: [chat/react/ProviderSettings.ts:28](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderSettings.ts#L28)
+Defined in: [chat/react/ProviderSettings.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderSettings.ts#L28)
 
-##### onAuthCompleted()?
+##### onAuthCompleted?
 
-> `optional` **onAuthCompleted**: (`backend`) => `void`
+> `optional` **onAuthCompleted?**: (`backend`) => `void`
 
-Defined in: [chat/react/ProviderSettings.ts:26](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderSettings.ts#L26)
+Defined in: [chat/react/ProviderSettings.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderSettings.ts#L26)
 
 Called when authentication succeeds (before configure step). Parent should refresh providers.
 
@@ -1982,21 +1974,21 @@ Called when authentication succeeds (before configure step). Parent should refre
 
 `void`
 
-##### onClose()?
+##### onClose?
 
-> `optional` **onClose**: () => `void`
+> `optional` **onClose?**: () => `void`
 
-Defined in: [chat/react/ProviderSettings.ts:21](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderSettings.ts#L21)
+Defined in: [chat/react/ProviderSettings.ts:21](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderSettings.ts#L21)
 
 ###### Returns
 
 `void`
 
-##### onProviderCreated()?
+##### onProviderCreated?
 
-> `optional` **onProviderCreated**: (`p`) => `void`
+> `optional` **onProviderCreated?**: (`p`) => `void`
 
-Defined in: [chat/react/ProviderSettings.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderSettings.ts#L22)
+Defined in: [chat/react/ProviderSettings.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderSettings.ts#L22)
 
 ###### Parameters
 
@@ -2008,11 +2000,11 @@ Defined in: [chat/react/ProviderSettings.ts:22](https://github.com/witqq/agent-s
 
 `void`
 
-##### onProviderDeleted()?
+##### onProviderDeleted?
 
-> `optional` **onProviderDeleted**: (`id`) => `void`
+> `optional` **onProviderDeleted?**: (`id`) => `void`
 
-Defined in: [chat/react/ProviderSettings.ts:23](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderSettings.ts#L23)
+Defined in: [chat/react/ProviderSettings.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderSettings.ts#L23)
 
 ###### Parameters
 
@@ -2024,11 +2016,11 @@ Defined in: [chat/react/ProviderSettings.ts:23](https://github.com/witqq/agent-s
 
 `void`
 
-##### onProviderUpdated()?
+##### onProviderUpdated?
 
-> `optional` **onProviderUpdated**: (`id`, `changes`) => `void`
+> `optional` **onProviderUpdated?**: (`id`, `changes`) => `void`
 
-Defined in: [chat/react/ProviderSettings.ts:24](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderSettings.ts#L24)
+Defined in: [chat/react/ProviderSettings.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderSettings.ts#L24)
 
 ###### Parameters
 
@@ -2054,13 +2046,13 @@ Defined in: [chat/react/ProviderSettings.ts:24](https://github.com/witqq/agent-s
 
 > **providers**: [`ProviderConfig`](../../../chat.md#providerconfig)[]
 
-Defined in: [chat/react/ProviderSettings.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderSettings.ts#L20)
+Defined in: [chat/react/ProviderSettings.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderSettings.ts#L20)
 
 ***
 
 ### RemoteChatClientOptions
 
-Defined in: [chat/react/RemoteChatClient.ts:48](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L48)
+Defined in: [chat/react/RemoteChatClient.ts:48](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L48)
 
 Standard server endpoint contract.
 Server implementations expose these routes to work with RemoteChatClient.
@@ -2087,15 +2079,15 @@ DELETE {baseUrl}/providers/{id}    — Delete provider
 
 > **baseUrl**: `string`
 
-Defined in: [chat/react/RemoteChatClient.ts:50](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L50)
+Defined in: [chat/react/RemoteChatClient.ts:50](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L50)
 
 Base URL for API endpoints (e.g. "/api" or "https://example.com/api")
 
-##### fetch()?
+##### fetch?
 
-> `optional` **fetch**: \{(`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \}
+> `optional` **fetch?**: \{(`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \}
 
-Defined in: [chat/react/RemoteChatClient.ts:54](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L54)
+Defined in: [chat/react/RemoteChatClient.ts:54](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L54)
 
 Custom fetch implementation for testability
 
@@ -2109,7 +2101,7 @@ Custom fetch implementation for testability
 
 ###### input
 
-`URL` | `RequestInfo`
+`URL` \| `RequestInfo`
 
 ###### init?
 
@@ -2129,7 +2121,7 @@ Custom fetch implementation for testability
 
 ###### input
 
-`string` | `URL` | `Request`
+`string` \| `URL` \| `Request`
 
 ###### init?
 
@@ -2141,9 +2133,9 @@ Custom fetch implementation for testability
 
 ##### headers?
 
-> `optional` **headers**: `Record`\<`string`, `string`\>
+> `optional` **headers?**: `Record`\<`string`, `string`\>
 
-Defined in: [chat/react/RemoteChatClient.ts:52](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/RemoteChatClient.ts#L52)
+Defined in: [chat/react/RemoteChatClient.ts:52](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/RemoteChatClient.ts#L52)
 
 Optional headers for all requests (e.g. auth tokens)
 
@@ -2151,7 +2143,7 @@ Optional headers for all requests (e.g. auth tokens)
 
 ### ThinkingBlockProps
 
-Defined in: [chat/react/ThinkingBlock.ts:4](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThinkingBlock.ts#L4)
+Defined in: [chat/react/ThinkingBlock.ts:4](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThinkingBlock.ts#L4)
 
 Props for the ThinkingBlock component.
 
@@ -2159,27 +2151,27 @@ Props for the ThinkingBlock component.
 
 ##### defaultOpen?
 
-> `optional` **defaultOpen**: `boolean`
+> `optional` **defaultOpen?**: `boolean`
 
-Defined in: [chat/react/ThinkingBlock.ts:7](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThinkingBlock.ts#L7)
+Defined in: [chat/react/ThinkingBlock.ts:7](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThinkingBlock.ts#L7)
 
 ##### isStreaming?
 
-> `optional` **isStreaming**: `boolean`
+> `optional` **isStreaming?**: `boolean`
 
-Defined in: [chat/react/ThinkingBlock.ts:6](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThinkingBlock.ts#L6)
+Defined in: [chat/react/ThinkingBlock.ts:6](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThinkingBlock.ts#L6)
 
 ##### text
 
 > **text**: `string`
 
-Defined in: [chat/react/ThinkingBlock.ts:5](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThinkingBlock.ts#L5)
+Defined in: [chat/react/ThinkingBlock.ts:5](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThinkingBlock.ts#L5)
 
 ***
 
 ### ThreadListProps
 
-Defined in: [chat/react/ThreadList.ts:45](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadList.ts#L45)
+Defined in: [chat/react/ThreadList.ts:45](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadList.ts#L45)
 
 Props for the ThreadList component.
 
@@ -2187,31 +2179,31 @@ Props for the ThreadList component.
 
 ##### activeSessionId?
 
-> `optional` **activeSessionId**: `string`
+> `optional` **activeSessionId?**: `string`
 
-Defined in: [chat/react/ThreadList.ts:47](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadList.ts#L47)
+Defined in: [chat/react/ThreadList.ts:47](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadList.ts#L47)
 
 ##### className?
 
-> `optional` **className**: `string`
+> `optional` **className?**: `string`
 
-Defined in: [chat/react/ThreadList.ts:53](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadList.ts#L53)
+Defined in: [chat/react/ThreadList.ts:53](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadList.ts#L53)
 
-##### onCreate()?
+##### onCreate?
 
-> `optional` **onCreate**: () => `void`
+> `optional` **onCreate?**: () => `void`
 
-Defined in: [chat/react/ThreadList.ts:49](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadList.ts#L49)
+Defined in: [chat/react/ThreadList.ts:49](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadList.ts#L49)
 
 ###### Returns
 
 `void`
 
-##### onDelete()?
+##### onDelete?
 
-> `optional` **onDelete**: (`id`) => `void`
+> `optional` **onDelete?**: (`id`) => `void`
 
-Defined in: [chat/react/ThreadList.ts:50](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadList.ts#L50)
+Defined in: [chat/react/ThreadList.ts:50](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadList.ts#L50)
 
 ###### Parameters
 
@@ -2223,11 +2215,11 @@ Defined in: [chat/react/ThreadList.ts:50](https://github.com/witqq/agent-sdk/blo
 
 `void`
 
-##### onSearchChange()?
+##### onSearchChange?
 
-> `optional` **onSearchChange**: (`query`) => `void`
+> `optional` **onSearchChange?**: (`query`) => `void`
 
-Defined in: [chat/react/ThreadList.ts:52](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadList.ts#L52)
+Defined in: [chat/react/ThreadList.ts:52](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadList.ts#L52)
 
 ###### Parameters
 
@@ -2239,11 +2231,11 @@ Defined in: [chat/react/ThreadList.ts:52](https://github.com/witqq/agent-sdk/blo
 
 `void`
 
-##### onSelect()
+##### onSelect
 
 > **onSelect**: (`id`) => `void`
 
-Defined in: [chat/react/ThreadList.ts:48](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadList.ts#L48)
+Defined in: [chat/react/ThreadList.ts:48](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadList.ts#L48)
 
 ###### Parameters
 
@@ -2257,21 +2249,21 @@ Defined in: [chat/react/ThreadList.ts:48](https://github.com/witqq/agent-sdk/blo
 
 ##### searchQuery?
 
-> `optional` **searchQuery**: `string`
+> `optional` **searchQuery?**: `string`
 
-Defined in: [chat/react/ThreadList.ts:51](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadList.ts#L51)
+Defined in: [chat/react/ThreadList.ts:51](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadList.ts#L51)
 
 ##### sessions
 
 > **sessions**: `SessionItem`[]
 
-Defined in: [chat/react/ThreadList.ts:46](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadList.ts#L46)
+Defined in: [chat/react/ThreadList.ts:46](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadList.ts#L46)
 
 ***
 
 ### ThreadProps
 
-Defined in: [chat/react/Thread.ts:15](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Thread.ts#L15)
+Defined in: [chat/react/Thread.ts:15](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Thread.ts#L15)
 
 Props for the Thread component.
 
@@ -2279,33 +2271,33 @@ Props for the Thread component.
 
 ##### autoScroll?
 
-> `optional` **autoScroll**: `boolean`
+> `optional` **autoScroll?**: `boolean`
 
-Defined in: [chat/react/Thread.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Thread.ts#L18)
+Defined in: [chat/react/Thread.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Thread.ts#L18)
 
 ##### className?
 
-> `optional` **className**: `string`
+> `optional` **className?**: `string`
 
-Defined in: [chat/react/Thread.ts:19](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Thread.ts#L19)
+Defined in: [chat/react/Thread.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Thread.ts#L19)
 
 ##### isGenerating?
 
-> `optional` **isGenerating**: `boolean`
+> `optional` **isGenerating?**: `boolean`
 
-Defined in: [chat/react/Thread.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Thread.ts#L17)
+Defined in: [chat/react/Thread.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Thread.ts#L17)
 
 ##### messages
 
 > **messages**: [`ChatMessage`](../../../chat.md#chatmessage)\<`unknown`\>[]
 
-Defined in: [chat/react/Thread.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Thread.ts#L16)
+Defined in: [chat/react/Thread.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Thread.ts#L16)
 
 ##### virtualize?
 
-> `optional` **virtualize**: `boolean` \| [`VirtualizeOptions`](#virtualizeoptions)
+> `optional` **virtualize?**: `boolean` \| [`VirtualizeOptions`](#virtualizeoptions)
 
-Defined in: [chat/react/Thread.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Thread.ts#L25)
+Defined in: [chat/react/Thread.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Thread.ts#L25)
 
 Enable windowed rendering for large message lists.
 Pass `true` for defaults or an options object.
@@ -2315,7 +2307,7 @@ When enabled, only visible messages (plus overscan) are mounted.
 
 ### ThreadProviderProps
 
-Defined in: [chat/react/ThreadSlots.ts:19](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadSlots.ts#L19)
+Defined in: [chat/react/ThreadSlots.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadSlots.ts#L19)
 
 Props for ThreadProvider.
 
@@ -2329,13 +2321,13 @@ Props for ThreadProvider.
 
 > **children**: `ReactNode`
 
-Defined in: [chat/react/ThreadSlots.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadSlots.ts#L20)
+Defined in: [chat/react/ThreadSlots.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadSlots.ts#L20)
 
-##### renderMessage()?
+##### renderMessage?
 
-> `optional` **renderMessage**: (`message`, `index`) => `ReactNode`
+> `optional` **renderMessage?**: (`message`, `index`) => `ReactNode`
 
-Defined in: [chat/react/ThreadSlots.ts:11](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadSlots.ts#L11)
+Defined in: [chat/react/ThreadSlots.ts:11](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadSlots.ts#L11)
 
 ###### Parameters
 
@@ -2355,11 +2347,11 @@ Defined in: [chat/react/ThreadSlots.ts:11](https://github.com/witqq/agent-sdk/bl
 
 [`ThreadSlotOverrides`](#threadslotoverrides).[`renderMessage`](#rendermessage-2)
 
-##### renderThinkingBlock()?
+##### renderThinkingBlock?
 
-> `optional` **renderThinkingBlock**: (`part`, `index`) => `ReactNode`
+> `optional` **renderThinkingBlock?**: (`part`, `index`) => `ReactNode`
 
-Defined in: [chat/react/ThreadSlots.ts:13](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadSlots.ts#L13)
+Defined in: [chat/react/ThreadSlots.ts:13](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadSlots.ts#L13)
 
 ###### Parameters
 
@@ -2379,11 +2371,11 @@ Defined in: [chat/react/ThreadSlots.ts:13](https://github.com/witqq/agent-sdk/bl
 
 [`ThreadSlotOverrides`](#threadslotoverrides).[`renderThinkingBlock`](#renderthinkingblock-2)
 
-##### renderToolCall()?
+##### renderToolCall?
 
-> `optional` **renderToolCall**: (`part`, `index`) => `ReactNode`
+> `optional` **renderToolCall?**: (`part`, `index`) => `ReactNode`
 
-Defined in: [chat/react/ThreadSlots.ts:12](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadSlots.ts#L12)
+Defined in: [chat/react/ThreadSlots.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadSlots.ts#L12)
 
 ###### Parameters
 
@@ -2407,7 +2399,7 @@ Defined in: [chat/react/ThreadSlots.ts:12](https://github.com/witqq/agent-sdk/bl
 
 ### ThreadSlotOverrides
 
-Defined in: [chat/react/ThreadSlots.ts:10](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadSlots.ts#L10)
+Defined in: [chat/react/ThreadSlots.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadSlots.ts#L10)
 
 Slot override functions for Thread customization.
 
@@ -2417,11 +2409,11 @@ Slot override functions for Thread customization.
 
 #### Properties
 
-##### renderMessage()?
+##### renderMessage?
 
-> `optional` **renderMessage**: (`message`, `index`) => `ReactNode`
+> `optional` **renderMessage?**: (`message`, `index`) => `ReactNode`
 
-Defined in: [chat/react/ThreadSlots.ts:11](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadSlots.ts#L11)
+Defined in: [chat/react/ThreadSlots.ts:11](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadSlots.ts#L11)
 
 ###### Parameters
 
@@ -2437,11 +2429,11 @@ Defined in: [chat/react/ThreadSlots.ts:11](https://github.com/witqq/agent-sdk/bl
 
 `ReactNode`
 
-##### renderThinkingBlock()?
+##### renderThinkingBlock?
 
-> `optional` **renderThinkingBlock**: (`part`, `index`) => `ReactNode`
+> `optional` **renderThinkingBlock?**: (`part`, `index`) => `ReactNode`
 
-Defined in: [chat/react/ThreadSlots.ts:13](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadSlots.ts#L13)
+Defined in: [chat/react/ThreadSlots.ts:13](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadSlots.ts#L13)
 
 ###### Parameters
 
@@ -2457,11 +2449,11 @@ Defined in: [chat/react/ThreadSlots.ts:13](https://github.com/witqq/agent-sdk/bl
 
 `ReactNode`
 
-##### renderToolCall()?
+##### renderToolCall?
 
-> `optional` **renderToolCall**: (`part`, `index`) => `ReactNode`
+> `optional` **renderToolCall?**: (`part`, `index`) => `ReactNode`
 
-Defined in: [chat/react/ThreadSlots.ts:12](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadSlots.ts#L12)
+Defined in: [chat/react/ThreadSlots.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadSlots.ts#L12)
 
 ###### Parameters
 
@@ -2481,27 +2473,27 @@ Defined in: [chat/react/ThreadSlots.ts:12](https://github.com/witqq/agent-sdk/bl
 
 ### ToolCallViewProps
 
-Defined in: [chat/react/ToolCallView.ts:5](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ToolCallView.ts#L5)
+Defined in: [chat/react/ToolCallView.ts:5](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ToolCallView.ts#L5)
 
 Props for the ToolCallView component.
 
 #### Properties
 
-##### onApprove()?
+##### onApprove?
 
-> `optional` **onApprove**: () => `void`
+> `optional` **onApprove?**: () => `void`
 
-Defined in: [chat/react/ToolCallView.ts:7](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ToolCallView.ts#L7)
+Defined in: [chat/react/ToolCallView.ts:7](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ToolCallView.ts#L7)
 
 ###### Returns
 
 `void`
 
-##### onDeny()?
+##### onDeny?
 
-> `optional` **onDeny**: () => `void`
+> `optional` **onDeny?**: () => `void`
 
-Defined in: [chat/react/ToolCallView.ts:8](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ToolCallView.ts#L8)
+Defined in: [chat/react/ToolCallView.ts:8](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ToolCallView.ts#L8)
 
 ###### Returns
 
@@ -2511,13 +2503,13 @@ Defined in: [chat/react/ToolCallView.ts:8](https://github.com/witqq/agent-sdk/bl
 
 > **part**: [`ToolCallPart`](../../../chat.md#toolcallpart)
 
-Defined in: [chat/react/ToolCallView.ts:6](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ToolCallView.ts#L6)
+Defined in: [chat/react/ToolCallView.ts:6](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ToolCallView.ts#L6)
 
-##### renderArgs()?
+##### renderArgs?
 
-> `optional` **renderArgs**: (`args`) => `ReactNode`
+> `optional` **renderArgs?**: (`args`) => `ReactNode`
 
-Defined in: [chat/react/ToolCallView.ts:9](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ToolCallView.ts#L9)
+Defined in: [chat/react/ToolCallView.ts:9](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ToolCallView.ts#L9)
 
 ###### Parameters
 
@@ -2529,11 +2521,11 @@ Defined in: [chat/react/ToolCallView.ts:9](https://github.com/witqq/agent-sdk/bl
 
 `ReactNode`
 
-##### renderResult()?
+##### renderResult?
 
-> `optional` **renderResult**: (`result`) => `ReactNode`
+> `optional` **renderResult?**: (`result`) => `ReactNode`
 
-Defined in: [chat/react/ToolCallView.ts:10](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ToolCallView.ts#L10)
+Defined in: [chat/react/ToolCallView.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ToolCallView.ts#L10)
 
 ###### Parameters
 
@@ -2549,7 +2541,7 @@ Defined in: [chat/react/ToolCallView.ts:10](https://github.com/witqq/agent-sdk/b
 
 ### UsageBadgeProps
 
-Defined in: [chat/react/UsageBadge.ts:5](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/UsageBadge.ts#L5)
+Defined in: [chat/react/UsageBadge.ts:5](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/UsageBadge.ts#L5)
 
 Props for the UsageBadge component.
 
@@ -2557,21 +2549,21 @@ Props for the UsageBadge component.
 
 ##### className?
 
-> `optional` **className**: `string`
+> `optional` **className?**: `string`
 
-Defined in: [chat/react/UsageBadge.ts:7](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/UsageBadge.ts#L7)
+Defined in: [chat/react/UsageBadge.ts:7](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/UsageBadge.ts#L7)
 
 ##### usage
 
 > **usage**: [`ChatUsage`](#chatusage) \| `null`
 
-Defined in: [chat/react/UsageBadge.ts:6](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/UsageBadge.ts#L6)
+Defined in: [chat/react/UsageBadge.ts:6](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/UsageBadge.ts#L6)
 
 ***
 
 ### UseApiKeyAuthOptions
 
-Defined in: [chat/react/auth/useApiKeyAuth.ts:12](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L12)
+Defined in: [chat/react/auth/useApiKeyAuth.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L12)
 
 Options for useApiKeyAuth.
 
@@ -2581,15 +2573,15 @@ Options for useApiKeyAuth.
 
 > **baseUrl**: `string`
 
-Defined in: [chat/react/auth/useApiKeyAuth.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L14)
+Defined in: [chat/react/auth/useApiKeyAuth.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L14)
 
 Base URL of the auth server (e.g. "/api/auth")
 
-##### fetch()?
+##### fetch?
 
-> `optional` **fetch**: \{(`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \}
+> `optional` **fetch?**: \{(`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \}
 
-Defined in: [chat/react/auth/useApiKeyAuth.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L20)
+Defined in: [chat/react/auth/useApiKeyAuth.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L20)
 
 Optional fetch override (for testing)
 
@@ -2603,7 +2595,7 @@ Optional fetch override (for testing)
 
 ###### input
 
-`URL` | `RequestInfo`
+`URL` \| `RequestInfo`
 
 ###### init?
 
@@ -2623,7 +2615,7 @@ Optional fetch override (for testing)
 
 ###### input
 
-`string` | `URL` | `Request`
+`string` \| `URL` \| `Request`
 
 ###### init?
 
@@ -2635,17 +2627,17 @@ Optional fetch override (for testing)
 
 ##### headers?
 
-> `optional` **headers**: `Record`\<`string`, `string`\>
+> `optional` **headers?**: `Record`\<`string`, `string`\>
 
-Defined in: [chat/react/auth/useApiKeyAuth.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L22)
+Defined in: [chat/react/auth/useApiKeyAuth.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L22)
 
 Optional headers for all requests
 
-##### onAuthenticated()?
+##### onAuthenticated?
 
-> `optional` **onAuthenticated**: (`token`) => `void`
+> `optional` **onAuthenticated?**: (`token`) => `void`
 
-Defined in: [chat/react/auth/useApiKeyAuth.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L16)
+Defined in: [chat/react/auth/useApiKeyAuth.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L16)
 
 Called after successful authentication
 
@@ -2659,11 +2651,11 @@ Called after successful authentication
 
 `void`
 
-##### onError()?
+##### onError?
 
-> `optional` **onError**: (`error`) => `void`
+> `optional` **onError?**: (`error`) => `void`
 
-Defined in: [chat/react/auth/useApiKeyAuth.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L18)
+Defined in: [chat/react/auth/useApiKeyAuth.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L18)
 
 Called on authentication error
 
@@ -2681,7 +2673,7 @@ Called on authentication error
 
 ### UseApiKeyAuthReturn
 
-Defined in: [chat/react/auth/useApiKeyAuth.ts:26](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L26)
+Defined in: [chat/react/auth/useApiKeyAuth.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L26)
 
 Return value from useApiKeyAuth.
 
@@ -2691,13 +2683,13 @@ Return value from useApiKeyAuth.
 
 > **error**: `Error` \| `null`
 
-Defined in: [chat/react/auth/useApiKeyAuth.ts:28](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L28)
+Defined in: [chat/react/auth/useApiKeyAuth.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L28)
 
-##### reset()
+##### reset
 
 > **reset**: () => `void`
 
-Defined in: [chat/react/auth/useApiKeyAuth.ts:32](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L32)
+Defined in: [chat/react/auth/useApiKeyAuth.ts:32](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L32)
 
 ###### Returns
 
@@ -2707,13 +2699,13 @@ Defined in: [chat/react/auth/useApiKeyAuth.ts:32](https://github.com/witqq/agent
 
 > **status**: `"error"` \| `"idle"` \| `"pending"` \| `"authenticated"`
 
-Defined in: [chat/react/auth/useApiKeyAuth.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L27)
+Defined in: [chat/react/auth/useApiKeyAuth.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L27)
 
-##### submit()
+##### submit
 
 > **submit**: (`key`, `apiBaseUrl?`) => `Promise`\<`void`\>
 
-Defined in: [chat/react/auth/useApiKeyAuth.ts:31](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L31)
+Defined in: [chat/react/auth/useApiKeyAuth.ts:31](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L31)
 
 Submit an API key (and optional provider base URL).
 
@@ -2735,13 +2727,13 @@ Submit an API key (and optional provider base URL).
 
 > **token**: [`AuthToken`](../../../auth.md#authtoken) \| `null`
 
-Defined in: [chat/react/auth/useApiKeyAuth.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L29)
+Defined in: [chat/react/auth/useApiKeyAuth.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L29)
 
 ***
 
 ### UseBackendsReturn
 
-Defined in: [chat/react/useBackends.ts:6](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useBackends.ts#L6)
+Defined in: [chat/react/useBackends.ts:6](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useBackends.ts#L6)
 
 Return type for the useBackends hook.
 
@@ -2751,25 +2743,25 @@ Return type for the useBackends hook.
 
 > **backends**: [`BackendInfo`](../../../chat/runtime.md#backendinfo)[]
 
-Defined in: [chat/react/useBackends.ts:7](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useBackends.ts#L7)
+Defined in: [chat/react/useBackends.ts:7](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useBackends.ts#L7)
 
 ##### error
 
 > **error**: `Error` \| `null`
 
-Defined in: [chat/react/useBackends.ts:9](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useBackends.ts#L9)
+Defined in: [chat/react/useBackends.ts:9](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useBackends.ts#L9)
 
 ##### isLoading
 
 > **isLoading**: `boolean`
 
-Defined in: [chat/react/useBackends.ts:8](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useBackends.ts#L8)
+Defined in: [chat/react/useBackends.ts:8](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useBackends.ts#L8)
 
-##### refresh()
+##### refresh
 
 > **refresh**: () => `void`
 
-Defined in: [chat/react/useBackends.ts:10](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useBackends.ts#L10)
+Defined in: [chat/react/useBackends.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useBackends.ts#L10)
 
 ###### Returns
 
@@ -2779,7 +2771,7 @@ Defined in: [chat/react/useBackends.ts:10](https://github.com/witqq/agent-sdk/bl
 
 ### UseChatOptions
 
-Defined in: [chat/react/useChat.ts:8](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L8)
+Defined in: [chat/react/useChat.ts:8](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L8)
 
 Options for the useChat hook.
 
@@ -2787,17 +2779,17 @@ Options for the useChat hook.
 
 ##### autoDismissMs?
 
-> `optional` **autoDismissMs**: `number`
+> `optional` **autoDismissMs?**: `number`
 
-Defined in: [chat/react/useChat.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L14)
+Defined in: [chat/react/useChat.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L14)
 
 Auto-dismiss errors after this many ms (0 = disabled, default: 0).
 
-##### onError()?
+##### onError?
 
-> `optional` **onError**: (`error`) => `void`
+> `optional` **onError?**: (`error`) => `void`
 
-Defined in: [chat/react/useChat.ts:12](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L12)
+Defined in: [chat/react/useChat.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L12)
 
 Called on error during send.
 
@@ -2813,9 +2805,9 @@ Called on error during send.
 
 ##### sessionId?
 
-> `optional` **sessionId**: `string`
+> `optional` **sessionId?**: `string`
 
-Defined in: [chat/react/useChat.ts:10](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L10)
+Defined in: [chat/react/useChat.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L10)
 
 Session ID. If omitted, a new session is created on first send.
 
@@ -2823,17 +2815,17 @@ Session ID. If omitted, a new session is created on first send.
 
 ### UseChatReturn
 
-Defined in: [chat/react/useChat.ts:26](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L26)
+Defined in: [chat/react/useChat.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L26)
 
 Return value from useChat.
 
 #### Properties
 
-##### clearError()
+##### clearError
 
 > **clearError**: () => `void`
 
-Defined in: [chat/react/useChat.ts:42](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L42)
+Defined in: [chat/react/useChat.ts:42](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L42)
 
 Clear the error state.
 
@@ -2845,7 +2837,7 @@ Clear the error state.
 
 > **error**: `Error` \| `null`
 
-Defined in: [chat/react/useChat.ts:40](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L40)
+Defined in: [chat/react/useChat.ts:40](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L40)
 
 Current error, if any.
 
@@ -2853,7 +2845,7 @@ Current error, if any.
 
 > **isGenerating**: `boolean`
 
-Defined in: [chat/react/useChat.ts:36](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L36)
+Defined in: [chat/react/useChat.ts:36](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L36)
 
 Whether the assistant is currently generating.
 
@@ -2861,15 +2853,15 @@ Whether the assistant is currently generating.
 
 > **messages**: [`ChatMessage`](../../../chat.md#chatmessage)\<`unknown`\>[]
 
-Defined in: [chat/react/useChat.ts:30](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L30)
+Defined in: [chat/react/useChat.ts:30](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L30)
 
 Ordered messages in the current session.
 
-##### newSession()
+##### newSession
 
 > **newSession**: () => `Promise`\<`string`\>
 
-Defined in: [chat/react/useChat.ts:46](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L46)
+Defined in: [chat/react/useChat.ts:46](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L46)
 
 Create a new session, resetting messages.
 
@@ -2877,11 +2869,11 @@ Create a new session, resetting messages.
 
 `Promise`\<`string`\>
 
-##### retryLastMessage()
+##### retryLastMessage
 
 > **retryLastMessage**: () => `Promise`\<`void`\>
 
-Defined in: [chat/react/useChat.ts:44](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L44)
+Defined in: [chat/react/useChat.ts:44](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L44)
 
 Retry the last failed message. No-op if no error or no last user message.
 
@@ -2889,11 +2881,11 @@ Retry the last failed message. No-op if no error or no last user message.
 
 `Promise`\<`void`\>
 
-##### sendMessage()
+##### sendMessage
 
 > **sendMessage**: (`content`) => `Promise`\<`void`\>
 
-Defined in: [chat/react/useChat.ts:32](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L32)
+Defined in: [chat/react/useChat.ts:32](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L32)
 
 Send a user message and trigger assistant response.
 
@@ -2911,7 +2903,7 @@ Send a user message and trigger assistant response.
 
 > **sessionId**: `string` \| `null`
 
-Defined in: [chat/react/useChat.ts:28](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L28)
+Defined in: [chat/react/useChat.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L28)
 
 Current session ID (null until session created).
 
@@ -2919,15 +2911,15 @@ Current session ID (null until session created).
 
 > **status**: [`RuntimeStatus`](../../../chat.md#runtimestatus)
 
-Defined in: [chat/react/useChat.ts:38](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L38)
+Defined in: [chat/react/useChat.ts:38](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L38)
 
 Current runtime status.
 
-##### stop()
+##### stop
 
 > **stop**: () => `void`
 
-Defined in: [chat/react/useChat.ts:34](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L34)
+Defined in: [chat/react/useChat.ts:34](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L34)
 
 Abort the current generation.
 
@@ -2939,7 +2931,7 @@ Abort the current generation.
 
 > **usage**: [`ChatUsage`](#chatusage) \| `null`
 
-Defined in: [chat/react/useChat.ts:48](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L48)
+Defined in: [chat/react/useChat.ts:48](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L48)
 
 Token usage from the last completed response.
 
@@ -2947,7 +2939,7 @@ Token usage from the last completed response.
 
 ### UseClaudeAuthOptions
 
-Defined in: [chat/react/auth/useClaudeAuth.ts:12](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L12)
+Defined in: [chat/react/auth/useClaudeAuth.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L12)
 
 Options for useClaudeAuth.
 
@@ -2957,15 +2949,15 @@ Options for useClaudeAuth.
 
 > **baseUrl**: `string`
 
-Defined in: [chat/react/auth/useClaudeAuth.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L14)
+Defined in: [chat/react/auth/useClaudeAuth.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L14)
 
 Base URL of the auth server (e.g. "/api/auth")
 
-##### fetch()?
+##### fetch?
 
-> `optional` **fetch**: \{(`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \}
+> `optional` **fetch?**: \{(`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \}
 
-Defined in: [chat/react/auth/useClaudeAuth.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L20)
+Defined in: [chat/react/auth/useClaudeAuth.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L20)
 
 Optional fetch override (for testing)
 
@@ -2979,7 +2971,7 @@ Optional fetch override (for testing)
 
 ###### input
 
-`URL` | `RequestInfo`
+`URL` \| `RequestInfo`
 
 ###### init?
 
@@ -2999,7 +2991,7 @@ Optional fetch override (for testing)
 
 ###### input
 
-`string` | `URL` | `Request`
+`string` \| `URL` \| `Request`
 
 ###### init?
 
@@ -3011,17 +3003,17 @@ Optional fetch override (for testing)
 
 ##### headers?
 
-> `optional` **headers**: `Record`\<`string`, `string`\>
+> `optional` **headers?**: `Record`\<`string`, `string`\>
 
-Defined in: [chat/react/auth/useClaudeAuth.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L22)
+Defined in: [chat/react/auth/useClaudeAuth.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L22)
 
 Optional headers for all requests
 
-##### onAuthenticated()?
+##### onAuthenticated?
 
-> `optional` **onAuthenticated**: (`token`) => `void`
+> `optional` **onAuthenticated?**: (`token`) => `void`
 
-Defined in: [chat/react/auth/useClaudeAuth.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L16)
+Defined in: [chat/react/auth/useClaudeAuth.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L16)
 
 Called after successful authentication
 
@@ -3035,11 +3027,11 @@ Called after successful authentication
 
 `void`
 
-##### onError()?
+##### onError?
 
-> `optional` **onError**: (`error`) => `void`
+> `optional` **onError?**: (`error`) => `void`
 
-Defined in: [chat/react/auth/useClaudeAuth.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L18)
+Defined in: [chat/react/auth/useClaudeAuth.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L18)
 
 Called on authentication error
 
@@ -3057,7 +3049,7 @@ Called on authentication error
 
 ### UseClaudeAuthReturn
 
-Defined in: [chat/react/auth/useClaudeAuth.ts:26](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L26)
+Defined in: [chat/react/auth/useClaudeAuth.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L26)
 
 Return value from useClaudeAuth.
 
@@ -3067,13 +3059,13 @@ Return value from useClaudeAuth.
 
 > **authorizeUrl**: `string` \| `null`
 
-Defined in: [chat/react/auth/useClaudeAuth.ts:30](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L30)
+Defined in: [chat/react/auth/useClaudeAuth.ts:30](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L30)
 
-##### complete()
+##### complete
 
 > **complete**: (`codeOrUrl`) => `Promise`\<`void`\>
 
-Defined in: [chat/react/auth/useClaudeAuth.ts:34](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L34)
+Defined in: [chat/react/auth/useClaudeAuth.ts:34](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L34)
 
 Complete OAuth after redirect. Pass the code or callback URL.
 
@@ -3091,23 +3083,23 @@ Complete OAuth after redirect. Pass the code or callback URL.
 
 > **error**: `Error` \| `null`
 
-Defined in: [chat/react/auth/useClaudeAuth.ts:28](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L28)
+Defined in: [chat/react/auth/useClaudeAuth.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L28)
 
-##### reset()
+##### reset
 
 > **reset**: () => `void`
 
-Defined in: [chat/react/auth/useClaudeAuth.ts:35](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L35)
+Defined in: [chat/react/auth/useClaudeAuth.ts:35](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L35)
 
 ###### Returns
 
 `void`
 
-##### start()
+##### start
 
 > **start**: () => `Promise`\<`void`\>
 
-Defined in: [chat/react/auth/useClaudeAuth.ts:32](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L32)
+Defined in: [chat/react/auth/useClaudeAuth.ts:32](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L32)
 
 Start OAuth flow. Sets authorizeUrl for user redirect.
 
@@ -3119,19 +3111,19 @@ Start OAuth flow. Sets authorizeUrl for user redirect.
 
 > **status**: `"error"` \| `"idle"` \| `"pending"` \| `"authenticated"`
 
-Defined in: [chat/react/auth/useClaudeAuth.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L27)
+Defined in: [chat/react/auth/useClaudeAuth.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L27)
 
 ##### token
 
 > **token**: [`AuthToken`](../../../auth.md#authtoken) \| `null`
 
-Defined in: [chat/react/auth/useClaudeAuth.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L29)
+Defined in: [chat/react/auth/useClaudeAuth.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L29)
 
 ***
 
 ### UseCopilotAuthOptions
 
-Defined in: [chat/react/auth/useCopilotAuth.ts:12](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L12)
+Defined in: [chat/react/auth/useCopilotAuth.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L12)
 
 Options for useCopilotAuth.
 
@@ -3141,15 +3133,15 @@ Options for useCopilotAuth.
 
 > **baseUrl**: `string`
 
-Defined in: [chat/react/auth/useCopilotAuth.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L14)
+Defined in: [chat/react/auth/useCopilotAuth.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L14)
 
 Base URL of the auth server (e.g. "/api/auth")
 
-##### fetch()?
+##### fetch?
 
-> `optional` **fetch**: \{(`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \}
+> `optional` **fetch?**: \{(`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \}
 
-Defined in: [chat/react/auth/useCopilotAuth.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L20)
+Defined in: [chat/react/auth/useCopilotAuth.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L20)
 
 Optional fetch override (for testing)
 
@@ -3163,7 +3155,7 @@ Optional fetch override (for testing)
 
 ###### input
 
-`URL` | `RequestInfo`
+`URL` \| `RequestInfo`
 
 ###### init?
 
@@ -3183,7 +3175,7 @@ Optional fetch override (for testing)
 
 ###### input
 
-`string` | `URL` | `Request`
+`string` \| `URL` \| `Request`
 
 ###### init?
 
@@ -3195,17 +3187,17 @@ Optional fetch override (for testing)
 
 ##### headers?
 
-> `optional` **headers**: `Record`\<`string`, `string`\>
+> `optional` **headers?**: `Record`\<`string`, `string`\>
 
-Defined in: [chat/react/auth/useCopilotAuth.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L22)
+Defined in: [chat/react/auth/useCopilotAuth.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L22)
 
 Optional headers for all requests
 
-##### onAuthenticated()?
+##### onAuthenticated?
 
-> `optional` **onAuthenticated**: (`token`) => `void`
+> `optional` **onAuthenticated?**: (`token`) => `void`
 
-Defined in: [chat/react/auth/useCopilotAuth.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L16)
+Defined in: [chat/react/auth/useCopilotAuth.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L16)
 
 Called after successful authentication
 
@@ -3219,11 +3211,11 @@ Called after successful authentication
 
 `void`
 
-##### onError()?
+##### onError?
 
-> `optional` **onError**: (`error`) => `void`
+> `optional` **onError?**: (`error`) => `void`
 
-Defined in: [chat/react/auth/useCopilotAuth.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L18)
+Defined in: [chat/react/auth/useCopilotAuth.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L18)
 
 Called on authentication error
 
@@ -3241,7 +3233,7 @@ Called on authentication error
 
 ### UseCopilotAuthReturn
 
-Defined in: [chat/react/auth/useCopilotAuth.ts:26](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L26)
+Defined in: [chat/react/auth/useCopilotAuth.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L26)
 
 Return value from useCopilotAuth.
 
@@ -3251,29 +3243,29 @@ Return value from useCopilotAuth.
 
 > **deviceCode**: `string` \| `null`
 
-Defined in: [chat/react/auth/useCopilotAuth.ts:30](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L30)
+Defined in: [chat/react/auth/useCopilotAuth.ts:30](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L30)
 
 ##### error
 
 > **error**: `Error` \| `null`
 
-Defined in: [chat/react/auth/useCopilotAuth.ts:28](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L28)
+Defined in: [chat/react/auth/useCopilotAuth.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L28)
 
-##### reset()
+##### reset
 
 > **reset**: () => `void`
 
-Defined in: [chat/react/auth/useCopilotAuth.ts:34](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L34)
+Defined in: [chat/react/auth/useCopilotAuth.ts:34](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L34)
 
 ###### Returns
 
 `void`
 
-##### start()
+##### start
 
 > **start**: () => `Promise`\<`void`\>
 
-Defined in: [chat/react/auth/useCopilotAuth.ts:33](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L33)
+Defined in: [chat/react/auth/useCopilotAuth.ts:33](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L33)
 
 Start the device flow. Shows deviceCode and verificationUrl, then polls for completion.
 
@@ -3285,25 +3277,25 @@ Start the device flow. Shows deviceCode and verificationUrl, then polls for comp
 
 > **status**: `"error"` \| `"idle"` \| `"pending"` \| `"authenticated"`
 
-Defined in: [chat/react/auth/useCopilotAuth.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L27)
+Defined in: [chat/react/auth/useCopilotAuth.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L27)
 
 ##### token
 
 > **token**: [`AuthToken`](../../../auth.md#authtoken) \| `null`
 
-Defined in: [chat/react/auth/useCopilotAuth.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L29)
+Defined in: [chat/react/auth/useCopilotAuth.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L29)
 
 ##### verificationUrl
 
 > **verificationUrl**: `string` \| `null`
 
-Defined in: [chat/react/auth/useCopilotAuth.ts:31](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L31)
+Defined in: [chat/react/auth/useCopilotAuth.ts:31](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L31)
 
 ***
 
 ### UseMessagesOptions
 
-Defined in: [chat/react/useMessages.ts:7](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useMessages.ts#L7)
+Defined in: [chat/react/useMessages.ts:7](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useMessages.ts#L7)
 
 Options for the useMessages hook.
 
@@ -3313,7 +3305,7 @@ Options for the useMessages hook.
 
 > **sessionId**: `string`
 
-Defined in: [chat/react/useMessages.ts:9](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useMessages.ts#L9)
+Defined in: [chat/react/useMessages.ts:9](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useMessages.ts#L9)
 
 Session ID to observe.
 
@@ -3321,7 +3313,7 @@ Session ID to observe.
 
 ### UseMessagesReturn
 
-Defined in: [chat/react/useMessages.ts:13](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useMessages.ts#L13)
+Defined in: [chat/react/useMessages.ts:13](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useMessages.ts#L13)
 
 Return value from useMessages.
 
@@ -3331,7 +3323,7 @@ Return value from useMessages.
 
 > **isLoaded**: `boolean`
 
-Defined in: [chat/react/useMessages.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useMessages.ts#L17)
+Defined in: [chat/react/useMessages.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useMessages.ts#L17)
 
 Whether the session was found.
 
@@ -3339,7 +3331,7 @@ Whether the session was found.
 
 > **messages**: [`ChatMessage`](../../../chat.md#chatmessage)\<`unknown`\>[]
 
-Defined in: [chat/react/useMessages.ts:15](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useMessages.ts#L15)
+Defined in: [chat/react/useMessages.ts:15](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useMessages.ts#L15)
 
 Ordered messages in the session.
 
@@ -3347,7 +3339,7 @@ Ordered messages in the session.
 
 ### UseModelsReturn
 
-Defined in: [chat/react/useModels.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useModels.ts#L14)
+Defined in: [chat/react/useModels.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useModels.ts#L14)
 
 Return type for the useModels hook.
 
@@ -3357,35 +3349,35 @@ Return type for the useModels hook.
 
 > **error**: `Error` \| `null`
 
-Defined in: [chat/react/useModels.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useModels.ts#L17)
+Defined in: [chat/react/useModels.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useModels.ts#L17)
 
 ##### isLoading
 
 > **isLoading**: `boolean`
 
-Defined in: [chat/react/useModels.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useModels.ts#L16)
+Defined in: [chat/react/useModels.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useModels.ts#L16)
 
 ##### models
 
 > **models**: [`ModelOption`](#modeloption)[]
 
-Defined in: [chat/react/useModels.ts:15](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useModels.ts#L15)
+Defined in: [chat/react/useModels.ts:15](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useModels.ts#L15)
 
-##### refresh()
+##### refresh
 
 > **refresh**: () => `void`
 
-Defined in: [chat/react/useModels.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useModels.ts#L18)
+Defined in: [chat/react/useModels.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useModels.ts#L18)
 
 ###### Returns
 
 `void`
 
-##### search()
+##### search
 
 > **search**: (`query`) => [`ModelOption`](#modeloption)[]
 
-Defined in: [chat/react/useModels.ts:19](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useModels.ts#L19)
+Defined in: [chat/react/useModels.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useModels.ts#L19)
 
 ###### Parameters
 
@@ -3401,17 +3393,17 @@ Defined in: [chat/react/useModels.ts:19](https://github.com/witqq/agent-sdk/blob
 
 ### UseProvidersReturn
 
-Defined in: [chat/react/useProviders.ts:24](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useProviders.ts#L24)
+Defined in: [chat/react/useProviders.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useProviders.ts#L24)
 
 Return type for the useProviders hook.
 
 #### Properties
 
-##### createProvider()
+##### createProvider
 
 > **createProvider**: (`config`) => `Promise`\<`void`\>
 
-Defined in: [chat/react/useProviders.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useProviders.ts#L29)
+Defined in: [chat/react/useProviders.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useProviders.ts#L29)
 
 ###### Parameters
 
@@ -3423,11 +3415,11 @@ Defined in: [chat/react/useProviders.ts:29](https://github.com/witqq/agent-sdk/b
 
 `Promise`\<`void`\>
 
-##### deleteProvider()
+##### deleteProvider
 
 > **deleteProvider**: (`id`) => `Promise`\<`void`\>
 
-Defined in: [chat/react/useProviders.ts:31](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useProviders.ts#L31)
+Defined in: [chat/react/useProviders.ts:31](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useProviders.ts#L31)
 
 ###### Parameters
 
@@ -3443,35 +3435,35 @@ Defined in: [chat/react/useProviders.ts:31](https://github.com/witqq/agent-sdk/b
 
 > **error**: `Error` \| `null`
 
-Defined in: [chat/react/useProviders.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useProviders.ts#L27)
+Defined in: [chat/react/useProviders.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useProviders.ts#L27)
 
 ##### isLoading
 
 > **isLoading**: `boolean`
 
-Defined in: [chat/react/useProviders.ts:26](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useProviders.ts#L26)
+Defined in: [chat/react/useProviders.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useProviders.ts#L26)
 
 ##### providers
 
 > **providers**: [`ProviderConfig`](../../../chat.md#providerconfig)[]
 
-Defined in: [chat/react/useProviders.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useProviders.ts#L25)
+Defined in: [chat/react/useProviders.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useProviders.ts#L25)
 
-##### refresh()
+##### refresh
 
 > **refresh**: () => `void`
 
-Defined in: [chat/react/useProviders.ts:28](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useProviders.ts#L28)
+Defined in: [chat/react/useProviders.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useProviders.ts#L28)
 
 ###### Returns
 
 `void`
 
-##### selectProvider()
+##### selectProvider
 
 > **selectProvider**: (`id`) => `void`
 
-Defined in: [chat/react/useProviders.ts:32](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useProviders.ts#L32)
+Defined in: [chat/react/useProviders.ts:32](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useProviders.ts#L32)
 
 ###### Parameters
 
@@ -3483,11 +3475,11 @@ Defined in: [chat/react/useProviders.ts:32](https://github.com/witqq/agent-sdk/b
 
 `void`
 
-##### updateProvider()
+##### updateProvider
 
 > **updateProvider**: (`id`, `changes`) => `Promise`\<`void`\>
 
-Defined in: [chat/react/useProviders.ts:30](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useProviders.ts#L30)
+Defined in: [chat/react/useProviders.ts:30](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useProviders.ts#L30)
 
 ###### Parameters
 
@@ -3507,7 +3499,7 @@ Defined in: [chat/react/useProviders.ts:30](https://github.com/witqq/agent-sdk/b
 
 ### UseRemoteAuthOptions
 
-Defined in: [chat/react/useRemoteAuth.ts:24](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L24)
+Defined in: [chat/react/useRemoteAuth.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L24)
 
 Options for the useRemoteAuth hook.
 
@@ -3517,7 +3509,7 @@ Options for the useRemoteAuth hook.
 
 > **backend**: [`RemoteAuthBackend`](#remoteauthbackend)
 
-Defined in: [chat/react/useRemoteAuth.ts:26](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L26)
+Defined in: [chat/react/useRemoteAuth.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L26)
 
 Auth backend to use
 
@@ -3525,15 +3517,15 @@ Auth backend to use
 
 > **baseUrl**: `string`
 
-Defined in: [chat/react/useRemoteAuth.ts:28](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L28)
+Defined in: [chat/react/useRemoteAuth.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L28)
 
 Base URL of the auth server (e.g. "http://localhost:3456/api/auth")
 
-##### fetch()?
+##### fetch?
 
-> `optional` **fetch**: \{(`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \}
+> `optional` **fetch?**: \{(`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \}
 
-Defined in: [chat/react/useRemoteAuth.ts:32](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L32)
+Defined in: [chat/react/useRemoteAuth.ts:32](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L32)
 
 Optional fetch override (for testing)
 
@@ -3547,7 +3539,7 @@ Optional fetch override (for testing)
 
 ###### input
 
-`URL` | `RequestInfo`
+`URL` \| `RequestInfo`
 
 ###### init?
 
@@ -3567,7 +3559,7 @@ Optional fetch override (for testing)
 
 ###### input
 
-`string` | `URL` | `Request`
+`string` \| `URL` \| `Request`
 
 ###### init?
 
@@ -3579,17 +3571,17 @@ Optional fetch override (for testing)
 
 ##### headers?
 
-> `optional` **headers**: `Record`\<`string`, `string`\>
+> `optional` **headers?**: `Record`\<`string`, `string`\>
 
-Defined in: [chat/react/useRemoteAuth.ts:34](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L34)
+Defined in: [chat/react/useRemoteAuth.ts:34](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L34)
 
 Optional headers for all requests
 
-##### onAuthenticated()?
+##### onAuthenticated?
 
-> `optional` **onAuthenticated**: (`token`) => `void`
+> `optional` **onAuthenticated?**: (`token`) => `void`
 
-Defined in: [chat/react/useRemoteAuth.ts:30](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L30)
+Defined in: [chat/react/useRemoteAuth.ts:30](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L30)
 
 Called after successful authentication
 
@@ -3607,7 +3599,7 @@ Called after successful authentication
 
 ### UseRemoteAuthReturn
 
-Defined in: [chat/react/useRemoteAuth.ts:38](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L38)
+Defined in: [chat/react/useRemoteAuth.ts:38](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L38)
 
 Return value from useRemoteAuth.
 
@@ -3617,23 +3609,23 @@ Return value from useRemoteAuth.
 
 > **authorizeUrl**: `string` \| `null`
 
-Defined in: [chat/react/useRemoteAuth.ts:47](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L47)
+Defined in: [chat/react/useRemoteAuth.ts:47](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L47)
 
-##### clearTokens()
+##### clearTokens
 
 > **clearTokens**: () => `Promise`\<`void`\>
 
-Defined in: [chat/react/useRemoteAuth.ts:60](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L60)
+Defined in: [chat/react/useRemoteAuth.ts:60](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L60)
 
 ###### Returns
 
 `Promise`\<`void`\>
 
-##### completeOAuth()
+##### completeOAuth
 
 > **completeOAuth**: (`codeOrUrl`) => `Promise`\<`void`\>
 
-Defined in: [chat/react/useRemoteAuth.ts:48](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L48)
+Defined in: [chat/react/useRemoteAuth.ts:48](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L48)
 
 ###### Parameters
 
@@ -3649,29 +3641,29 @@ Defined in: [chat/react/useRemoteAuth.ts:48](https://github.com/witqq/agent-sdk/
 
 > **deviceCode**: `string` \| `null`
 
-Defined in: [chat/react/useRemoteAuth.ts:43](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L43)
+Defined in: [chat/react/useRemoteAuth.ts:43](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L43)
 
 ##### error
 
 > **error**: `Error` \| `null`
 
-Defined in: [chat/react/useRemoteAuth.ts:40](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L40)
+Defined in: [chat/react/useRemoteAuth.ts:40](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L40)
 
-##### loadSavedTokens()
+##### loadSavedTokens
 
 > **loadSavedTokens**: () => `Promise`\<`void`\>
 
-Defined in: [chat/react/useRemoteAuth.ts:58](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L58)
+Defined in: [chat/react/useRemoteAuth.ts:58](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L58)
 
 ###### Returns
 
 `Promise`\<`void`\>
 
-##### reset()
+##### reset
 
 > **reset**: () => `void`
 
-Defined in: [chat/react/useRemoteAuth.ts:55](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L55)
+Defined in: [chat/react/useRemoteAuth.ts:55](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L55)
 
 ###### Returns
 
@@ -3681,13 +3673,13 @@ Defined in: [chat/react/useRemoteAuth.ts:55](https://github.com/witqq/agent-sdk/
 
 > **savedProviders**: `string`[]
 
-Defined in: [chat/react/useRemoteAuth.ts:57](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L57)
+Defined in: [chat/react/useRemoteAuth.ts:57](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L57)
 
-##### start()
+##### start
 
 > **start**: (`provider?`) => `Promise`\<`void`\>
 
-Defined in: [chat/react/useRemoteAuth.ts:52](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L52)
+Defined in: [chat/react/useRemoteAuth.ts:52](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L52)
 
 ###### Parameters
 
@@ -3699,21 +3691,21 @@ Defined in: [chat/react/useRemoteAuth.ts:52](https://github.com/witqq/agent-sdk/
 
 `Promise`\<`void`\>
 
-##### startDeviceFlow()
+##### startDeviceFlow
 
 > **startDeviceFlow**: () => `Promise`\<`void`\>
 
-Defined in: [chat/react/useRemoteAuth.ts:42](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L42)
+Defined in: [chat/react/useRemoteAuth.ts:42](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L42)
 
 ###### Returns
 
 `Promise`\<`void`\>
 
-##### startOAuthFlow()
+##### startOAuthFlow
 
 > **startOAuthFlow**: () => `Promise`\<`void`\>
 
-Defined in: [chat/react/useRemoteAuth.ts:46](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L46)
+Defined in: [chat/react/useRemoteAuth.ts:46](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L46)
 
 ###### Returns
 
@@ -3723,13 +3715,13 @@ Defined in: [chat/react/useRemoteAuth.ts:46](https://github.com/witqq/agent-sdk/
 
 > **status**: [`RemoteAuthStatus`](#remoteauthstatus)
 
-Defined in: [chat/react/useRemoteAuth.ts:39](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L39)
+Defined in: [chat/react/useRemoteAuth.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L39)
 
-##### submitApiKey()
+##### submitApiKey
 
 > **submitApiKey**: (`key`, `baseUrl?`) => `Promise`\<`void`\>
 
-Defined in: [chat/react/useRemoteAuth.ts:50](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L50)
+Defined in: [chat/react/useRemoteAuth.ts:50](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L50)
 
 ###### Parameters
 
@@ -3749,13 +3741,13 @@ Defined in: [chat/react/useRemoteAuth.ts:50](https://github.com/witqq/agent-sdk/
 
 > **token**: [`AuthToken`](../../../auth.md#authtoken) \| `null`
 
-Defined in: [chat/react/useRemoteAuth.ts:54](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L54)
+Defined in: [chat/react/useRemoteAuth.ts:54](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L54)
 
-##### useSavedToken()
+##### useSavedToken
 
 > **useSavedToken**: (`provider`) => `Promise`\<`void`\>
 
-Defined in: [chat/react/useRemoteAuth.ts:59](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L59)
+Defined in: [chat/react/useRemoteAuth.ts:59](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L59)
 
 ###### Parameters
 
@@ -3771,13 +3763,13 @@ Defined in: [chat/react/useRemoteAuth.ts:59](https://github.com/witqq/agent-sdk/
 
 > **verificationUrl**: `string` \| `null`
 
-Defined in: [chat/react/useRemoteAuth.ts:44](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L44)
+Defined in: [chat/react/useRemoteAuth.ts:44](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L44)
 
 ***
 
 ### UseRemoteChatOptions
 
-Defined in: [chat/react/useRemoteChat.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteChat.ts#L27)
+Defined in: [chat/react/useRemoteChat.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteChat.ts#L27)
 
 Options for useRemoteChat.
 
@@ -3787,7 +3779,7 @@ Options for useRemoteChat.
 
 > **authBaseUrl**: `string`
 
-Defined in: [chat/react/useRemoteChat.ts:31](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteChat.ts#L31)
+Defined in: [chat/react/useRemoteChat.ts:31](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteChat.ts#L31)
 
 Base URL for auth API (e.g. "/api/auth").
 
@@ -3795,7 +3787,7 @@ Base URL for auth API (e.g. "/api/auth").
 
 > **backend**: [`RemoteAuthBackend`](#remoteauthbackend)
 
-Defined in: [chat/react/useRemoteChat.ts:33](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteChat.ts#L33)
+Defined in: [chat/react/useRemoteChat.ts:33](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteChat.ts#L33)
 
 Auth backend to use.
 
@@ -3803,15 +3795,15 @@ Auth backend to use.
 
 > **chatBaseUrl**: `string`
 
-Defined in: [chat/react/useRemoteChat.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteChat.ts#L29)
+Defined in: [chat/react/useRemoteChat.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteChat.ts#L29)
 
 Base URL for chat API (e.g. "/api/chat").
 
-##### fetch()?
+##### fetch?
 
-> `optional` **fetch**: \{(`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \}
+> `optional` **fetch?**: \{(`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \}
 
-Defined in: [chat/react/useRemoteChat.ts:37](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteChat.ts#L37)
+Defined in: [chat/react/useRemoteChat.ts:37](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteChat.ts#L37)
 
 Custom fetch for testability.
 
@@ -3825,7 +3817,7 @@ Custom fetch for testability.
 
 ###### input
 
-`URL` | `RequestInfo`
+`URL` \| `RequestInfo`
 
 ###### init?
 
@@ -3845,7 +3837,7 @@ Custom fetch for testability.
 
 ###### input
 
-`string` | `URL` | `Request`
+`string` \| `URL` \| `Request`
 
 ###### init?
 
@@ -3857,17 +3849,17 @@ Custom fetch for testability.
 
 ##### headers?
 
-> `optional` **headers**: `Record`\<`string`, `string`\>
+> `optional` **headers?**: `Record`\<`string`, `string`\>
 
-Defined in: [chat/react/useRemoteChat.ts:39](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteChat.ts#L39)
+Defined in: [chat/react/useRemoteChat.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteChat.ts#L39)
 
 Optional headers for all requests.
 
-##### onReady()?
+##### onReady?
 
-> `optional` **onReady**: () => `void`
+> `optional` **onReady?**: () => `void`
 
-Defined in: [chat/react/useRemoteChat.ts:35](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteChat.ts#L35)
+Defined in: [chat/react/useRemoteChat.ts:35](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteChat.ts#L35)
 
 Called when lifecycle reaches "ready" phase.
 
@@ -3879,7 +3871,7 @@ Called when lifecycle reaches "ready" phase.
 
 ### UseRemoteChatReturn
 
-Defined in: [chat/react/useRemoteChat.ts:43](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteChat.ts#L43)
+Defined in: [chat/react/useRemoteChat.ts:43](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteChat.ts#L43)
 
 Return value from useRemoteChat.
 
@@ -3889,7 +3881,7 @@ Return value from useRemoteChat.
 
 > **auth**: [`UseRemoteAuthReturn`](#useremoteauthreturn)
 
-Defined in: [chat/react/useRemoteChat.ts:51](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteChat.ts#L51)
+Defined in: [chat/react/useRemoteChat.ts:51](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteChat.ts#L51)
 
 Auth sub-hook for manual auth control.
 
@@ -3897,15 +3889,15 @@ Auth sub-hook for manual auth control.
 
 > **error**: `Error` \| `null`
 
-Defined in: [chat/react/useRemoteChat.ts:53](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteChat.ts#L53)
+Defined in: [chat/react/useRemoteChat.ts:53](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteChat.ts#L53)
 
 Current error (null when no error).
 
-##### logout()
+##### logout
 
 > **logout**: () => `Promise`\<`void`\>
 
-Defined in: [chat/react/useRemoteChat.ts:57](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteChat.ts#L57)
+Defined in: [chat/react/useRemoteChat.ts:57](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteChat.ts#L57)
 
 Logout: clear tokens, dispose runtime, reset to unauthenticated.
 
@@ -3913,11 +3905,11 @@ Logout: clear tokens, dispose runtime, reset to unauthenticated.
 
 `Promise`\<`void`\>
 
-##### newSession()
+##### newSession
 
 > **newSession**: () => `Promise`\<`string`\>
 
-Defined in: [chat/react/useRemoteChat.ts:55](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteChat.ts#L55)
+Defined in: [chat/react/useRemoteChat.ts:55](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteChat.ts#L55)
 
 Create a new chat session. Returns session ID.
 
@@ -3929,7 +3921,7 @@ Create a new chat session. Returns session ID.
 
 > **phase**: [`RemoteChatPhase`](#remotechatphase)
 
-Defined in: [chat/react/useRemoteChat.ts:45](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteChat.ts#L45)
+Defined in: [chat/react/useRemoteChat.ts:45](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteChat.ts#L45)
 
 Current lifecycle phase.
 
@@ -3937,7 +3929,7 @@ Current lifecycle phase.
 
 > **runtime**: [`IChatClient`](../../../chat/runtime.md#ichatclient)\<`Record`\<`string`, `unknown`\>\> \| `null`
 
-Defined in: [chat/react/useRemoteChat.ts:47](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteChat.ts#L47)
+Defined in: [chat/react/useRemoteChat.ts:47](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteChat.ts#L47)
 
 Chat client (null until phase = "ready").
 
@@ -3945,7 +3937,7 @@ Chat client (null until phase = "ready").
 
 > **sessionId**: `string` \| `null`
 
-Defined in: [chat/react/useRemoteChat.ts:49](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteChat.ts#L49)
+Defined in: [chat/react/useRemoteChat.ts:49](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteChat.ts#L49)
 
 Initial session ID (null until phase = "ready").
 
@@ -3953,7 +3945,7 @@ Initial session ID (null until phase = "ready").
 
 ### UseSessionsReturn
 
-Defined in: [chat/react/useSessions.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSessions.ts#L14)
+Defined in: [chat/react/useSessions.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSessions.ts#L14)
 
 Return type of useSessions hook.
 
@@ -3963,7 +3955,7 @@ Return type of useSessions hook.
 
 > **error**: `Error` \| `null`
 
-Defined in: [chat/react/useSessions.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSessions.ts#L20)
+Defined in: [chat/react/useSessions.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSessions.ts#L20)
 
 Last error from session fetch
 
@@ -3971,15 +3963,15 @@ Last error from session fetch
 
 > **loading**: `boolean`
 
-Defined in: [chat/react/useSessions.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSessions.ts#L18)
+Defined in: [chat/react/useSessions.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSessions.ts#L18)
 
 Whether initial load or refresh is in progress
 
-##### refresh()
+##### refresh
 
 > **refresh**: () => `void`
 
-Defined in: [chat/react/useSessions.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSessions.ts#L22)
+Defined in: [chat/react/useSessions.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSessions.ts#L22)
 
 Manually trigger a refresh
 
@@ -3991,7 +3983,7 @@ Manually trigger a refresh
 
 > **sessions**: [`SessionInfo`](../../../chat.md#sessioninfo)[]
 
-Defined in: [chat/react/useSessions.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSessions.ts#L16)
+Defined in: [chat/react/useSessions.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSessions.ts#L16)
 
 Current session list (lightweight SessionInfo format)
 
@@ -3999,7 +3991,7 @@ Current session list (lightweight SessionInfo format)
 
 ### UseSSEOptions
 
-Defined in: [chat/react/useSSE.ts:8](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSSE.ts#L8)
+Defined in: [chat/react/useSSE.ts:8](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSSE.ts#L8)
 
 Options for the useSSE hook.
 
@@ -4007,31 +3999,31 @@ Options for the useSSE hook.
 
 ##### body?
 
-> `optional` **body**: `unknown`
+> `optional` **body?**: `unknown`
 
-Defined in: [chat/react/useSSE.ts:12](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSSE.ts#L12)
+Defined in: [chat/react/useSSE.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSSE.ts#L12)
 
 Request body for POST requests (JSON-serialized automatically)
 
 ##### headers?
 
-> `optional` **headers**: `Record`\<`string`, `string`\>
+> `optional` **headers?**: `Record`\<`string`, `string`\>
 
-Defined in: [chat/react/useSSE.ts:13](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSSE.ts#L13)
+Defined in: [chat/react/useSSE.ts:13](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSSE.ts#L13)
 
 ##### method?
 
-> `optional` **method**: `"POST"` \| `"GET"`
+> `optional` **method?**: `"POST"` \| `"GET"`
 
-Defined in: [chat/react/useSSE.ts:10](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSSE.ts#L10)
+Defined in: [chat/react/useSSE.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSSE.ts#L10)
 
 HTTP method (default: "GET")
 
-##### onError()?
+##### onError?
 
-> `optional` **onError**: (`error`) => `void`
+> `optional` **onError?**: (`error`) => `void`
 
-Defined in: [chat/react/useSSE.ts:15](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSSE.ts#L15)
+Defined in: [chat/react/useSSE.ts:15](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSSE.ts#L15)
 
 ###### Parameters
 
@@ -4043,11 +4035,11 @@ Defined in: [chat/react/useSSE.ts:15](https://github.com/witqq/agent-sdk/blob/9c
 
 `void`
 
-##### onEvent()?
+##### onEvent?
 
-> `optional` **onEvent**: (`event`) => `void`
+> `optional` **onEvent?**: (`event`) => `void`
 
-Defined in: [chat/react/useSSE.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSSE.ts#L14)
+Defined in: [chat/react/useSSE.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSSE.ts#L14)
 
 ###### Parameters
 
@@ -4061,41 +4053,41 @@ Defined in: [chat/react/useSSE.ts:14](https://github.com/witqq/agent-sdk/blob/9c
 
 ##### reconnect?
 
-> `optional` **reconnect**: `boolean`
+> `optional` **reconnect?**: `boolean`
 
-Defined in: [chat/react/useSSE.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSSE.ts#L16)
+Defined in: [chat/react/useSSE.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSSE.ts#L16)
 
 ##### reconnectInterval?
 
-> `optional` **reconnectInterval**: `number`
+> `optional` **reconnectInterval?**: `number`
 
-Defined in: [chat/react/useSSE.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSSE.ts#L17)
+Defined in: [chat/react/useSSE.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSSE.ts#L17)
 
 ***
 
 ### UseSSEReturn
 
-Defined in: [chat/react/useSSE.ts:21](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSSE.ts#L21)
+Defined in: [chat/react/useSSE.ts:21](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSSE.ts#L21)
 
 Return type for the useSSE hook.
 
 #### Properties
 
-##### connect()
+##### connect
 
 > **connect**: () => `void`
 
-Defined in: [chat/react/useSSE.ts:23](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSSE.ts#L23)
+Defined in: [chat/react/useSSE.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSSE.ts#L23)
 
 ###### Returns
 
 `void`
 
-##### disconnect()
+##### disconnect
 
 > **disconnect**: () => `void`
 
-Defined in: [chat/react/useSSE.ts:24](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSSE.ts#L24)
+Defined in: [chat/react/useSSE.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSSE.ts#L24)
 
 ###### Returns
 
@@ -4105,29 +4097,29 @@ Defined in: [chat/react/useSSE.ts:24](https://github.com/witqq/agent-sdk/blob/9c
 
 > **lastEvent**: [`ChatEvent`](../../../chat.md#chatevent) \| `null`
 
-Defined in: [chat/react/useSSE.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSSE.ts#L25)
+Defined in: [chat/react/useSSE.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSSE.ts#L25)
 
 ##### status
 
 > **status**: [`SSEStatus`](#ssestatus)
 
-Defined in: [chat/react/useSSE.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSSE.ts#L22)
+Defined in: [chat/react/useSSE.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSSE.ts#L22)
 
 ***
 
 ### UseToolApprovalReturn
 
-Defined in: [chat/react/useToolApproval.ts:13](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useToolApproval.ts#L13)
+Defined in: [chat/react/useToolApproval.ts:13](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useToolApproval.ts#L13)
 
 Return value from useToolApproval.
 
 #### Properties
 
-##### approve()
+##### approve
 
 > **approve**: (`toolCallId`) => `void`
 
-Defined in: [chat/react/useToolApproval.ts:15](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useToolApproval.ts#L15)
+Defined in: [chat/react/useToolApproval.ts:15](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useToolApproval.ts#L15)
 
 ###### Parameters
 
@@ -4139,11 +4131,11 @@ Defined in: [chat/react/useToolApproval.ts:15](https://github.com/witqq/agent-sd
 
 `void`
 
-##### deny()
+##### deny
 
 > **deny**: (`toolCallId`) => `void`
 
-Defined in: [chat/react/useToolApproval.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useToolApproval.ts#L16)
+Defined in: [chat/react/useToolApproval.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useToolApproval.ts#L16)
 
 ###### Parameters
 
@@ -4159,13 +4151,13 @@ Defined in: [chat/react/useToolApproval.ts:16](https://github.com/witqq/agent-sd
 
 > **pendingRequests**: [`PendingToolRequest`](#pendingtoolrequest)[]
 
-Defined in: [chat/react/useToolApproval.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useToolApproval.ts#L14)
+Defined in: [chat/react/useToolApproval.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useToolApproval.ts#L14)
 
 ***
 
 ### VirtualizeOptions
 
-Defined in: [chat/react/useVirtualMessages.ts:4](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useVirtualMessages.ts#L4)
+Defined in: [chat/react/useVirtualMessages.ts:4](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useVirtualMessages.ts#L4)
 
 Configuration for message list virtualization.
 
@@ -4173,17 +4165,17 @@ Configuration for message list virtualization.
 
 ##### estimatedItemHeight?
 
-> `optional` **estimatedItemHeight**: `number`
+> `optional` **estimatedItemHeight?**: `number`
 
-Defined in: [chat/react/useVirtualMessages.ts:6](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useVirtualMessages.ts#L6)
+Defined in: [chat/react/useVirtualMessages.ts:6](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useVirtualMessages.ts#L6)
 
 Estimated height of each message item in pixels (default: 80).
 
 ##### overscan?
 
-> `optional` **overscan**: `number`
+> `optional` **overscan?**: `number`
 
-Defined in: [chat/react/useVirtualMessages.ts:8](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useVirtualMessages.ts#L8)
+Defined in: [chat/react/useVirtualMessages.ts:8](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useVirtualMessages.ts#L8)
 
 Number of extra items to render above and below the visible area (default: 3).
 
@@ -4191,7 +4183,7 @@ Number of extra items to render above and below the visible area (default: 3).
 
 ### VirtualMessagesResult
 
-Defined in: [chat/react/useVirtualMessages.ts:12](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useVirtualMessages.ts#L12)
+Defined in: [chat/react/useVirtualMessages.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useVirtualMessages.ts#L12)
 
 Result of the useVirtualMessages hook.
 
@@ -4207,15 +4199,15 @@ Result of the useVirtualMessages hook.
 
 > **bottomSpacerHeight**: `number`
 
-Defined in: [chat/react/useVirtualMessages.ts:22](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useVirtualMessages.ts#L22)
+Defined in: [chat/react/useVirtualMessages.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useVirtualMessages.ts#L22)
 
 Height of the spacer below rendered items (px).
 
-##### containerRef()
+##### containerRef
 
 > **containerRef**: (`el`) => `void`
 
-Defined in: [chat/react/useVirtualMessages.ts:28](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useVirtualMessages.ts#L28)
+Defined in: [chat/react/useVirtualMessages.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useVirtualMessages.ts#L28)
 
 Ref callback to measure container on mount.
 
@@ -4223,7 +4215,7 @@ Ref callback to measure container on mount.
 
 ###### el
 
-`HTMLElement` | `null`
+`HTMLElement` \| `null`
 
 ###### Returns
 
@@ -4233,15 +4225,15 @@ Ref callback to measure container on mount.
 
 > **endIndex**: `number`
 
-Defined in: [chat/react/useVirtualMessages.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useVirtualMessages.ts#L18)
+Defined in: [chat/react/useVirtualMessages.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useVirtualMessages.ts#L18)
 
 End index (exclusive) in the original array.
 
-##### onScroll()
+##### onScroll
 
 > **onScroll**: (`event`) => `void`
 
-Defined in: [chat/react/useVirtualMessages.ts:26](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useVirtualMessages.ts#L26)
+Defined in: [chat/react/useVirtualMessages.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useVirtualMessages.ts#L26)
 
 Scroll event handler to attach to the container.
 
@@ -4269,7 +4261,7 @@ Scroll event handler to attach to the container.
 
 > **startIndex**: `number`
 
-Defined in: [chat/react/useVirtualMessages.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useVirtualMessages.ts#L16)
+Defined in: [chat/react/useVirtualMessages.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useVirtualMessages.ts#L16)
 
 Start index in the original array.
 
@@ -4277,7 +4269,7 @@ Start index in the original array.
 
 > **topSpacerHeight**: `number`
 
-Defined in: [chat/react/useVirtualMessages.ts:20](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useVirtualMessages.ts#L20)
+Defined in: [chat/react/useVirtualMessages.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useVirtualMessages.ts#L20)
 
 Height of the spacer above rendered items (px).
 
@@ -4285,7 +4277,7 @@ Height of the spacer above rendered items (px).
 
 > **totalHeight**: `number`
 
-Defined in: [chat/react/useVirtualMessages.ts:24](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useVirtualMessages.ts#L24)
+Defined in: [chat/react/useVirtualMessages.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useVirtualMessages.ts#L24)
 
 Total estimated height of all items (px).
 
@@ -4293,17 +4285,17 @@ Total estimated height of all items (px).
 
 > **visibleItems**: `T`[]
 
-Defined in: [chat/react/useVirtualMessages.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useVirtualMessages.ts#L14)
+Defined in: [chat/react/useVirtualMessages.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useVirtualMessages.ts#L14)
 
 Slice of items to actually render.
 
 ## Type Aliases
 
-### AuthFormComponent()
+### AuthFormComponent
 
 > **AuthFormComponent** = (`props`) => `ReactNode`
 
-Defined in: [chat/react/auth/types.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/types.ts#L16)
+Defined in: [chat/react/auth/types.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/types.ts#L16)
 
 A backend auth form component.
 
@@ -4323,7 +4315,7 @@ A backend auth form component.
 
 > **RemoteAuthBackend** = `"copilot"` \| `"claude"` \| `"vercel-ai"`
 
-Defined in: [chat/react/useRemoteAuth.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L18)
+Defined in: [chat/react/useRemoteAuth.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L18)
 
 Supported remote auth backends.
 
@@ -4333,7 +4325,7 @@ Supported remote auth backends.
 
 > **RemoteAuthStatus** = `"idle"` \| `"pending"` \| `"authenticated"` \| `"error"`
 
-Defined in: [chat/react/useRemoteAuth.ts:21](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L21)
+Defined in: [chat/react/useRemoteAuth.ts:21](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L21)
 
 Auth status state machine: idle → pending → authenticated | error.
 
@@ -4343,7 +4335,7 @@ Auth status state machine: idle → pending → authenticated | error.
 
 > **RemoteChatPhase** = `"initializing"` \| `"unauthenticated"` \| `"authenticating"` \| `"creating"` \| `"ready"` \| `"error"`
 
-Defined in: [chat/react/useRemoteChat.ts:18](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteChat.ts#L18)
+Defined in: [chat/react/useRemoteChat.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteChat.ts#L18)
 
 Lifecycle phase for the useRemoteChat hook.
 
@@ -4353,7 +4345,7 @@ Lifecycle phase for the useRemoteChat hook.
 
 > **SSEStatus** = `"idle"` \| `"connecting"` \| `"open"` \| `"closed"` \| `"error"`
 
-Defined in: [chat/react/useSSE.ts:5](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSSE.ts#L5)
+Defined in: [chat/react/useSSE.ts:5](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSSE.ts#L5)
 
 Connection status of the SSE hook.
 
@@ -4363,7 +4355,7 @@ Connection status of the SSE hook.
 
 > **BackendSelector**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/BackendSelector.ts:23](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/BackendSelector.ts#L23)
+Defined in: [chat/react/BackendSelector.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/BackendSelector.ts#L23)
 
 Headless backend selector showing registered backends with active indicator.
 Uses data attributes for styling:
@@ -4388,7 +4380,7 @@ Uses data attributes for styling:
 
 > **ChatHeader**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/ChatHeader.ts:42](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatHeader.ts#L42)
+Defined in: [chat/react/ChatHeader.ts:42](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatHeader.ts#L42)
 
 Header area with backend and model selectors.
 Returns null when no selectors need to be shown.
@@ -4409,7 +4401,7 @@ Returns null when no selectors need to be shown.
 
 > **ChatInputArea**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/ChatInputArea.ts:50](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatInputArea.ts#L50)
+Defined in: [chat/react/ChatInputArea.ts:50](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatInputArea.ts#L50)
 
 Input area — unified selector + composer in a `[data-chat-input-area]` container.
 
@@ -4429,7 +4421,7 @@ Input area — unified selector + composer in a `[data-chat-input-area]` contain
 
 > **ChatLayout**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/ChatLayout.ts:30](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatLayout.ts#L30)
+Defined in: [chat/react/ChatLayout.ts:30](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatLayout.ts#L30)
 
 Pure layout container — flex row with optional sidebar and overlay.
 
@@ -4454,7 +4446,7 @@ Renders `[data-chat-ui]` root with:
 
 > **ChatProvider**(`__namedParameters`): `FunctionComponentElement`\<`ProviderProps`\<[`IChatClient`](../../../chat/runtime.md#ichatclient)\<`Record`\<`string`, `unknown`\>\> \| `null`\>\>
 
-Defined in: [chat/react/ChatProvider.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatProvider.ts#L17)
+Defined in: [chat/react/ChatProvider.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatProvider.ts#L17)
 
 React context provider wrapping IChatClient.
 All chat hooks must be used within a ChatProvider.
@@ -4475,7 +4467,7 @@ All chat hooks must be used within a ChatProvider.
 
 > **ChatSettingsOverlay**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/ChatSettingsOverlay.ts:43](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L43)
+Defined in: [chat/react/ChatSettingsOverlay.ts:43](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatSettingsOverlay.ts#L43)
 
 Settings modal — renders `[data-provider-settings-overlay]` when open.
 Returns null when closed.
@@ -4498,7 +4490,7 @@ Focus is trapped within the overlay content.
 
 > **ChatUI**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/ChatUI.ts:302](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatUI.ts#L302)
+Defined in: [chat/react/ChatUI.ts:302](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatUI.ts#L302)
 
 Composite chat component — complete AI chat interface in one import.
 
@@ -4526,7 +4518,7 @@ function App() {
 
 > **ClaudeAuthForm**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/auth/ClaudeAuthForm.ts:12](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/ClaudeAuthForm.ts#L12)
+Defined in: [chat/react/auth/ClaudeAuthForm.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/ClaudeAuthForm.ts#L12)
 
 Claude auth form — OAuth Authorization Code + PKCE.
 
@@ -4551,7 +4543,7 @@ Co-located with the Claude backend.
 
 > **Composer**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/Composer.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Composer.ts#L25)
+Defined in: [chat/react/Composer.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Composer.ts#L25)
 
 Headless composer component for sending messages.
 Includes auto-resizing textarea, send/stop buttons, and keyboard shortcuts.
@@ -4572,7 +4564,7 @@ Includes auto-resizing textarea, send/stop buttons, and keyboard shortcuts.
 
 > **ContextStatsDisplay**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/ContextStatsDisplay.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ContextStatsDisplay.ts#L27)
+Defined in: [chat/react/ContextStatsDisplay.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ContextStatsDisplay.ts#L27)
 
 Headless component displaying context window statistics.
 
@@ -4598,7 +4590,7 @@ All elements use `data-*` attributes for CSS styling — no inline styles.
 
 > **CopilotAuthForm**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/auth/CopilotAuthForm.ts:12](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/CopilotAuthForm.ts#L12)
+Defined in: [chat/react/auth/CopilotAuthForm.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/CopilotAuthForm.ts#L12)
 
 Copilot (GitHub) auth form — device flow.
 
@@ -4623,7 +4615,7 @@ Co-located with the Copilot backend.
 
 > **MarkdownRenderer**(`props`): `ReactNode`
 
-Defined in: [chat/react/MarkdownRenderer.ts:213](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/MarkdownRenderer.ts#L213)
+Defined in: [chat/react/MarkdownRenderer.ts:213](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/MarkdownRenderer.ts#L213)
 
 Headless markdown renderer.
 Parses markdown text to semantic HTML elements via createElement.
@@ -4646,7 +4638,7 @@ links, blockquotes, and lists. No external dependencies.
 
 > **Message**(`props`): `ReactNode`
 
-Defined in: [chat/react/Message.ts:72](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Message.ts#L72)
+Defined in: [chat/react/Message.ts:72](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Message.ts#L72)
 
 Headless message component rendering ChatMessage parts.
 Wraps parts in a div with data-role and data-status attributes.
@@ -4667,7 +4659,7 @@ Wraps parts in a div with data-role and data-status attributes.
 
 > **ModelSelector**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/ModelSelector.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ModelSelector.ts#L27)
+Defined in: [chat/react/ModelSelector.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ModelSelector.ts#L27)
 
 Dropdown model selector with search and keyboard navigation.
 Falls back to a free-text input when models list is empty.
@@ -4688,7 +4680,7 @@ Falls back to a free-text input when models list is empty.
 
 > **PermissionDialog**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/PermissionDialog.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/PermissionDialog.ts#L29)
+Defined in: [chat/react/PermissionDialog.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/PermissionDialog.ts#L29)
 
 Headless permission dialog component for tool approval flows.
 
@@ -4713,7 +4705,7 @@ Returns `null` when there are no pending requests.
 
 > **ProviderModelSelector**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/ProviderModelSelector.ts:47](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderModelSelector.ts#L47)
+Defined in: [chat/react/ProviderModelSelector.ts:47](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderModelSelector.ts#L47)
 
 Unified selector that shows providers when available, falls back to model list.
 Replaces the need for separate ProviderSelector + ModelSelector in ChatUI.
@@ -4734,7 +4726,7 @@ Replaces the need for separate ProviderSelector + ModelSelector in ChatUI.
 
 > **ProviderSelector**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/ProviderSelector.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderSelector.ts#L25)
+Defined in: [chat/react/ProviderSelector.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderSelector.ts#L25)
 
 Headless dropdown for selecting a configured provider.
 Uses data attributes for styling hooks. Follows ModelSelector pattern.
@@ -4755,7 +4747,7 @@ Uses data attributes for styling hooks. Follows ModelSelector pattern.
 
 > **ProviderSettings**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/ProviderSettings.ts:50](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ProviderSettings.ts#L50)
+Defined in: [chat/react/ProviderSettings.ts:50](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ProviderSettings.ts#L50)
 
 Headless settings panel for managing providers.
 States: list (all providers), add (new provider flow), edit (existing).
@@ -4776,7 +4768,7 @@ States: list (all providers), add (new provider flow), edit (existing).
 
 > **ThinkingBlock**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/ThinkingBlock.ts:14](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThinkingBlock.ts#L14)
+Defined in: [chat/react/ThinkingBlock.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThinkingBlock.ts#L14)
 
 Headless thinking/reasoning block using native details/summary elements.
 Displays "Thinking..." while streaming, "Reasoning" when complete.
@@ -4797,7 +4789,7 @@ Displays "Thinking..." while streaming, "Reasoning" when complete.
 
 > **Thread**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/Thread.ts:33](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/Thread.ts#L33)
+Defined in: [chat/react/Thread.ts:33](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/Thread.ts#L33)
 
 Headless thread component wrapping a scrollable message list.
 Auto-scrolls to bottom when new messages arrive unless user has scrolled up.
@@ -4819,7 +4811,7 @@ Shows a scroll-to-bottom button when scrolled up and an empty state when no mess
 
 > **ThreadList**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/ThreadList.ts:59](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadList.ts#L59)
+Defined in: [chat/react/ThreadList.ts:59](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadList.ts#L59)
 
 Session sidebar component for listing, searching, creating, and deleting sessions.
 
@@ -4839,7 +4831,7 @@ Session sidebar component for listing, searching, creating, and deleting session
 
 > **ThreadProvider**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/ThreadSlots.ts:28](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadSlots.ts#L28)
+Defined in: [chat/react/ThreadSlots.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadSlots.ts#L28)
 
 Provides slot-based customization for Thread message rendering.
 Wrap a Thread in ThreadProvider to override how messages, tool calls,
@@ -4861,7 +4853,7 @@ or thinking blocks are rendered.
 
 > **ToolCallView**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/ToolCallView.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ToolCallView.ts#L17)
+Defined in: [chat/react/ToolCallView.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ToolCallView.ts#L17)
 
 Headless tool call display component.
 Shows tool name, status, collapsible args/result, and approval buttons when needed.
@@ -4882,7 +4874,7 @@ Shows tool name, status, collapsible args/result, and approval buttons when need
 
 > **UsageBadge**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/UsageBadge.ts:11](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/UsageBadge.ts#L11)
+Defined in: [chat/react/UsageBadge.ts:11](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/UsageBadge.ts#L11)
 
 Compact token usage display. Shows prompt/completion/total tokens.
 
@@ -4902,7 +4894,7 @@ Compact token usage display. Shows prompt/completion/total tokens.
 
 > **useApiKeyAuth**(`options`): [`UseApiKeyAuthReturn`](#useapikeyauthreturn)
 
-Defined in: [chat/react/auth/useApiKeyAuth.ts:39](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L39)
+Defined in: [chat/react/auth/useApiKeyAuth.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useApiKeyAuth.ts#L39)
 
 API key authentication.
 Sends key to server for validation and storage.
@@ -4923,7 +4915,7 @@ Sends key to server for validation and storage.
 
 > **useBackends**(): [`UseBackendsReturn`](#usebackendsreturn)
 
-Defined in: [chat/react/useBackends.ts:16](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useBackends.ts#L16)
+Defined in: [chat/react/useBackends.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useBackends.ts#L16)
 
 Hook for discovering registered backends and switching between them.
 
@@ -4937,7 +4929,7 @@ Hook for discovering registered backends and switching between them.
 
 > **useChat**(`options?`): [`UseChatReturn`](#usechatreturn)
 
-Defined in: [chat/react/useChat.ts:56](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useChat.ts#L56)
+Defined in: [chat/react/useChat.ts:56](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useChat.ts#L56)
 
 Convenience hook for chat interaction.
 Wraps IChatRuntime with React state management and progressive streaming.
@@ -4959,7 +4951,7 @@ Messages update in real-time as tokens arrive (not after full response).
 
 > **useChatRuntime**(): [`IChatClient`](../../../chat/runtime.md#ichatclient)
 
-Defined in: [chat/react/ChatProvider.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ChatProvider.ts#L27)
+Defined in: [chat/react/ChatProvider.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ChatProvider.ts#L27)
 
 Access the IChatClient from context.
 Must be used within a ChatProvider.
@@ -4978,7 +4970,7 @@ If used outside ChatProvider
 
 > **useClaudeAuth**(`options`): [`UseClaudeAuthReturn`](#useclaudeauthreturn)
 
-Defined in: [chat/react/auth/useClaudeAuth.ts:42](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L42)
+Defined in: [chat/react/auth/useClaudeAuth.ts:42](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useClaudeAuth.ts#L42)
 
 Claude OAuth + PKCE authentication.
 Two-step flow: start() gets authorizeUrl → user redirects → complete(code) finishes.
@@ -4999,7 +4991,7 @@ Two-step flow: start() gets authorizeUrl → user redirects → complete(code) f
 
 > **useCopilotAuth**(`options`): [`UseCopilotAuthReturn`](#usecopilotauthreturn)
 
-Defined in: [chat/react/auth/useCopilotAuth.ts:41](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L41)
+Defined in: [chat/react/auth/useCopilotAuth.ts:41](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/useCopilotAuth.ts#L41)
 
 Copilot Device Flow authentication.
 Starts device flow on server, provides code/URL for user, polls until complete.
@@ -5020,7 +5012,7 @@ Starts device flow on server, provides code/URL for user, polls until complete.
 
 > **useMessages**(`options`): [`UseMessagesReturn`](#usemessagesreturn)
 
-Defined in: [chat/react/useMessages.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useMessages.ts#L29)
+Defined in: [chat/react/useMessages.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useMessages.ts#L29)
 
 Reactive message list via useSyncExternalStore.
 
@@ -5044,7 +5036,7 @@ Otherwise, falls back to polling via getSession().
 
 > **useModels**(): [`UseModelsReturn`](#usemodelsreturn)
 
-Defined in: [chat/react/useModels.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useModels.ts#L25)
+Defined in: [chat/react/useModels.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useModels.ts#L25)
 
 Hook for fetching and searching available models from the chat runtime.
 
@@ -5058,7 +5050,7 @@ Hook for fetching and searching available models from the chat runtime.
 
 > **useOptionalThreadSlots**(): [`ThreadSlotOverrides`](#threadslotoverrides) \| `null`
 
-Defined in: [chat/react/ThreadSlots.ts:54](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadSlots.ts#L54)
+Defined in: [chat/react/ThreadSlots.ts:54](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadSlots.ts#L54)
 
 Access slot overrides if inside a ThreadProvider, or null if not.
 Safe to call without a ThreadProvider ancestor.
@@ -5073,7 +5065,7 @@ Safe to call without a ThreadProvider ancestor.
 
 > **useProviders**(): [`UseProvidersReturn`](#useprovidersreturn)
 
-Defined in: [chat/react/useProviders.ts:39](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useProviders.ts#L39)
+Defined in: [chat/react/useProviders.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useProviders.ts#L39)
 
 Hook for managing providers (backend + model combos).
 Requires an IChatClient with provider methods (e.g. RemoteChatClient).
@@ -5088,7 +5080,7 @@ Requires an IChatClient with provider methods (e.g. RemoteChatClient).
 
 > **useRemoteAuth**(`options`): [`UseRemoteAuthReturn`](#useremoteauthreturn)
 
-Defined in: [chat/react/useRemoteAuth.ts:82](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteAuth.ts#L82)
+Defined in: [chat/react/useRemoteAuth.ts:82](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteAuth.ts#L82)
 
 Server-delegated authentication hook.
 
@@ -5126,7 +5118,7 @@ const auth = useRemoteAuth({
 
 > **useRemoteChat**(`options`): [`UseRemoteChatReturn`](#useremotechatreturn)
 
-Defined in: [chat/react/useRemoteChat.ts:79](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useRemoteChat.ts#L79)
+Defined in: [chat/react/useRemoteChat.ts:79](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useRemoteChat.ts#L79)
 
 Lifecycle hook: auth → runtime → session.
 
@@ -5163,7 +5155,7 @@ if (chat.phase === "ready" && chat.runtime) {
 
 > **useSessions**(): [`UseSessionsReturn`](#usesessionsreturn)
 
-Defined in: [chat/react/useSessions.ts:43](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSessions.ts#L43)
+Defined in: [chat/react/useSessions.ts:43](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSessions.ts#L43)
 
 Reactive session list hook.
 Subscribes to `runtime.onSessionChange()` and refreshes the list automatically
@@ -5179,7 +5171,7 @@ on create, delete, and message send completion.
 
 > **useSSE**(`url`, `options?`): [`UseSSEReturn`](#usessereturn)
 
-Defined in: [chat/react/useSSE.ts:32](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useSSE.ts#L32)
+Defined in: [chat/react/useSSE.ts:32](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useSSE.ts#L32)
 
 SSE transport hook using fetch (not EventSource).
 Parses text/event-stream format with support for multi-line data and event types.
@@ -5188,7 +5180,7 @@ Parses text/event-stream format with support for multi-line data and event types
 
 ##### url
 
-`string` | `null`
+`string` \| `null`
 
 ##### options?
 
@@ -5204,7 +5196,7 @@ Parses text/event-stream format with support for multi-line data and event types
 
 > **useThreadSlots**(): [`ThreadSlotOverrides`](#threadslotoverrides)
 
-Defined in: [chat/react/ThreadSlots.ts:42](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/ThreadSlots.ts#L42)
+Defined in: [chat/react/ThreadSlots.ts:42](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/ThreadSlots.ts#L42)
 
 Access slot overrides from ThreadProvider context.
 
@@ -5222,7 +5214,7 @@ If used outside a ThreadProvider
 
 > **useToolApproval**(`messages`, `onApprove?`, `onDeny?`): [`UseToolApprovalReturn`](#usetoolapprovalreturn)
 
-Defined in: [chat/react/useToolApproval.ts:30](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useToolApproval.ts#L30)
+Defined in: [chat/react/useToolApproval.ts:30](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useToolApproval.ts#L30)
 
 Hook that tracks tool calls requiring approval from messages.
 
@@ -5260,7 +5252,7 @@ Called when a tool call is denied
 
 > **useVirtualMessages**\<`T`\>(`items`, `options?`): [`VirtualMessagesResult`](#virtualmessagesresult)\<`T`\>
 
-Defined in: [chat/react/useVirtualMessages.ts:40](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/useVirtualMessages.ts#L40)
+Defined in: [chat/react/useVirtualMessages.ts:40](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/useVirtualMessages.ts#L40)
 
 Hook providing windowed rendering for a list of items.
 
@@ -5297,7 +5289,7 @@ Virtualization config
 
 > **VercelAIAuthForm**(`__namedParameters`): `ReactNode`
 
-Defined in: [chat/react/auth/VercelAIAuthForm.ts:11](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/react/auth/VercelAIAuthForm.ts#L11)
+Defined in: [chat/react/auth/VercelAIAuthForm.ts:11](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/react/auth/VercelAIAuthForm.ts#L11)
 
 Vercel AI auth form — API key + optional base URL.
 

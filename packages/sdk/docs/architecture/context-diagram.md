@@ -12,7 +12,7 @@ graph TB
     SDK["@witqq/agent-sdk<br/>TypeScript npm package"]
     CopilotCLI["GitHub Copilot CLI<br/>(subprocess)"]
     ClaudeCLI["Claude CLI<br/>(subprocess)"]
-    VercelAPI["Vercel AI SDK v6<br/>(HTTP API)"]
+    VercelAPI["Vercel AI SDK v7<br/>(HTTP API)"]
     GitHub["GitHub OAuth<br/>(Device Flow)"]
     Anthropic["Anthropic OAuth<br/>(PKCE)"]
     SQLiteDB[("SQLite<br/>(optional)")]
@@ -33,7 +33,7 @@ graph TB
 |--------|----------|---------|
 | GitHub Copilot CLI | subprocess (stdio) | Agent execution with GitHub auth |
 | Claude CLI | subprocess (stdio) | Agent execution with Anthropic auth |
-| Vercel AI SDK v6 | HTTP (OpenAI-compatible) | Agent execution with API key |
+| Vercel AI SDK v7 | HTTP (OpenAI-compatible) | Agent execution with API key |
 | GitHub OAuth | HTTPS (Device Flow) | Copilot authentication |
 | Anthropic OAuth | HTTPS (Authorization Code + PKCE) | Claude authentication |
 | SQLite | better-sqlite3 (file) | Session, provider, token storage |

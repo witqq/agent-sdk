@@ -10,7 +10,7 @@ sidebar:
 
 ### FileSessionStore
 
-Defined in: [chat/sessions.ts:292](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L292)
+Defined in: [chat/sessions.ts:292](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L292)
 
 File-based session store. Each session is a JSON file on disk.
 Uses `FileStorage` internally.
@@ -34,7 +34,7 @@ const session = await store.createSession({
 
 > **new FileSessionStore**(`options`): [`FileSessionStore`](#filesessionstore)
 
-Defined in: [chat/sessions.ts:293](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L293)
+Defined in: [chat/sessions.ts:293](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L293)
 
 ###### Parameters
 
@@ -56,7 +56,7 @@ Defined in: [chat/sessions.ts:293](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > `protected` `readonly` **adapter**: [`IStorageAdapter`](/api-reference/chat/storage/#istorageadapter)\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\>\>
 
-Defined in: [chat/sessions.ts:116](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L116)
+Defined in: [chat/sessions.ts:116](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L116)
 
 ###### Inherited from
 
@@ -68,7 +68,7 @@ Defined in: [chat/sessions.ts:116](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **appendMessage**(`sessionId`, `message`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:179](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L179)
+Defined in: [chat/sessions.ts:179](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L179)
 
 ###### Parameters
 
@@ -92,7 +92,7 @@ Defined in: [chat/sessions.ts:179](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **clear**(): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:247](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L247)
+Defined in: [chat/sessions.ts:247](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L247)
 
 ###### Returns
 
@@ -106,7 +106,7 @@ Defined in: [chat/sessions.ts:247](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **count**(): `Promise`\<`number`\>
 
-Defined in: [chat/sessions.ts:243](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L243)
+Defined in: [chat/sessions.ts:243](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L243)
 
 ###### Returns
 
@@ -120,7 +120,7 @@ Defined in: [chat/sessions.ts:243](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **createSession**(`options`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\>\>
 
-Defined in: [chat/sessions.ts:118](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L118)
+Defined in: [chat/sessions.ts:118](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L118)
 
 ###### Parameters
 
@@ -140,7 +140,7 @@ Defined in: [chat/sessions.ts:118](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **deleteSession**(`id`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:175](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L175)
+Defined in: [chat/sessions.ts:175](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L175)
 
 ###### Parameters
 
@@ -160,7 +160,7 @@ Defined in: [chat/sessions.ts:175](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **getSession**(`id`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\> \| `null`\>
 
-Defined in: [chat/sessions.ts:144](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L144)
+Defined in: [chat/sessions.ts:144](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L144)
 
 ###### Parameters
 
@@ -180,7 +180,7 @@ Defined in: [chat/sessions.ts:144](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **listSessions**(`options?`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\>[]\>
 
-Defined in: [chat/sessions.ts:148](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L148)
+Defined in: [chat/sessions.ts:148](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L148)
 
 ###### Parameters
 
@@ -200,7 +200,7 @@ Defined in: [chat/sessions.ts:148](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **loadMessages**(`sessionId`, `options?`): `Promise`\<[`PaginatedMessages`](#paginatedmessages)\>
 
-Defined in: [chat/sessions.ts:204](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L204)
+Defined in: [chat/sessions.ts:204](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L204)
 
 ###### Parameters
 
@@ -230,7 +230,7 @@ Defined in: [chat/sessions.ts:204](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **saveMessages**(`sessionId`, `messages`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:190](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L190)
+Defined in: [chat/sessions.ts:190](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L190)
 
 ###### Parameters
 
@@ -254,7 +254,7 @@ Defined in: [chat/sessions.ts:190](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **searchSessions**(`options`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\>[]\>
 
-Defined in: [chat/sessions.ts:223](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L223)
+Defined in: [chat/sessions.ts:223](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L223)
 
 ###### Parameters
 
@@ -274,7 +274,7 @@ Defined in: [chat/sessions.ts:223](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **updateConfig**(`id`, `config`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:162](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L162)
+Defined in: [chat/sessions.ts:162](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L162)
 
 ###### Parameters
 
@@ -298,7 +298,7 @@ Defined in: [chat/sessions.ts:162](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **updateTitle**(`id`, `title`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:152](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L152)
+Defined in: [chat/sessions.ts:152](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L152)
 
 ###### Parameters
 
@@ -322,7 +322,7 @@ Defined in: [chat/sessions.ts:152](https://github.com/witqq/agent-sdk/blob/9c35a
 
 ### InMemorySessionStore
 
-Defined in: [chat/sessions.ts:266](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L266)
+Defined in: [chat/sessions.ts:266](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L266)
 
 In-memory session store. Data is lost when the process exits.
 Uses `InMemoryStorage` internally.
@@ -346,7 +346,7 @@ const session = await store.createSession({
 
 > **new InMemorySessionStore**(): [`InMemorySessionStore`](#inmemorysessionstore)
 
-Defined in: [chat/sessions.ts:267](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L267)
+Defined in: [chat/sessions.ts:267](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L267)
 
 ###### Returns
 
@@ -362,7 +362,7 @@ Defined in: [chat/sessions.ts:267](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > `protected` `readonly` **adapter**: [`IStorageAdapter`](/api-reference/chat/storage/#istorageadapter)\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\>\>
 
-Defined in: [chat/sessions.ts:116](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L116)
+Defined in: [chat/sessions.ts:116](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L116)
 
 ###### Inherited from
 
@@ -374,7 +374,7 @@ Defined in: [chat/sessions.ts:116](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **appendMessage**(`sessionId`, `message`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:179](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L179)
+Defined in: [chat/sessions.ts:179](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L179)
 
 ###### Parameters
 
@@ -398,7 +398,7 @@ Defined in: [chat/sessions.ts:179](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **clear**(): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:247](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L247)
+Defined in: [chat/sessions.ts:247](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L247)
 
 ###### Returns
 
@@ -412,7 +412,7 @@ Defined in: [chat/sessions.ts:247](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **count**(): `Promise`\<`number`\>
 
-Defined in: [chat/sessions.ts:243](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L243)
+Defined in: [chat/sessions.ts:243](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L243)
 
 ###### Returns
 
@@ -426,7 +426,7 @@ Defined in: [chat/sessions.ts:243](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **createSession**(`options`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\>\>
 
-Defined in: [chat/sessions.ts:118](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L118)
+Defined in: [chat/sessions.ts:118](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L118)
 
 ###### Parameters
 
@@ -446,7 +446,7 @@ Defined in: [chat/sessions.ts:118](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **deleteSession**(`id`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:175](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L175)
+Defined in: [chat/sessions.ts:175](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L175)
 
 ###### Parameters
 
@@ -466,7 +466,7 @@ Defined in: [chat/sessions.ts:175](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **getSession**(`id`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\> \| `null`\>
 
-Defined in: [chat/sessions.ts:144](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L144)
+Defined in: [chat/sessions.ts:144](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L144)
 
 ###### Parameters
 
@@ -486,7 +486,7 @@ Defined in: [chat/sessions.ts:144](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **listSessions**(`options?`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\>[]\>
 
-Defined in: [chat/sessions.ts:148](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L148)
+Defined in: [chat/sessions.ts:148](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L148)
 
 ###### Parameters
 
@@ -506,7 +506,7 @@ Defined in: [chat/sessions.ts:148](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **loadMessages**(`sessionId`, `options?`): `Promise`\<[`PaginatedMessages`](#paginatedmessages)\>
 
-Defined in: [chat/sessions.ts:204](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L204)
+Defined in: [chat/sessions.ts:204](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L204)
 
 ###### Parameters
 
@@ -536,7 +536,7 @@ Defined in: [chat/sessions.ts:204](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **saveMessages**(`sessionId`, `messages`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:190](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L190)
+Defined in: [chat/sessions.ts:190](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L190)
 
 ###### Parameters
 
@@ -560,7 +560,7 @@ Defined in: [chat/sessions.ts:190](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **searchSessions**(`options`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\>[]\>
 
-Defined in: [chat/sessions.ts:223](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L223)
+Defined in: [chat/sessions.ts:223](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L223)
 
 ###### Parameters
 
@@ -580,7 +580,7 @@ Defined in: [chat/sessions.ts:223](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **updateConfig**(`id`, `config`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:162](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L162)
+Defined in: [chat/sessions.ts:162](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L162)
 
 ###### Parameters
 
@@ -604,7 +604,7 @@ Defined in: [chat/sessions.ts:162](https://github.com/witqq/agent-sdk/blob/9c35a
 
 > **updateTitle**(`id`, `title`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:152](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L152)
+Defined in: [chat/sessions.ts:152](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L152)
 
 ###### Parameters
 
@@ -628,7 +628,7 @@ Defined in: [chat/sessions.ts:152](https://github.com/witqq/agent-sdk/blob/9c35a
 
 ### CreateSessionOptions
 
-Defined in: [chat/sessions.ts:23](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L23)
+Defined in: [chat/sessions.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L23)
 
 Options for creating a new session
 
@@ -642,33 +642,33 @@ Options for creating a new session
 
 ##### config?
 
-> `optional` **config**: `Partial`\<[`ChatSessionConfig`](/api-reference/chat/index-exports/#chatsessionconfig-1)\>
+> `optional` **config?**: `Partial`\<[`ChatSessionConfig`](/api-reference/chat/index-exports/#chatsessionconfig-1)\>
 
-Defined in: [chat/sessions.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L27)
+Defined in: [chat/sessions.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L27)
 
 Session configuration (optional — runtime defaults used when omitted)
 
 ##### custom?
 
-> `optional` **custom**: `TCustom`
+> `optional` **custom?**: `TCustom`
 
-Defined in: [chat/sessions.ts:31](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L31)
+Defined in: [chat/sessions.ts:31](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L31)
 
 Custom metadata
 
 ##### tags?
 
-> `optional` **tags**: `string`[]
+> `optional` **tags?**: `string`[]
 
-Defined in: [chat/sessions.ts:29](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L29)
+Defined in: [chat/sessions.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L29)
 
 Initial tags
 
 ##### title?
 
-> `optional` **title**: `string`
+> `optional` **title?**: `string`
 
-Defined in: [chat/sessions.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L25)
+Defined in: [chat/sessions.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L25)
 
 Session title (defaults to "Untitled")
 
@@ -676,7 +676,7 @@ Session title (defaults to "Untitled")
 
 ### FileSessionStoreOptions
 
-Defined in: [chat/sessions.ts:275](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L275)
+Defined in: [chat/sessions.ts:275](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L275)
 
 Configuration for FileSessionStore
 
@@ -686,7 +686,7 @@ Configuration for FileSessionStore
 
 > **directory**: `string`
 
-Defined in: [chat/sessions.ts:277](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L277)
+Defined in: [chat/sessions.ts:277](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L277)
 
 Directory to store session JSON files
 
@@ -694,7 +694,7 @@ Directory to store session JSON files
 
 ### IChatSessionStore
 
-Defined in: [chat/sessions.ts:107](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L107)
+Defined in: [chat/sessions.ts:107](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L107)
 
 Full session store interface — union of reader and writer.
 Backward-compatible: all existing implementations continue to work.
@@ -718,7 +718,7 @@ const page = await store.loadMessages(session.id, { limit: 20, offset: 0 });
 
 > **appendMessage**(`sessionId`, `message`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:88](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L88)
+Defined in: [chat/sessions.ts:88](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L88)
 
 ###### Parameters
 
@@ -742,7 +742,7 @@ Defined in: [chat/sessions.ts:88](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **clear**(): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:90](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L90)
+Defined in: [chat/sessions.ts:90](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L90)
 
 ###### Returns
 
@@ -756,7 +756,7 @@ Defined in: [chat/sessions.ts:90](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **count**(): `Promise`\<`number`\>
 
-Defined in: [chat/sessions.ts:76](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L76)
+Defined in: [chat/sessions.ts:76](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L76)
 
 ###### Returns
 
@@ -770,7 +770,7 @@ Defined in: [chat/sessions.ts:76](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **createSession**(`options`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\>\>
 
-Defined in: [chat/sessions.ts:84](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L84)
+Defined in: [chat/sessions.ts:84](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L84)
 
 ###### Parameters
 
@@ -790,7 +790,7 @@ Defined in: [chat/sessions.ts:84](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **deleteSession**(`id`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:87](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L87)
+Defined in: [chat/sessions.ts:87](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L87)
 
 ###### Parameters
 
@@ -810,7 +810,7 @@ Defined in: [chat/sessions.ts:87](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > `optional` **dispose**(): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:92](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L92)
+Defined in: [chat/sessions.ts:92](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L92)
 
 Release any resources held by this store (optional).
 
@@ -826,7 +826,7 @@ Release any resources held by this store (optional).
 
 > **getSession**(`id`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\> \| `null`\>
 
-Defined in: [chat/sessions.ts:69](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L69)
+Defined in: [chat/sessions.ts:69](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L69)
 
 ###### Parameters
 
@@ -846,7 +846,7 @@ Defined in: [chat/sessions.ts:69](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **listSessions**(`options?`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\>[]\>
 
-Defined in: [chat/sessions.ts:70](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L70)
+Defined in: [chat/sessions.ts:70](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L70)
 
 ###### Parameters
 
@@ -866,7 +866,7 @@ Defined in: [chat/sessions.ts:70](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **loadMessages**(`sessionId`, `options?`): `Promise`\<[`PaginatedMessages`](#paginatedmessages)\>
 
-Defined in: [chat/sessions.ts:71](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L71)
+Defined in: [chat/sessions.ts:71](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L71)
 
 ###### Parameters
 
@@ -896,7 +896,7 @@ Defined in: [chat/sessions.ts:71](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **saveMessages**(`sessionId`, `messages`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:89](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L89)
+Defined in: [chat/sessions.ts:89](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L89)
 
 ###### Parameters
 
@@ -920,7 +920,7 @@ Defined in: [chat/sessions.ts:89](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **searchSessions**(`options`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\>[]\>
 
-Defined in: [chat/sessions.ts:75](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L75)
+Defined in: [chat/sessions.ts:75](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L75)
 
 ###### Parameters
 
@@ -940,7 +940,7 @@ Defined in: [chat/sessions.ts:75](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **updateConfig**(`id`, `config`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:86](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L86)
+Defined in: [chat/sessions.ts:86](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L86)
 
 ###### Parameters
 
@@ -964,7 +964,7 @@ Defined in: [chat/sessions.ts:86](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **updateTitle**(`id`, `title`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:85](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L85)
+Defined in: [chat/sessions.ts:85](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L85)
 
 ###### Parameters
 
@@ -988,7 +988,7 @@ Defined in: [chat/sessions.ts:85](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 ### ISessionReader
 
-Defined in: [chat/sessions.ts:68](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L68)
+Defined in: [chat/sessions.ts:68](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L68)
 
 Read-only session operations.
 Consumers needing read-only access (dashboards, analytics) implement only this.
@@ -1003,7 +1003,7 @@ Consumers needing read-only access (dashboards, analytics) implement only this.
 
 > **count**(): `Promise`\<`number`\>
 
-Defined in: [chat/sessions.ts:76](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L76)
+Defined in: [chat/sessions.ts:76](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L76)
 
 ###### Returns
 
@@ -1013,7 +1013,7 @@ Defined in: [chat/sessions.ts:76](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **getSession**(`id`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\> \| `null`\>
 
-Defined in: [chat/sessions.ts:69](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L69)
+Defined in: [chat/sessions.ts:69](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L69)
 
 ###### Parameters
 
@@ -1029,7 +1029,7 @@ Defined in: [chat/sessions.ts:69](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **listSessions**(`options?`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\>[]\>
 
-Defined in: [chat/sessions.ts:70](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L70)
+Defined in: [chat/sessions.ts:70](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L70)
 
 ###### Parameters
 
@@ -1045,7 +1045,7 @@ Defined in: [chat/sessions.ts:70](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **loadMessages**(`sessionId`, `options?`): `Promise`\<[`PaginatedMessages`](#paginatedmessages)\>
 
-Defined in: [chat/sessions.ts:71](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L71)
+Defined in: [chat/sessions.ts:71](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L71)
 
 ###### Parameters
 
@@ -1071,7 +1071,7 @@ Defined in: [chat/sessions.ts:71](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **searchSessions**(`options`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\>[]\>
 
-Defined in: [chat/sessions.ts:75](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L75)
+Defined in: [chat/sessions.ts:75](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L75)
 
 ###### Parameters
 
@@ -1087,7 +1087,7 @@ Defined in: [chat/sessions.ts:75](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 ### ISessionWriter
 
-Defined in: [chat/sessions.ts:83](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L83)
+Defined in: [chat/sessions.ts:83](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L83)
 
 Write/mutate session operations.
 Consumers needing full access implement both ISessionReader & ISessionWriter.
@@ -1102,7 +1102,7 @@ Consumers needing full access implement both ISessionReader & ISessionWriter.
 
 > **appendMessage**(`sessionId`, `message`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:88](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L88)
+Defined in: [chat/sessions.ts:88](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L88)
 
 ###### Parameters
 
@@ -1122,7 +1122,7 @@ Defined in: [chat/sessions.ts:88](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **clear**(): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:90](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L90)
+Defined in: [chat/sessions.ts:90](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L90)
 
 ###### Returns
 
@@ -1132,7 +1132,7 @@ Defined in: [chat/sessions.ts:90](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **createSession**(`options`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\>\>
 
-Defined in: [chat/sessions.ts:84](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L84)
+Defined in: [chat/sessions.ts:84](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L84)
 
 ###### Parameters
 
@@ -1148,7 +1148,7 @@ Defined in: [chat/sessions.ts:84](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **deleteSession**(`id`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:87](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L87)
+Defined in: [chat/sessions.ts:87](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L87)
 
 ###### Parameters
 
@@ -1164,7 +1164,7 @@ Defined in: [chat/sessions.ts:87](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > `optional` **dispose**(): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:92](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L92)
+Defined in: [chat/sessions.ts:92](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L92)
 
 Release any resources held by this store (optional).
 
@@ -1176,7 +1176,7 @@ Release any resources held by this store (optional).
 
 > **saveMessages**(`sessionId`, `messages`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:89](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L89)
+Defined in: [chat/sessions.ts:89](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L89)
 
 ###### Parameters
 
@@ -1196,7 +1196,7 @@ Defined in: [chat/sessions.ts:89](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **updateConfig**(`id`, `config`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:86](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L86)
+Defined in: [chat/sessions.ts:86](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L86)
 
 ###### Parameters
 
@@ -1216,7 +1216,7 @@ Defined in: [chat/sessions.ts:86](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 > **updateTitle**(`id`, `title`): `Promise`\<`void`\>
 
-Defined in: [chat/sessions.ts:85](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L85)
+Defined in: [chat/sessions.ts:85](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L85)
 
 ###### Parameters
 
@@ -1236,7 +1236,7 @@ Defined in: [chat/sessions.ts:85](https://github.com/witqq/agent-sdk/blob/9c35a7
 
 ### PaginatedMessages
 
-Defined in: [chat/sessions.ts:35](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L35)
+Defined in: [chat/sessions.ts:35](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L35)
 
 Paginated result of messages
 
@@ -1246,7 +1246,7 @@ Paginated result of messages
 
 > **hasMore**: `boolean`
 
-Defined in: [chat/sessions.ts:41](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L41)
+Defined in: [chat/sessions.ts:41](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L41)
 
 Whether there are more messages after this page
 
@@ -1254,7 +1254,7 @@ Whether there are more messages after this page
 
 > **messages**: [`ChatMessage`](/api-reference/chat/index-exports/#chatmessage)\<`unknown`\>[]
 
-Defined in: [chat/sessions.ts:37](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L37)
+Defined in: [chat/sessions.ts:37](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L37)
 
 Messages in this page
 
@@ -1262,7 +1262,7 @@ Messages in this page
 
 > **total**: `number`
 
-Defined in: [chat/sessions.ts:39](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L39)
+Defined in: [chat/sessions.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L39)
 
 Total number of messages in session
 
@@ -1270,17 +1270,17 @@ Total number of messages in session
 
 ### SessionListOptions
 
-Defined in: [chat/sessions.ts:45](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L45)
+Defined in: [chat/sessions.ts:45](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L45)
 
 Options for listing sessions
 
 #### Properties
 
-##### filter()?
+##### filter?
 
-> `optional` **filter**: (`session`) => `boolean`
+> `optional` **filter?**: (`session`) => `boolean`
 
-Defined in: [chat/sessions.ts:47](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L47)
+Defined in: [chat/sessions.ts:47](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L47)
 
 Filter predicate
 
@@ -1296,25 +1296,25 @@ Filter predicate
 
 ##### limit?
 
-> `optional` **limit**: `number`
+> `optional` **limit?**: `number`
 
-Defined in: [chat/sessions.ts:51](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L51)
+Defined in: [chat/sessions.ts:51](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L51)
 
 Maximum number of sessions to return
 
 ##### offset?
 
-> `optional` **offset**: `number`
+> `optional` **offset?**: `number`
 
-Defined in: [chat/sessions.ts:53](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L53)
+Defined in: [chat/sessions.ts:53](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L53)
 
 Number of sessions to skip
 
-##### sort()?
+##### sort?
 
-> `optional` **sort**: (`a`, `b`) => `number`
+> `optional` **sort?**: (`a`, `b`) => `number`
 
-Defined in: [chat/sessions.ts:49](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L49)
+Defined in: [chat/sessions.ts:49](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L49)
 
 Sort comparator
 
@@ -1336,7 +1336,7 @@ Sort comparator
 
 ### SessionSearchOptions
 
-Defined in: [chat/sessions.ts:57](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L57)
+Defined in: [chat/sessions.ts:57](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L57)
 
 Search options for finding sessions
 
@@ -1344,9 +1344,9 @@ Search options for finding sessions
 
 ##### limit?
 
-> `optional` **limit**: `number`
+> `optional` **limit?**: `number`
 
-Defined in: [chat/sessions.ts:61](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L61)
+Defined in: [chat/sessions.ts:61](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L61)
 
 Maximum results (default: 20)
 
@@ -1354,7 +1354,7 @@ Maximum results (default: 20)
 
 > **query**: `string`
 
-Defined in: [chat/sessions.ts:59](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sessions.ts#L59)
+Defined in: [chat/sessions.ts:59](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sessions.ts#L59)
 
 Text query to match against title and message content
 

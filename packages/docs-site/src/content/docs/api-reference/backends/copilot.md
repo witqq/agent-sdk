@@ -12,7 +12,7 @@ sidebar:
 
 > **createCopilotService**(`options`): [`IAgentService`](/api-reference/core/#iagentservice)
 
-Defined in: [backends/copilot.ts:1003](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/backends/copilot.ts#L1003)
+Defined in: [backends/copilot.ts:1003](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/backends/copilot.ts#L1003)
 
 Create Copilot CLI backend service.
 
