@@ -10,7 +10,7 @@
 
 ### MessageAccumulator
 
-Defined in: [chat/accumulator.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/accumulator.ts#L27)
+Defined in: [chat/accumulator.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/accumulator.ts#L27)
 
 Converts a stream of AgentEvent objects into a complete ChatMessage.
 Tracks text, reasoning, and tool call parts with proper status transitions.
@@ -32,7 +32,7 @@ const message = acc.finalize();
 
 > **new MessageAccumulator**(`messageId?`): [`MessageAccumulator`](#messageaccumulator)
 
-Defined in: [chat/accumulator.ts:36](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/accumulator.ts#L36)
+Defined in: [chat/accumulator.ts:36](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/accumulator.ts#L36)
 
 ###### Parameters
 
@@ -52,7 +52,7 @@ Defined in: [chat/accumulator.ts:36](https://github.com/witqq/agent-sdk/blob/9c3
 
 > **get** **finalized**(): `boolean`
 
-Defined in: [chat/accumulator.ts:176](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/accumulator.ts#L176)
+Defined in: [chat/accumulator.ts:176](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/accumulator.ts#L176)
 
 Check if the accumulator has been finalized
 
@@ -66,7 +66,7 @@ Check if the accumulator has been finalized
 
 > **get** **id**(): [`ChatId`](../chat.md#chatid)
 
-Defined in: [chat/accumulator.ts:41](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/accumulator.ts#L41)
+Defined in: [chat/accumulator.ts:41](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/accumulator.ts#L41)
 
 Get current message ID
 
@@ -80,7 +80,7 @@ Get current message ID
 
 > **apply**(`event`): `void`
 
-Defined in: [chat/accumulator.ts:48](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/accumulator.ts#L48)
+Defined in: [chat/accumulator.ts:48](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/accumulator.ts#L48)
 
 Apply an AgentEvent to accumulate into the message
 
@@ -104,7 +104,7 @@ Error if accumulator is already finalized
 
 > **finalize**(): [`ChatMessage`](../chat.md#chatmessage)
 
-Defined in: [chat/accumulator.ts:141](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/accumulator.ts#L141)
+Defined in: [chat/accumulator.ts:141](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/accumulator.ts#L141)
 
 Finalize the accumulator and return the complete ChatMessage
 
@@ -122,7 +122,7 @@ Error if accumulator is already finalized
 
 > **snapshot**(): [`ChatMessage`](../chat.md#chatmessage)
 
-Defined in: [chat/accumulator.ts:124](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/accumulator.ts#L124)
+Defined in: [chat/accumulator.ts:124](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/accumulator.ts#L124)
 
 Get a snapshot of the current accumulated message (for streaming UI)
 

@@ -10,7 +10,7 @@ sidebar:
 
 ### SQLiteProviderStore
 
-Defined in: [chat/sqlite/provider-store.ts:25](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/provider-store.ts#L25)
+Defined in: [chat/sqlite/provider-store.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/provider-store.ts#L25)
 
 Provider storage interface for server-side provider management
 
@@ -24,7 +24,7 @@ Provider storage interface for server-side provider management
 
 > **new SQLiteProviderStore**(`db`): [`SQLiteProviderStore`](#sqliteproviderstore)
 
-Defined in: [chat/sqlite/provider-store.ts:28](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/provider-store.ts#L28)
+Defined in: [chat/sqlite/provider-store.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/provider-store.ts#L28)
 
 ###### Parameters
 
@@ -42,7 +42,7 @@ Defined in: [chat/sqlite/provider-store.ts:28](https://github.com/witqq/agent-sd
 
 > **create**(`config`): `Promise`\<`void`\>
 
-Defined in: [chat/sqlite/provider-store.ts:33](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/provider-store.ts#L33)
+Defined in: [chat/sqlite/provider-store.ts:33](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/provider-store.ts#L33)
 
 Create a new provider. Generates UUID if id not set on config.
 
@@ -64,7 +64,7 @@ Create a new provider. Generates UUID if id not set on config.
 
 > **delete**(`id`): `Promise`\<`void`\>
 
-Defined in: [chat/sqlite/provider-store.ts:61](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/provider-store.ts#L61)
+Defined in: [chat/sqlite/provider-store.ts:61](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/provider-store.ts#L61)
 
 Delete a provider by id.
 
@@ -86,7 +86,7 @@ Delete a provider by id.
 
 > **get**(`id`): `Promise`\<[`ProviderConfig`](/api-reference/chat/index-exports/#providerconfig) \| `null`\>
 
-Defined in: [chat/sqlite/provider-store.ts:40](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/provider-store.ts#L40)
+Defined in: [chat/sqlite/provider-store.ts:40](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/provider-store.ts#L40)
 
 Get a provider by id. Returns null if not found.
 
@@ -108,7 +108,7 @@ Get a provider by id. Returns null if not found.
 
 > **list**(): `Promise`\<[`ProviderConfig`](/api-reference/chat/index-exports/#providerconfig)[]\>
 
-Defined in: [chat/sqlite/provider-store.ts:65](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/provider-store.ts#L65)
+Defined in: [chat/sqlite/provider-store.ts:65](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/provider-store.ts#L65)
 
 List all providers.
 
@@ -124,7 +124,7 @@ List all providers.
 
 > **update**(`id`, `changes`): `Promise`\<`void`\>
 
-Defined in: [chat/sqlite/provider-store.ts:45](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/provider-store.ts#L45)
+Defined in: [chat/sqlite/provider-store.ts:45](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/provider-store.ts#L45)
 
 Update an existing provider. Throws if not found.
 
@@ -150,7 +150,7 @@ Update an existing provider. Throws if not found.
 
 ### SQLiteSessionStore
 
-Defined in: [chat/sqlite/session-store.ts:61](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/session-store.ts#L61)
+Defined in: [chat/sqlite/session-store.ts:61](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/session-store.ts#L61)
 
 Full session store interface — union of reader and writer.
 Backward-compatible: all existing implementations continue to work.
@@ -174,7 +174,7 @@ const page = await store.loadMessages(session.id, { limit: 20, offset: 0 });
 
 > **new SQLiteSessionStore**(`db`): [`SQLiteSessionStore`](#sqlitesessionstore)
 
-Defined in: [chat/sqlite/session-store.ts:64](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/session-store.ts#L64)
+Defined in: [chat/sqlite/session-store.ts:64](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/session-store.ts#L64)
 
 ###### Parameters
 
@@ -192,7 +192,7 @@ Defined in: [chat/sqlite/session-store.ts:64](https://github.com/witqq/agent-sdk
 
 > **appendMessage**(`sessionId`, `message`): `Promise`\<`void`\>
 
-Defined in: [chat/sqlite/session-store.ts:137](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/session-store.ts#L137)
+Defined in: [chat/sqlite/session-store.ts:137](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/session-store.ts#L137)
 
 ###### Parameters
 
@@ -216,7 +216,7 @@ Defined in: [chat/sqlite/session-store.ts:137](https://github.com/witqq/agent-sd
 
 > **clear**(): `Promise`\<`void`\>
 
-Defined in: [chat/sqlite/session-store.ts:243](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/session-store.ts#L243)
+Defined in: [chat/sqlite/session-store.ts:243](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/session-store.ts#L243)
 
 ###### Returns
 
@@ -230,7 +230,7 @@ Defined in: [chat/sqlite/session-store.ts:243](https://github.com/witqq/agent-sd
 
 > **count**(): `Promise`\<`number`\>
 
-Defined in: [chat/sqlite/session-store.ts:239](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/session-store.ts#L239)
+Defined in: [chat/sqlite/session-store.ts:239](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/session-store.ts#L239)
 
 ###### Returns
 
@@ -244,7 +244,7 @@ Defined in: [chat/sqlite/session-store.ts:239](https://github.com/witqq/agent-sd
 
 > **createSession**(`options?`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\>\>
 
-Defined in: [chat/sqlite/session-store.ts:71](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/session-store.ts#L71)
+Defined in: [chat/sqlite/session-store.ts:71](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/session-store.ts#L71)
 
 ###### Parameters
 
@@ -264,7 +264,7 @@ Defined in: [chat/sqlite/session-store.ts:71](https://github.com/witqq/agent-sdk
 
 > **deleteSession**(`id`): `Promise`\<`void`\>
 
-Defined in: [chat/sqlite/session-store.ts:132](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/session-store.ts#L132)
+Defined in: [chat/sqlite/session-store.ts:132](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/session-store.ts#L132)
 
 ###### Parameters
 
@@ -284,7 +284,7 @@ Defined in: [chat/sqlite/session-store.ts:132](https://github.com/witqq/agent-sd
 
 > **getSession**(`id`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\> \| `null`\>
 
-Defined in: [chat/sqlite/session-store.ts:94](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/session-store.ts#L94)
+Defined in: [chat/sqlite/session-store.ts:94](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/session-store.ts#L94)
 
 ###### Parameters
 
@@ -304,7 +304,7 @@ Defined in: [chat/sqlite/session-store.ts:94](https://github.com/witqq/agent-sdk
 
 > **listSessions**(`options?`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\>[]\>
 
-Defined in: [chat/sqlite/session-store.ts:102](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/session-store.ts#L102)
+Defined in: [chat/sqlite/session-store.ts:102](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/session-store.ts#L102)
 
 ###### Parameters
 
@@ -324,7 +324,7 @@ Defined in: [chat/sqlite/session-store.ts:102](https://github.com/witqq/agent-sd
 
 > **loadMessages**(`sessionId`, `options?`): `Promise`\<[`PaginatedMessages`](/api-reference/chat/sessions/#paginatedmessages)\>
 
-Defined in: [chat/sqlite/session-store.ts:187](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/session-store.ts#L187)
+Defined in: [chat/sqlite/session-store.ts:187](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/session-store.ts#L187)
 
 ###### Parameters
 
@@ -354,7 +354,7 @@ Defined in: [chat/sqlite/session-store.ts:187](https://github.com/witqq/agent-sd
 
 > **saveMessages**(`sessionId`, `messages`): `Promise`\<`void`\>
 
-Defined in: [chat/sqlite/session-store.ts:161](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/session-store.ts#L161)
+Defined in: [chat/sqlite/session-store.ts:161](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/session-store.ts#L161)
 
 ###### Parameters
 
@@ -378,7 +378,7 @@ Defined in: [chat/sqlite/session-store.ts:161](https://github.com/witqq/agent-sd
 
 > **searchSessions**(`options`): `Promise`\<[`ChatSession`](/api-reference/chat/index-exports/#chatsession)\<`Record`\<`string`, `unknown`\>\>[]\>
 
-Defined in: [chat/sqlite/session-store.ts:212](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/session-store.ts#L212)
+Defined in: [chat/sqlite/session-store.ts:212](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/session-store.ts#L212)
 
 ###### Parameters
 
@@ -398,7 +398,7 @@ Defined in: [chat/sqlite/session-store.ts:212](https://github.com/witqq/agent-sd
 
 > **updateConfig**(`id`, `config`): `Promise`\<`void`\>
 
-Defined in: [chat/sqlite/session-store.ts:122](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/session-store.ts#L122)
+Defined in: [chat/sqlite/session-store.ts:122](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/session-store.ts#L122)
 
 ###### Parameters
 
@@ -422,7 +422,7 @@ Defined in: [chat/sqlite/session-store.ts:122](https://github.com/witqq/agent-sd
 
 > **updateTitle**(`id`, `title`): `Promise`\<`void`\>
 
-Defined in: [chat/sqlite/session-store.ts:115](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/session-store.ts#L115)
+Defined in: [chat/sqlite/session-store.ts:115](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/session-store.ts#L115)
 
 ###### Parameters
 
@@ -446,7 +446,7 @@ Defined in: [chat/sqlite/session-store.ts:115](https://github.com/witqq/agent-sd
 
 ### SQLiteTokenStore
 
-Defined in: [chat/sqlite/token-store.ts:24](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/token-store.ts#L24)
+Defined in: [chat/sqlite/token-store.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/token-store.ts#L24)
 
 Token storage interface for server-side token management
 
@@ -460,7 +460,7 @@ Token storage interface for server-side token management
 
 > **new SQLiteTokenStore**(`db`): [`SQLiteTokenStore`](#sqlitetokenstore)
 
-Defined in: [chat/sqlite/token-store.ts:27](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/token-store.ts#L27)
+Defined in: [chat/sqlite/token-store.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/token-store.ts#L27)
 
 ###### Parameters
 
@@ -478,7 +478,7 @@ Defined in: [chat/sqlite/token-store.ts:27](https://github.com/witqq/agent-sdk/b
 
 > **clear**(`provider`): `Promise`\<`void`\>
 
-Defined in: [chat/sqlite/token-store.ts:44](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/token-store.ts#L44)
+Defined in: [chat/sqlite/token-store.ts:44](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/token-store.ts#L44)
 
 Remove a specific provider's token.
 
@@ -500,7 +500,7 @@ Remove a specific provider's token.
 
 > **clearAll**(): `Promise`\<`void`\>
 
-Defined in: [chat/sqlite/token-store.ts:48](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/token-store.ts#L48)
+Defined in: [chat/sqlite/token-store.ts:48](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/token-store.ts#L48)
 
 Remove all stored tokens.
 
@@ -516,7 +516,7 @@ Remove all stored tokens.
 
 > **list**(): `Promise`\<`string`[]\>
 
-Defined in: [chat/sqlite/token-store.ts:52](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/token-store.ts#L52)
+Defined in: [chat/sqlite/token-store.ts:52](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/token-store.ts#L52)
 
 List provider names that have saved tokens.
 
@@ -532,7 +532,7 @@ List provider names that have saved tokens.
 
 > **load**(`provider`): `Promise`\<[`AuthToken`](/api-reference/auth/#authtoken) \| `null`\>
 
-Defined in: [chat/sqlite/token-store.ts:39](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/token-store.ts#L39)
+Defined in: [chat/sqlite/token-store.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/token-store.ts#L39)
 
 Load a previously saved token. Returns null if not found.
 
@@ -554,7 +554,7 @@ Load a previously saved token. Returns null if not found.
 
 > **save**(`provider`, `token`): `Promise`\<`void`\>
 
-Defined in: [chat/sqlite/token-store.ts:32](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/token-store.ts#L32)
+Defined in: [chat/sqlite/token-store.ts:32](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/token-store.ts#L32)
 
 Save a token for a provider. Overwrites if exists.
 
@@ -580,7 +580,7 @@ Save a token for a provider. Overwrites if exists.
 
 ### Migration
 
-Defined in: [chat/sqlite/migrations.ts:17](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/migrations.ts#L17)
+Defined in: [chat/sqlite/migrations.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/migrations.ts#L17)
 
 #### Properties
 
@@ -588,15 +588,15 @@ Defined in: [chat/sqlite/migrations.ts:17](https://github.com/witqq/agent-sdk/bl
 
 > **description**: `string`
 
-Defined in: [chat/sqlite/migrations.ts:21](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/migrations.ts#L21)
+Defined in: [chat/sqlite/migrations.ts:21](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/migrations.ts#L21)
 
 Human-readable description
 
-##### up()
+##### up
 
 > **up**: (`db`) => `void`
 
-Defined in: [chat/sqlite/migrations.ts:23](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/migrations.ts#L23)
+Defined in: [chat/sqlite/migrations.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/migrations.ts#L23)
 
 DDL statements to apply. Runs inside a transaction.
 
@@ -614,7 +614,7 @@ DDL statements to apply. Runs inside a transaction.
 
 > **version**: `number`
 
-Defined in: [chat/sqlite/migrations.ts:19](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/migrations.ts#L19)
+Defined in: [chat/sqlite/migrations.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/migrations.ts#L19)
 
 Sequential version number (1-based)
 
@@ -622,7 +622,7 @@ Sequential version number (1-based)
 
 ### SQLiteStorage
 
-Defined in: [chat/sqlite/factory.ts:35](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/factory.ts#L35)
+Defined in: [chat/sqlite/factory.ts:35](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/factory.ts#L35)
 
 #### Properties
 
@@ -630,7 +630,7 @@ Defined in: [chat/sqlite/factory.ts:35](https://github.com/witqq/agent-sdk/blob/
 
 > **db**: `Database`
 
-Defined in: [chat/sqlite/factory.ts:37](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/factory.ts#L37)
+Defined in: [chat/sqlite/factory.ts:37](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/factory.ts#L37)
 
 The underlying better-sqlite3 Database instance
 
@@ -638,7 +638,7 @@ The underlying better-sqlite3 Database instance
 
 > **providerStore**: [`IProviderStore`](/api-reference/chat/index-exports/#iproviderstore)
 
-Defined in: [chat/sqlite/factory.ts:41](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/factory.ts#L41)
+Defined in: [chat/sqlite/factory.ts:41](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/factory.ts#L41)
 
 Provider store for provider configurations
 
@@ -646,7 +646,7 @@ Provider store for provider configurations
 
 > **sessionStore**: [`IChatSessionStore`](/api-reference/chat/sessions/#ichatsessionstore)
 
-Defined in: [chat/sqlite/factory.ts:39](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/factory.ts#L39)
+Defined in: [chat/sqlite/factory.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/factory.ts#L39)
 
 Session store for chat sessions and messages
 
@@ -654,7 +654,7 @@ Session store for chat sessions and messages
 
 > **tokenStore**: [`ITokenStore`](/api-reference/chat/server/#itokenstore)
 
-Defined in: [chat/sqlite/factory.ts:43](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/factory.ts#L43)
+Defined in: [chat/sqlite/factory.ts:43](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/factory.ts#L43)
 
 Token store for auth tokens
 
@@ -662,15 +662,15 @@ Token store for auth tokens
 
 ### SQLiteStorageOptions
 
-Defined in: [chat/sqlite/factory.ts:28](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/factory.ts#L28)
+Defined in: [chat/sqlite/factory.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/factory.ts#L28)
 
 #### Properties
 
 ##### db?
 
-> `optional` **db**: `Database`
+> `optional` **db?**: `Database`
 
-Defined in: [chat/sqlite/factory.ts:32](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/factory.ts#L32)
+Defined in: [chat/sqlite/factory.ts:32](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/factory.ts#L32)
 
 Optional pre-created Database instance. If provided, dbPath is ignored.
 
@@ -678,7 +678,7 @@ Optional pre-created Database instance. If provided, dbPath is ignored.
 
 > **dbPath**: `string`
 
-Defined in: [chat/sqlite/factory.ts:30](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/factory.ts#L30)
+Defined in: [chat/sqlite/factory.ts:30](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/factory.ts#L30)
 
 Path to SQLite database file. Use ":memory:" for in-memory database.
 
@@ -688,7 +688,7 @@ Path to SQLite database file. Use ":memory:" for in-memory database.
 
 > `const` **migrations**: readonly [`Migration`](#migration)[]
 
-Defined in: [chat/sqlite/migrations.ts:42](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/migrations.ts#L42)
+Defined in: [chat/sqlite/migrations.ts:42](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/migrations.ts#L42)
 
 Migration registry. Append new migrations here.
 Version numbers must be sequential (1, 2, 3, ...).
@@ -699,7 +699,7 @@ Version numbers must be sequential (1, 2, 3, ...).
 
 > **createSQLiteStorage**(`pathOrOptions`): [`SQLiteStorage`](#sqlitestorage)
 
-Defined in: [chat/sqlite/factory.ts:59](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/factory.ts#L59)
+Defined in: [chat/sqlite/factory.ts:59](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/factory.ts#L59)
 
 Create all three SQLite stores sharing a single database.
 
@@ -710,9 +710,9 @@ Schema tables are auto-created on first use.
 
 ##### pathOrOptions
 
-Database file path string, or options object
+`string` \| [`SQLiteStorageOptions`](#sqlitestorageoptions)
 
-`string` | [`SQLiteStorageOptions`](#sqlitestorageoptions)
+Database file path string, or options object
 
 #### Returns
 
@@ -730,7 +730,7 @@ If better-sqlite3 is not installed
 
 > **getSchemaVersion**(`db`): `number`
 
-Defined in: [chat/sqlite/migrations.ts:102](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/migrations.ts#L102)
+Defined in: [chat/sqlite/migrations.ts:102](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/migrations.ts#L102)
 
 Get current schema version (0 if no migrations applied).
 
@@ -750,7 +750,7 @@ Get current schema version (0 if no migrations applied).
 
 > **runMigrations**(`db`): `void`
 
-Defined in: [chat/sqlite/migrations.ts:117](https://github.com/witqq/agent-sdk/blob/9c35a744eddf302d0f5c55e9a88e8708805c4db4/packages/sdk/src/chat/sqlite/migrations.ts#L117)
+Defined in: [chat/sqlite/migrations.ts:117](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/sqlite/migrations.ts#L117)
 
 Apply pending migrations sequentially. Each runs in a transaction.
 

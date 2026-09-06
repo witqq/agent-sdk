@@ -2,7 +2,7 @@
 FROM node:24.20.0-alpine AS builder
 
 WORKDIR /build
-RUN npm install --global npm@11.19.0
+RUN npm install --global npm@12.0.2
 
 # Copy workspace root manifest and lock file
 COPY package.json package-lock.json tsconfig.json ./
@@ -21,7 +21,7 @@ COPY packages/docs-site/package.json packages/docs-site/
 COPY packages/demo/package.json packages/demo/
 
 # Install all workspace deps
-RUN npm ci --ignore-scripts
+RUN npm ci --ignore-scripts --no-audit --no-fund
 
 # Generate API docs via TypeDoc
 WORKDIR /build/packages/sdk

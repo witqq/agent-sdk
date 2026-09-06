@@ -1,4 +1,4 @@
-import { defineConfig } from "tsup";
+import { defineConfig } from "tsdown";
 
 export default defineConfig([
   {
@@ -6,17 +6,14 @@ export default defineConfig([
       index: "src/index.ts",
     },
     format: ["esm", "cjs"],
+    fixedExtension: false,
     dts: true,
     sourcemap: true,
     clean: true,
-    splitting: false,
     treeshake: true,
-    external: [
-      "./backends/copilot.js",
-      "./backends/claude.js",
-      "./backends/vercel-ai.js",
-      "./backends/mock-llm.js",
-    ],
+    deps: {
+      neverBundle: [/^\.\/backends\//],
+    },
   },
   {
     entry: {
@@ -39,23 +36,26 @@ export default defineConfig([
       "chat/react": "src/chat/react/index.ts",
       "chat/server": "src/chat/server/index.ts",
       "chat/sqlite": "src/chat/sqlite/index.ts",
-      "testing": "src/testing/index.ts",
+      testing: "src/testing/index.ts",
     },
     format: ["esm", "cjs"],
+    fixedExtension: false,
     dts: true,
     sourcemap: true,
-    external: [
-      "@github/copilot-sdk",
-      "@anthropic-ai/claude-agent-sdk",
-      "ai",
-      "@ai-sdk/*",
-      "zod",
-      "react",
-      "better-sqlite3",
-      "node:crypto",
-      "crypto",
-    ],
-    splitting: false,
+    clean: false,
+    deps: {
+      neverBundle: [
+        "@github/copilot-sdk",
+        "@anthropic-ai/claude-agent-sdk",
+        "ai",
+        /^@ai-sdk\//,
+        "zod",
+        "react",
+        "better-sqlite3",
+        "node:crypto",
+        "crypto",
+      ],
+    },
     treeshake: true,
   },
 ]);

@@ -30,7 +30,7 @@ The SDK follows a **stateless architecture**: all data required to handle a requ
 
 ## 1. Introduction and Goals
 
-**@witqq/agent-sdk** is a TypeScript npm package providing a unified abstraction layer over multiple AI agent backends: GitHub Copilot CLI, Anthropic Claude CLI, Vercel AI SDK v6, and a Mock LLM backend for automated testing.
+**@witqq/agent-sdk** is a TypeScript npm package providing a unified abstraction layer over multiple AI agent backends: GitHub Copilot CLI, Anthropic Claude CLI, Vercel AI SDK v7, and a Mock LLM backend for automated testing.
 
 ### Key Goals
 
@@ -54,7 +54,7 @@ The SDK follows a **stateless architecture**: all data required to handle a requ
 - **Backends**: Copilot and Claude require CLI subprocess; Vercel AI uses HTTP API
 - **Auth**: Copilot = GitHub Device Flow, Claude = OAuth+PKCE, Vercel AI = API key
 - **Peer deps**: zod (^3.23 || ^4), backend SDKs optional, React optional, better-sqlite3 optional
-- **Build**: tsup → ESM + CJS + DTS, 21 module entry points plus one CSS export
+- **Build**: tsdown → ESM + CJS + DTS, 21 module entry points plus one CSS export
 
 ## 3. Three-Actor Data Flow
 
@@ -153,7 +153,7 @@ The naming overlap (`copilot.ts` in both directories) reflects that each file ha
 | Validation | Zod peer dep; zodToJsonSchema(); runtime state machine transitions |
 | Configuration | Programmatic objects (no env vars in library) |
 | Logging | N/A for library; consumers use ChatMiddleware hooks |
-| Package Distribution | tsup ESM+CJS+DTS; 21 module exports plus CSS ([ADR-0005](./adr/0005-granular-package-exports.md)); tree-shaking; optional peer deps |
+| Package Distribution | tsdown ESM+CJS+DTS; 21 module exports plus CSS ([ADR-0005](./adr/0005-granular-package-exports.md)); tree-shaking; optional peer deps |
 | Type System | strict:true; branded ChatId; discriminated unions; generics |
 | API Evolution | Strict semver; @deprecated → removal in next major; CHANGELOG.md |
 | Monitoring | Health endpoint only; consumers add metrics via middleware |

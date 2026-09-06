@@ -18,39 +18,39 @@ export default defineConfig({
       sidebar: [
         {
           label: "Getting Started",
-          autogenerate: { directory: "getting-started" },
+          items: [{ autogenerate: { directory: "getting-started" } }],
         },
         {
           label: "Backends",
-          autogenerate: { directory: "backends" },
+          items: [{ autogenerate: { directory: "backends" } }],
         },
         {
           label: "Tools & Permissions",
-          autogenerate: { directory: "tools" },
+          items: [{ autogenerate: { directory: "tools" } }],
         },
         {
           label: "Streaming & Events",
-          autogenerate: { directory: "streaming" },
+          items: [{ autogenerate: { directory: "streaming" } }],
         },
         {
           label: "Authentication",
-          autogenerate: { directory: "auth" },
+          items: [{ autogenerate: { directory: "auth" } }],
         },
         {
           label: "Storage",
-          autogenerate: { directory: "storage" },
+          items: [{ autogenerate: { directory: "storage" } }],
         },
         {
           label: "Testing",
-          autogenerate: { directory: "testing" },
+          items: [{ autogenerate: { directory: "testing" } }],
         },
         {
           label: "Chat SDK",
-          autogenerate: { directory: "chat-sdk" },
+          items: [{ autogenerate: { directory: "chat-sdk" } }],
         },
         {
           label: "Examples & Tutorials",
-          autogenerate: { directory: "examples" },
+          items: [{ autogenerate: { directory: "examples" } }],
         },
         {
           label: "API Reference",
@@ -69,11 +69,11 @@ export default defineConfig({
             },
             {
               label: "Backends",
-              autogenerate: { directory: "api-reference/backends" },
+              items: [{ autogenerate: { directory: "api-reference/backends" } }],
             },
             {
               label: "Chat SDK",
-              autogenerate: { directory: "api-reference/chat" },
+              items: [{ autogenerate: { directory: "api-reference/chat" } }],
             },
           ],
         },

@@ -14,7 +14,6 @@ import { BackendSelector } from "../../../src/chat/react/BackendSelector.js";
 import { ChatProvider } from "../../../src/chat/react/ChatProvider.js";
 import type { IChatRuntime } from "../../../src/chat/runtime.js";
 import type { SessionInfo, ChatId } from "../../../src/chat/core.js";
-import type { ModelOption } from "../../../src/chat/react/useModels.js";
 
 // ─── Helpers ──────────────────────────────────────────────────
 
@@ -962,5 +961,4 @@ describe("ContextStatsDisplay", () => {
     expect(container.querySelector("[data-context-usage]")?.textContent).toBe("75%");
   });
 });
-
 

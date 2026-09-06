@@ -8,13 +8,16 @@ import * as http from "node:http";
 // Dynamically import the server module is not feasible (it starts listening on import).
 // Instead, test the demo's HTTP contract by starting a child process.
 
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
+import { createRequire } from "node:module";
+
+const tscPath = createRequire(import.meta.url).resolve("typescript/bin/tsc");
 
 describe("Chat demo: build verification", () => {
   it("server.ts has no TypeScript errors", () => {
     // tsc --noEmit on just the demo file via the project config
     expect(() => {
-      execSync("npx tsc --noEmit --project tsconfig.json", {
+      execFileSync(process.execPath, [tscPath, "--noEmit", "--project", "tsconfig.json"], {
         cwd: process.cwd(),
         stdio: "pipe",
         timeout: 30_000,
@@ -178,5 +181,3 @@ describe("Chat demo: server logic", () => {
     expect(res.status).toBe(404);
   });
 });
-
-

@@ -25,7 +25,7 @@ const testJob = requireRecord(ci.jobs?.test, 'CI test job');
 assert(testJob['runs-on'] === 'ubuntu-24.04', 'CI uses a GitHub-hosted runner');
 assertStepUses(testJob, checkout);
 assertStepUses(testJob, setupNode);
-assertStepRun(testJob, 'npm install --global npm@11.19.0');
+assertStepRun(testJob, 'npm install --global npm@12.0.2');
 assertStepRun(testJob, 'npm ci --no-audit --no-fund');
 assertStepRun(testJob, 'npm run build');
 assertStepRun(testJob, 'npm run install:demo-frontend');
@@ -38,7 +38,7 @@ const qualityJob = requireRecord(ci.jobs?.quality, 'CI quality job');
 assert(qualityJob.needs === 'test', 'release-quality checks follow runtime tests');
 assertStepUses(qualityJob, checkout);
 assertStepUses(qualityJob, setupNode);
-assertStepRun(qualityJob, 'npm install --global npm@11.19.0');
+assertStepRun(qualityJob, 'npm install --global npm@12.0.2');
 assertStepRun(qualityJob, 'npm ci --no-audit --no-fund');
 assertStepRun(qualityJob, 'npm run check:workflows');
 assertStepRun(qualityJob, 'npm run pack:check');
@@ -65,7 +65,10 @@ const publishRuns = requireSteps(publishJob)
   .filter((run) => typeof run === 'string')
   .join('\n');
 for (const required of [
-  'npm install --global npm@11.19.1',
+  'npm install --global npm@12.0.2',
+  'git/ref/tags/${tag}',
+  'release tag must be annotated',
+  'tag commit is not contained in the dispatched revision',
   'releases/tags/${tag}',
   'release.assets.length !== 1',
   'asset.digest !== `sha256:${expectedDigest}`',
@@ -73,16 +76,32 @@ for (const required of [
   'manifest.name !== "@witqq/agent-sdk"',
   'manifest.version !== expectedVersion',
   'manifest.repository?.directory !== "packages/sdk"',
-  'npm publish --access public "${asset_url}"',
+  'manifest.engines?.node !== ">=24.20.0"',
+  'parse_registry_url()',
+  'Array.isArray(parsed) ? parsed : [parsed]',
+  'registry-preflight.tgz',
+  'already contains the accepted bytes; skipping',
+  'npm publish --access public "${tarball}"',
+  'for attempt in {1..24}',
+  'did not become visible in the registry',
+  'sleep 5',
+  'registry-final.tgz',
 ]) {
   assert(publishRuns.includes(required), `publication enforces ${required}`);
 }
+assert(
+  publishRuns.indexOf('registry-preflight.tgz') <
+    publishRuns.indexOf('npm publish --access public "${tarball}"'),
+  'publication checks an existing registry version before publishing',
+);
 for (const forbidden of [
   'actions/checkout@',
   'NPM_TOKEN',
   'NODE_AUTH_TOKEN',
   'npm run build',
   'npm ci',
+  'npm pack',
+  'npm publish --access public "${asset_url}"',
 ]) {
   assert(!publishSource.includes(forbidden), `publication excludes ${forbidden}`);
 }

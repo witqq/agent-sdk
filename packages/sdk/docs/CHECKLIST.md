@@ -4,9 +4,9 @@ Quality gates for `@witqq/agent-sdk`. Reference during development and before co
 
 ## Before Commit
 
-- [ ] `npm run build` — compiles without errors (tsup, ~20 entry points)
+- [ ] `npm run build` — compiles without errors (tsdown, 21 module entry points)
 - [ ] `npm run typecheck` — `tsc --noEmit` passes with strict mode
-- [ ] `npm run test` — all unit tests pass (vitest, 2365+ tests)
+- [ ] `npm run test` — all unit tests pass (Vitest, 2518+ tests)
 - [ ] No `console.log` / debug statements left in `src/`
 - [ ] No `any` types introduced (one benign exception in `listener-set.ts`)
 - [ ] New public APIs have JSDoc comments
