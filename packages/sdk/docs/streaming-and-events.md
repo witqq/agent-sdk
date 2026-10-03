@@ -126,6 +126,12 @@ done
 
 `heartbeat` events can appear at any point. `error` events can interrupt the sequence; check `recoverable` to decide whether to continue.
 
+## Retry and Stream Commitment
+
+`RunOptions.retry` can retry a recognized retryable `AgentSDKError` before the first stream event is delivered. Once `stream()` or `streamWithContext()` returns its first event, the operation is committed: a later failure propagates unchanged without repeating text, tool events or other delivered events. Catch failures around iteration and retain any completed usage snapshots.
+
+The Vercel AI backend disables native transport and stream retries beneath this SDK policy. With retry omitted or `retry.maxRetries: 0`, each model step makes one provider request. Raw native provider errors retain their existing classification; configuring SDK retry does not make every native failure retryable.
+
 ## Stream Middleware
 
 Middleware transforms the event stream. Type signature:
@@ -165,6 +171,8 @@ const loggingMiddleware: StreamMiddleware = async function* (source, context) {
 
 ### Token Counting Middleware
 
+Vercel AI emits cumulative usage snapshots within each run. Replace stored totals on each update.
+
 ```typescript
 const tokenCounter: StreamMiddleware = async function* (source, context) {
   let totalPrompt = 0;
@@ -172,8 +180,8 @@ const tokenCounter: StreamMiddleware = async function* (source, context) {
 
   for await (const event of source) {
     if (event.type === "usage_update") {
-      totalPrompt += event.promptTokens;
-      totalCompletion += event.completionTokens;
+      totalPrompt = event.promptTokens;
+      totalCompletion = event.completionTokens;
       console.log(`Tokens: ${totalPrompt} in / ${totalCompletion} out`);
     }
     yield event;
@@ -272,7 +280,7 @@ for await (const event of stream) {
 }
 ```
 
-`UsageData` also carries optional provider-reported fields when available: `cost` (normalized USD), `cachedTokens`, and `providerMetadata` (raw passthrough). These are populated by the Vercel AI backend from `result.providerMetadata` — see [Backends](./backends.md#cost--provider-metadata). They are undefined for providers that do not report them, so existing consumers are unaffected.
+`UsageData` carries native response token counts and optional provider-reported fields: `cost` (normalized USD), `cachedTokens`, and `providerMetadata` (raw passthrough). Vercel AI totals tokens, cost and cached tokens across completed steps; raw metadata comes from the last available step. Streaming snapshots are cumulative within the current run, including usage from completed steps before a later failure. Keep the latest snapshot for each run and add totals across separate runs. Missing provider cost/cache details remain undefined — see [Backends](./backends.md#cost--provider-metadata).
 
 ```typescript
 onUsage: (usage) => {

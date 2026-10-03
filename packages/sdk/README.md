@@ -93,6 +93,14 @@ Which backend should I use?
 
 **Mock LLM** — deterministic backend for testing. Simulates responses, tool calls, streaming, confirmations, and permissions without any API calls.
 
+## Vercel AI Conversation Contract
+
+The Vercel AI backend targets AI SDK 7. Supply public SDK `Message[]` to `runWithContext()` or `streamWithContext()`, retaining assistant `toolCalls` and matching `toolResults` with the same call ID and tool name. String, JSON and `isError` results are converted to native tool content parts without mutating caller history.
+
+Set `modelParams.maxTokens` to cap generated output on blocking, structured and streaming calls. Token usage comes from native responses; provider-reported cost and cached tokens remain optional. Streaming usage snapshots are cumulative within a run.
+
+Use `AgentSDKError.is(error)` to inspect errors across bundled entry points. A native prompt rejection before model dispatch has `code: "INVALID_INPUT"`, `retryable: false`, `providerRequestSent: false` and its native `cause`. An undefined `providerRequestSent` leaves provider effects unknown; provider errors after dispatch, network failures, timeouts and aborts provide no unsent proof. Catch streaming refusals around async iteration. See the [backend guide](https://agent-sdk.witqq.dev/backends/overview/) for a history example and error guidance.
+
 ## Entry Points
 
 | Import | Purpose |
@@ -119,7 +127,7 @@ Additional chat sub-entry points: `chat/core`, `chat/errors`, `chat/events`, `ch
 |--------|-------|
 | npm package size | ~747 kB tarball / ~3.45 MB unpacked (254 files, ESM + CJS + DTS) |
 | Entry points | 22 (tree-shakeable — import only what you need) |
-| Unit tests | 2,518 (77 files) |
+| Unit tests | Default Vitest suite — `npm test` |
 | Backends | 4 (Copilot, Claude, Vercel AI, Mock LLM) |
 | Zod compatibility | v3.23+ and v4.x |
 | Peer dependencies | `zod` required; backend, UI, and storage peers optional |

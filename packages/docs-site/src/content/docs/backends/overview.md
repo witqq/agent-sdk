@@ -85,7 +85,7 @@ const service = createClaudeService({
 
 ## Vercel AI
 
-Wraps `ai` SDK with `@ai-sdk/openai-compatible` for OpenRouter, OpenAI, and compatible providers.
+Wraps Vercel AI SDK 7 with `@ai-sdk/openai-compatible` for OpenRouter, OpenAI, and compatible providers.
 
 ### Install
 
@@ -104,6 +104,48 @@ const service = createVercelAIService({
   provider: "openrouter",                   // default
 });
 ```
+
+### Conversation History and Output Limit
+
+Pass SDK `Message[]` to `runWithContext()` or `streamWithContext()`. Keep assistant tool calls and their matching tool results in the history. Each result's `toolCallId` must match the assistant call's `id`, and both use the same tool name.
+
+```typescript
+import type { Message } from "@witqq/agent-sdk";
+import { createVercelAIService } from "@witqq/agent-sdk/vercel-ai";
+
+const service = createVercelAIService({ apiKey: process.env.OPENROUTER_API_KEY! });
+const agent = service.createAgent({
+  systemPrompt: "Summarize the supplied tool evidence.",
+  modelParams: { maxTokens: 512 },
+});
+const messages: Message[] = [
+  { role: "user", content: "Summarize the search result." },
+  { role: "assistant", content: "Searching", toolCalls: [
+    { id: "call-1", name: "search", args: { query: "example" } },
+  ] },
+  { role: "tool", toolResults: [
+    { toolCallId: "call-1", name: "search", result: { title: "Example" } },
+  ] },
+];
+
+const result = await agent.runWithContext(messages, { model: "openai/gpt-4.1-mini" });
+```
+
+The backend converts these public messages to native tool content parts without mutating the supplied history. Tool results accept strings or JSON values; set `isError: true` on a result to preserve a tool failure. Assistant text, tool names, call IDs and result values are retained.
+
+`modelParams.maxTokens` limits generated output on blocking, structured and streaming calls. The backend maps it to AI SDK 7's `maxOutputTokens`. Configure this public setting directly; no provider option is required for the output limit.
+
+### Retry Ownership
+
+Native AI transport retries are disabled for blocking, structured and streaming execution. With `RunOptions.retry` omitted or `retry.maxRetries: 0`, each model step issues one provider request. A tool loop can still contain several model steps.
+
+`RunOptions.retry` controls the SDK lifecycle's retries for recognized retryable `AgentSDKError` instances. Raw native provider failures are not automatically converted into retryable SDK errors. A stream can retry only before its first event reaches the caller; later failures propagate without restarting the visible operation.
+
+### Prompt Rejection and Provider Effects
+
+When native `InvalidPromptError` occurs before the model's generation or streaming method is entered, the backend throws `AgentSDKError` with `code: "INVALID_INPUT"`, `retryable: false`, `providerRequestSent: false` and the native error as `cause`. Correct the prompt before retrying. For streaming, catch this error around iteration of the async iterable.
+
+Use `AgentSDKError.is(error)` across bundled entry points. Only explicit `providerRequestSent === false` proves that no model request was dispatched. An undefined value leaves provider effects unknown. A provider-originated `InvalidPromptError` after dispatch retains its original identity without an unsent marker; network failures, timeouts and aborts also provide no unsent proof.
 
 ### Model-Specific Options
 
@@ -130,7 +172,9 @@ result.usage?.cachedTokens;     // number | undefined — prompt tokens served f
 result.usage?.providerMetadata; // raw provider metadata, untouched
 ```
 
-Normalization is provider-agnostic and null-safe — providers that report no cost simply leave `cost`/`cachedTokens` undefined while still passing `providerMetadata` through.
+`promptTokens` and `completionTokens` come from native input and output token usage. Blocking and streaming tool loops total tokens, cost and cached tokens across completed steps. Structured output reports its generation usage. Raw `providerMetadata` is the last available step's metadata.
+
+Streaming `usage_update` events are cumulative snapshots for the current run. Replace the previous snapshot rather than adding snapshots together; completed-step usage remains available if a later step fails. Providers that report no cost or cache details leave `cost`/`cachedTokens` undefined.
 
 ### Notes
 

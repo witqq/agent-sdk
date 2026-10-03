@@ -844,6 +844,26 @@ describe("BaseAgent", () => {
   });
 
   describe("retry (built-in)", () => {
+    it.each(["stream", "streamWithContext"] as const)(
+      "%s preserves the first visible event and original failure without retrying a committed stream", async entry => {
+        const original = new AgentSDKError("after first event", { code: "NETWORK", retryable: true });
+        const agent = makeAgent();
+        (agent as any).executeStream = async function* () {
+          yield { type: "text_delta" as const, text: "visible" };
+          throw original;
+        };
+        const options = { model: "test-model", retry: { maxRetries: 1, initialDelayMs: 0 } };
+        const source = entry === "stream" ? agent.stream("offline", options)
+          : agent.streamWithContext([{ role: "user", content: "offline" }], options);
+        const events: AgentEvent[] = [];
+        let failure: unknown;
+        try { for await (const event of source) events.push(event); }
+        catch (error) { failure = error; }
+        expect(events).toEqual([{ type: "text_delta", text: "visible" }]);
+        expect(failure).toBe(original);
+        expect(agent.getState()).toBe("idle");
+      });
+
     it("should not retry when retry config is not set", async () => {
       let callCount = 0;
       const agent = makeAgent();

@@ -17,7 +17,7 @@ import type {
 } from "../types.js";
 import { getTextContent, ErrorCode, classifyAgentError, isRecoverableErrorCode } from "../types.js";
 import { BaseAgent } from "../base-agent.js";
-import { DisposedError, DependencyError, AbortError, ToolExecutionError } from "../errors.js";
+import { AgentSDKError, DisposedError, DependencyError, AbortError, ToolExecutionError } from "../errors.js";
 import { zodToJsonSchema } from "../utils/schema.js";
 import type { IPermissionStore } from "../permission-store.js";
 
@@ -96,6 +96,7 @@ type SDKLanguageModel = Record<string, unknown>;
 
 /** @internal SDK module shape */
 interface SDKModule {
+  InvalidPromptError?: { isInstance: (error: unknown) => boolean };
   generateText: (options: Record<string, unknown>) => Promise<SDKGenerateTextResult>;
   streamText: (options: Record<string, unknown>) => SDKStreamTextResult;
   generateObject: (options: Record<string, unknown>) => Promise<SDKGenerateObjectResult>;
@@ -449,6 +450,38 @@ function wrapToolExecute(
 
 // ─── Message Conversion ─────────────────────────────────────────
 
+/** Observe each execution separately without mutating a cached provider model. */
+function observeDispatch(model: SDKLanguageModel) {
+  let entered = false;
+  return {
+    get entered() { return entered; },
+    model: new Proxy(model, {
+      get(target, property) {
+        const value = Reflect.get(target, property, target);
+        if ((property === "doGenerate" || property === "doStream") && typeof value === "function") {
+          return (...args: unknown[]) => {
+            entered = true;
+            return Reflect.apply(value, target, args);
+          };
+        }
+        return value;
+      },
+    }),
+  };
+}
+
+function projectPromptError(error: unknown, sdk: SDKModule, dispatched: boolean): unknown {
+  if (!dispatched && sdk.InvalidPromptError?.isInstance(error)) {
+    return new AgentSDKError(error instanceof Error ? error.message : "Invalid prompt", {
+      code: ErrorCode.INVALID_INPUT,
+      retryable: false,
+      providerRequestSent: false,
+      cause: error,
+    });
+  }
+  return error;
+}
+
 function messagesToSDK(messages: Message[]): Array<Record<string, unknown>> {
   return messages.map((msg) => {
     switch (msg.role) {
@@ -460,31 +493,28 @@ function messagesToSDK(messages: Message[]): Array<Record<string, unknown>> {
         if (thinking) {
           content = `[reasoning: ${thinking}]\n${content}`;
         }
-        const mapped: Record<string, unknown> = { role: "assistant", content };
         if (msg.toolCalls && msg.toolCalls.length > 0) {
-          mapped.toolCalls = msg.toolCalls.map((tc) => ({
-            id: tc.id,
-            name: tc.name,
-            args: tc.args,
-          }));
+          return { role: "assistant", content: [
+            ...(content ? [{ type: "text", text: content }] : []),
+            ...msg.toolCalls.map(tc => ({ type: "tool-call", toolCallId: tc.id, toolName: tc.name, input: tc.args })),
+          ] };
         }
-        return mapped;
+        return { role: "assistant", content };
       }
       case "system":
         return { role: "system", content: msg.content };
       case "tool": {
-        if (msg.toolResults && msg.toolResults.length > 0) {
-          return {
-            role: "tool",
-            toolResults: msg.toolResults.map((tr) => ({
-              toolCallId: tr.toolCallId,
-              name: tr.name,
-              result: tr.result,
-              isError: tr.isError ?? false,
-            })),
-          };
-        }
-        return { role: "tool", content: msg.content ?? "" };
+        return { role: "tool", content: msg.toolResults.map(tr => ({
+          type: "tool-result",
+          toolCallId: tr.toolCallId,
+          toolName: tr.name,
+          output: {
+            type: tr.isError
+              ? (typeof tr.result === "string" ? "error-text" : "error-json")
+              : (typeof tr.result === "string" ? "text" : "json"),
+            value: tr.result,
+          },
+        })) };
       }
       default:
         return { role: "user", content: "" };
@@ -628,7 +658,7 @@ class VercelAIAgent extends BaseAgent {
     this.checkAbort(signal);
 
     const sdk = await loadSDK();
-    const model = await this.getModel(options);
+    const dispatch = observeDispatch(await this.getModel(options));
     const tools = await this.getSDKTools(signal, options);
     const maxTurns = this.config.maxTurns ?? DEFAULT_MAX_TURNS;
 
@@ -636,7 +666,9 @@ class VercelAIAgent extends BaseAgent {
     const hasTools = Object.keys(tools).length > 0;
 
     const result: SDKGenerateTextResult = await sdk.generateText({
-      model,
+      model: dispatch.model,
+      // BaseAgent owns public retry policy; native transport must not add attempts.
+      maxRetries: 0,
       system: this.config.systemPrompt,
       messages: sdkMessages,
       tools: hasTools ? tools : undefined,
@@ -646,7 +678,7 @@ class VercelAIAgent extends BaseAgent {
         temperature: this.config.modelParams.temperature,
       }),
       ...(this.config.modelParams?.maxTokens !== undefined && {
-        maxTokens: this.config.modelParams.maxTokens,
+        maxOutputTokens: this.config.modelParams.maxTokens,
       }),
       ...(this.config.modelParams?.topP !== undefined && {
         topP: this.config.modelParams.topP,
@@ -654,7 +686,7 @@ class VercelAIAgent extends BaseAgent {
       ...(this.config.providerOptions && {
         providerOptions: this.config.providerOptions,
       }),
-    });
+    }).catch(error => { throw projectPromptError(error, sdk, dispatch.entered); });
 
     // Collect all tool calls across all steps
     const toolCalls: AgentResult["toolCalls"] = [];
@@ -708,13 +740,14 @@ class VercelAIAgent extends BaseAgent {
     this.checkAbort(signal);
 
     const sdk = await loadSDK();
-    const model = await this.getModel(options);
+    const dispatch = observeDispatch(await this.getModel(options));
 
     const sdkMessages = messagesToSDK(messages);
     const jsonSchema = zodToJsonSchema(schema.schema);
 
     const result: SDKGenerateObjectResult = await sdk.generateObject({
-      model,
+      model: dispatch.model,
+      maxRetries: 0,
       system: this.config.systemPrompt,
       messages: sdkMessages,
       schema: sdk.jsonSchema(jsonSchema),
@@ -725,12 +758,12 @@ class VercelAIAgent extends BaseAgent {
         temperature: this.config.modelParams.temperature,
       }),
       ...(this.config.modelParams?.maxTokens !== undefined && {
-        maxTokens: this.config.modelParams.maxTokens,
+        maxOutputTokens: this.config.modelParams.maxTokens,
       }),
       ...(this.config.providerOptions && {
         providerOptions: this.config.providerOptions,
       }),
-    });
+    }).catch(error => { throw projectPromptError(error, sdk, dispatch.entered); });
 
     // Validate and parse through our zod schema
     let structuredOutput: T | undefined;
@@ -770,7 +803,7 @@ class VercelAIAgent extends BaseAgent {
     this.checkAbort(signal);
 
     const sdk = await loadSDK();
-    const model = await this.getModel(options);
+    const dispatch = observeDispatch(await this.getModel(options));
     const tools = await this.getSDKTools(signal, options);
     const maxTurns = this.config.maxTurns ?? DEFAULT_MAX_TURNS;
 
@@ -778,7 +811,9 @@ class VercelAIAgent extends BaseAgent {
     const hasTools = Object.keys(tools).length > 0;
 
     const result: SDKStreamTextResult = sdk.streamText({
-      model,
+      model: dispatch.model,
+      maxRetries: 0,
+      streamRetries: 0,
       system: this.config.systemPrompt,
       messages: sdkMessages,
       tools: hasTools ? tools : undefined,
@@ -788,7 +823,7 @@ class VercelAIAgent extends BaseAgent {
         temperature: this.config.modelParams.temperature,
       }),
       ...(this.config.modelParams?.maxTokens !== undefined && {
-        maxTokens: this.config.modelParams.maxTokens,
+        maxOutputTokens: this.config.modelParams.maxTokens,
       }),
       ...(this.config.modelParams?.topP !== undefined && {
         topP: this.config.modelParams.topP,
@@ -803,10 +838,16 @@ class VercelAIAgent extends BaseAgent {
     const usageSteps: Array<{ providerMetadata?: SDKProviderMetadata }> = [];
     let cumulativePromptTokens = 0;
     let cumulativeCompletionTokens = 0;
+    let nativePromptError: unknown;
 
     try {
       for await (const part of result.fullStream) {
         if (signal.aborted) throw new AbortError();
+
+        if (part.type === "error" && sdk.InvalidPromptError?.isInstance((part as Extract<SDKStreamPart, { type: "error" }>).error)) {
+          nativePromptError = (part as Extract<SDKStreamPart, { type: "error" }>).error;
+          continue;
+        }
 
         const event = mapStreamPart(part as SDKStreamPart);
         if (event) yield event;
@@ -840,6 +881,13 @@ class VercelAIAgent extends BaseAgent {
           const p = part as Extract<SDKStreamPart, { type: "finish" }>;
           lastFinishReason = p.finishReason;
         }
+      }
+
+      if (nativePromptError !== undefined) {
+        // Drain terminal promises so their no-output rejection cannot obscure
+        // the original refusal or escape as an unhandled rejection.
+        await Promise.allSettled([result.totalUsage, result.text, result.providerMetadata]);
+        throw projectPromptError(nativePromptError, sdk, dispatch.entered);
       }
 
       // AI SDK v7 exposes usage and provider metadata on every finish-step, so
@@ -876,7 +924,7 @@ class VercelAIAgent extends BaseAgent {
       };
     } catch (e) {
       if (signal.aborted) throw new AbortError();
-      throw e;
+      throw projectPromptError(e, sdk, dispatch.entered);
     }
   }
 

@@ -62,13 +62,25 @@ Machine-readable error code. Prefer values from the ErrorCode enum.
 
 > `readonly` `optional` **httpStatus?**: `number`
 
-Defined in: [errors.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/errors.ts#L25)
+Defined in: errors.ts:27
 
 HTTP status code hint for error classification
 
 ###### Inherited from
 
 [`AgentSDKError`](../index.md#agentsdkerror).[`httpStatus`](../index.md#httpstatus-2)
+
+##### providerRequestSent?
+
+> `readonly` `optional` **providerRequestSent?**: `boolean`
+
+Defined in: errors.ts:29
+
+Undefined means provider effect is unknown; false is explicit unsent evidence.
+
+###### Inherited from
+
+[`AgentSDKError`](../index.md#agentsdkerror).[`providerRequestSent`](../index.md#providerrequestsent-2)
 
 ##### retryable
 
@@ -100,7 +112,7 @@ Defined in: [chat/errors.ts:37](https://github.com/witqq/agent-sdk/blob/e81c2cb5
 
 > `static` **is**(`error`): `error is AgentSDKError`
 
-Defined in: [errors.ts:36](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/errors.ts#L36)
+Defined in: errors.ts:41
 
 Check if an error is an AgentSDKError (works across bundled copies)
 

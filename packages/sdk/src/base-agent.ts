@@ -303,6 +303,7 @@ export abstract class BaseAgent implements IAgent {
     const multiplier = retry.backoffMultiplier ?? 2;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      let committed = false;
       try {
         const stream = factory();
         const iterator = stream[Symbol.asyncIterator]();
@@ -310,6 +311,7 @@ export abstract class BaseAgent implements IAgent {
         const first = await iterator.next();
         if (first.done) return;
         // First event received — stream committed, no more retries
+        committed = true;
         yield first.value;
         // Yield remaining events
         while (true) {
@@ -319,7 +321,7 @@ export abstract class BaseAgent implements IAgent {
         }
         return;
       } catch (err) {
-        if (attempt >= maxRetries || !this.isRetryableError(err, retry)) {
+        if (committed || attempt >= maxRetries || !this.isRetryableError(err, retry)) {
           throw err;
         }
         const delay = initialDelay * Math.pow(multiplier, attempt);
