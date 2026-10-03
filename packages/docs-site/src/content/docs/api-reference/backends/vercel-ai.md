@@ -12,7 +12,7 @@ sidebar:
 
 > **createVercelAIService**(`options`): [`IAgentService`](/api-reference/core/#iagentservice)
 
-Defined in: [backends/vercel-ai.ts:989](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/backends/vercel-ai.ts#L989)
+Defined in: backends/vercel-ai.ts:1032
 
 Create Vercel AI SDK backend service.
 

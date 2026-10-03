@@ -455,17 +455,17 @@ describe("History serialization", () => {
       await agent.runWithContext(messages, { model: "test-model" });
 
       const sdkMessages = mockGenerateText.mock.calls[0][0].messages;
-      // Assistant message should have toolCalls
+      // Native content carries the assistant text and matching call identity.
       const assistantMsg = sdkMessages.find((m: any) => m.role === "assistant");
-      expect(assistantMsg.toolCalls).toBeDefined();
-      expect(assistantMsg.toolCalls[0].name).toBe("search");
-      expect(assistantMsg.toolCalls[0].args).toEqual({ q: "test" });
+      expect(assistantMsg.content).toEqual([
+        { type: "text", text: "I used a tool" },
+        { type: "tool-call", toolCallId: "tc-1", toolName: "search", input: { q: "test" } },
+      ]);
 
-      // Tool message should have toolResults
-      const toolMsg = sdkMessages.find((m: any) => m.role === "tool" && m.toolResults);
-      expect(toolMsg.toolResults).toBeDefined();
-      expect(toolMsg.toolResults[0].name).toBe("search");
-      expect(toolMsg.toolResults[0].result).toBe("found it");
+      const toolMsg = sdkMessages.find((m: any) => m.role === "tool");
+      expect(toolMsg.content).toEqual([
+        { type: "tool-result", toolCallId: "tc-1", toolName: "search", output: { type: "text", value: "found it" } },
+      ]);
 
       // Cleanup
       const { _resetSDK } = await import("../../../src/backends/vercel-ai.js");

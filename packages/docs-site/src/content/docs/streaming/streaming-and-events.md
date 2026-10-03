@@ -27,7 +27,7 @@ import type { AgentEvent } from "@witqq/agent-sdk";
 | `permission_response` | `toolName`, `decision: PermissionDecision` | Approval decision |
 | `ask_user` | `request: UserInputRequest` | Agent asks user a question |
 | `ask_user_response` | `answer: string` | User answered |
-| `usage_update` | `promptTokens`, `completionTokens`, `model?`, `backend?` | Token usage report |
+| `usage_update` | `promptTokens`, `completionTokens`, `model?`, `backend?`, `cost?`, `cachedTokens?`, `providerMetadata?` | Token usage report (cost/cache/raw metadata when the provider reports them) |
 | `session_info` | `sessionId`, `transcriptPath?`, `backend` | Session metadata |
 | `heartbeat` | -- | Keep-alive signal |
 | `error` | `error: string`, `recoverable: boolean`, `code?: ErrorCode` | Error occurred |
@@ -47,7 +47,7 @@ type AgentEvent =
   | { type: "permission_response"; toolName: string; decision: PermissionDecision }
   | { type: "ask_user"; request: UserInputRequest }
   | { type: "ask_user_response"; answer: string }
-  | { type: "usage_update"; promptTokens: number; completionTokens: number; model?: string; backend?: string }
+  | { type: "usage_update"; promptTokens: number; completionTokens: number; model?: string; backend?: string; cost?: number; cachedTokens?: number; providerMetadata?: Record<string, JSONValue> }
   | { type: "session_info"; sessionId: string; transcriptPath?: string; backend: string }
   | { type: "heartbeat" }
   | { type: "error"; error: string; recoverable: boolean; code?: ErrorCode }
@@ -168,6 +168,8 @@ const loggingMiddleware: StreamMiddleware = async function* (source, context) {
 
 ### Token Counting Middleware
 
+Vercel AI emits cumulative usage snapshots within each run. Replace stored totals on each update.
+
 ```typescript
 const tokenCounter: StreamMiddleware = async function* (source, context) {
   let totalPrompt = 0;
@@ -175,8 +177,8 @@ const tokenCounter: StreamMiddleware = async function* (source, context) {
 
   for await (const event of source) {
     if (event.type === "usage_update") {
-      totalPrompt += event.promptTokens;
-      totalCompletion += event.completionTokens;
+      totalPrompt = event.promptTokens;
+      totalCompletion = event.completionTokens;
       console.log(`Tokens: ${totalPrompt} in / ${totalCompletion} out`);
     }
     yield event;
@@ -272,6 +274,14 @@ for await (const event of stream) {
   if (event.type === "usage_update") {
     recordUsage(event.promptTokens, event.completionTokens, event.model);
   }
+}
+```
+
+`UsageData` carries native response token counts and optional provider-reported fields: `cost` (normalized USD), `cachedTokens`, and `providerMetadata` (raw passthrough). Vercel AI totals tokens, cost and cached tokens across completed steps; raw metadata comes from the last available step. Streaming snapshots are cumulative within the current run, including usage from completed steps before a later failure. Keep the latest snapshot for each run and add totals across separate runs. Missing provider cost/cache details remain undefined — see [Backends](/backends/overview/#cost--provider-metadata).
+
+```typescript
+onUsage: (usage) => {
+  if (usage.cost !== undefined) recordCost(usage.cost);
 }
 ```
 

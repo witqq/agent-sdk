@@ -8,6 +8,8 @@ export interface AgentSDKErrorOptions extends ErrorOptions {
   retryable?: boolean;
   /** HTTP status code hint (e.g. 401, 429, 500) */
   httpStatus?: number;
+  /** False only when the backend proves model dispatch was not entered. */
+  providerRequestSent?: boolean;
 }
 
 /** Base error class for agent-sdk.
@@ -23,6 +25,8 @@ export class AgentSDKError extends Error {
   readonly retryable: boolean;
   /** HTTP status code hint for error classification */
   readonly httpStatus?: number;
+  /** Undefined means provider effect is unknown; false is explicit unsent evidence. */
+  readonly providerRequestSent?: boolean;
 
   constructor(message: string, options?: AgentSDKErrorOptions) {
     super(message, options);
@@ -30,6 +34,7 @@ export class AgentSDKError extends Error {
     this.code = options?.code;
     this.retryable = options?.retryable ?? false;
     this.httpStatus = options?.httpStatus;
+    this.providerRequestSent = options?.providerRequestSent;
   }
 
   /** Check if an error is an AgentSDKError (works across bundled copies) */

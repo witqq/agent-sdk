@@ -347,7 +347,7 @@ describe("VercelAIAgent.run", () => {
 
     const callArgs = sdk.generateText.mock.calls[0][0];
     expect(callArgs.temperature).toBe(0.5);
-    expect(callArgs.maxTokens).toBe(1000);
+    expect(callArgs.maxOutputTokens).toBe(1000);
     expect(callArgs.topP).toBe(0.9);
   });
 
