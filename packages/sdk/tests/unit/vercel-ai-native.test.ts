@@ -13,10 +13,12 @@ function agent() {
 }
 
 const usage = { prompt_tokens: 41, completion_tokens: 7, total_tokens: 48, cost: 0.003 };
-function transport(stream: boolean, content = "Done") {
+function transport(stream: boolean, content = "Done", firstFailure?: Error) {
   const requests: Record<string, unknown>[] = [];
-  vi.stubGlobal("fetch", vi.fn(async (_url: unknown, init: RequestInit) => {
+  vi.stubGlobal("fetch", vi.fn(async (url: unknown, init: RequestInit) => {
+    if (String(url) !== "https://offline.invalid/v1/chat/completions") throw new Error("Unexpected offline fixture URL");
     requests.push(JSON.parse(String(init.body)));
+    if (requests.length === 1 && firstFailure) throw firstFailure;
     const response = { id: "offline-response", object: "chat.completion", created: 1, model: "offline-model",
       choices: [{ index: 0, message: { role: "assistant", content }, finish_reason: "stop" }], usage };
     if (!stream) return Response.json(response);
@@ -49,7 +51,41 @@ function context(): Message[] {
   ];
 }
 
-describe("Vercel native AI protocol without provider calls", () => {
+describe("Vercel native AI protocol without live provider calls", () => {
+  it.each(["blocking", "structured", "streaming"].flatMap(mode =>
+    [undefined, 0].map(maxRetries => ({ mode, maxRetries }))))(
+    "performs one native HTTP attempt on 503 ($mode, retry=$maxRetries)", async ({ mode, maxRetries }) => {
+      const fetch = vi.fn(async (url: unknown) => {
+        if (String(url) !== "https://offline.invalid/v1/chat/completions") throw new Error("Unexpected offline fixture URL");
+        return Response.json({ error: { message: "Offline provider unavailable" } },
+          { status: 503, headers: { "retry-after": "0" } });
+      });
+      vi.stubGlobal("fetch", fetch);
+      const instance = agent();
+      const options = { model: "offline-model", ...(maxRetries === undefined ? {} : { retry: { maxRetries } }) };
+      let failure: unknown;
+      try {
+        if (mode === "blocking") await instance.run("Answer", options);
+        else if (mode === "structured") await instance.runStructured("Answer", { schema: z.object({ answer: z.string() }) }, options);
+        else for await (const _event of instance.stream("Answer", options)) { /* drain */ }
+      } catch (error) { failure = error; }
+      expect(failure).toBeDefined();
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(failure).not.toHaveProperty("providerRequestSent", false);
+      instance.dispose();
+    });
+
+  it("preserves explicit SDK retry for a typed recoverable error and observes successful native usage", async () => {
+    const original = new AgentSDKError("Offline timeout", { code: "TIMEOUT", retryable: true });
+    const requests = transport(false, "Done", original);
+    const instance = agent();
+    const result = await instance.run("Answer", { model: "offline-model", retry: { maxRetries: 1, initialDelayMs: 0 } });
+    expect(requests).toHaveLength(2);
+    expect(result.output).toBe("Done");
+    expect(result.usage).toMatchObject({ promptTokens: 41, completionTokens: 7, cost: 0.003 });
+    instance.dispose();
+  });
+
   it.each([false, true])("replays tool provenance, enforces the cap and meters native usage (stream=%s)", async stream => {
     const requests = transport(stream);
     const messages = context();

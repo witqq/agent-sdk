@@ -129,6 +129,12 @@ done
 
 `heartbeat` events can appear at any point. `error` events can interrupt the sequence; check `recoverable` to decide whether to continue.
 
+## Retry and Stream Commitment
+
+`RunOptions.retry` can retry a recognized retryable `AgentSDKError` before the first stream event is delivered. Once `stream()` or `streamWithContext()` returns its first event, the operation is committed: a later failure propagates unchanged without repeating text, tool events or other delivered events. Catch failures around iteration and retain any completed usage snapshots.
+
+The Vercel AI backend disables native transport and stream retries beneath this SDK policy. With retry omitted or `retry.maxRetries: 0`, each model step makes one provider request. Raw native provider errors retain their existing classification; configuring SDK retry does not make every native failure retryable.
+
 ## Stream Middleware
 
 Middleware transforms the event stream. Type signature:

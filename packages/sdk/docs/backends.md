@@ -132,6 +132,12 @@ The backend converts these public messages to native tool content parts without 
 
 `modelParams.maxTokens` limits generated output on blocking, structured and streaming calls. The backend maps it to AI SDK 7's `maxOutputTokens`. Configure this public setting directly; no provider option is required for the output limit.
 
+### Retry Ownership
+
+Native AI transport retries are disabled for blocking, structured and streaming execution. With `RunOptions.retry` omitted or `retry.maxRetries: 0`, each model step issues one provider request. A tool loop can still contain several model steps.
+
+`RunOptions.retry` controls the SDK lifecycle's retries for recognized retryable `AgentSDKError` instances. Raw native provider failures are not automatically converted into retryable SDK errors. A stream can retry only before its first event reaches the caller; later failures propagate without restarting the visible operation.
+
 ### Prompt Rejection and Provider Effects
 
 When native `InvalidPromptError` occurs before the model's generation or streaming method is entered, the backend throws `AgentSDKError` with `code: "INVALID_INPUT"`, `retryable: false`, `providerRequestSent: false` and the native error as `cause`. Correct the prompt before retrying. For streaming, catch this error around iteration of the async iterable.

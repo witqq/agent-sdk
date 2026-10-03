@@ -9,6 +9,8 @@
 - Preserve assistant tool calls and matching text, JSON and error tool results when replaying public conversation history through the Vercel AI backend, without mutating caller messages.
 - Map public `modelParams.maxTokens` to AI SDK 7 `maxOutputTokens` on blocking, structured and streaming calls.
 - Preserve native prompt rejection before model dispatch as nonretryable `INVALID_INPUT` with `providerRequestSent: false` and the native cause, including streaming refusals. Provider-originated prompt errors after dispatch retain their identity without unsent evidence.
+- Disable hidden native AI transport retries on blocking, structured and streaming calls so the public SDK retry policy owns additional attempts.
+- Preserve the first delivered stream event and original later failure without restarting a committed operation; pre-event retries for recognized SDK errors remain supported.
 
 ## [0.12.0] — 2026-09-06
 

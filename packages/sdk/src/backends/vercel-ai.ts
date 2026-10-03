@@ -667,6 +667,8 @@ class VercelAIAgent extends BaseAgent {
 
     const result: SDKGenerateTextResult = await sdk.generateText({
       model: dispatch.model,
+      // BaseAgent owns public retry policy; native transport must not add attempts.
+      maxRetries: 0,
       system: this.config.systemPrompt,
       messages: sdkMessages,
       tools: hasTools ? tools : undefined,
@@ -745,6 +747,7 @@ class VercelAIAgent extends BaseAgent {
 
     const result: SDKGenerateObjectResult = await sdk.generateObject({
       model: dispatch.model,
+      maxRetries: 0,
       system: this.config.systemPrompt,
       messages: sdkMessages,
       schema: sdk.jsonSchema(jsonSchema),
@@ -809,6 +812,8 @@ class VercelAIAgent extends BaseAgent {
 
     const result: SDKStreamTextResult = sdk.streamText({
       model: dispatch.model,
+      maxRetries: 0,
+      streamRetries: 0,
       system: this.config.systemPrompt,
       messages: sdkMessages,
       tools: hasTools ? tools : undefined,
