@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [0.12.2] — 2026-10-06
+
+### Fixes
+
+- Preserve terminal native provider stream errors as structured `AgentSDKError` causes, drain terminal promises and reject without a successful `done` or hidden transport retry.
+- Preserve failed tool call identity and primary cause on recoverable error events without emitting a successful tool result; retain measured model usage.
+- Expose optional `tokenUsageKnown` flags on streaming usage snapshots and callbacks so missing usage marks cumulative measured prefixes incomplete instead of implying a known zero. Retain explicit provider zero counts.
+- Omit normalized cumulative cost when any observed model step lacks reported cost, preserving earlier measured prefix evidence without presenting it as the full run price.
+
 ## [0.12.1] — 2026-10-03
 
 ### Fixes

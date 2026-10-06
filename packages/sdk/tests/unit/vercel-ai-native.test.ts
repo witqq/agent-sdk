@@ -52,6 +52,120 @@ function context(): Message[] {
 }
 
 describe("Vercel native AI protocol without live provider calls", () => {
+  function sse(chunks: unknown[] | ((request: number) => unknown[])) {
+    const fetch = vi.fn(async (url: unknown) => {
+      if (String(url) !== "https://offline.invalid/v1/chat/completions") throw new Error("Unexpected offline fixture URL");
+      const parts = typeof chunks === "function" ? chunks(fetch.mock.calls.length) : chunks;
+      return new Response(parts.map(chunk => `data: ${JSON.stringify(chunk)}\n\n`).join("") + "data: [DONE]\n\n",
+        { headers: { "content-type": "text/event-stream" } });
+    });
+    vi.stubGlobal("fetch", fetch);
+    return fetch;
+  }
+
+  function chunk(delta: Record<string, unknown>, finishReason: string | null = null, reportedUsage?: typeof usage) {
+    return { id: "offline-response", object: "chat.completion.chunk", created: 1, model: "offline-model",
+      choices: [{ index: 0, delta, finish_reason: finishReason }], ...(reportedUsage ? { usage: reportedUsage } : {}) };
+  }
+
+  async function drain(instance: ReturnType<typeof agent>) {
+    const events: AgentEvent[] = [];
+    let failure: unknown;
+    try {
+      for await (const event of instance.stream("Answer", { model: "offline-model", retry: { maxRetries: 1, initialDelayMs: 0 } })) events.push(event);
+    } catch (error) { failure = error; }
+    instance.dispose();
+    return { events, failure };
+  }
+
+  it.each([false, true])("preserves structured SSE rejection without false success or native retry (usage=%s)", async measured => {
+    const providerError = { message: "Offline provider rate limit", code: 429, type: "offline_error", param: "messages" };
+    const fetch = sse([...(measured ? [chunk({}, null, usage)] : []), { error: providerError }]);
+    const { events, failure } = await drain(agent());
+    expect(AgentSDKError.is(failure)).toBe(true);
+    expect(failure).toMatchObject({ message: providerError.message, code: "RATE_LIMIT", httpStatus: 429, retryable: false, cause: providerError });
+    const error = events.find(e => e.type === "error");
+    expect(error).toMatchObject({ error: providerError.message, code: "RATE_LIMIT", cause: failure });
+    expect(events.filter(e => e.type === "done")).toEqual([]);
+    expect(events.filter(e => e.type === "usage_update")).toEqual(measured
+      ? [expect.objectContaining({ promptTokens: 41, completionTokens: 7, cost: 0.003 })] : []);
+    expect(failure).not.toHaveProperty("providerRequestSent", false);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("bounds provider object causes and excludes unrecognized error payload", async () => {
+    const fetch = sse([{ error: { message: "x".repeat(3000), code: "c".repeat(300), type: "t".repeat(300), param: "p".repeat(400), metadata: { private: "not public" } } }]);
+    const { failure } = await drain(agent());
+    expect(AgentSDKError.is(failure)).toBe(true);
+    expect((failure as Error).message).toHaveLength(2048);
+    expect((failure as Error).cause).toEqual({ message: "x".repeat(2048), code: "c".repeat(128), type: "t".repeat(128), param: "p".repeat(256) });
+    expect((failure as AgentSDKError).httpStatus).toBeUndefined();
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("correlates a throwing tool with its original cause and measured model usage", async () => {
+    const original = new Error("Offline tool unavailable");
+    const fetch = sse([
+      chunk({ role: "assistant", tool_calls: [{ index: 0, id: "call-offline-tool", type: "function", function: { name: "lookup", arguments: '{"query":"example"}' } }] }),
+      chunk({}, "tool_calls", usage),
+    ]);
+    const instance = createVercelAIService({ apiKey: "offline-key", baseUrl: "https://offline.invalid/v1" })
+      .createAgent({ model: "offline-model", maxTurns: 1, tools: [{ name: "lookup", description: "Offline lookup", parameters: z.object({ query: z.string() }), execute: async () => { throw original; } }] });
+    const { events, failure } = await drain(instance);
+    expect(failure).toBeUndefined();
+    const error = events.find(e => e.type === "error");
+    expect(error).toMatchObject({ code: "TOOL_EXECUTION", recoverable: true, toolCallId: "call-offline-tool", toolName: "lookup" });
+    expect(error?.cause?.cause).toBe(original);
+    expect(events.filter(e => e.type === "tool_call_end")).toEqual([]);
+    expect(events.findLast(e => e.type === "usage_update")).toMatchObject({ promptTokens: 41, completionTokens: 7, cost: 0.003 });
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("preserves partial text without fabricating zero usage or successful terminal output", async () => {
+    const fetch = sse([chunk({ role: "assistant", content: "Partial answer" })]);
+    const { events, failure } = await drain(agent());
+    expect(events.filter(e => e.type === "text_delta").map(e => e.text).join("")).toBe("Partial answer");
+    expect(AgentSDKError.is(failure)).toBe(true);
+    expect((failure as Error).message).toBe("Response stream ended without a finish reason.");
+    expect(events.filter(e => e.type === "usage_update" || e.type === "done")).toEqual([]);
+    expect(failure).not.toHaveProperty("providerRequestSent", false);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    { reported: { prompt_tokens: 41 }, expected: { promptTokens: 41, completionTokens: 0, tokenUsageKnown: { promptTokens: true, completionTokens: false } } },
+    { reported: { completion_tokens: 7 }, expected: { promptTokens: 0, completionTokens: 7, tokenUsageKnown: { promptTokens: false, completionTokens: true } } },
+    { reported: { prompt_tokens: 0, completion_tokens: 0 }, expected: { promptTokens: 0, completionTokens: 0, tokenUsageKnown: { promptTokens: true, completionTokens: true } } },
+  ])("distinguishes measured partial usage and explicit zero from absent counters ($reported)", async ({ reported, expected }) => {
+    const fetch = sse([chunk({ role: "assistant", content: "Answer" }), { ...chunk({}, "stop"), usage: reported }]);
+    const onUsage = vi.fn();
+    const instance = createVercelAIService({ apiKey: "offline-key", baseUrl: "https://offline.invalid/v1" })
+      .createAgent({ model: "offline-model", tools: [], onUsage });
+    const { events, failure } = await drain(instance);
+    expect(failure).toBeUndefined();
+    expect(events.filter(e => e.type === "usage_update")).toEqual([expect.objectContaining(expected)]);
+    expect(onUsage).toHaveBeenCalledExactlyOnceWith(expect.objectContaining(expected));
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("marks a measured prefix incomplete after a later unknown provider step", async () => {
+    const fetch = sse(request => request === 1 ? [
+      chunk({ tool_calls: [{ index: 0, id: "call-prefix", type: "function", function: { name: "lookup", arguments: '{}' } }] }),
+      { ...chunk({}, "tool_calls"), usage },
+    ] : [{ error: { message: "Offline later provider failure", code: 503 } }]);
+    const instance = createVercelAIService({ apiKey: "offline-key", baseUrl: "https://offline.invalid/v1" })
+      .createAgent({ model: "offline-model", maxTurns: 2, tools: [{ name: "lookup", description: "Offline lookup", parameters: z.object({}), execute: async () => "Source" }] });
+    const { events, failure } = await drain(instance);
+    expect((failure as Error).message).toBe("Offline later provider failure");
+    expect(events.filter(e => e.type === "usage_update")).toEqual([
+      expect.objectContaining({ promptTokens: 41, completionTokens: 7, cost: 0.003, tokenUsageKnown: { promptTokens: true, completionTokens: true } }),
+      expect.objectContaining({ promptTokens: 41, completionTokens: 7, tokenUsageKnown: { promptTokens: false, completionTokens: false } }),
+    ]);
+    expect(events.findLast(e => e.type === "usage_update")?.cost).toBeUndefined();
+    expect(events.filter(e => e.type === "done")).toEqual([]);
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
   it.each(["blocking", "structured", "streaming"].flatMap(mode =>
     [undefined, 0].map(maxRetries => ({ mode, maxRetries }))))(
     "performs one native HTTP attempt on 503 ($mode, retry=$maxRetries)", async ({ mode, maxRetries }) => {

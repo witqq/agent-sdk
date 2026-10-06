@@ -27,10 +27,10 @@ import type { AgentEvent } from "@witqq/agent-sdk";
 | `permission_response` | `toolName`, `decision: PermissionDecision` | Approval decision |
 | `ask_user` | `request: UserInputRequest` | Agent asks user a question |
 | `ask_user_response` | `answer: string` | User answered |
-| `usage_update` | `promptTokens`, `completionTokens`, `model?`, `backend?`, `cost?`, `cachedTokens?`, `providerMetadata?` | Token usage report (cost/cache/raw metadata when the provider reports them) |
+| `usage_update` | `promptTokens`, `completionTokens`, `tokenUsageKnown?`, `model?`, `backend?`, `cost?`, `cachedTokens?`, `providerMetadata?` | Cumulative measured usage with optional token presence flags |
 | `session_info` | `sessionId`, `transcriptPath?`, `backend` | Session metadata |
 | `heartbeat` | -- | Keep-alive signal |
-| `error` | `error: string`, `recoverable: boolean`, `code?: ErrorCode` | Error occurred |
+| `error` | `error: string`, `recoverable: boolean`, `code?: ErrorCode`, `cause?: AgentSDKError`, `toolCallId?`, `toolName?` | Failure with optional in-process cause and tool correlation |
 | `done` | `finalOutput`, `structuredOutput?`, `streamed?`, `finishReason?` | Stream completed |
 
 ### Event Type Definitions
@@ -47,10 +47,10 @@ type AgentEvent =
   | { type: "permission_response"; toolName: string; decision: PermissionDecision }
   | { type: "ask_user"; request: UserInputRequest }
   | { type: "ask_user_response"; answer: string }
-  | { type: "usage_update"; promptTokens: number; completionTokens: number; model?: string; backend?: string; cost?: number; cachedTokens?: number; providerMetadata?: Record<string, JSONValue> }
+  | { type: "usage_update"; promptTokens: number; completionTokens: number; tokenUsageKnown?: { promptTokens: boolean; completionTokens: boolean }; model?: string; backend?: string; cost?: number; cachedTokens?: number; providerMetadata?: Record<string, JSONValue> }
   | { type: "session_info"; sessionId: string; transcriptPath?: string; backend: string }
   | { type: "heartbeat" }
-  | { type: "error"; error: string; recoverable: boolean; code?: ErrorCode }
+  | { type: "error"; error: string; recoverable: boolean; code?: ErrorCode; cause?: AgentSDKError; toolCallId?: string; toolName?: string }
   | { type: "done"; finalOutput: string | null; structuredOutput?: unknown; streamed?: boolean; finishReason?: string };
 ```
 
@@ -128,6 +128,8 @@ done
 ```
 
 `heartbeat` events can appear at any point. `error` events can interrupt the sequence; check `recoverable` to decide whether to continue.
+
+For Vercel AI, a terminal provider error emits `error` and then throws its same `cause` from iteration after draining native terminal promises. No `done` follows. Retain delivered text and measured usage even when iteration rejects. A failed tool instead emits a recoverable error carrying its `toolCallId`, `toolName` and primary cause, with no successful `tool_call_end`; the model may continue using the failed result. The optional `cause` is for in-process inspection. Do not serialize raw `Error` causes; bounded provider diagnostic projection is described in [Backends](/backends/overview/#native-stream-failures).
 
 ## Retry and Stream Commitment
 
@@ -284,6 +286,10 @@ for await (const event of stream) {
 ```
 
 `UsageData` carries native response token counts and optional provider-reported fields: `cost` (normalized USD), `cachedTokens`, and `providerMetadata` (raw passthrough). Vercel AI totals tokens, cost and cached tokens across completed steps; raw metadata comes from the last available step. Streaming snapshots are cumulative within the current run, including usage from completed steps before a later failure. Keep the latest snapshot for each run and add totals across separate runs. Missing provider cost/cache details remain undefined — see [Backends](/backends/overview/#cost--provider-metadata).
+
+Vercel AI streaming supplies `tokenUsageKnown?: { promptTokens: boolean; completionTokens: boolean }` on native `AgentEvent` snapshots and `onUsage` data. These fields do not extend the serialized `ChatEvent` protocol. A false flag means the corresponding number is only the known prefix, not a measured zero for absent usage. A later unmeasured step marks the retained prefix incomplete. Explicit raw zero token counts keep true flags. If no tokens or cost were reported and no prefix needs updating, no usage event is emitted. Missing usage or partial text does not prove zero cost; `done` or a synthetic finish does not prove the provider request was unsent. Absence of presence flags on another backend or a blocking result provides no equivalent guarantee.
+
+Normalized `cost` is a cumulative snapshot only when every observed step reports measured cost. A later step with missing cost removes `cost` from the latest snapshot instead of presenting the earlier prefix as the full run price. Keep any previously measured cost as partial evidence; do not interpret absence as zero. Raw last-step `providerMetadata` remains available without establishing complete cost.
 
 ```typescript
 onUsage: (usage) => {

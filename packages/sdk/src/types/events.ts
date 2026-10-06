@@ -1,11 +1,15 @@
 import type { JSONValue } from "./json.js";
 import type { ErrorCode } from "./errors.js";
+import type { AgentSDKError } from "../errors.js";
 import type { PermissionRequest, PermissionDecision, UserInputRequest } from "./permissions.js";
 
 /** Usage data from LLM execution — tokens consumed plus optional metadata */
 export interface UsageData {
   promptTokens: number;
   completionTokens: number;
+  /** Presence of measured cumulative token counters. False means the numeric
+   *  count includes only the known prefix, not a measured zero for missing usage. */
+  tokenUsageKnown?: { promptTokens: boolean; completionTokens: boolean };
   model?: string;
   backend?: string;
   /** Best-effort normalized request cost in USD, when the provider reports it.
@@ -39,6 +43,7 @@ export type AgentEvent =
       type: "usage_update";
       promptTokens: number;
       completionTokens: number;
+      tokenUsageKnown?: { promptTokens: boolean; completionTokens: boolean };
       model?: string;
       backend?: string;
       cost?: number;
@@ -47,7 +52,14 @@ export type AgentEvent =
     }
   | { type: "session_info"; sessionId: string; transcriptPath?: string; backend: string }
   | { type: "heartbeat" }
-  | { type: "error"; error: string; recoverable: boolean; code?: ErrorCode }
+  | {
+      type: "error"; error: string; recoverable: boolean; code?: ErrorCode;
+      /** Primary native failure for in-process consumers; do not serialize raw Error causes. */
+      cause?: AgentSDKError;
+      /** Present for a failed tool invocation, never a successful tool result. */
+      toolCallId?: string;
+      toolName?: string;
+    }
   | { type: "done"; finalOutput: string | null; structuredOutput?: unknown; streamed?: boolean; finishReason?: string };
 
 // ─── Stream Middleware ────────────────────────────────────────

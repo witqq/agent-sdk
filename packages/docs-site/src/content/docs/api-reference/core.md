@@ -3957,6 +3957,7 @@ Defined in: [types/events.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb
 Best-effort normalized request cost in USD, when the provider reports it.
  Populated by backends that can extract a numeric cost from provider metadata
  (e.g. OpenRouter via the Vercel AI backend). Undefined when unavailable.
+ Vercel AI blocking and streaming tool loops expose normalized cost only when every observed step reports measured cost. A missing later cost does not turn a known prefix into a complete run price. Raw provider metadata does not establish completeness.
 
 ##### model?
 
@@ -3978,6 +3979,22 @@ Defined in: [types/events.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb
 
 Raw, provider-specific response metadata passed through untouched.
  Provider-agnostic escape hatch for fields the SDK does not normalize.
+
+##### tokenUsageKnown?
+
+> `optional` **tokenUsageKnown?**: `object`
+
+Defined in: types/events.ts:12
+
+Presence of measured cumulative token counters. A false flag means the numeric count contains only the known prefix, not a measured zero for missing usage. Vercel AI streaming supplies these flags on native usage events and `onUsage` callbacks; this does not extend the serialized `ChatEvent` protocol.
+
+###### completionTokens
+
+> **completionTokens**: `boolean`
+
+###### promptTokens
+
+> **promptTokens**: `boolean`
 
 ***
 
@@ -4095,7 +4112,7 @@ Defined in: [types/backends.ts:99](https://github.com/witqq/agent-sdk/blob/e81c2
 
 ### AgentEvent
 
-> **AgentEvent** = \{ `text`: `string`; `type`: `"text_delta"`; \} \| \{ `text`: `string`; `type`: `"thinking_delta"`; \} \| \{ `args`: [`JSONValue`](#jsonvalue); `toolCallId`: `string`; `toolName`: `string`; `type`: `"tool_call_start"`; \} \| \{ `result`: [`JSONValue`](#jsonvalue); `toolCallId`: `string`; `toolName`: `string`; `type`: `"tool_call_end"`; \} \| \{ `request`: [`PermissionRequest`](#permissionrequest); `type`: `"permission_request"`; \} \| \{ `decision`: [`PermissionDecision`](#permissiondecision); `toolName`: `string`; `type`: `"permission_response"`; \} \| \{ `request`: [`UserInputRequest`](#userinputrequest); `type`: `"ask_user"`; \} \| \{ `answer`: `string`; `type`: `"ask_user_response"`; \} \| \{ `type`: `"thinking_start"`; \} \| \{ `type`: `"thinking_end"`; \} \| \{ `backend?`: `string`; `cachedTokens?`: `number`; `completionTokens`: `number`; `cost?`: `number`; `model?`: `string`; `promptTokens`: `number`; `providerMetadata?`: `Record`\<`string`, [`JSONValue`](#jsonvalue)\>; `type`: `"usage_update"`; \} \| \{ `backend`: `string`; `sessionId`: `string`; `transcriptPath?`: `string`; `type`: `"session_info"`; \} \| \{ `type`: `"heartbeat"`; \} \| \{ `code?`: [`ErrorCode`](#errorcode); `error`: `string`; `recoverable`: `boolean`; `type`: `"error"`; \} \| \{ `finalOutput`: `string` \| `null`; `finishReason?`: `string`; `streamed?`: `boolean`; `structuredOutput?`: `unknown`; `type`: `"done"`; \}
+> **AgentEvent** = \{ `text`: `string`; `type`: `"text_delta"`; \} \| \{ `text`: `string`; `type`: `"thinking_delta"`; \} \| \{ `args`: [`JSONValue`](#jsonvalue); `toolCallId`: `string`; `toolName`: `string`; `type`: `"tool_call_start"`; \} \| \{ `result`: [`JSONValue`](#jsonvalue); `toolCallId`: `string`; `toolName`: `string`; `type`: `"tool_call_end"`; \} \| \{ `request`: [`PermissionRequest`](#permissionrequest); `type`: `"permission_request"`; \} \| \{ `decision`: [`PermissionDecision`](#permissiondecision); `toolName`: `string`; `type`: `"permission_response"`; \} \| \{ `request`: [`UserInputRequest`](#userinputrequest); `type`: `"ask_user"`; \} \| \{ `answer`: `string`; `type`: `"ask_user_response"`; \} \| \{ `type`: `"thinking_start"`; \} \| \{ `type`: `"thinking_end"`; \} \| \{ `backend?`: `string`; `cachedTokens?`: `number`; `completionTokens`: `number`; `cost?`: `number`; `model?`: `string`; `promptTokens`: `number`; `providerMetadata?`: `Record`\<`string`, [`JSONValue`](#jsonvalue)\>; `tokenUsageKnown?`: \{ `completionTokens`: `boolean`; `promptTokens`: `boolean`; \}; `type`: `"usage_update"`; \} \| \{ `backend`: `string`; `sessionId`: `string`; `transcriptPath?`: `string`; `type`: `"session_info"`; \} \| \{ `type`: `"heartbeat"`; \} \| \{ `cause?`: [`AgentSDKError`](#agentsdkerror); `code?`: [`ErrorCode`](#errorcode); `error`: `string`; `recoverable`: `boolean`; `toolCallId?`: `string`; `toolName?`: `string`; `type`: `"error"`; \} \| \{ `finalOutput`: `string` \| `null`; `finishReason?`: `string`; `streamed?`: `boolean`; `structuredOutput?`: `unknown`; `type`: `"done"`; \}
 
 Defined in: [types/events.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/events.ts#L23)
 

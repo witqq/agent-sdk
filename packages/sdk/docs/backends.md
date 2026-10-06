@@ -144,6 +144,14 @@ When native `InvalidPromptError` occurs before the model's generation or streami
 
 Use `AgentSDKError.is(error)` across bundled entry points. Only explicit `providerRequestSent === false` proves that no model request was dispatched. An undefined value leaves provider effects unknown. A provider-originated `InvalidPromptError` after dispatch retains its original identity without an unsent marker; network failures, timeouts and aborts also provide no unsent proof.
 
+### Native Stream Failures
+
+A terminal provider stream error emits an `error` event with an `AgentSDKError` in `cause`, drains native terminal promises without replacing the primary failure, and throws that same SDK error from iteration. It does not emit `done`. Usage already measured in completed steps remains available; synthetic finish parts do not prove a successful response or an unsent request.
+
+Native `Error` causes retain their identity for in-process consumers. Plain provider payloads, including AI SDK `StreamProviderError.data`, are projected to bounded diagnostic fields: `message` (2048 characters), string `code` (128), `type` (128), and `param` (256, or null). Finite numeric codes are retained; a numeric integer status hint from 400 through 599 can populate `httpStatus`. Arbitrary provider fields are excluded from this projection. Do not serialize raw `Error` causes to clients; select the public diagnostic fields your application needs.
+
+A throwing tool emits a recoverable `error` with `code: "TOOL_EXECUTION"`, `toolCallId`, `toolName` and its primary cause. It does not emit a successful `tool_call_end`. The native model may continue with the failed tool result, and measured model usage is retained. `recoverable` describes that tool-loop behavior; it does not authorize a hidden provider retry.
+
 ### Model-Specific Options
 
 Pass provider options via `providerOptions` on `AgentConfig`:
@@ -171,7 +179,9 @@ result.usage?.providerMetadata; // raw provider metadata, untouched
 
 `promptTokens` and `completionTokens` come from native input and output token usage. Blocking and streaming tool loops total tokens, cost and cached tokens across completed steps. Structured output reports its generation usage. Raw `providerMetadata` is the last available step's metadata.
 
-Streaming `usage_update` events are cumulative snapshots for the current run. Replace the previous snapshot rather than adding snapshots together; completed-step usage remains available if a later step fails. Providers that report no cost or cache details leave `cost`/`cachedTokens` undefined.
+Streaming `usage_update` events are cumulative snapshots for the current run. Replace the previous snapshot rather than adding snapshots together; completed-step usage remains available if a later step fails. Normalized `cost` is supplied only when every observed step reports a measured cost, on both blocking and streaming tool loops. If a later step has no reported cost, the latest snapshot omits `cost`; an earlier snapshot can still retain its measured prefix cost. Raw `providerMetadata` remains the last available step's metadata and does not establish a complete run price. Missing cache details leave `cachedTokens` undefined.
+
+Streaming snapshots and the `onUsage` callback include optional `tokenUsageKnown: { promptTokens, completionTokens }` presence flags. A false flag means the numeric counter contains only the measured prefix, not a known zero for the missing usage. Explicit raw provider zero counts are known. A step with neither measured tokens nor reported cost emits no usage snapshot unless an earlier measured prefix needs to be marked incomplete. Missing usage, partial text and terminal stream errors never establish zero cost or an unsent request. Backends or blocking results without these flags do not establish the same presence guarantee.
 
 `providerOptions` remains the supported path for other per-provider request extras. It reaches `generateText`, `generateObject`, and `streamText` on all paths.
 
