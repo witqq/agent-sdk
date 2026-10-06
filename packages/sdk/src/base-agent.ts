@@ -365,6 +365,7 @@ export abstract class BaseAgent implements IAgent {
         const usage: UsageData = {
           promptTokens: event.promptTokens,
           completionTokens: event.completionTokens,
+          ...(event.tokenUsageKnown !== undefined && { tokenUsageKnown: event.tokenUsageKnown }),
           model,
           backend: this.backendName,
           // Preserve any provider-supplied metadata the backend attached

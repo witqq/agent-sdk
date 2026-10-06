@@ -72,6 +72,8 @@ interface SDKStreamTextResult {
   providerMetadata: PromiseLike<SDKProviderMetadata | undefined>;
 }
 
+interface SDKTokenUsage { inputTokens?: number; outputTokens?: number; raw?: Record<string, unknown> }
+
 /** @internal Vercel AI SDK v7 stream part union */
 type SDKStreamPart =
   | { type: "text-delta"; text: string }
@@ -83,7 +85,7 @@ type SDKStreamPart =
   | { type: "reasoning-delta"; text: string }
   | {
       type: "finish-step";
-      usage: { inputTokens?: number; outputTokens?: number };
+      usage: SDKTokenUsage;
       finishReason: string;
       providerMetadata?: SDKProviderMetadata;
     }
@@ -97,6 +99,7 @@ type SDKLanguageModel = Record<string, unknown>;
 /** @internal SDK module shape */
 interface SDKModule {
   InvalidPromptError?: { isInstance: (error: unknown) => boolean };
+  StreamProviderError?: { isInstance: (error: unknown) => boolean };
   generateText: (options: Record<string, unknown>) => Promise<SDKGenerateTextResult>;
   streamText: (options: Record<string, unknown>) => SDKStreamTextResult;
   generateObject: (options: Record<string, unknown>) => Promise<SDKGenerateObjectResult>;
@@ -245,6 +248,7 @@ function aggregateProviderMetadata(
   let cost = 0;
   let cachedTokens = 0;
   let hasCost = false;
+  let allCostsKnown = metadataEntries.length > 0 && (steps.length <= 1 || stepMetadata.length === steps.length);
   let hasCachedTokens = false;
 
   for (const metadata of metadataEntries) {
@@ -252,6 +256,8 @@ function aggregateProviderMetadata(
     if (extracted.cost !== undefined) {
       cost += extracted.cost;
       hasCost = true;
+    } else {
+      allCostsKnown = false;
     }
     if (extracted.cachedTokens !== undefined) {
       cachedTokens += extracted.cachedTokens;
@@ -261,7 +267,7 @@ function aggregateProviderMetadata(
 
   const providerMetadata = metadataEntries.at(-1);
   return {
-    ...(hasCost ? { cost } : {}),
+    ...(hasCost && allCostsKnown ? { cost } : {}),
     ...(hasCachedTokens ? { cachedTokens } : {}),
     ...(providerMetadata !== undefined
       ? { providerMetadata: providerMetadata as Record<string, JSONValue> }
@@ -442,7 +448,8 @@ function wrapToolExecute(
       if (e instanceof ToolExecutionError) throw e;
       throw new ToolExecutionError(
         ourTool.name,
-        e instanceof Error ? e.message : String(e),
+        streamErrorCause(e).message,
+        { cause: e },
       );
     }
   };
@@ -524,7 +531,41 @@ function messagesToSDK(messages: Message[]): Array<Record<string, unknown>> {
 
 // ─── Event Mapping (fullStream → AgentEvent) ────────────────────
 
-function mapStreamPart(part: SDKStreamPart): AgentEvent | null {
+/** Preserve native Error identity in-process; plain provider payloads expose
+ * only bounded public diagnostic fields, never arbitrary response metadata. */
+function streamErrorCause(error: unknown, sdk?: SDKModule): AgentSDKError {
+  if (AgentSDKError.is(error)) return error;
+  const source = isRecord(error) ? error : {};
+  const message = (error instanceof Error ? error.message
+    : typeof source.message === "string" ? source.message
+    : typeof error === "string" ? error : "Unknown provider error").slice(0, 2048);
+  const providerPayload = sdk?.StreamProviderError?.isInstance(error) && isRecord(source.data) ? source.data : source;
+  const details: Record<string, unknown> = { message };
+  if (typeof providerPayload.code === "string") details.code = providerPayload.code.slice(0, 128);
+  else if (typeof providerPayload.code === "number" && Number.isFinite(providerPayload.code)) details.code = providerPayload.code;
+  if (typeof providerPayload.type === "string") details.type = providerPayload.type.slice(0, 128);
+  if (typeof providerPayload.param === "string") details.param = providerPayload.param.slice(0, 256);
+  else if (providerPayload.param === null) details.param = null;
+  const status = source.statusCode ?? source.code;
+  const httpStatus = typeof status === "number" && Number.isInteger(status) && status >= 400 && status <= 599 ? status : undefined;
+  return new AgentSDKError(message, {
+    code: classifyAgentError(message), retryable: false,
+    ...(httpStatus !== undefined ? { httpStatus } : {}),
+    cause: error instanceof Error && !sdk?.StreamProviderError?.isInstance(error) ? error : details,
+  });
+}
+
+function measuredTokens(usage: SDKTokenUsage | undefined, metadata?: SDKProviderMetadata) {
+  const metadataUsage = Object.values(metadata ?? {}).map(value => value.usage).find(isRecord);
+  const raw = usage?.raw ?? (metadataUsage && ("prompt_tokens" in metadataUsage || "completion_tokens" in metadataUsage) ? metadataUsage : undefined);
+  const finiteCount = (value: unknown) => typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : undefined;
+  return {
+    prompt: finiteCount(raw ? raw.prompt_tokens : usage?.inputTokens),
+    completion: finiteCount(raw ? raw.completion_tokens : usage?.outputTokens),
+  };
+}
+
+function mapStreamPart(part: SDKStreamPart, sdk?: SDKModule): AgentEvent | null {
   switch (part.type) {
     case "text-delta": {
       const p = part as Extract<SDKStreamPart, { type: "text-delta" }>;
@@ -560,6 +601,9 @@ function mapStreamPart(part: SDKStreamPart): AgentEvent | null {
           : String(p.error ?? "Tool execution failed"),
         recoverable: true,
         code: ErrorCode.TOOL_EXECUTION,
+        cause: AgentSDKError.is(p.error) ? p.error : new ToolExecutionError(p.toolName, streamErrorCause(p.error).message, { cause: p.error }),
+        toolCallId: p.toolCallId,
+        toolName: p.toolName,
       };
     }
 
@@ -581,15 +625,15 @@ function mapStreamPart(part: SDKStreamPart): AgentEvent | null {
 
     case "error": {
       const p = part as Extract<SDKStreamPart, { type: "error" }>;
-      const errorMsg = p.error instanceof Error
-        ? p.error.message
-        : String(p.error ?? "Unknown error");
+      const cause = streamErrorCause(p.error, sdk);
+      const errorMsg = cause.message;
       const code = classifyAgentError(errorMsg);
       return {
         type: "error",
         error: errorMsg,
         recoverable: isRecoverableErrorCode(code),
         code,
+        cause,
       };
     }
 
@@ -839,6 +883,10 @@ class VercelAIAgent extends BaseAgent {
     let cumulativePromptTokens = 0;
     let cumulativeCompletionTokens = 0;
     let nativePromptError: unknown;
+    let primaryStreamError: AgentSDKError | undefined;
+    let promptKnown = true;
+    let completionKnown = true;
+    let hasUsageSnapshot = false;
 
     try {
       for await (const part of result.fullStream) {
@@ -849,7 +897,10 @@ class VercelAIAgent extends BaseAgent {
           continue;
         }
 
-        const event = mapStreamPart(part as SDKStreamPart);
+        const event = mapStreamPart(part as SDKStreamPart, sdk);
+        if (part.type === "error" && event?.type === "error") {
+          primaryStreamError ??= event.cause;
+        }
         if (event) yield event;
 
         if ((part as SDKStreamPart).type === "text-delta") {
@@ -862,14 +913,22 @@ class VercelAIAgent extends BaseAgent {
         if ((part as SDKStreamPart).type === "finish-step") {
           const p = part as Extract<SDKStreamPart, { type: "finish-step" }>;
           usageSteps.push({ providerMetadata: p.providerMetadata });
-          cumulativePromptTokens += Number(p.usage?.inputTokens ?? 0);
-          cumulativeCompletionTokens += Number(p.usage?.outputTokens ?? 0);
-          yield {
-            type: "usage_update",
-            promptTokens: cumulativePromptTokens,
-            completionTokens: cumulativeCompletionTokens,
-            ...aggregateProviderMetadata(usageSteps),
-          };
+          const measured = measuredTokens(p.usage, p.providerMetadata);
+          promptKnown &&= measured.prompt !== undefined;
+          completionKnown &&= measured.completion !== undefined;
+          cumulativePromptTokens += measured.prompt ?? 0;
+          cumulativeCompletionTokens += measured.completion ?? 0;
+          const metadata = aggregateProviderMetadata(usageSteps);
+          if (measured.prompt !== undefined || measured.completion !== undefined || metadata.cost !== undefined || hasUsageSnapshot) {
+            hasUsageSnapshot = true;
+            yield {
+              type: "usage_update",
+              promptTokens: cumulativePromptTokens,
+              completionTokens: cumulativeCompletionTokens,
+              tokenUsageKnown: { promptTokens: promptKnown, completionTokens: completionKnown },
+              ...metadata,
+            };
+          }
           lastFinishReason = p.finishReason;
           if (p.finishReason === "tool-calls") {
             finalText = "";
@@ -890,6 +949,11 @@ class VercelAIAgent extends BaseAgent {
         throw projectPromptError(nativePromptError, sdk, dispatch.entered);
       }
 
+      if (primaryStreamError) {
+        await Promise.allSettled([result.totalUsage, result.text, result.providerMetadata]);
+        throw primaryStreamError;
+      }
+
       // AI SDK v7 exposes usage and provider metadata on every finish-step, so
       // the last cumulative snapshot above is already the run total. Older
       // compatible SDKs/mocks may expose only terminal totals; emit one fallback
@@ -902,15 +966,18 @@ class VercelAIAgent extends BaseAgent {
         (step) => step.providerMetadata !== undefined,
       );
       if (
-        usageSteps.length === 0
+        (usageSteps.length === 0
         || totalPromptTokens !== cumulativePromptTokens
         || totalCompletionTokens !== cumulativeCompletionTokens
-        || (!hasStepProviderMetadata && terminalProviderMetadata !== undefined)
+        || (!hasStepProviderMetadata && terminalProviderMetadata !== undefined))
+        && promptKnown && completionKnown
       ) {
-        yield {
+        const measured = measuredTokens(totalUsage, terminalProviderMetadata);
+        if (measured.prompt !== undefined || measured.completion !== undefined) yield {
           type: "usage_update",
-          promptTokens: totalPromptTokens,
-          completionTokens: totalCompletionTokens,
+          promptTokens: measured.prompt ?? 0,
+          completionTokens: measured.completion ?? 0,
+          tokenUsageKnown: { promptTokens: measured.prompt !== undefined, completionTokens: measured.completion !== undefined },
           ...aggregateProviderMetadata(usageSteps, terminalProviderMetadata),
         };
       }
@@ -924,6 +991,7 @@ class VercelAIAgent extends BaseAgent {
       };
     } catch (e) {
       if (signal.aborted) throw new AbortError();
+      if (primaryStreamError) throw primaryStreamError;
       throw projectPromptError(e, sdk, dispatch.entered);
     }
   }

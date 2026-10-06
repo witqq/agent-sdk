@@ -977,9 +977,9 @@ describe("VercelAIAgent.stream", () => {
     const agent = service.createAgent(baseConfig());
 
     const events: Array<Record<string, unknown>> = [];
-    for await (const event of agent.stream("Test", { model: "test-model" })) {
-      events.push(event as Record<string, unknown>);
-    }
+    await expect(async () => {
+      for await (const event of agent.stream("Test", { model: "test-model" })) events.push(event as Record<string, unknown>);
+    }).rejects.toThrow("Something failed");
 
     const errorEvent = events.find((e) => e.type === "error");
     expect(errorEvent).toBeDefined();
@@ -1001,9 +1001,9 @@ describe("VercelAIAgent.stream", () => {
     const agent = service.createAgent(baseConfig());
 
     const events: Array<Record<string, unknown>> = [];
-    for await (const event of agent.stream("Test", { model: "test-model" })) {
-      events.push(event as Record<string, unknown>);
-    }
+    await expect(async () => {
+      for await (const event of agent.stream("Test", { model: "test-model" })) events.push(event as Record<string, unknown>);
+    }).rejects.toThrow("429 Too Many Requests");
 
     const errorEvent = events.find((e) => e.type === "error");
     expect(errorEvent).toBeDefined();
