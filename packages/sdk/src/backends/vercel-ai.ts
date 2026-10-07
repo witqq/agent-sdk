@@ -12,6 +12,7 @@ import type {
   ModelInfo,
   ValidationResult,
   JSONValue,
+  LocalToolRefusal,
   PermissionRequest as UnifiedPermissionRequest,
   PermissionDecision,
 } from "../types.js";
@@ -20,6 +21,7 @@ import { BaseAgent } from "../base-agent.js";
 import { AgentSDKError, DisposedError, DependencyError, AbortError, ToolExecutionError } from "../errors.js";
 import { zodToJsonSchema } from "../utils/schema.js";
 import type { IPermissionStore } from "../permission-store.js";
+import { z } from "zod";
 
 export type { VercelAIBackendOptions } from "../types.js";
 
@@ -77,9 +79,9 @@ interface SDKTokenUsage { inputTokens?: number; outputTokens?: number; raw?: Rec
 /** @internal Vercel AI SDK v7 stream part union */
 type SDKStreamPart =
   | { type: "text-delta"; text: string }
-  | { type: "tool-call"; toolCallId: string; toolName: string; input: unknown }
+  | { type: "tool-call"; toolCallId: string; toolName: string; input: unknown; invalid?: boolean; error?: unknown; providerExecuted?: boolean }
   | { type: "tool-result"; toolCallId: string; toolName: string; output: unknown }
-  | { type: "tool-error"; toolCallId: string; toolName: string; error: unknown }
+  | { type: "tool-error"; toolCallId: string; toolName: string; error: unknown; input?: unknown; providerExecuted?: boolean }
   | { type: "reasoning-start" }
   | { type: "reasoning-end" }
   | { type: "reasoning-delta"; text: string }
@@ -100,11 +102,13 @@ type SDKLanguageModel = Record<string, unknown>;
 interface SDKModule {
   InvalidPromptError?: { isInstance: (error: unknown) => boolean };
   StreamProviderError?: { isInstance: (error: unknown) => boolean };
+  NoSuchToolError?: { isInstance: (error: unknown) => boolean };
+  InvalidToolInputError?: { isInstance: (error: unknown) => boolean };
   generateText: (options: Record<string, unknown>) => Promise<SDKGenerateTextResult>;
   streamText: (options: Record<string, unknown>) => SDKStreamTextResult;
   generateObject: (options: Record<string, unknown>) => Promise<SDKGenerateObjectResult>;
   tool: (options: Record<string, unknown>) => SDKToolDefinition;
-  jsonSchema: (schema: unknown) => unknown;
+  jsonSchema: (schema: unknown, options?: { validate: (value: unknown) => Promise<{ success: true; value: unknown } | { success: false; error: Error }> }) => unknown;
   stepCountIs: (count: number) => unknown;
 }
 
@@ -301,7 +305,7 @@ function transformRequestBody(
  * the non-streaming response (whole parsed body) and the streaming response (the last
  * chunk that carries `usage` wins).
  */
-function createUsageMetadataExtractor(providerName: string): {
+function createUsageMetadataExtractor(providerName: string, calls?: StreamedCallNames): {
   extractMetadata: (args: {
     parsedBody: unknown;
   }) => Promise<Record<string, unknown> | undefined>;
@@ -320,9 +324,11 @@ function createUsageMetadataExtractor(providerName: string): {
         ? wrap(parsedBody.usage)
         : undefined,
     createStreamExtractor: () => {
+      calls?.reset();
       let usage: Record<string, unknown> | undefined;
       return {
         processChunk(parsedChunk: unknown): void {
+          calls?.observe(parsedChunk);
           if (isRecord(parsedChunk) && isRecord(parsedChunk.usage)) {
             usage = parsedChunk.usage;
           }
@@ -331,6 +337,48 @@ function createUsageMetadataExtractor(providerName: string): {
       };
     },
   };
+}
+
+/** Observe parsed provider fields without decoding or rewriting the transport.
+ * Only an initially empty name followed by one exact name can be normalized. */
+class StreamedCallNames {
+  private readonly slots = new Map<string, { id: string; initialName: unknown; name?: string; conflicted: boolean }>();
+  reset(): void { this.slots.clear(); }
+  observe(chunk: unknown): void {
+    if (!isRecord(chunk) || !Array.isArray(chunk.choices)) return;
+    for (const choice of chunk.choices) {
+      if (!isRecord(choice) || !Number.isInteger(choice.index) || !isRecord(choice.delta) || !Array.isArray(choice.delta.tool_calls)) continue;
+      for (const call of choice.delta.tool_calls) {
+        if (!isRecord(call) || !Number.isInteger(call.index)) continue;
+        const key = `${choice.index}:${call.index}`;
+        let slot = this.slots.get(key);
+        const name = isRecord(call.function) ? call.function.name : undefined;
+        if (!slot) {
+          if (typeof call.id !== "string" || !call.id || this.slots.size >= 256) continue;
+          slot = { id: call.id, initialName: name, conflicted: false };
+          this.slots.set(key, slot);
+        } else if (call.id !== undefined && call.id !== slot.id) slot.conflicted = true;
+        if (typeof name === "string" && name.length > 0) {
+          if (name.length > 1024 || (slot.name !== undefined && slot.name !== name)) slot.conflicted = true;
+          else slot.name = name;
+        }
+      }
+    }
+  }
+  delayedName(id: string): string | undefined {
+    const matches = [...this.slots.values()].filter(slot => slot.id === id);
+    const slot = matches.length === 1 ? matches[0] : undefined;
+    return slot?.initialName === "" && !slot.conflicted ? slot.name : undefined;
+  }
+}
+
+function validatedSchema(sdk: SDKModule, schema: z.ZodType): unknown {
+  return sdk.jsonSchema(zodToJsonSchema(schema), {
+    validate: async value => {
+      const parsed = await schema.safeParseAsync(value);
+      return parsed.success ? { success: true, value: parsed.data } : { success: false, error: parsed.error };
+    },
+  });
 }
 
 // ─── Tool Mapping ───────────────────────────────────────────────
@@ -347,11 +395,9 @@ function mapToolsToSDK(
   const supervisor = config.supervisor;
 
   for (const ourTool of tools) {
-    const jsonSchema = zodToJsonSchema(ourTool.parameters);
-
     toolMap[ourTool.name] = sdk.tool({
       description: ourTool.description,
-      inputSchema: sdk.jsonSchema(jsonSchema),
+      inputSchema: validatedSchema(sdk, ourTool.parameters),
       execute: wrapToolExecute(ourTool, supervisor, sessionApprovals, permissionStore, signal),
       ...(ourTool.needsApproval && supervisor?.onPermission
         ? {
@@ -372,13 +418,7 @@ function mapToolsToSDK(
     const onAskUser = supervisor.onAskUser;
     toolMap["ask_user"] = sdk.tool({
       description: "Ask the user a question and wait for their response",
-      inputSchema: sdk.jsonSchema({
-        type: "object",
-        properties: {
-          question: { type: "string", description: "The question to ask the user" },
-        },
-        required: ["question"],
-      }),
+      inputSchema: validatedSchema(sdk, z.object({ question: z.string().describe("The question to ask the user") })),
       execute: async (args: { question: string }) => {
         const response = await onAskUser(
           { question: args.question, allowFreeform: true },
@@ -578,7 +618,7 @@ function mapStreamPart(part: SDKStreamPart, sdk?: SDKModule): AgentEvent | null 
         type: "tool_call_start",
         toolCallId: String(p.toolCallId ?? ""),
         toolName: p.toolName ?? "unknown",
-        args: (p.input ?? {}) as JSONValue,
+        ...(p.input !== undefined ? { args: p.input as JSONValue } : {}),
       };
     }
 
@@ -658,12 +698,12 @@ class VercelAIAgent extends BaseAgent {
     this.backendOptions = backendOptions;
   }
 
-  private async getModel(options: RunOptions): Promise<SDKLanguageModel> {
+  private async getModel(options: RunOptions, calls?: StreamedCallNames): Promise<SDKLanguageModel> {
     const requestedModel = options.model;
     const defaultModel = this.config.model;
 
     // If same as default/cached, reuse
-    if (requestedModel === defaultModel && this.model) return this.model;
+    if (!calls && requestedModel === defaultModel && this.model) return this.model;
 
     const compat = await loadCompat();
     const providerName = this.backendOptions.provider ?? DEFAULT_PROVIDER;
@@ -675,12 +715,12 @@ class VercelAIAgent extends BaseAgent {
       // providerMetadata where extractProviderMetadata reads them. The base
       // openai-compatible provider drops these non-standard usage fields otherwise.
       transformRequestBody,
-      metadataExtractor: createUsageMetadataExtractor(providerName),
+      metadataExtractor: createUsageMetadataExtractor(providerName, calls),
     });
 
     const model = provider.chatModel(requestedModel);
     // Cache only when using default model
-    if (requestedModel === defaultModel) {
+    if (!calls && requestedModel === defaultModel) {
       this.model = model;
     }
     return model;
@@ -847,7 +887,8 @@ class VercelAIAgent extends BaseAgent {
     this.checkAbort(signal);
 
     const sdk = await loadSDK();
-    const dispatch = observeDispatch(await this.getModel(options));
+    const callNames = new StreamedCallNames();
+    const dispatch = observeDispatch(await this.getModel(options, callNames));
     const tools = await this.getSDKTools(signal, options);
     const maxTurns = this.config.maxTurns ?? DEFAULT_MAX_TURNS;
 
@@ -861,6 +902,11 @@ class VercelAIAgent extends BaseAgent {
       system: this.config.systemPrompt,
       messages: sdkMessages,
       tools: hasTools ? tools : undefined,
+      experimental_repairToolCall: async ({ toolCall, error }: { toolCall: { toolCallId: string; toolName: string; input: string; providerExecuted?: boolean }; error: unknown }) => {
+        if (toolCall.providerExecuted === true || toolCall.toolName !== "" || !sdk.NoSuchToolError?.isInstance(error)) return null;
+        const name = callNames.delayedName(toolCall.toolCallId);
+        return name && Object.hasOwn(tools, name) ? { ...toolCall, toolName: name } : null;
+      },
       stopWhen: sdk.stepCountIs(maxTurns),
       abortSignal: signal,
       ...(this.config.modelParams?.temperature !== undefined && {
@@ -887,6 +933,8 @@ class VercelAIAgent extends BaseAgent {
     let promptKnown = true;
     let completionKnown = true;
     let hasUsageSnapshot = false;
+    const localRefusals = new Map<string, { proof: LocalToolRefusal; input: unknown }>();
+    const observedCallIds = new Set<string>();
 
     try {
       for await (const part of result.fullStream) {
@@ -897,7 +945,34 @@ class VercelAIAgent extends BaseAgent {
           continue;
         }
 
+        if (part.type === "tool-call") {
+          const call = part as Extract<SDKStreamPart, { type: "tool-call" }>;
+          const duplicate = observedCallIds.has(call.toolCallId);
+          observedCallIds.add(call.toolCallId);
+          localRefusals.delete(call.toolCallId);
+          const reason = sdk.NoSuchToolError?.isInstance(call.error) ? "no_such_tool"
+            : sdk.InvalidToolInputError?.isInstance(call.error) ? "invalid_tool_input" : undefined;
+          // Native parseToolCall emits these invalid parts before its executor;
+          // its following non-provider tool-error establishes the local branch.
+          if (!duplicate && call.invalid === true && call.providerExecuted !== true && reason && call.toolCallId && typeof call.toolName === "string") {
+            localRefusals.set(call.toolCallId, {
+              input: call.input,
+              proof: { reason, toolCallId: call.toolCallId, toolName: call.toolName,
+                ...(call.input !== undefined ? { args: call.input as JSONValue } : {}),
+                toolExecutionStarted: false, providerExecuted: false },
+            });
+          }
+        }
         const event = mapStreamPart(part as SDKStreamPart, sdk);
+        if (part.type === "tool-error" && event?.type === "error") {
+          const failure = part as Extract<SDKStreamPart, { type: "tool-error" }>;
+          const observed = localRefusals.get(failure.toolCallId);
+          localRefusals.delete(failure.toolCallId);
+          if (observed && failure.providerExecuted !== true && failure.toolName === observed.proof.toolName
+            && Object.hasOwn(failure, "input") && JSON.stringify(failure.input) === JSON.stringify(observed.input)) {
+            event.localToolRefusal = observed.proof;
+          }
+        }
         if (part.type === "error" && event?.type === "error") {
           primaryStreamError ??= event.cause;
         }
@@ -911,6 +986,8 @@ class VercelAIAgent extends BaseAgent {
         // intermediate reasoning (e.g. "Let me search..."). Reset so that only
         // the final step's text becomes the output.
         if ((part as SDKStreamPart).type === "finish-step") {
+          localRefusals.clear();
+          observedCallIds.clear();
           const p = part as Extract<SDKStreamPart, { type: "finish-step" }>;
           usageSteps.push({ providerMetadata: p.providerMetadata });
           const measured = measuredTokens(p.usage, p.providerMetadata);

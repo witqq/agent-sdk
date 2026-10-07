@@ -42,6 +42,7 @@ export {
 export type {
   UsageData,
   AgentEvent,
+  LocalToolRefusal,
   StreamContext,
   StreamMiddleware,
 } from "./events.js";

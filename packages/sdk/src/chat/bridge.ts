@@ -27,7 +27,7 @@ export function agentEventToChatEvent(
         messageId,
         toolCallId: event.toolCallId,
         toolName: event.toolName,
-        args: event.args as Record<string, unknown>,
+        ...(event.args !== undefined ? { args: event.args } : {}),
       };
     case "tool_call_end":
       return {
@@ -116,7 +116,7 @@ export function chatEventToAgentEvent(event: ChatEvent): AgentEvent | null {
         type: "tool_call_start",
         toolCallId: event.toolCallId,
         toolName: event.toolName,
-        args: event.args as JSONValue,
+        ...(event.args !== undefined ? { args: event.args as JSONValue } : {}),
       };
     case "tool:complete":
       return {

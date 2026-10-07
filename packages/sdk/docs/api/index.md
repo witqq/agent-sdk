@@ -3180,6 +3180,23 @@ Revoke approval for a tool
 
 ***
 
+### LocalToolRefusal
+
+Defined in: types/events.ts:28
+
+A native parse refusal for one observed call before tool execution. This observation does not prove the model request was unsent, complete or replay safe.
+
+| Property | Type | Meaning |
+|---|---|---|
+| reason | `"no_such_tool" \| "invalid_tool_input"` | Recognized native parse refusal |
+| toolCallId | `string` | Actual correlated call identity |
+| toolName | `string` | Actual observed name, including empty names |
+| args? | [JSONValue](#jsonvalue) | Observed input; missing remains absent, null remains null |
+| toolExecutionStarted | `false` | Application tool execution did not start |
+| providerExecuted | `false` | Provider tool execution did not occur for this call |
+
+***
+
 ### ModelInfo
 
 Defined in: [types/models.ts:2](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/models.ts#L2)
@@ -3526,7 +3543,7 @@ Override/extend tools for this call
 
 ### StreamContext
 
-Defined in: [types/events.ts:56](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/events.ts#L56)
+Defined in: types/events.ts:80
 
 Context passed to stream middleware — immutable per stream invocation
 
@@ -3536,19 +3553,19 @@ Context passed to stream middleware — immutable per stream invocation
 
 > **abortController**: `AbortController`
 
-Defined in: [types/events.ts:59](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/events.ts#L59)
+Defined in: types/events.ts:83
 
 ##### backend
 
 > **backend**: `string`
 
-Defined in: [types/events.ts:58](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/events.ts#L58)
+Defined in: types/events.ts:82
 
 ##### config
 
 > **config**: `Readonly`\<`Record`\<`string`, `unknown`\>\>
 
-Defined in: [types/events.ts:61](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/events.ts#L61)
+Defined in: types/events.ts:85
 
 Agent config snapshot. Loosely typed to avoid leaking internal FullAgentConfig to external middleware consumers.
 
@@ -3556,7 +3573,7 @@ Agent config snapshot. Loosely typed to avoid leaking internal FullAgentConfig t
 
 > **model**: `string`
 
-Defined in: [types/events.ts:57](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/events.ts#L57)
+Defined in: types/events.ts:81
 
 ***
 
@@ -4112,9 +4129,9 @@ Defined in: [types/backends.ts:99](https://github.com/witqq/agent-sdk/blob/e81c2
 
 ### AgentEvent
 
-> **AgentEvent** = \{ `text`: `string`; `type`: `"text_delta"`; \} \| \{ `text`: `string`; `type`: `"thinking_delta"`; \} \| \{ `args`: [`JSONValue`](#jsonvalue); `toolCallId`: `string`; `toolName`: `string`; `type`: `"tool_call_start"`; \} \| \{ `result`: [`JSONValue`](#jsonvalue); `toolCallId`: `string`; `toolName`: `string`; `type`: `"tool_call_end"`; \} \| \{ `request`: [`PermissionRequest`](#permissionrequest); `type`: `"permission_request"`; \} \| \{ `decision`: [`PermissionDecision`](#permissiondecision); `toolName`: `string`; `type`: `"permission_response"`; \} \| \{ `request`: [`UserInputRequest`](#userinputrequest); `type`: `"ask_user"`; \} \| \{ `answer`: `string`; `type`: `"ask_user_response"`; \} \| \{ `type`: `"thinking_start"`; \} \| \{ `type`: `"thinking_end"`; \} \| \{ `backend?`: `string`; `cachedTokens?`: `number`; `completionTokens`: `number`; `cost?`: `number`; `model?`: `string`; `promptTokens`: `number`; `providerMetadata?`: `Record`\<`string`, [`JSONValue`](#jsonvalue)\>; `tokenUsageKnown?`: \{ `completionTokens`: `boolean`; `promptTokens`: `boolean`; \}; `type`: `"usage_update"`; \} \| \{ `backend`: `string`; `sessionId`: `string`; `transcriptPath?`: `string`; `type`: `"session_info"`; \} \| \{ `type`: `"heartbeat"`; \} \| \{ `cause?`: [`AgentSDKError`](#agentsdkerror); `code?`: [`ErrorCode`](#errorcode); `error`: `string`; `recoverable`: `boolean`; `toolCallId?`: `string`; `toolName?`: `string`; `type`: `"error"`; \} \| \{ `finalOutput`: `string` \| `null`; `finishReason?`: `string`; `streamed?`: `boolean`; `structuredOutput?`: `unknown`; `type`: `"done"`; \}
+> **AgentEvent** = \{ `text`: `string`; `type`: `"text_delta"`; \} \| \{ `text`: `string`; `type`: `"thinking_delta"`; \} \| \{ `args?`: [`JSONValue`](#jsonvalue); `toolCallId`: `string`; `toolName`: `string`; `type`: `"tool_call_start"`; \} \| \{ `result`: [`JSONValue`](#jsonvalue); `toolCallId`: `string`; `toolName`: `string`; `type`: `"tool_call_end"`; \} \| \{ `request`: [`PermissionRequest`](#permissionrequest); `type`: `"permission_request"`; \} \| \{ `decision`: [`PermissionDecision`](#permissiondecision); `toolName`: `string`; `type`: `"permission_response"`; \} \| \{ `request`: [`UserInputRequest`](#userinputrequest); `type`: `"ask_user"`; \} \| \{ `answer`: `string`; `type`: `"ask_user_response"`; \} \| \{ `type`: `"thinking_start"`; \} \| \{ `type`: `"thinking_end"`; \} \| \{ `backend?`: `string`; `cachedTokens?`: `number`; `completionTokens`: `number`; `cost?`: `number`; `model?`: `string`; `promptTokens`: `number`; `providerMetadata?`: `Record`\<`string`, [`JSONValue`](#jsonvalue)\>; `tokenUsageKnown?`: \{ `completionTokens`: `boolean`; `promptTokens`: `boolean`; \}; `type`: `"usage_update"`; \} \| \{ `backend`: `string`; `sessionId`: `string`; `transcriptPath?`: `string`; `type`: `"session_info"`; \} \| \{ `type`: `"heartbeat"`; \} \| \{ `cause?`: [`AgentSDKError`](#agentsdkerror); `code?`: [`ErrorCode`](#errorcode); `error`: `string`; `localToolRefusal?`: [`LocalToolRefusal`](#localtoolrefusal); `recoverable`: `boolean`; `toolCallId?`: `string`; `toolName?`: `string`; `type`: `"error"`; \} \| \{ `finalOutput`: `string` \| `null`; `finishReason?`: `string`; `streamed?`: `boolean`; `structuredOutput?`: `unknown`; `type`: `"done"`; \}
 
-Defined in: [types/events.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/events.ts#L23)
+Defined in: types/events.ts:38
 
 Events emitted during streaming agent execution
 
@@ -4255,7 +4272,7 @@ Scope for "remember this decision"
 
 > **StreamMiddleware** = (`source`, `context`) => `AsyncIterable`\<[`AgentEvent`](#agentevent)\>
 
-Defined in: [types/events.ts:66](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/events.ts#L66)
+Defined in: types/events.ts:90
 
 A composable transform over the agent event stream.
  Receives the upstream source and context, returns a transformed stream.

@@ -12,7 +12,7 @@
 
 > **createVercelAIService**(`options`): [`IAgentService`](../index.md#iagentservice)
 
-Defined in: backends/vercel-ai.ts:1032
+Defined in: backends/vercel-ai.ts:1182
 
 Create Vercel AI SDK backend service.
 

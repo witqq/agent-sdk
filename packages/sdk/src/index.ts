@@ -19,6 +19,7 @@ export type {
   StructuredOutputConfig,
   UsageData,
   AgentEvent,
+  LocalToolRefusal,
   RunOptions,
   ModelParams,
   TimeoutConfig,

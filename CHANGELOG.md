@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [0.13.0] — 2026-10-07
+
+### Public type changes
+
+- Tool-start arguments are optional observation data in AgentEvent and ChatEvent. Preserve missing input as absent and retain actual null or primitive values; check input before treating it as an object.
+
+### Fixes
+
+- Validate declared Vercel AI tool parameters, including ask_user, through the native schema parser before application execution.
+- Expose correlated LocalToolRefusal evidence for native unavailable-tool and invalid-input refusals without successful tool output or replay authority.
+- Normalize an initially empty streamed tool name only from one consistent later observed name for the same call identity, retaining native arguments without an additional model request.
+- Preserve actual argument presence through both chat bridge directions while keeping native refusal evidence and Error causes out of serialized ChatEvent errors.
+
 ## [0.12.2] — 2026-10-06
 
 ### Fixes

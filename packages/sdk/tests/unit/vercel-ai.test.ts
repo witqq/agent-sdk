@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { z } from "zod";
+import { NoSuchToolError } from "ai";
 import type {
   AgentConfig,
   AgentEvent,
@@ -1033,6 +1034,42 @@ describe("VercelAIAgent.stream", () => {
     expect(errorEvent).toBeDefined();
     expect(errorEvent!.code).toBe("TOOL_EXECUTION");
     expect(errorEvent!.recoverable).toBe(true);
+  });
+
+  it.each([
+    { case: "correlated native refusal", error: new NoSuchToolError({ toolName: "missing", availableTools: ["greet"] }), providerExecuted: false, endId: "call-refused", endName: "missing", endInput: null, expected: true },
+    { case: "provider executed", error: new NoSuchToolError({ toolName: "missing", availableTools: ["greet"] }), providerExecuted: true, endId: "call-refused", endName: "missing", endInput: null, expected: false },
+    { case: "spoofed wording", error: new Error("AI_NoSuchToolError: unavailable tool missing"), providerExecuted: false, endId: "call-refused", endName: "missing", endInput: null, expected: false },
+    { case: "different ID", error: new NoSuchToolError({ toolName: "missing", availableTools: ["greet"] }), providerExecuted: false, endId: "other", endName: "missing", endInput: null, expected: false },
+    { case: "different name", error: new NoSuchToolError({ toolName: "missing", availableTools: ["greet"] }), providerExecuted: false, endId: "call-refused", endName: "other", endInput: null, expected: false },
+    { case: "different input", error: new NoSuchToolError({ toolName: "missing", availableTools: ["greet"] }), providerExecuted: false, endId: "call-refused", endName: "missing", endInput: {}, expected: false },
+  ])("grants local proof only for actual correlated native refusal: $case", async test => {
+    const sdk = createMockSDK({ streamParts: [
+      { type: "tool-call", toolCallId: "call-refused", toolName: "missing", input: null, invalid: true, error: test.error, providerExecuted: test.providerExecuted },
+      { type: "tool-error", toolCallId: test.endId, toolName: test.endName, input: test.endInput, error: "native error message", providerExecuted: test.providerExecuted },
+    ] });
+    _injectSDK({ ...sdk, NoSuchToolError });
+    _injectCompat(createMockCompatModule());
+    const events: AgentEvent[] = [];
+    for await (const event of createVercelAIService(BACKEND_OPTIONS).createAgent(baseConfig()).stream("Answer", { model: "test-model" })) events.push(event);
+    const error = events.find(event => event.type === "error");
+    if (test.expected) expect(error).toMatchObject({ localToolRefusal: { toolCallId: "call-refused", toolName: "missing", args: null, reason: "no_such_tool", toolExecutionStarted: false, providerExecuted: false } });
+    else expect(error).not.toHaveProperty("localToolRefusal");
+    expect(events.filter(event => event.type === "tool_call_end")).toEqual([]);
+  });
+
+  it("preserves genuinely absent input without inventing empty arguments", async () => {
+    const sdk = createMockSDK({ streamParts: [
+      { type: "tool-call", toolCallId: "missing-input", toolName: "missing", invalid: true, error: new NoSuchToolError({ toolName: "missing" }) },
+      { type: "tool-error", toolCallId: "missing-input", toolName: "missing", input: undefined, error: "native error message" },
+    ] });
+    _injectSDK({ ...sdk, NoSuchToolError });
+    _injectCompat(createMockCompatModule());
+    const events: AgentEvent[] = [];
+    for await (const event of createVercelAIService(BACKEND_OPTIONS).createAgent(baseConfig()).stream("Answer", { model: "test-model" })) events.push(event);
+    expect(events.find(event => event.type === "tool_call_start")).not.toHaveProperty("args");
+    expect(events.find(event => event.type === "error")?.localToolRefusal).toMatchObject({ toolCallId: "missing-input", toolName: "missing" });
+    expect(events.find(event => event.type === "error")?.localToolRefusal).not.toHaveProperty("args");
   });
 
   it("should exclude intermediate reasoning from finalOutput in multi-step stream", async () => {

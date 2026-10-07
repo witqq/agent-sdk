@@ -186,7 +186,8 @@ export type ChatEvent =
       messageId: ChatId;
       toolCallId: string;
       toolName: string;
-      args: Record<string, unknown>;
+      /** Actual observed input; absent input remains absent. */
+      args?: unknown;
     }
   | {
       type: "tool:complete";
