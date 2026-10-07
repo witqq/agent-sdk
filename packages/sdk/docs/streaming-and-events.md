@@ -18,7 +18,7 @@ import type { AgentEvent } from "@witqq/agent-sdk";
 | `thinking_delta` | `text: string` | Model reasoning token |
 | `thinking_start` | -- | Reasoning block started |
 | `thinking_end` | -- | Reasoning block ended |
-| `tool_call_start` | `toolCallId`, `toolName`, `args` | Tool invocation begins |
+| `tool_call_start` | `toolCallId`, `toolName`, `args?` | Observed tool call; arguments can be absent |
 | `tool_call_end` | `toolCallId`, `toolName`, `result` | Tool invocation completed |
 | `permission_request` | `request: PermissionRequest` | Tool needs approval |
 | `permission_response` | `toolName`, `decision: PermissionDecision` | Approval decision |
@@ -27,7 +27,7 @@ import type { AgentEvent } from "@witqq/agent-sdk";
 | `usage_update` | `promptTokens`, `completionTokens`, `tokenUsageKnown?`, `model?`, `backend?`, `cost?`, `cachedTokens?`, `providerMetadata?` | Cumulative measured usage with optional token presence flags |
 | `session_info` | `sessionId`, `transcriptPath?`, `backend` | Session metadata |
 | `heartbeat` | -- | Keep-alive signal |
-| `error` | `error: string`, `recoverable: boolean`, `code?: ErrorCode`, `cause?: AgentSDKError`, `toolCallId?`, `toolName?` | Failure with optional in-process cause and tool correlation |
+| `error` | `error: string`, `recoverable: boolean`, `code?: ErrorCode`, `cause?: AgentSDKError`, `toolCallId?`, `toolName?`, `localToolRefusal?` | Failure with optional native local refusal proof |
 | `done` | `finalOutput`, `structuredOutput?`, `streamed?`, `finishReason?` | Stream completed |
 
 ### Event Type Definitions
@@ -38,7 +38,7 @@ type AgentEvent =
   | { type: "thinking_delta"; text: string }
   | { type: "thinking_start" }
   | { type: "thinking_end" }
-  | { type: "tool_call_start"; toolCallId: string; toolName: string; args: JSONValue }
+  | { type: "tool_call_start"; toolCallId: string; toolName: string; args?: JSONValue }
   | { type: "tool_call_end"; toolCallId: string; toolName: string; result: JSONValue }
   | { type: "permission_request"; request: PermissionRequest }
   | { type: "permission_response"; toolName: string; decision: PermissionDecision }
@@ -47,7 +47,7 @@ type AgentEvent =
   | { type: "usage_update"; promptTokens: number; completionTokens: number; tokenUsageKnown?: { promptTokens: boolean; completionTokens: boolean }; model?: string; backend?: string; cost?: number; cachedTokens?: number; providerMetadata?: Record<string, JSONValue> }
   | { type: "session_info"; sessionId: string; transcriptPath?: string; backend: string }
   | { type: "heartbeat" }
-  | { type: "error"; error: string; recoverable: boolean; code?: ErrorCode; cause?: AgentSDKError; toolCallId?: string; toolName?: string }
+  | { type: "error"; error: string; recoverable: boolean; code?: ErrorCode; cause?: AgentSDKError; toolCallId?: string; toolName?: string; localToolRefusal?: LocalToolRefusal }
   | { type: "done"; finalOutput: string | null; structuredOutput?: unknown; streamed?: boolean; finishReason?: string };
 ```
 
@@ -74,12 +74,14 @@ for await (const event of stream) {
 ## Collecting Events by Type
 
 ```typescript
+import type { AgentEvent, JSONValue } from "@witqq/agent-sdk";
+
 async function collectToolCalls(stream: AsyncIterable<AgentEvent>) {
   const toolCalls: Array<{ name: string; args: JSONValue; result: JSONValue }> = [];
   let pending: Map<string, { name: string; args: JSONValue }> = new Map();
 
   for await (const event of stream) {
-    if (event.type === "tool_call_start") {
+    if (event.type === "tool_call_start" && event.args !== undefined) {
       pending.set(event.toolCallId, { name: event.toolName, args: event.args });
     }
     if (event.type === "tool_call_end") {
@@ -127,6 +129,27 @@ done
 `heartbeat` events can appear at any point. `error` events can interrupt the sequence; check `recoverable` to decide whether to continue.
 
 For Vercel AI, a terminal provider error emits `error` and then throws its same `cause` from iteration after draining native terminal promises. No `done` follows. Retain delivered text and measured usage even when iteration rejects. A failed tool instead emits a recoverable error carrying its `toolCallId`, `toolName` and primary cause, with no successful `tool_call_end`; the model may continue using the failed result. The optional `cause` is for in-process inspection. Do not serialize raw `Error` causes; bounded provider diagnostic projection is described in [Backends](./backends.md#native-stream-failures).
+
+### Local Tool Refusals and Argument Presence
+
+The Vercel AI backend can attach an exported `LocalToolRefusal` to an `error` event when its native parser refuses an unavailable tool or invalid declared input before execution. The proof is correlated with the observed call ID, name and input. Generic thrown errors and provider-executed tool failures do not carry this proof. The serialized `ChatEvent` bridge does not expose this native observation.
+
+```typescript
+import type { LocalToolRefusal } from "@witqq/agent-sdk";
+
+const refusal: LocalToolRefusal = {
+  reason: "invalid_tool_input",
+  toolCallId: "call-example",
+  toolName: "lookup",
+  args: { query: 42 },
+  toolExecutionStarted: false,
+  providerExecuted: false,
+};
+```
+
+`tool_call_start.args` and refusal `args` are optional. An absent field means the input was not observed; preserve that absence rather than substitute `{}`. An actual `null` remains `null`. The chat bridge retains the same presence through optional `ChatEvent` `tool:start.args`, whose value is `unknown`. Check it before treating it as an object. A start event alone does not establish execution. Keep arguments as untrusted data.
+
+The proof concerns only that tool call. The model response can still have measured paid usage, and a later stream failure can leave the response incomplete. It does not establish `providerRequestSent: false`, successful tool output or permission to replay. Applications own any separately admitted continuation and must retain genuine call observations and terminal response evidence.
 
 ## Retry and Stream Commitment
 

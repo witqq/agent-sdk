@@ -23,11 +23,22 @@ export interface UsageData {
   providerMetadata?: Record<string, JSONValue>;
 }
 
+/** A native parse refusal for one observed call, before any tool execution.
+ * This does not mean the model request was unsent or authorize a retry. */
+export interface LocalToolRefusal {
+  reason: "no_such_tool" | "invalid_tool_input";
+  toolCallId: string;
+  toolName: string;
+  args?: JSONValue;
+  toolExecutionStarted: false;
+  providerExecuted: false;
+}
+
 /** Events emitted during streaming agent execution */
 export type AgentEvent =
   | { type: "text_delta"; text: string }
   | { type: "thinking_delta"; text: string }
-  | { type: "tool_call_start"; toolCallId: string; toolName: string; args: JSONValue }
+  | { type: "tool_call_start"; toolCallId: string; toolName: string; args?: JSONValue }
   | { type: "tool_call_end"; toolCallId: string; toolName: string; result: JSONValue }
   | { type: "permission_request"; request: PermissionRequest }
   | {
@@ -59,6 +70,7 @@ export type AgentEvent =
       /** Present for a failed tool invocation, never a successful tool result. */
       toolCallId?: string;
       toolName?: string;
+      localToolRefusal?: LocalToolRefusal;
     }
   | { type: "done"; finalOutput: string | null; structuredOutput?: unknown; streamed?: boolean; finishReason?: string };
 

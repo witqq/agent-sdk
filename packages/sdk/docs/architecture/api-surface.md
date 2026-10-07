@@ -9,7 +9,7 @@ Public exports inventory grouped by entry point.
 
 ## Stability Levels
 
-- **Stable**: Production-ready. Breaking changes only in major versions.
+- **Stable**: Production-ready. Before 1.0, minor versions can change public types; from 1.0, breaking changes require a major version.
 - **Experimental**: API may change in minor versions. Marked with `@experimental` JSDoc.
 - **Deprecated**: Scheduled for removal. Marked with `@deprecated` JSDoc. Use alternative.
 
@@ -25,7 +25,8 @@ Public exports inventory grouped by entry point.
 | `ToolDeclaration` | interface | Stable | Tool schema without execute (for declaration-only contexts) |
 | `ToolContext` | interface | Stable | Request-scoped session data passed to tool execute |
 | `Message` | interface | Stable | Conversation message: role, content (string or ContentPart[]) |
-| `AgentEvent` | union type | Stable | 18-type discriminated union for agent stream events |
+| `AgentEvent` | union type | Stable | Agent stream events with optional observed tool arguments |
+| `LocalToolRefusal` | interface | Stable | Correlated native parse refusal before tool execution; no replay authority |
 | `RunOptions` | interface | Stable | Per-call options: model (required), tools, systemMessage, retry |
 | `AgentConfig` | interface | Stable | Construction-time config: tools, systemMessage, providerOptions |
 | `registerBackend` | function | Stable | Register custom backend factory |

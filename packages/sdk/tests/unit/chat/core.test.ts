@@ -550,6 +550,22 @@ describe("agentEventToChatEvent", () => {
     });
   });
 
+  it.each([{ input: undefined }, { input: null }, { input: "actual" }])("preserves observed argument presence through serialized chat bridge ($input)", ({ input }) => {
+    const original: AgentEvent = { type: "tool_call_start", toolCallId: "call-presence", toolName: "lookup",
+      ...(input !== undefined ? { args: input } : {}) };
+    const chat = agentEventToChatEvent(original, msgId);
+    expect(chat).not.toBeNull();
+    const roundTrip = chatEventToAgentEvent(JSON.parse(JSON.stringify(chat)) as ChatEvent);
+    if (input === undefined) {
+      expect(chat).not.toHaveProperty("args");
+      expect(roundTrip).not.toHaveProperty("args");
+    } else {
+      expect(chat).toHaveProperty("args", input);
+      expect(roundTrip).toHaveProperty("args", input);
+    }
+    expect(roundTrip).toEqual(original);
+  });
+
   it("maps tool_call_end", () => {
     const result = agentEventToChatEvent(
       {

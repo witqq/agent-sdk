@@ -116,8 +116,134 @@ describe("Vercel native AI protocol without live provider calls", () => {
     const error = events.find(e => e.type === "error");
     expect(error).toMatchObject({ code: "TOOL_EXECUTION", recoverable: true, toolCallId: "call-offline-tool", toolName: "lookup" });
     expect(error?.cause?.cause).toBe(original);
+    expect(error).not.toHaveProperty("localToolRefusal");
     expect(events.filter(e => e.type === "tool_call_end")).toEqual([]);
     expect(events.findLast(e => e.type === "usage_update")).toMatchObject({ promptTokens: 41, completionTokens: 7, cost: 0.003 });
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("preserves a legitimate delayed tool name after an initially empty name without guessing arguments", async () => {
+    const execute = vi.fn(async (args: { query: string }) => ({ observed: args.query }));
+    const fetch = sse([
+      chunk({ tool_calls: [{ index: 0, id: "call-delayed", type: "function", function: { name: "", arguments: '{"query":' } }] }),
+      chunk({ tool_calls: [{ index: 0, function: { name: "lookup", arguments: '"observed"}' } }] }),
+      chunk({}, "tool_calls", usage),
+    ]);
+    const instance = createVercelAIService({ apiKey: "offline-key", baseUrl: "https://offline.invalid/v1" })
+      .createAgent({ model: "offline-model", maxTurns: 1, tools: [{ name: "lookup", description: "Offline lookup",
+        parameters: z.object({ query: z.string() }), execute }] });
+    const { events, failure } = await drain(instance);
+    expect(failure).toBeUndefined();
+    expect(events.filter(event => event.type === "tool_call_start")).toEqual([
+      { type: "tool_call_start", toolCallId: "call-delayed", toolName: "lookup", args: { query: "observed" } },
+    ]);
+    expect(events.filter(event => event.type === "tool_call_end")).toEqual([
+      { type: "tool_call_end", toolCallId: "call-delayed", toolName: "lookup", result: { observed: "observed" } },
+    ]);
+    expect(execute).toHaveBeenCalledExactlyOnceWith({ query: "observed" });
+    expect(events.filter(event => event.type === "error")).toEqual([]);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("retains actual nonexistent-call input and a local parse refusal without successful tool output", async () => {
+    const execute = vi.fn(async () => "must not execute");
+    const fetch = sse([
+      chunk({ tool_calls: [{ index: 0, id: "call-refused", type: "function", function: { name: "unavailable", arguments: 'null' } }] }),
+      chunk({}, "tool_calls", usage),
+    ]);
+    const instance = createVercelAIService({ apiKey: "offline-key", baseUrl: "https://offline.invalid/v1" })
+      .createAgent({ model: "offline-model", maxTurns: 1, tools: [{ name: "lookup", description: "Offline lookup",
+        parameters: z.object({ query: z.string() }), execute }] });
+    const { events, failure } = await drain(instance);
+    expect(failure).toBeUndefined();
+    expect(events.find(event => event.type === "tool_call_start")).toEqual({
+      type: "tool_call_start", toolCallId: "call-refused", toolName: "unavailable", args: null,
+    });
+    expect(events.find(event => event.type === "error")).toMatchObject({ code: "TOOL_EXECUTION",
+      localToolRefusal: { reason: "no_such_tool", toolCallId: "call-refused", toolName: "unavailable", args: null,
+        toolExecutionStarted: false, providerExecuted: false } });
+    expect(events.filter(event => event.type === "tool_call_end")).toEqual([]);
+    expect(events.findLast(event => event.type === "usage_update")).toMatchObject({ promptTokens: 41, completionTokens: 7, cost: 0.003 });
+    expect(execute).not.toHaveBeenCalled();
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(["lookup", "ask_user"])("rejects declared invalid input before %s execution with native proof", async name => {
+    const execute = vi.fn(async () => "must not execute");
+    const args = name === "lookup" ? { query: 42 } : { question: 42 };
+    const fetch = sse([
+      chunk({ tool_calls: [{ index: 0, id: "call-invalid", type: "function", function: { name, arguments: JSON.stringify(args) } }] }),
+      chunk({}, "tool_calls", usage),
+    ]);
+    const instance = createVercelAIService({ apiKey: "offline-key", baseUrl: "https://offline.invalid/v1" })
+      .createAgent({ model: "offline-model", maxTurns: 1,
+        tools: [{ name: "lookup", description: "Offline lookup", parameters: z.object({ query: z.string() }), execute }],
+        supervisor: { onAskUser: execute } });
+    const { events, failure } = await drain(instance);
+    expect(failure).toBeUndefined();
+    expect(events.find(event => event.type === "tool_call_start")).toMatchObject({ toolCallId: "call-invalid", toolName: name, args });
+    expect(events.find(event => event.type === "error")).toMatchObject({ localToolRefusal: {
+      reason: "invalid_tool_input", toolCallId: "call-invalid", toolName: name, args,
+      toolExecutionStarted: false, providerExecuted: false,
+    } });
+    expect(events.filter(event => event.type === "tool_call_end")).toEqual([]);
+    expect(events.findLast(event => event.type === "usage_update")).toMatchObject({ promptTokens: 41, completionTokens: 7, cost: 0.003 });
+    expect(execute).not.toHaveBeenCalled();
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([{ names: [] }, { names: ["lookup", "other"] }])("never guesses a valid name from absent or conflicting later names ($names)", async ({ names }) => {
+    const execute = vi.fn(async () => "must not execute");
+    const fetch = sse([
+      chunk({ tool_calls: [{ index: 0, id: "call-empty", type: "function", function: { name: "", arguments: '{"query":"observed"}' } }] }),
+      ...names.map(name => chunk({ tool_calls: [{ index: 0, function: { name, arguments: "" } }] })),
+      chunk({}, "tool_calls", usage),
+    ]);
+    const instance = createVercelAIService({ apiKey: "offline-key", baseUrl: "https://offline.invalid/v1" })
+      .createAgent({ model: "offline-model", maxTurns: 1, tools: [{ name: "lookup", description: "Offline lookup", parameters: z.object({ query: z.string() }), execute }] });
+    const { events, failure } = await drain(instance);
+    expect(failure).toBeUndefined();
+    expect(events.find(event => event.type === "error")).toMatchObject({ localToolRefusal: {
+      reason: "no_such_tool", toolCallId: "call-empty", toolName: "", args: { query: "observed" },
+    } });
+    expect(execute).not.toHaveBeenCalled();
+    expect(events.filter(event => event.type === "tool_call_end")).toEqual([]);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not reuse delayed-name observations between requests on one agent", async () => {
+    const execute = vi.fn(async (args: { query: string }) => args.query);
+    const fetch = sse(request => [
+      chunk({ tool_calls: [{ index: 0, id: "call-repeated", type: "function", function: { name: "", arguments: '{"query":"observed"}' } }] }),
+      ...(request === 1 ? [chunk({ tool_calls: [{ index: 0, function: { name: "lookup", arguments: "" } }] })] : []),
+      chunk({}, "tool_calls", usage),
+    ]);
+    const instance = createVercelAIService({ apiKey: "offline-key", baseUrl: "https://offline.invalid/v1" })
+      .createAgent({ model: "offline-model", maxTurns: 1, tools: [{ name: "lookup", description: "Offline lookup", parameters: z.object({ query: z.string() }), execute }] });
+    const runs: AgentEvent[][] = [];
+    for (let i = 0; i < 2; i++) {
+      const events: AgentEvent[] = [];
+      for await (const event of instance.stream("Answer", { model: "offline-model" })) events.push(event);
+      runs.push(events);
+    }
+    instance.dispose();
+    expect(execute).toHaveBeenCalledExactlyOnceWith({ query: "observed" });
+    expect(runs[0].some(event => event.type === "tool_call_end")).toBe(true);
+    expect(runs[1].find(event => event.type === "error")).toMatchObject({ localToolRefusal: { toolName: "", reason: "no_such_tool" } });
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not make an unfinished refused-call stream complete or invent its usage", async () => {
+    const execute = vi.fn(async () => "must not execute");
+    const fetch = sse([
+      chunk({ tool_calls: [{ index: 0, id: "call-unfinished", type: "function", function: { name: "missing", arguments: 'null' } }] }),
+    ]);
+    const instance = createVercelAIService({ apiKey: "offline-key", baseUrl: "https://offline.invalid/v1" })
+      .createAgent({ model: "offline-model", maxTurns: 1, tools: [{ name: "lookup", description: "Offline lookup", parameters: z.object({ query: z.string() }), execute }] });
+    const { events, failure } = await drain(instance);
+    expect(failure).toMatchObject({ message: "Response stream ended without a finish reason." });
+    expect(events.filter(event => event.type === "done" || event.type === "usage_update" || event.type === "tool_call_end")).toEqual([]);
+    expect(execute).not.toHaveBeenCalled();
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 

@@ -101,6 +101,9 @@ Set `modelParams.maxTokens` to cap generated output on blocking, structured and 
 
 Use `AgentSDKError.is(error)` to inspect errors across bundled entry points. A native prompt rejection before model dispatch has `code: "INVALID_INPUT"`, `retryable: false`, `providerRequestSent: false` and its native `cause`. An undefined `providerRequestSent` leaves provider effects unknown; provider errors after dispatch, network failures, timeouts and aborts provide no unsent proof. Catch streaming refusals around async iteration. See the [backend guide](https://agent-sdk.witqq.dev/backends/overview/) for a history example and error guidance.
 
+The Vercel AI backend validates declared tool arguments before execution. Streaming tool errors can include `localToolRefusal` for a correlated native parse refusal; this proves only that tool call had no execution and does not make the paid model request unsent or authorize replay. `tool_call_start.args` is optional: retain missing input as missing and actual null as null. See the [streaming guide](https://agent-sdk.witqq.dev/streaming/streaming-and-events/#local-tool-refusals-and-argument-presence) for the `LocalToolRefusal` contract.
+
+
 ## Entry Points
 
 | Import | Purpose |

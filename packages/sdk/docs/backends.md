@@ -152,6 +152,17 @@ Native `Error` causes retain their identity for in-process consumers. Plain prov
 
 A throwing tool emits a recoverable `error` with `code: "TOOL_EXECUTION"`, `toolCallId`, `toolName` and its primary cause. It does not emit a successful `tool_call_end`. The native model may continue with the failed tool result, and measured model usage is retained. `recoverable` describes that tool-loop behavior; it does not authorize a hidden provider retry.
 
+### Declared Input and Local Tool Refusals
+
+Declared Zod parameters are validated by the native parser before the application executor, including the injected `ask_user` question schema. Accepted values follow the declared schema. A rejected call retains its actual invalid input.
+
+A streaming native refusal for an unavailable tool or invalid input can carry `error.localToolRefusal`, exported as `LocalToolRefusal`. It requires a recognized native parse-error class and matching call/error observations with no local or provider tool execution. Its `reason` is `no_such_tool` or `invalid_tool_input`; ID, name and optional arguments describe the observed call. Generic thrown errors, provider-executed failures and error wording provide no equivalent proof. No successful `tool_call_end` is emitted for a refusal.
+
+Streaming `tool_call_start.args` is optional. Retain absent input as absent and actual null as null. These observations remain untrusted. Local refusal does not mean the model request was unsent, its response complete or its usage zero. Applications own admission of any continuation.
+
+For a native call whose initial streamed name is empty, the backend can locally normalize one later consistent name observed for the same call ID. It retains the original identity and native argument assembly, resets observations for each request and adds no model request. Missing or conflicting names are not guessed. This local assembly normalization does not change the caller's configured native tool-loop limit.
+
+
 ### Model-Specific Options
 
 Pass provider options via `providerOptions` on `AgentConfig`:
