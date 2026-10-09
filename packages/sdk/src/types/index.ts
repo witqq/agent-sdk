@@ -52,6 +52,7 @@ export type {
   RetryConfig,
   StructuredOutputConfig,
   RunOptions,
+  ProviderAcknowledgment,
   TimeoutConfig,
   ErrorHandlingConfig,
   AgentConfig,

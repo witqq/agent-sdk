@@ -57,6 +57,21 @@ export interface StructuredOutputConfig<T = unknown> {
 
 // ─── Run Options ───────────────────────────────────────────────
 
+/** Native response identity observed inside one physical provider invocation.
+ * provider is the configured adapter namespace, not evidence of an upstream account.
+ * Optional metadata is supplied only by the provider, never synthesized. */
+export interface ProviderAcknowledgment {
+  provider: string;
+  /** Zero-based native doGenerate/doStream invocation index within this run.
+   * Resets for each run/stream operation; separate physical calls have separate indices. */
+  modelCallIndex: number;
+  /** Exact provider-supplied ID, never an AI SDK fallback or locally generated ID. */
+  responseId: string;
+  modelId?: string;
+  /** ISO timestamp derived from native response metadata. */
+  timestamp?: string;
+}
+
 /** Options passed to agent.run() / agent.stream().
  *  Extends CallOptions with run-specific fields (context, activityTimeoutMs).
  *  model is REQUIRED — every agent call must specify the model explicitly. */
@@ -65,6 +80,19 @@ export interface RunOptions extends CallOptions {
   model: string;
   /** Arbitrary context passed to the agent run */
   context?: Record<string, unknown>;
+  /** Vercel AI: called once per physical invocation on its first actual native
+   * response ID, including an ID that first appears in a later stream chunk.
+   * Missing ID means no callback. Optional metadata contains only values observed
+   * at that point; no model or timestamp fallback is synthesized. Consistent
+   * duplicate observations do not call again; contradictory ID or overlapping
+   * metadata stops the invocation with ProviderAcknowledgmentError.
+   *
+   * The callback is awaited before forwarding the observed chunk's metadata or
+   * content to AI. Persistence failure keeps its original cause in a typed local
+   * ProviderAcknowledgmentError: this sent effect remains unresolved, supplies no
+   * unsent evidence, and is not automatically retried. Raw chunks are enabled only
+   * while this hook is present, inspected for identity, and never exposed. */
+  onProviderAcknowledgment?: (observation: ProviderAcknowledgment) => void | Promise<void>;
   /** Inactivity timeout for streaming (ms). When set, the stream aborts if no
    *  event (including heartbeats/progress) arrives within this period. Resets on
    *  every received event. Default: no timeout. Only affects stream()/streamWithContext(). */

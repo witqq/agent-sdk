@@ -28,6 +28,7 @@
     "docs:docker:stop": "cd packages/docs-site && docker compose down"
   },
   "devDependencies": {
+    "testfold": "0.4.5",
     "typescript": "^6.0.3",
     "yaml": "2.9.0"
   },

@@ -1,4 +1,5 @@
 import { ErrorCode } from "./types/errors.js";
+import type { ProviderAcknowledgment } from "./types/agent.js";
 
 /** Options for constructing an AgentSDKError */
 export interface AgentSDKErrorOptions extends ErrorOptions {
@@ -44,6 +45,25 @@ export class AgentSDKError extends Error {
       "_agentSDKError" in error &&
       (error as AgentSDKError)._agentSDKError === true
     );
+  }
+}
+
+/** Local acknowledgment failure after provider dispatch. This is neither a native
+ * transport failure nor evidence that no inference happened. It has no retry code. */
+export class ProviderAcknowledgmentError extends AgentSDKError {
+  readonly _providerAcknowledgmentError = true as const;
+
+  constructor(
+    readonly reason: "persistence_failed" | "identity_conflict",
+    readonly observation: ProviderAcknowledgment,
+    cause?: unknown,
+  ) {
+    super(reason === "persistence_failed" ? "Provider acknowledgment persistence failed" : "Conflicting native provider response identity", { cause, retryable: false });
+    this.name = "ProviderAcknowledgmentError";
+  }
+
+  static override is(error: unknown): error is ProviderAcknowledgmentError {
+    return AgentSDKError.is(error) && "_providerAcknowledgmentError" in error && error._providerAcknowledgmentError === true;
   }
 }
 

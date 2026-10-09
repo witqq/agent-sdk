@@ -2,8 +2,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { InvalidPromptError } from "ai";
 import { createVercelAIService, _resetSDK } from "../../src/backends/vercel-ai.js";
-import { AgentSDKError } from "../../src/errors.js";
-import type { AgentEvent, Message } from "../../src/types.js";
+import { AgentSDKError, ProviderAcknowledgmentError } from "../../src/errors.js";
+import type { AgentEvent, Message, RunOptions } from "../../src/types.js";
 
 afterEach(() => { vi.unstubAllGlobals(); _resetSDK(); });
 
@@ -68,15 +68,191 @@ describe("Vercel native AI protocol without live provider calls", () => {
       choices: [{ index: 0, delta, finish_reason: finishReason }], ...(reportedUsage ? { usage: reportedUsage } : {}) };
   }
 
-  async function drain(instance: ReturnType<typeof agent>) {
+  async function drain(instance: ReturnType<typeof agent>, options: Partial<RunOptions> & {
+    onProviderAcknowledgment?: (observation: { provider: string; modelCallIndex: number; responseId: string; modelId?: string; timestamp?: string }) => void | Promise<void>;
+  } = {}) {
     const events: AgentEvent[] = [];
     let failure: unknown;
     try {
-      for await (const event of instance.stream("Answer", { model: "offline-model", retry: { maxRetries: 1, initialDelayMs: 0 } })) events.push(event);
+      for await (const event of instance.stream("Answer", { model: "offline-model", retry: { maxRetries: 1, initialDelayMs: 0 }, ...options })) events.push(event);
     } catch (error) { failure = error; }
     instance.dispose();
     return { events, failure };
   }
+
+  it("provider acknowledgment is awaited before text or usage reaches the caller", async () => {
+    const fetch = sse([chunk({ content: "Done" }), chunk({}, "stop", usage)]);
+    let release!: () => void;
+    const barrier = new Promise<void>(resolve => { release = resolve; });
+    const observations: unknown[] = [];
+    const events: AgentEvent[] = [];
+    const instance = agent();
+    const done = (async () => {
+      for await (const event of instance.stream("Answer", { model: "offline-model", onProviderAcknowledgment: async observation => {
+        observations.push(observation);
+        await barrier;
+      } } as RunOptions)) events.push(event);
+    })();
+    await vi.waitFor(() => expect(observations).toEqual([{ provider: "openrouter", modelCallIndex: 0,
+      responseId: "offline-response", modelId: "offline-model", timestamp: "1970-01-01T00:00:01.000Z" }]));
+    expect(events.some(event => event.type === "text_delta" || event.type === "usage_update" || event.type === "done")).toBe(false);
+    release();
+    await done;
+    expect(events.some(event => event.type === "done")).toBe(true);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    instance.dispose();
+  });
+
+  it("provider acknowledgment persists the native ID before cancellation without waiting for usage", async () => {
+    const fetch = sse([chunk({ content: "Partial" }), chunk({}, "stop", usage)]);
+    const controller = new AbortController();
+    const observed: unknown[] = [];
+    const { events } = await drain(agent(), { signal: controller.signal, onProviderAcknowledgment: observation => {
+      observed.push(observation);
+      controller.abort();
+    } });
+    expect(observed).toEqual([expect.objectContaining({ responseId: "offline-response", modelCallIndex: 0 })]);
+    expect(events.some(event => event.type === "done")).toBe(false);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([false, true])("provider acknowledgment never manufactures missing identity and handles a late ID (late=%s)", async late => {
+    const first = chunk({ content: "One" });
+    const last = chunk({}, "stop", usage);
+    const withoutIdentity = (part: ReturnType<typeof chunk>) => { const { id, model, created, ...rest } = part; return rest; };
+    const fetch = sse([withoutIdentity(first), late ? last : withoutIdentity(last)]);
+    const observed: unknown[] = [];
+    const { events, failure } = await drain(agent(), { onProviderAcknowledgment: observation => { observed.push(observation); } });
+    expect(failure).toBeUndefined();
+    expect(observed).toEqual(late ? [expect.objectContaining({ responseId: "offline-response", modelId: "offline-model", modelCallIndex: 0 })] : []);
+    expect(events.some(event => event.type === "done")).toBe(true);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("provider acknowledgment deduplicates repeated native metadata", async () => {
+    const fetch = sse([chunk({ content: "One" }), chunk({ content: "Two" }), chunk({}, "stop", usage)]);
+    const persist = vi.fn(async () => {});
+    const { failure, events } = await drain(agent(), { onProviderAcknowledgment: persist });
+    expect(failure).toBeUndefined();
+    expect(persist).toHaveBeenCalledTimes(1);
+    expect(events.some(event => event.type === "done")).toBe(true);
+    expect(events.some(event => (event as { type: string }).type === "raw")).toBe(false);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("provider acknowledgment does not invent optional model or timestamp metadata", async () => {
+    const { model, created, ...first } = chunk({ content: "Done" });
+    const { model: lastModel, created: lastCreated, ...last } = chunk({}, "stop", usage);
+    const fetch = sse([first, last]);
+    const persist = vi.fn(async () => {});
+    const { failure } = await drain(agent(), { onProviderAcknowledgment: persist });
+    expect(failure).toBeUndefined();
+    expect(persist).toHaveBeenCalledExactlyOnceWith({ provider: "openrouter", modelCallIndex: 0, responseId: "offline-response" });
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([{ id: "another-response" }, { model: "another-model" }, { created: 2 }])("provider acknowledgment rejects contradictory native identity without overwriting the first ($id$model$created)", async conflict => {
+    const fetch = sse([chunk({ content: "One" }), { ...chunk({}, "stop", usage), ...conflict }]);
+    const persist = vi.fn(async () => {});
+    const { failure, events } = await drain(agent(), { onProviderAcknowledgment: persist });
+    expect(ProviderAcknowledgmentError.is(failure)).toBe(true);
+    expect(failure).toMatchObject({ reason: "identity_conflict", observation: { responseId: "offline-response" }, retryable: false });
+    expect(persist).toHaveBeenCalledTimes(1);
+    expect(events.some(event => event.type === "done")).toBe(false);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("provider acknowledgment persistence failure preserves local origin even when its cause is retryable timeout", async () => {
+    const fetch = sse([chunk({ content: "Done" }), chunk({}, "stop", usage)]);
+    const cause = new AgentSDKError("Local database timeout", { code: "TIMEOUT", retryable: true });
+    const { failure, events } = await drain(agent(), { retry: { maxRetries: 1, initialDelayMs: 0, retryableErrors: ["TIMEOUT"] },
+      onProviderAcknowledgment: async () => { throw cause; } });
+    expect(ProviderAcknowledgmentError.is(failure)).toBe(true);
+    expect(failure).toMatchObject({ reason: "persistence_failed", cause, retryable: false });
+    expect((failure as AgentSDKError).code).toBeUndefined();
+    expect((failure as AgentSDKError).providerRequestSent).toBeUndefined();
+    expect(events.some(event => event.type === "done")).toBe(false);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("provider acknowledgment isolates concurrent runs without cross-run identity", async () => {
+    const fetch = sse(request => [{ ...chunk({ content: "Done" }), id: `native-${request}` }, { ...chunk({}, "stop", usage), id: `native-${request}` }]);
+    const service = createVercelAIService({ apiKey: "offline-key", baseUrl: "https://offline.invalid/v1" });
+    const first = service.createAgent({ model: "offline-model", tools: [] });
+    const second = service.createAgent({ model: "offline-model", tools: [] });
+    const seen: Array<{ responseId: string; modelCallIndex: number }> = [];
+    const sharedOptions: RunOptions = Object.freeze({ model: "offline-model", onProviderAcknowledgment: async value => {
+      seen.push(value);
+      await Promise.resolve();
+    } });
+    const collect = async (instance: ReturnType<typeof agent>) => {
+      for await (const _event of instance.stream("Answer", sharedOptions)) { /* same exact options object */ }
+      instance.dispose();
+    };
+    await Promise.all([collect(first), collect(second)]);
+    expect(seen.map(value => [value.responseId, value.modelCallIndex]).sort()).toEqual([["native-1", 0], ["native-2", 0]]);
+    expect(fetch).toHaveBeenCalledTimes(2);
+    service.dispose();
+  });
+
+  it("provider acknowledgment binds each model call before tool execution without a duplicate dispatch", async () => {
+    const fetch = sse(request => request === 1 ? [chunk({ tool_calls: [{ index: 0, id: "tool-1", type: "function", function: { name: "lookup", arguments: "{}" } }] }), chunk({}, "tool_calls", usage)]
+      : [{ ...chunk({ content: "Done" }), id: "native-2" }, { ...chunk({}, "stop", usage), id: "native-2" }]);
+    const seen: Array<{ responseId: string; modelCallIndex: number }> = [];
+    const instance = createVercelAIService({ apiKey: "offline-key", baseUrl: "https://offline.invalid/v1" }).createAgent({ model: "offline-model", maxTurns: 2,
+      tools: [{ name: "lookup", description: "Lookup", parameters: z.object({}), execute: async () => {
+        expect(seen).toEqual([expect.objectContaining({ responseId: "offline-response", modelCallIndex: 0 })]);
+        return "Retained source";
+      } }] });
+    const { failure } = await drain(instance, { onProviderAcknowledgment: value => { seen.push(value); } });
+    expect(failure).toBeUndefined();
+    expect(seen.map(value => [value.modelCallIndex, value.responseId])).toEqual([[0, "offline-response"], [1, "native-2"]]);
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("provider acknowledgment counts streaming physical calls without ID and resets on the next operation", async () => {
+    const withoutId = (part: ReturnType<typeof chunk>) => { const { id, ...rest } = part; return rest; };
+    const fetch = sse(request => request === 1
+      ? [withoutId(chunk({ tool_calls: [{ index: 0, id: "tool-1", type: "function", function: { name: "lookup", arguments: "{}" } }] })), withoutId(chunk({}, "tool_calls", usage))]
+      : [{ ...chunk({ content: "Done" }), id: `native-${request}` }, { ...chunk({}, "stop", usage), id: `native-${request}` }]);
+    const seen: Array<{ responseId: string; modelCallIndex: number }> = [];
+    const instance = createVercelAIService({ apiKey: "offline-key", baseUrl: "https://offline.invalid/v1" }).createAgent({ model: "offline-model", maxTurns: 2,
+      tools: [{ name: "lookup", description: "Lookup", parameters: z.object({}), execute: async () => "Retained source" }] });
+    const options: RunOptions = Object.freeze({ model: "offline-model", onProviderAcknowledgment: value => { seen.push(value); } });
+    for await (const _event of instance.stream("First", options)) { /* drain */ }
+    for await (const _event of instance.stream("Second", options)) { /* same exact options object */ }
+    expect(seen.map(value => [value.responseId, value.modelCallIndex])).toEqual([["native-2", 1], ["native-3", 0]]);
+    expect(fetch).toHaveBeenCalledTimes(3);
+    instance.dispose();
+  });
+
+  it.each([false, true])("provider acknowledgment uses actual non-streaming response identity (structured=%s)", async structured => {
+    const requests = transport(false, structured ? '{"answer":"Done"}' : "Done");
+    const instance = agent();
+    const persist = vi.fn(async () => {});
+    const options = { model: "offline-model", onProviderAcknowledgment: persist };
+    const result = structured
+      ? await instance.runStructured("Answer", { schema: z.object({ answer: z.string() }) }, options)
+      : await instance.run("Answer", options);
+    if (structured) expect(result.structuredOutput).toEqual({ answer: "Done" });
+    else expect(result.output).toBe("Done");
+    expect(persist).toHaveBeenCalledExactlyOnceWith({ provider: "openrouter", modelCallIndex: 0,
+      responseId: "offline-response", modelId: "offline-model", timestamp: "1970-01-01T00:00:01.000Z" });
+    expect(requests).toHaveLength(1);
+    instance.dispose();
+  });
+
+  it("provider acknowledgment non-streaming persistence failure cannot retry the sent request", async () => {
+    const requests = transport(false);
+    const instance = agent();
+    const cause = new AgentSDKError("Local network timeout", { code: "NETWORK", retryable: true });
+    await expect(instance.run("Answer", { model: "offline-model", retry: { maxRetries: 1, initialDelayMs: 0 },
+      onProviderAcknowledgment: async () => { throw cause; } })).rejects.toMatchObject({
+      name: "ProviderAcknowledgmentError", reason: "persistence_failed", cause, retryable: false,
+    });
+    expect(requests).toHaveLength(1);
+    instance.dispose();
+  });
 
   it.each([false, true])("preserves structured SSE rejection without false success or native retry (usage=%s)", async measured => {
     const providerError = { message: "Offline provider rate limit", code: 429, type: "offline_error", param: "messages" };
@@ -315,14 +491,24 @@ describe("Vercel native AI protocol without live provider calls", () => {
       instance.dispose();
     });
 
-  it("preserves explicit SDK retry for a typed recoverable error and observes successful native usage", async () => {
+  it.each(["blocking", "structured"])("preserves explicit SDK retry and native invocation index across one public operation (%s)", async mode => {
     const original = new AgentSDKError("Offline timeout", { code: "TIMEOUT", retryable: true });
-    const requests = transport(false, "Done", original);
+    const requests = transport(false, mode === "structured" ? '{"answer":"Done"}' : "Done", original);
     const instance = agent();
-    const result = await instance.run("Answer", { model: "offline-model", retry: { maxRetries: 1, initialDelayMs: 0 } });
+    const observations: Array<{ responseId: string; modelCallIndex: number }> = [];
+    const options: RunOptions = { model: "offline-model", retry: { maxRetries: 1, initialDelayMs: 0 },
+      onProviderAcknowledgment: value => { observations.push(value); } };
+    const result = mode === "structured"
+      ? await instance.runStructured("Answer", { schema: z.object({ answer: z.string() }) }, options)
+      : await instance.run("Answer", options);
     expect(requests).toHaveLength(2);
-    expect(result.output).toBe("Done");
+    expect(observations).toEqual([expect.objectContaining({ responseId: "offline-response", modelCallIndex: 1 })]);
+    expect(result.output).toBe(mode === "structured" ? '{"answer":"Done"}' : "Done");
     expect(result.usage).toMatchObject({ promptTokens: 41, completionTokens: 7, cost: 0.003 });
+    if (mode === "structured") await instance.runStructured("Again", { schema: z.object({ answer: z.string() }) }, options);
+    else await instance.run("Again", options);
+    expect(requests).toHaveLength(3);
+    expect(observations.map(value => value.modelCallIndex)).toEqual([1, 0]);
     instance.dispose();
   });
 
