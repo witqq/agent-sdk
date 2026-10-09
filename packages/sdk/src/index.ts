@@ -21,6 +21,7 @@ export type {
   AgentEvent,
   LocalToolRefusal,
   RunOptions,
+  ProviderAcknowledgment,
   ModelParams,
   TimeoutConfig,
   ErrorHandlingConfig,
@@ -61,6 +62,7 @@ export {
 export type { AgentSDKErrorOptions } from "./errors.js";
 export {
   AgentSDKError,
+  ProviderAcknowledgmentError,
   ReentrancyError,
   DisposedError,
   BackendNotFoundError,

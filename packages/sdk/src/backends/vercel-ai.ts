@@ -6,6 +6,7 @@ import type {
   AgentEvent,
   Message,
   RunOptions,
+  ProviderAcknowledgment,
   StructuredOutputConfig,
   ToolDefinition,
   VercelAIBackendOptions,
@@ -18,7 +19,7 @@ import type {
 } from "../types.js";
 import { getTextContent, ErrorCode, classifyAgentError, isRecoverableErrorCode } from "../types.js";
 import { BaseAgent } from "../base-agent.js";
-import { AgentSDKError, DisposedError, DependencyError, AbortError, ToolExecutionError } from "../errors.js";
+import { AgentSDKError, ProviderAcknowledgmentError, DisposedError, DependencyError, AbortError, ToolExecutionError } from "../errors.js";
 import { zodToJsonSchema } from "../utils/schema.js";
 import type { IPermissionStore } from "../permission-store.js";
 import { z } from "zod";
@@ -498,7 +499,7 @@ function wrapToolExecute(
 // ─── Message Conversion ─────────────────────────────────────────
 
 /** Observe each execution separately without mutating a cached provider model. */
-function observeDispatch(model: SDKLanguageModel) {
+function observeDispatch(model: SDKLanguageModel, provider: string, invocationCounter: { next: number }, acknowledgment?: RunOptions["onProviderAcknowledgment"]) {
   let entered = false;
   return {
     get entered() { return entered; },
@@ -508,7 +509,46 @@ function observeDispatch(model: SDKLanguageModel) {
         if ((property === "doGenerate" || property === "doStream") && typeof value === "function") {
           return (...args: unknown[]) => {
             entered = true;
-            return Reflect.apply(value, target, args);
+            const index = invocationCounter.next++;
+            if (!acknowledgment) return Reflect.apply(value, target, args);
+            let observed: ProviderAcknowledgment | undefined;
+            const observe = async (metadata: unknown, raw = false) => {
+              if (!isRecord(metadata) || (raw && ("error" in metadata || !Array.isArray(metadata.choices)))) return;
+              if (typeof metadata.id !== "string" || !metadata.id.trim()) return;
+              const time = raw ? (typeof metadata.created === "number" ? new Date(metadata.created * 1000) : undefined) : metadata.timestamp;
+              const next: ProviderAcknowledgment = { provider, modelCallIndex: index, responseId: metadata.id,
+                ...(typeof metadata.model === "string" && raw ? { modelId: metadata.model } : {}),
+                ...(!raw && typeof metadata.modelId === "string" ? { modelId: metadata.modelId } : {}),
+                ...(time instanceof Date && Number.isFinite(time.getTime()) ? { timestamp: time.toISOString() } : {}),
+              };
+              if (observed) {
+                if (observed.responseId !== next.responseId ||
+                    (observed.modelId !== undefined && next.modelId !== undefined && observed.modelId !== next.modelId) ||
+                    (observed.timestamp !== undefined && next.timestamp !== undefined && observed.timestamp !== next.timestamp)) {
+                  throw new ProviderAcknowledgmentError("identity_conflict", { ...observed });
+                }
+                observed.modelId ??= next.modelId;
+                observed.timestamp ??= next.timestamp;
+                return;
+              }
+              observed = { ...next };
+              try { await acknowledgment({ ...next }); }
+              catch (cause) { throw new ProviderAcknowledgmentError("persistence_failed", { ...next }, cause); }
+            };
+            return (async () => {
+              if (property === "doStream" && isRecord(args[0])) args[0] = { ...args[0], includeRawChunks: true };
+              const result = await Reflect.apply(value, target, args);
+              if (!isRecord(result)) throw new AgentSDKError("Invalid native provider response", { retryable: false });
+              if (property === "doGenerate") { await observe(result.response); return result; }
+              const stream = result.stream as ReadableStream<unknown>;
+              return { ...result, stream: stream.pipeThrough(new TransformStream({
+                async transform(part: unknown, controller) {
+                  if (isRecord(part) && part.type === "raw") { await observe(part.rawValue, true); return; }
+                  if (isRecord(part) && part.type === "response-metadata") await observe(part);
+                  controller.enqueue(part);
+                },
+              })) };
+            })();
           };
         }
         return value;
@@ -689,6 +729,9 @@ class VercelAIAgent extends BaseAgent {
   private readonly backendOptions: VercelAIBackendOptions;
   private readonly sessionApprovals = new Set<string>();
   private model: SDKLanguageModel | null = null;
+  // BaseAgent creates a fresh internal signal for each public operation and keeps
+  // it across explicit retries. Never bind this state to caller-owned RunOptions.
+  private readonly invocationCounters = new WeakMap<AbortSignal, { next: number }>();
 
   constructor(
     config: FullAgentConfig,
@@ -696,6 +739,15 @@ class VercelAIAgent extends BaseAgent {
   ) {
     super(config);
     this.backendOptions = backendOptions;
+  }
+
+  private invocationCounter(signal: AbortSignal): { next: number } {
+    let counter = this.invocationCounters.get(signal);
+    if (!counter) {
+      counter = { next: 0 };
+      this.invocationCounters.set(signal, counter);
+    }
+    return counter;
   }
 
   private async getModel(options: RunOptions, calls?: StreamedCallNames): Promise<SDKLanguageModel> {
@@ -742,7 +794,7 @@ class VercelAIAgent extends BaseAgent {
     this.checkAbort(signal);
 
     const sdk = await loadSDK();
-    const dispatch = observeDispatch(await this.getModel(options));
+    const dispatch = observeDispatch(await this.getModel(options), this.backendOptions.provider ?? "openrouter", this.invocationCounter(signal), options.onProviderAcknowledgment);
     const tools = await this.getSDKTools(signal, options);
     const maxTurns = this.config.maxTurns ?? DEFAULT_MAX_TURNS;
 
@@ -824,7 +876,7 @@ class VercelAIAgent extends BaseAgent {
     this.checkAbort(signal);
 
     const sdk = await loadSDK();
-    const dispatch = observeDispatch(await this.getModel(options));
+    const dispatch = observeDispatch(await this.getModel(options), this.backendOptions.provider ?? "openrouter", this.invocationCounter(signal), options.onProviderAcknowledgment);
 
     const sdkMessages = messagesToSDK(messages);
     const jsonSchema = zodToJsonSchema(schema.schema);
@@ -888,7 +940,7 @@ class VercelAIAgent extends BaseAgent {
 
     const sdk = await loadSDK();
     const callNames = new StreamedCallNames();
-    const dispatch = observeDispatch(await this.getModel(options, callNames));
+    const dispatch = observeDispatch(await this.getModel(options, callNames), this.backendOptions.provider ?? "openrouter", this.invocationCounter(signal), options.onProviderAcknowledgment);
     const tools = await this.getSDKTools(signal, options);
     const maxTurns = this.config.maxTurns ?? DEFAULT_MAX_TURNS;
 

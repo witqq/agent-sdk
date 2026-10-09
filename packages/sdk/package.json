@@ -1,6 +1,6 @@
 {
   "name": "@witqq/agent-sdk",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "Universal AI agent abstraction layer supporting Copilot CLI, Claude CLI, and Vercel AI SDK backends",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -226,10 +226,10 @@
   ],
   "scripts": {
     "build": "tsdown && mkdir -p dist/chat/react && cp src/chat/react/theme.css dist/chat/react/theme.css",
-    "test": "vitest run",
-    "test:e2e": "vitest run --config vitest.e2e.config.ts",
-    "test:all": "vitest run && vitest run --config vitest.e2e.config.ts",
-    "test:watch": "vitest",
+    "test": "testfold unit",
+    "test:e2e": "testfold e2e",
+    "test:all": "testfold",
+    "test:watch": "testfold unit -- --watch",
     "typecheck": "tsc --noEmit",
     "prepack": "npm run build",
     "docs:api": "typedoc"

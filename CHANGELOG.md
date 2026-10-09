@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [0.14.0] — 2026-10-10
+
+### Public type changes
+
+- Add the optional awaited `RunOptions.onProviderAcknowledgment` hook and `ProviderAcknowledgment` for actual native response identity on each Vercel AI provider invocation.
+- Export `ProviderAcknowledgmentError` to distinguish local persistence failures and conflicting native identity from provider transport failures. Preserve the original persistence cause without retry or unsent evidence.
+
+### Fixes
+
+- Observe early and late native response IDs before forwarding response content, isolate concurrent calls, and deduplicate consistent metadata. Missing identity remains absent; raw chunks used for observation are not exposed to consumers.
+
+### Development
+
+- Run the existing Vitest suites through Testfold using its exported Jest JSON parser, retaining the SDK release verification gates.
+
 ## [0.13.0] — 2026-10-07
 
 ### Public type changes
