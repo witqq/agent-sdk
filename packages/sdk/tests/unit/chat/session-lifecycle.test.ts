@@ -2,6 +2,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { z } from "zod";
 import type { AgentConfig, AgentEvent, Message } from "../../../src/types.js";
+import { getTextContent } from "../../../src/types.js";
 
 // ─── Claude Backend Tests ───────────────────────────────────────
 
@@ -472,7 +473,7 @@ describe("History serialization", () => {
       _resetSDK();
     });
 
-    it("should include thinking in assistant messages", async () => {
+    it("should preserve legacy thinking as native reasoning outside visible assistant text", async () => {
       const mockGenerateText = vi.fn().mockResolvedValue({
         text: "result",
         toolCalls: [],
@@ -523,7 +524,11 @@ describe("History serialization", () => {
 
       const sdkMessages = mockGenerateText.mock.calls[0][0].messages;
       const assistantMsg = sdkMessages.find((m: any) => m.role === "assistant");
-      expect(assistantMsg.content).toContain("[reasoning: Let me reason...]");
+      expect(assistantMsg.content).toEqual([
+        { type: "reasoning", text: "Let me reason..." },
+        { type: "text", text: "Done analyzing" },
+      ]);
+      expect(getTextContent(assistantMsg.content)).toBe("Done analyzing");
 
       const { _resetSDK } = await import("../../../src/backends/vercel-ai.js");
       _resetSDK();

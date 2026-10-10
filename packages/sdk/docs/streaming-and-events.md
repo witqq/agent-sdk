@@ -28,7 +28,7 @@ import type { AgentEvent } from "@witqq/agent-sdk";
 | `session_info` | `sessionId`, `transcriptPath?`, `backend` | Session metadata |
 | `heartbeat` | -- | Keep-alive signal |
 | `error` | `error: string`, `recoverable: boolean`, `code?: ErrorCode`, `cause?: AgentSDKError`, `toolCallId?`, `toolName?`, `localToolRefusal?` | Failure with optional native local refusal proof |
-| `done` | `finalOutput`, `structuredOutput?`, `streamed?`, `finishReason?` | Stream completed |
+| `done` | `finalOutput`, `structuredOutput?`, `streamed?`, `finishReason?`, `messages?` | Stream completed; optional private native response context |
 
 ### Event Type Definitions
 
@@ -48,7 +48,7 @@ type AgentEvent =
   | { type: "session_info"; sessionId: string; transcriptPath?: string; backend: string }
   | { type: "heartbeat" }
   | { type: "error"; error: string; recoverable: boolean; code?: ErrorCode; cause?: AgentSDKError; toolCallId?: string; toolName?: string; localToolRefusal?: LocalToolRefusal }
-  | { type: "done"; finalOutput: string | null; structuredOutput?: unknown; streamed?: boolean; finishReason?: string };
+  | { type: "done"; finalOutput: string | null; structuredOutput?: unknown; streamed?: boolean; finishReason?: string; messages?: Message[] };
 ```
 
 ## Basic Streaming
@@ -129,6 +129,8 @@ done
 `heartbeat` events can appear at any point. `error` events can interrupt the sequence; check `recoverable` to decide whether to continue.
 
 For Vercel AI, a terminal provider error emits `error` and then throws its same `cause` from iteration after draining native terminal promises. No `done` follows. Retain delivered text and measured usage even when iteration rejects. A failed tool instead emits a recoverable error carrying its `toolCallId`, `toolName` and primary cause, with no successful `tool_call_end`; the model may continue using the failed result. The optional `cause` is for in-process inspection. Do not serialize raw `Error` causes; bounded provider diagnostic projection is described in [Backends](./backends.md#native-stream-failures).
+
+For a completed Vercel AI response, `done.messages` contains normalized native messages when the provider supplies them. This private context can include reasoning parts and provider continuation options associated with exact tool-call IDs. Preserve it for a later model request without copying reasoning into user-visible text. `thinking_delta` is an activity event, not completed continuation context; a failed stream supplies no `done.messages`.
 
 ### Local Tool Refusals and Argument Presence
 

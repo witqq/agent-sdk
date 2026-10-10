@@ -67,7 +67,7 @@ function createMockSDK(opts?: MockSDKOptions) {
     ],
     totalUsage: { inputTokens: 100, outputTokens: 50 },
     finishReason: "stop",
-    response: { messages: [] },
+    response: { messages: [{ role: "assistant", content: [{ type: "text", text: "Hello from Vercel AI!" }] }] },
   };
 
   const defaultStreamParts = [

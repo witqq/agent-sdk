@@ -10,7 +10,7 @@ sidebar:
 
 ### ErrorCode
 
-Defined in: [types/errors.ts:4](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L4)
+Defined in: [types/errors.ts:4](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L4)
 
 Unified error codes for all SDK errors — single source of truth.
 
@@ -20,175 +20,175 @@ Unified error codes for all SDK errors — single source of truth.
 
 > **ABORTED**: `"ABORTED"`
 
-Defined in: [types/errors.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L29)
+Defined in: [types/errors.ts:29](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L29)
 
 ##### AUTH\_EXPIRED
 
 > **AUTH\_EXPIRED**: `"AUTH_EXPIRED"`
 
-Defined in: [types/errors.ts:6](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L6)
+Defined in: [types/errors.ts:6](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L6)
 
 ##### AUTH\_INVALID
 
 > **AUTH\_INVALID**: `"AUTH_INVALID"`
 
-Defined in: [types/errors.ts:7](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L7)
+Defined in: [types/errors.ts:7](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L7)
 
 ##### AUTH\_REQUIRED
 
 > **AUTH\_REQUIRED**: `"AUTH_REQUIRED"`
 
-Defined in: [types/errors.ts:44](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L44)
+Defined in: [types/errors.ts:44](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L44)
 
 ##### BACKEND\_NOT\_INSTALLED
 
 > **BACKEND\_NOT\_INSTALLED**: `"BACKEND_NOT_INSTALLED"`
 
-Defined in: [types/errors.ts:32](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L32)
+Defined in: [types/errors.ts:32](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L32)
 
 ##### CONTEXT\_OVERFLOW
 
 > **CONTEXT\_OVERFLOW**: `"CONTEXT_OVERFLOW"`
 
-Defined in: [types/errors.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L20)
+Defined in: [types/errors.ts:20](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L20)
 
 ##### DEPENDENCY\_MISSING
 
 > **DEPENDENCY\_MISSING**: `"DEPENDENCY_MISSING"`
 
-Defined in: [types/errors.ts:31](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L31)
+Defined in: [types/errors.ts:31](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L31)
 
 ##### DISPOSED
 
 > **DISPOSED**: `"DISPOSED"`
 
-Defined in: [types/errors.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L28)
+Defined in: [types/errors.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L28)
 
 ##### INVALID\_INPUT
 
 > **INVALID\_INPUT**: `"INVALID_INPUT"`
 
-Defined in: [types/errors.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L23)
+Defined in: [types/errors.ts:23](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L23)
 
 ##### INVALID\_RESPONSE
 
 > **INVALID\_RESPONSE**: `"INVALID_RESPONSE"`
 
-Defined in: [types/errors.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L24)
+Defined in: [types/errors.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L24)
 
 ##### INVALID\_TRANSITION
 
 > **INVALID\_TRANSITION**: `"INVALID_TRANSITION"`
 
-Defined in: [types/errors.ts:30](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L30)
+Defined in: [types/errors.ts:30](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L30)
 
 ##### MODEL\_NOT\_FOUND
 
 > **MODEL\_NOT\_FOUND**: `"MODEL_NOT_FOUND"`
 
-Defined in: [types/errors.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L18)
+Defined in: [types/errors.ts:18](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L18)
 
 ##### MODEL\_OVERLOADED
 
 > **MODEL\_OVERLOADED**: `"MODEL_OVERLOADED"`
 
-Defined in: [types/errors.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L19)
+Defined in: [types/errors.ts:19](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L19)
 
 ##### NETWORK
 
 > **NETWORK**: `"NETWORK"`
 
-Defined in: [types/errors.ts:13](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L13)
+Defined in: [types/errors.ts:13](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L13)
 
 ##### PERMISSION\_DENIED
 
 > **PERMISSION\_DENIED**: `"PERMISSION_DENIED"`
 
-Defined in: [types/errors.ts:36](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L36)
+Defined in: [types/errors.ts:36](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L36)
 
 ##### PROVIDER\_ERROR
 
 > **PROVIDER\_ERROR**: `"PROVIDER_ERROR"`
 
-Defined in: [types/errors.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L17)
+Defined in: [types/errors.ts:17](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L17)
 
 ##### PROVIDER\_NOT\_FOUND
 
 > **PROVIDER\_NOT\_FOUND**: `"PROVIDER_NOT_FOUND"`
 
-Defined in: [types/errors.ts:43](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L43)
+Defined in: [types/errors.ts:43](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L43)
 
 ##### RATE\_LIMIT
 
 > **RATE\_LIMIT**: `"RATE_LIMIT"`
 
-Defined in: [types/errors.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L10)
+Defined in: [types/errors.ts:10](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L10)
 
 ##### REENTRANCY
 
 > **REENTRANCY**: `"REENTRANCY"`
 
-Defined in: [types/errors.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L27)
+Defined in: [types/errors.ts:27](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L27)
 
 ##### SESSION\_EXPIRED
 
 > **SESSION\_EXPIRED**: `"SESSION_EXPIRED"`
 
-Defined in: [types/errors.ts:40](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L40)
+Defined in: [types/errors.ts:40](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L40)
 
 ##### SESSION\_NOT\_FOUND
 
 > **SESSION\_NOT\_FOUND**: `"SESSION_NOT_FOUND"`
 
-Defined in: [types/errors.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L39)
+Defined in: [types/errors.ts:39](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L39)
 
 ##### STORAGE\_DUPLICATE\_KEY
 
 > **STORAGE\_DUPLICATE\_KEY**: `"STORAGE_DUPLICATE_KEY"`
 
-Defined in: [types/errors.ts:50](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L50)
+Defined in: [types/errors.ts:50](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L50)
 
 ##### STORAGE\_ERROR
 
 > **STORAGE\_ERROR**: `"STORAGE_ERROR"`
 
-Defined in: [types/errors.ts:47](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L47)
+Defined in: [types/errors.ts:47](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L47)
 
 ##### STORAGE\_IO\_ERROR
 
 > **STORAGE\_IO\_ERROR**: `"STORAGE_IO_ERROR"`
 
-Defined in: [types/errors.ts:51](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L51)
+Defined in: [types/errors.ts:51](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L51)
 
 ##### STORAGE\_NOT\_FOUND
 
 > **STORAGE\_NOT\_FOUND**: `"STORAGE_NOT_FOUND"`
 
-Defined in: [types/errors.ts:49](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L49)
+Defined in: [types/errors.ts:49](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L49)
 
 ##### STORAGE\_SERIALIZATION\_ERROR
 
 > **STORAGE\_SERIALIZATION\_ERROR**: `"STORAGE_SERIALIZATION_ERROR"`
 
-Defined in: [types/errors.ts:52](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L52)
+Defined in: [types/errors.ts:52](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L52)
 
 ##### TIMEOUT
 
 > **TIMEOUT**: `"TIMEOUT"`
 
-Defined in: [types/errors.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L14)
+Defined in: [types/errors.ts:14](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L14)
 
 ##### TOOL\_EXECUTION
 
 > **TOOL\_EXECUTION**: `"TOOL_EXECUTION"`
 
-Defined in: [types/errors.ts:35](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L35)
+Defined in: [types/errors.ts:35](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L35)
 
 ## Classes
 
 ### AbortError
 
-Defined in: errors.ts:113
+Defined in: [errors.ts:133](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L133)
 
 Thrown when an agent run is aborted
 
@@ -202,7 +202,7 @@ Thrown when an agent run is aborted
 
 > **new AbortError**(): [`AbortError`](#aborterror)
 
-Defined in: errors.ts:114
+Defined in: [errors.ts:134](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L134)
 
 ###### Returns
 
@@ -218,7 +218,7 @@ Defined in: errors.ts:114
 
 > `readonly` `optional` **code?**: `string`
 
-Defined in: errors.ts:23
+Defined in: [errors.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L24)
 
 Machine-readable error code. Prefer values from the ErrorCode enum.
 
@@ -230,7 +230,7 @@ Machine-readable error code. Prefer values from the ErrorCode enum.
 
 > `readonly` `optional` **httpStatus?**: `number`
 
-Defined in: errors.ts:27
+Defined in: [errors.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L28)
 
 HTTP status code hint for error classification
 
@@ -242,7 +242,7 @@ HTTP status code hint for error classification
 
 > `readonly` `optional` **providerRequestSent?**: `boolean`
 
-Defined in: errors.ts:29
+Defined in: [errors.ts:30](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L30)
 
 Undefined means provider effect is unknown; false is explicit unsent evidence.
 
@@ -254,7 +254,7 @@ Undefined means provider effect is unknown; false is explicit unsent evidence.
 
 > `readonly` **retryable**: `boolean`
 
-Defined in: errors.ts:25
+Defined in: [errors.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L26)
 
 Whether this error is safe to retry
 
@@ -268,7 +268,7 @@ Whether this error is safe to retry
 
 > `static` **is**(`error`): `error is AgentSDKError`
 
-Defined in: errors.ts:41
+Defined in: [errors.ts:42](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L42)
 
 Check if an error is an AgentSDKError (works across bundled copies)
 
@@ -290,7 +290,7 @@ Check if an error is an AgentSDKError (works across bundled copies)
 
 ### ActivityTimeoutError
 
-Defined in: errors.ts:132
+Defined in: [errors.ts:152](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L152)
 
 Thrown when a stream has no activity within the configured timeout
 
@@ -304,7 +304,7 @@ Thrown when a stream has no activity within the configured timeout
 
 > **new ActivityTimeoutError**(`timeoutMs`): [`ActivityTimeoutError`](#activitytimeouterror)
 
-Defined in: errors.ts:133
+Defined in: [errors.ts:153](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L153)
 
 ###### Parameters
 
@@ -326,7 +326,7 @@ Defined in: errors.ts:133
 
 > `readonly` `optional` **code?**: `string`
 
-Defined in: errors.ts:23
+Defined in: [errors.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L24)
 
 Machine-readable error code. Prefer values from the ErrorCode enum.
 
@@ -338,7 +338,7 @@ Machine-readable error code. Prefer values from the ErrorCode enum.
 
 > `readonly` `optional` **httpStatus?**: `number`
 
-Defined in: errors.ts:27
+Defined in: [errors.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L28)
 
 HTTP status code hint for error classification
 
@@ -350,7 +350,7 @@ HTTP status code hint for error classification
 
 > `readonly` `optional` **providerRequestSent?**: `boolean`
 
-Defined in: errors.ts:29
+Defined in: [errors.ts:30](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L30)
 
 Undefined means provider effect is unknown; false is explicit unsent evidence.
 
@@ -362,7 +362,7 @@ Undefined means provider effect is unknown; false is explicit unsent evidence.
 
 > `readonly` **retryable**: `boolean`
 
-Defined in: errors.ts:25
+Defined in: [errors.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L26)
 
 Whether this error is safe to retry
 
@@ -376,7 +376,7 @@ Whether this error is safe to retry
 
 > `static` **is**(`error`): `error is AgentSDKError`
 
-Defined in: errors.ts:41
+Defined in: [errors.ts:42](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L42)
 
 Check if an error is an AgentSDKError (works across bundled copies)
 
@@ -398,7 +398,7 @@ Check if an error is an AgentSDKError (works across bundled copies)
 
 ### AgentSDKError
 
-Defined in: errors.ts:19
+Defined in: [errors.ts:20](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L20)
 
 Base error class for agent-sdk.
 
@@ -413,6 +413,7 @@ Use `AgentSDKError.is(err)` for reliable cross-module `instanceof` checks
 
 - [`StorageError`](/api-reference/chat/storage/#storageerror)
 - [`ChatError`](/api-reference/chat/errors/#chaterror)
+- [`ProviderAcknowledgmentError`](#provideracknowledgmenterror)
 - [`ReentrancyError`](#reentrancyerror)
 - [`DisposedError`](#disposederror)
 - [`BackendNotFoundError`](#backendnotfounderror)
@@ -431,7 +432,7 @@ Use `AgentSDKError.is(err)` for reliable cross-module `instanceof` checks
 
 > **new AgentSDKError**(`message`, `options?`): [`AgentSDKError`](#agentsdkerror)
 
-Defined in: errors.ts:31
+Defined in: [errors.ts:32](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L32)
 
 ###### Parameters
 
@@ -457,7 +458,7 @@ Defined in: errors.ts:31
 
 > `readonly` `optional` **code?**: `string`
 
-Defined in: errors.ts:23
+Defined in: [errors.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L24)
 
 Machine-readable error code. Prefer values from the ErrorCode enum.
 
@@ -465,7 +466,7 @@ Machine-readable error code. Prefer values from the ErrorCode enum.
 
 > `readonly` `optional` **httpStatus?**: `number`
 
-Defined in: errors.ts:27
+Defined in: [errors.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L28)
 
 HTTP status code hint for error classification
 
@@ -473,7 +474,7 @@ HTTP status code hint for error classification
 
 > `readonly` `optional` **providerRequestSent?**: `boolean`
 
-Defined in: errors.ts:29
+Defined in: [errors.ts:30](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L30)
 
 Undefined means provider effect is unknown; false is explicit unsent evidence.
 
@@ -481,7 +482,7 @@ Undefined means provider effect is unknown; false is explicit unsent evidence.
 
 > `readonly` **retryable**: `boolean`
 
-Defined in: errors.ts:25
+Defined in: [errors.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L26)
 
 Whether this error is safe to retry
 
@@ -491,7 +492,7 @@ Whether this error is safe to retry
 
 > `static` **is**(`error`): `error is AgentSDKError`
 
-Defined in: errors.ts:41
+Defined in: [errors.ts:42](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L42)
 
 Check if an error is an AgentSDKError (works across bundled copies)
 
@@ -509,7 +510,7 @@ Check if an error is an AgentSDKError (works across bundled copies)
 
 ### BackendAlreadyRegisteredError
 
-Defined in: errors.ts:84
+Defined in: [errors.ts:104](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L104)
 
 Thrown when a backend is already registered
 
@@ -523,7 +524,7 @@ Thrown when a backend is already registered
 
 > **new BackendAlreadyRegisteredError**(`backend`): [`BackendAlreadyRegisteredError`](#backendalreadyregisterederror)
 
-Defined in: errors.ts:85
+Defined in: [errors.ts:105](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L105)
 
 ###### Parameters
 
@@ -545,7 +546,7 @@ Defined in: errors.ts:85
 
 > `readonly` `optional` **code?**: `string`
 
-Defined in: errors.ts:23
+Defined in: [errors.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L24)
 
 Machine-readable error code. Prefer values from the ErrorCode enum.
 
@@ -557,7 +558,7 @@ Machine-readable error code. Prefer values from the ErrorCode enum.
 
 > `readonly` `optional` **httpStatus?**: `number`
 
-Defined in: errors.ts:27
+Defined in: [errors.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L28)
 
 HTTP status code hint for error classification
 
@@ -569,7 +570,7 @@ HTTP status code hint for error classification
 
 > `readonly` `optional` **providerRequestSent?**: `boolean`
 
-Defined in: errors.ts:29
+Defined in: [errors.ts:30](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L30)
 
 Undefined means provider effect is unknown; false is explicit unsent evidence.
 
@@ -581,7 +582,7 @@ Undefined means provider effect is unknown; false is explicit unsent evidence.
 
 > `readonly` **retryable**: `boolean`
 
-Defined in: errors.ts:25
+Defined in: [errors.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L26)
 
 Whether this error is safe to retry
 
@@ -595,7 +596,7 @@ Whether this error is safe to retry
 
 > `static` **is**(`error`): `error is AgentSDKError`
 
-Defined in: errors.ts:41
+Defined in: [errors.ts:42](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L42)
 
 Check if an error is an AgentSDKError (works across bundled copies)
 
@@ -617,7 +618,7 @@ Check if an error is an AgentSDKError (works across bundled copies)
 
 ### BackendNotFoundError
 
-Defined in: errors.ts:71
+Defined in: [errors.ts:91](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L91)
 
 Thrown when a backend is not found in the registry
 
@@ -631,7 +632,7 @@ Thrown when a backend is not found in the registry
 
 > **new BackendNotFoundError**(`backend`): [`BackendNotFoundError`](#backendnotfounderror)
 
-Defined in: errors.ts:72
+Defined in: [errors.ts:92](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L92)
 
 ###### Parameters
 
@@ -653,7 +654,7 @@ Defined in: errors.ts:72
 
 > `readonly` `optional` **code?**: `string`
 
-Defined in: errors.ts:23
+Defined in: [errors.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L24)
 
 Machine-readable error code. Prefer values from the ErrorCode enum.
 
@@ -665,7 +666,7 @@ Machine-readable error code. Prefer values from the ErrorCode enum.
 
 > `readonly` `optional` **httpStatus?**: `number`
 
-Defined in: errors.ts:27
+Defined in: [errors.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L28)
 
 HTTP status code hint for error classification
 
@@ -677,7 +678,7 @@ HTTP status code hint for error classification
 
 > `readonly` `optional` **providerRequestSent?**: `boolean`
 
-Defined in: errors.ts:29
+Defined in: [errors.ts:30](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L30)
 
 Undefined means provider effect is unknown; false is explicit unsent evidence.
 
@@ -689,7 +690,7 @@ Undefined means provider effect is unknown; false is explicit unsent evidence.
 
 > `readonly` **retryable**: `boolean`
 
-Defined in: errors.ts:25
+Defined in: [errors.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L26)
 
 Whether this error is safe to retry
 
@@ -703,7 +704,7 @@ Whether this error is safe to retry
 
 > `static` **is**(`error`): `error is AgentSDKError`
 
-Defined in: errors.ts:41
+Defined in: [errors.ts:42](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L42)
 
 Check if an error is an AgentSDKError (works across bundled copies)
 
@@ -725,7 +726,7 @@ Check if an error is an AgentSDKError (works across bundled copies)
 
 ### `abstract` BaseAgent
 
-Defined in: [base-agent.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L23)
+Defined in: [base-agent.ts:23](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L23)
 
 Abstract base agent with shared lifecycle logic.
  Concrete backends extend this and implement the protected _run/_stream methods.
@@ -740,7 +741,7 @@ Abstract base agent with shared lifecycle logic.
 
 > **new BaseAgent**(`config`): [`BaseAgent`](#abstract-baseagent)
 
-Defined in: [base-agent.ts:38](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L38)
+Defined in: [base-agent.ts:38](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L38)
 
 ###### Parameters
 
@@ -758,13 +759,13 @@ Defined in: [base-agent.ts:38](https://github.com/witqq/agent-sdk/blob/e81c2cb5f
 
 > `protected` **abortController**: `AbortController` \| `null` = `null`
 
-Defined in: [base-agent.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L25)
+Defined in: [base-agent.ts:25](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L25)
 
 ##### backendName
 
 > `abstract` `protected` `readonly` **backendName**: `string`
 
-Defined in: [base-agent.ts:31](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L31)
+Defined in: [base-agent.ts:31](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L31)
 
 Backend identifier (e.g. "copilot", "claude", "vercel-ai")
 
@@ -772,13 +773,13 @@ Backend identifier (e.g. "copilot", "claude", "vercel-ai")
 
 > `protected` `readonly` **config**: [`FullAgentConfig`](#fullagentconfig)
 
-Defined in: [base-agent.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L26)
+Defined in: [base-agent.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L26)
 
 ##### state
 
 > `protected` **state**: [`AgentState`](#agentstate) = `"idle"`
 
-Defined in: [base-agent.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L24)
+Defined in: [base-agent.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L24)
 
 #### Accessors
 
@@ -788,7 +789,7 @@ Defined in: [base-agent.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5f
 
 > **get** **sessionId**(): `string` \| `undefined`
 
-Defined in: [base-agent.ts:34](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L34)
+Defined in: [base-agent.ts:34](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L34)
 
 CLI session ID for persistent mode. Override in backends that support it.
 
@@ -809,7 +810,7 @@ The CLI session ID when using persistent session mode. Undefined in per-call mod
 
 > **abort**(): `void`
 
-Defined in: [base-agent.ts:184](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L184)
+Defined in: [base-agent.ts:184](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L184)
 
 Abort the current operation. No-op if not running.
 
@@ -825,7 +826,7 @@ Abort the current operation. No-op if not running.
 
 > **addStreamMiddleware**(`middleware`): `void`
 
-Defined in: [base-agent.ts:152](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L152)
+Defined in: [base-agent.ts:152](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L152)
 
 Register a stream middleware. Applied in registration order after built-in transforms.
 
@@ -843,7 +844,7 @@ Register a stream middleware. Applied in registration order after built-in trans
 
 > `protected` **checkAbort**(`signal`): `void`
 
-Defined in: [base-agent.ts:505](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L505)
+Defined in: [base-agent.ts:508](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L508)
 
 Throw AbortError if signal is already aborted
 
@@ -861,7 +862,7 @@ Throw AbortError if signal is already aborted
 
 > **dispose**(): `void`
 
-Defined in: [base-agent.ts:204](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L204)
+Defined in: [base-agent.ts:204](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L204)
 
 Mark agent as disposed. Override to add cleanup.
 
@@ -877,7 +878,7 @@ Mark agent as disposed. Override to add cleanup.
 
 > `abstract` `protected` **executeRun**(`messages`, `options`, `signal`): `Promise`\<[`AgentResult`](#agentresult)\<`void`\>\>
 
-Defined in: [base-agent.ts:214](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L214)
+Defined in: [base-agent.ts:214](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L214)
 
 Execute a blocking run. Backend implements the actual LLM call.
 
@@ -903,7 +904,7 @@ Execute a blocking run. Backend implements the actual LLM call.
 
 > `abstract` `protected` **executeRunStructured**\<`T`\>(`messages`, `schema`, `options`, `signal`): `Promise`\<[`AgentResult`](#agentresult)\<`T`\>\>
 
-Defined in: [base-agent.ts:221](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L221)
+Defined in: [base-agent.ts:221](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L221)
 
 Execute a structured output run. Backend implements parsing.
 
@@ -939,7 +940,7 @@ Execute a structured output run. Backend implements parsing.
 
 > `abstract` `protected` **executeStream**(`messages`, `options`, `signal`): `AsyncIterable`\<[`AgentEvent`](#agentevent)\>
 
-Defined in: [base-agent.ts:229](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L229)
+Defined in: [base-agent.ts:229](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L229)
 
 Execute a streaming run. Backend yields events.
 
@@ -965,7 +966,7 @@ Execute a streaming run. Backend yields events.
 
 > **getConfig**(): `Readonly`\<[`FullAgentConfig`](#fullagentconfig)\>
 
-Defined in: [base-agent.ts:199](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L199)
+Defined in: [base-agent.ts:199](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L199)
 
 Get frozen agent configuration.
 
@@ -981,7 +982,7 @@ Get frozen agent configuration.
 
 > **getState**(): [`AgentState`](#agentstate)
 
-Defined in: [base-agent.ts:195](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L195)
+Defined in: [base-agent.ts:195](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L195)
 
 Get current agent lifecycle state.
 
@@ -997,7 +998,7 @@ Get current agent lifecycle state.
 
 > `protected` **guardDisposed**(): `void`
 
-Defined in: [base-agent.ts:498](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L498)
+Defined in: [base-agent.ts:501](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L501)
 
 ###### Returns
 
@@ -1007,7 +1008,7 @@ Defined in: [base-agent.ts:498](https://github.com/witqq/agent-sdk/blob/e81c2cb5
 
 > `protected` **guardReentrancy**(): `void`
 
-Defined in: [base-agent.ts:492](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L492)
+Defined in: [base-agent.ts:495](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L495)
 
 ###### Returns
 
@@ -1017,7 +1018,7 @@ Defined in: [base-agent.ts:492](https://github.com/witqq/agent-sdk/blob/e81c2cb5
 
 > **interrupt**(): `Promise`\<`void`\>
 
-Defined in: [base-agent.ts:191](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L191)
+Defined in: [base-agent.ts:191](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L191)
 
 Default interrupt — falls back to abort(). Backends may override with graceful shutdown.
 
@@ -1033,7 +1034,7 @@ Default interrupt — falls back to abort(). Backends may override with graceful
 
 > `protected` **resolveTools**(`options?`): [`ToolDefinition`](#tooldefinition)\<`unknown`\>[]
 
-Defined in: [base-agent.ts:337](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L337)
+Defined in: [base-agent.ts:339](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L339)
 
 Resolve tools to use for this call (per-call override > config default)
 
@@ -1051,7 +1052,7 @@ Resolve tools to use for this call (per-call override > config default)
 
 > **run**(`prompt`, `options`): `Promise`\<[`AgentResult`](#agentresult)\<`void`\>\>
 
-Defined in: [base-agent.ts:44](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L44)
+Defined in: [base-agent.ts:44](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L44)
 
 Run a single prompt and return the result. Wraps prompt in a user message.
 
@@ -1077,7 +1078,7 @@ Run a single prompt and return the result. Wraps prompt in a user message.
 
 > **runStructured**\<`T`\>(`prompt`, `schema`, `options`): `Promise`\<[`AgentResult`](#agentresult)\<`T`\>\>
 
-Defined in: [base-agent.ts:87](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L87)
+Defined in: [base-agent.ts:87](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L87)
 
 Run with structured output validated against a Zod schema.
 
@@ -1113,7 +1114,7 @@ Run with structured output validated against a Zod schema.
 
 > **runWithContext**(`messages`, `options`): `Promise`\<[`AgentResult`](#agentresult)\<`void`\>\>
 
-Defined in: [base-agent.ts:66](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L66)
+Defined in: [base-agent.ts:66](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L66)
 
 Run with full conversation history. Messages are passed directly to the backend.
 
@@ -1139,7 +1140,7 @@ Run with full conversation history. Messages are passed directly to the backend.
 
 > **stream**(`prompt`, `options`): `AsyncIterable`\<[`AgentEvent`](#agentevent)\>
 
-Defined in: [base-agent.ts:110](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L110)
+Defined in: [base-agent.ts:110](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L110)
 
 Stream events for a single prompt. Wraps prompt in a user message.
 
@@ -1165,7 +1166,7 @@ Stream events for a single prompt. Wraps prompt in a user message.
 
 > **streamWithContext**(`messages`, `options`): `AsyncIterable`\<[`AgentEvent`](#agentevent)\>
 
-Defined in: [base-agent.ts:131](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/base-agent.ts#L131)
+Defined in: [base-agent.ts:131](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/base-agent.ts#L131)
 
 Stream events with full conversation history. Messages are passed directly to the backend.
 
@@ -1191,7 +1192,7 @@ Stream events with full conversation history. Messages are passed directly to th
 
 ### CompositePermissionStore
 
-Defined in: [permission-store.ts:128](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L128)
+Defined in: [permission-store.ts:128](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L128)
 
 Composes multiple stores — checks in order, routes writes by scope.
 
@@ -1209,7 +1210,7 @@ Composes multiple stores — checks in order, routes writes by scope.
 
 > **new CompositePermissionStore**(`sessionStore`, `projectStore`, `userStore?`): [`CompositePermissionStore`](#compositepermissionstore)
 
-Defined in: [permission-store.ts:133](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L133)
+Defined in: [permission-store.ts:133](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L133)
 
 ###### Parameters
 
@@ -1235,7 +1236,7 @@ Defined in: [permission-store.ts:133](https://github.com/witqq/agent-sdk/blob/e8
 
 > **approve**(`toolName`, `scope`): `Promise`\<`void`\>
 
-Defined in: [permission-store.ts:151](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L151)
+Defined in: [permission-store.ts:151](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L151)
 
 Store an approval decision
 
@@ -1261,7 +1262,7 @@ Store an approval decision
 
 > **clear**(): `Promise`\<`void`\>
 
-Defined in: [permission-store.ts:169](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L169)
+Defined in: [permission-store.ts:169](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L169)
 
 Clear all approvals
 
@@ -1277,7 +1278,7 @@ Clear all approvals
 
 > **dispose**(): `Promise`\<`void`\>
 
-Defined in: [permission-store.ts:175](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L175)
+Defined in: [permission-store.ts:175](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L175)
 
 Dispose resources
 
@@ -1293,7 +1294,7 @@ Dispose resources
 
 > **isApproved**(`toolName`): `Promise`\<`boolean`\>
 
-Defined in: [permission-store.ts:143](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L143)
+Defined in: [permission-store.ts:143](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L143)
 
 Check if tool is already approved
 
@@ -1315,7 +1316,7 @@ Check if tool is already approved
 
 > **revoke**(`toolName`): `Promise`\<`void`\>
 
-Defined in: [permission-store.ts:163](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L163)
+Defined in: [permission-store.ts:163](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L163)
 
 Revoke approval for a tool
 
@@ -1337,7 +1338,7 @@ Revoke approval for a tool
 
 ### DependencyError
 
-Defined in: errors.ts:100
+Defined in: [errors.ts:120](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L120)
 
 Thrown when a required peer dependency is not installed
 
@@ -1351,7 +1352,7 @@ Thrown when a required peer dependency is not installed
 
 > **new DependencyError**(`packageName`): [`DependencyError`](#dependencyerror)
 
-Defined in: errors.ts:103
+Defined in: [errors.ts:123](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L123)
 
 ###### Parameters
 
@@ -1373,7 +1374,7 @@ Defined in: errors.ts:103
 
 > `readonly` `optional` **code?**: `string`
 
-Defined in: errors.ts:23
+Defined in: [errors.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L24)
 
 Machine-readable error code. Prefer values from the ErrorCode enum.
 
@@ -1385,7 +1386,7 @@ Machine-readable error code. Prefer values from the ErrorCode enum.
 
 > `readonly` `optional` **httpStatus?**: `number`
 
-Defined in: errors.ts:27
+Defined in: [errors.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L28)
 
 HTTP status code hint for error classification
 
@@ -1397,13 +1398,13 @@ HTTP status code hint for error classification
 
 > `readonly` **packageName**: `string`
 
-Defined in: errors.ts:101
+Defined in: [errors.ts:121](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L121)
 
 ##### providerRequestSent?
 
 > `readonly` `optional` **providerRequestSent?**: `boolean`
 
-Defined in: errors.ts:29
+Defined in: [errors.ts:30](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L30)
 
 Undefined means provider effect is unknown; false is explicit unsent evidence.
 
@@ -1415,7 +1416,7 @@ Undefined means provider effect is unknown; false is explicit unsent evidence.
 
 > `readonly` **retryable**: `boolean`
 
-Defined in: errors.ts:25
+Defined in: [errors.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L26)
 
 Whether this error is safe to retry
 
@@ -1429,7 +1430,7 @@ Whether this error is safe to retry
 
 > `static` **is**(`error`): `error is AgentSDKError`
 
-Defined in: errors.ts:41
+Defined in: [errors.ts:42](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L42)
 
 Check if an error is an AgentSDKError (works across bundled copies)
 
@@ -1451,7 +1452,7 @@ Check if an error is an AgentSDKError (works across bundled copies)
 
 ### DisposedError
 
-Defined in: errors.ts:61
+Defined in: [errors.ts:81](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L81)
 
 Thrown when an operation is attempted on a disposed agent/service
 
@@ -1465,7 +1466,7 @@ Thrown when an operation is attempted on a disposed agent/service
 
 > **new DisposedError**(`entity`): [`DisposedError`](#disposederror)
 
-Defined in: errors.ts:62
+Defined in: [errors.ts:82](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L82)
 
 ###### Parameters
 
@@ -1487,7 +1488,7 @@ Defined in: errors.ts:62
 
 > `readonly` `optional` **code?**: `string`
 
-Defined in: errors.ts:23
+Defined in: [errors.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L24)
 
 Machine-readable error code. Prefer values from the ErrorCode enum.
 
@@ -1499,7 +1500,7 @@ Machine-readable error code. Prefer values from the ErrorCode enum.
 
 > `readonly` `optional` **httpStatus?**: `number`
 
-Defined in: errors.ts:27
+Defined in: [errors.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L28)
 
 HTTP status code hint for error classification
 
@@ -1511,7 +1512,7 @@ HTTP status code hint for error classification
 
 > `readonly` `optional` **providerRequestSent?**: `boolean`
 
-Defined in: errors.ts:29
+Defined in: [errors.ts:30](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L30)
 
 Undefined means provider effect is unknown; false is explicit unsent evidence.
 
@@ -1523,7 +1524,7 @@ Undefined means provider effect is unknown; false is explicit unsent evidence.
 
 > `readonly` **retryable**: `boolean`
 
-Defined in: errors.ts:25
+Defined in: [errors.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L26)
 
 Whether this error is safe to retry
 
@@ -1537,7 +1538,7 @@ Whether this error is safe to retry
 
 > `static` **is**(`error`): `error is AgentSDKError`
 
-Defined in: errors.ts:41
+Defined in: [errors.ts:42](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L42)
 
 Check if an error is an AgentSDKError (works across bundled copies)
 
@@ -1559,7 +1560,7 @@ Check if an error is an AgentSDKError (works across bundled copies)
 
 ### FilePermissionStore
 
-Defined in: [permission-store.ts:66](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L66)
+Defined in: [permission-store.ts:66](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L66)
 
 File-backed store — reads/writes a JSON file for persistent approvals.
 
@@ -1573,7 +1574,7 @@ File-backed store — reads/writes a JSON file for persistent approvals.
 
 > **new FilePermissionStore**(`filePath`): [`FilePermissionStore`](#filepermissionstore)
 
-Defined in: [permission-store.ts:69](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L69)
+Defined in: [permission-store.ts:69](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L69)
 
 ###### Parameters
 
@@ -1591,7 +1592,7 @@ Defined in: [permission-store.ts:69](https://github.com/witqq/agent-sdk/blob/e81
 
 > **approve**(`toolName`, `scope`): `Promise`\<`void`\>
 
-Defined in: [permission-store.ts:78](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L78)
+Defined in: [permission-store.ts:78](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L78)
 
 Store an approval decision
 
@@ -1617,7 +1618,7 @@ Store an approval decision
 
 > **clear**(): `Promise`\<`void`\>
 
-Defined in: [permission-store.ts:91](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L91)
+Defined in: [permission-store.ts:91](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L91)
 
 Clear all approvals
 
@@ -1633,7 +1634,7 @@ Clear all approvals
 
 > **dispose**(): `Promise`\<`void`\>
 
-Defined in: [permission-store.ts:95](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L95)
+Defined in: [permission-store.ts:95](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L95)
 
 Dispose resources
 
@@ -1649,7 +1650,7 @@ Dispose resources
 
 > **isApproved**(`toolName`): `Promise`\<`boolean`\>
 
-Defined in: [permission-store.ts:73](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L73)
+Defined in: [permission-store.ts:73](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L73)
 
 Check if tool is already approved
 
@@ -1671,7 +1672,7 @@ Check if tool is already approved
 
 > **revoke**(`toolName`): `Promise`\<`void`\>
 
-Defined in: [permission-store.ts:85](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L85)
+Defined in: [permission-store.ts:85](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L85)
 
 Revoke approval for a tool
 
@@ -1693,7 +1694,7 @@ Revoke approval for a tool
 
 ### InMemoryPermissionStore
 
-Defined in: [permission-store.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L29)
+Defined in: [permission-store.ts:29](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L29)
 
 In-memory store — approvals live until process exits (or dispose).
 
@@ -1717,7 +1718,7 @@ In-memory store — approvals live until process exits (or dispose).
 
 > **approve**(`toolName`, `scope`): `Promise`\<`void`\>
 
-Defined in: [permission-store.ts:36](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L36)
+Defined in: [permission-store.ts:36](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L36)
 
 Store an approval decision
 
@@ -1743,7 +1744,7 @@ Store an approval decision
 
 > **clear**(): `Promise`\<`void`\>
 
-Defined in: [permission-store.ts:45](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L45)
+Defined in: [permission-store.ts:45](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L45)
 
 Clear all approvals
 
@@ -1759,7 +1760,7 @@ Clear all approvals
 
 > **dispose**(): `Promise`\<`void`\>
 
-Defined in: [permission-store.ts:49](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L49)
+Defined in: [permission-store.ts:49](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L49)
 
 Dispose resources
 
@@ -1775,7 +1776,7 @@ Dispose resources
 
 > **isApproved**(`toolName`): `Promise`\<`boolean`\>
 
-Defined in: [permission-store.ts:32](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L32)
+Defined in: [permission-store.ts:32](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L32)
 
 Check if tool is already approved
 
@@ -1797,7 +1798,7 @@ Check if tool is already approved
 
 > **revoke**(`toolName`): `Promise`\<`void`\>
 
-Defined in: [permission-store.ts:41](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L41)
+Defined in: [permission-store.ts:41](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L41)
 
 Revoke approval for a tool
 
@@ -1817,9 +1818,144 @@ Revoke approval for a tool
 
 ***
 
+### ProviderAcknowledgmentError
+
+Defined in: [errors.ts:53](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L53)
+
+Local acknowledgment failure after provider dispatch. This is neither a native
+transport failure nor evidence that no inference happened. It has no retry code.
+
+#### Extends
+
+- [`AgentSDKError`](#agentsdkerror)
+
+#### Constructors
+
+##### Constructor
+
+> **new ProviderAcknowledgmentError**(`reason`, `observation`, `cause?`): [`ProviderAcknowledgmentError`](#provideracknowledgmenterror)
+
+Defined in: [errors.ts:56](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L56)
+
+###### Parameters
+
+###### reason
+
+`"persistence_failed"` \| `"identity_conflict"`
+
+###### observation
+
+[`ProviderAcknowledgment`](#provideracknowledgment)
+
+###### cause?
+
+`unknown`
+
+###### Returns
+
+[`ProviderAcknowledgmentError`](#provideracknowledgmenterror)
+
+###### Overrides
+
+[`AgentSDKError`](#agentsdkerror).[`constructor`](#constructor-2)
+
+#### Properties
+
+##### \_providerAcknowledgmentError
+
+> `readonly` **\_providerAcknowledgmentError**: `true`
+
+Defined in: [errors.ts:54](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L54)
+
+##### code?
+
+> `readonly` `optional` **code?**: `string`
+
+Defined in: [errors.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L24)
+
+Machine-readable error code. Prefer values from the ErrorCode enum.
+
+###### Inherited from
+
+[`AgentSDKError`](#agentsdkerror).[`code`](#code-2)
+
+##### httpStatus?
+
+> `readonly` `optional` **httpStatus?**: `number`
+
+Defined in: [errors.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L28)
+
+HTTP status code hint for error classification
+
+###### Inherited from
+
+[`AgentSDKError`](#agentsdkerror).[`httpStatus`](#httpstatus-2)
+
+##### observation
+
+> `readonly` **observation**: [`ProviderAcknowledgment`](#provideracknowledgment)
+
+Defined in: [errors.ts:58](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L58)
+
+##### providerRequestSent?
+
+> `readonly` `optional` **providerRequestSent?**: `boolean`
+
+Defined in: [errors.ts:30](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L30)
+
+Undefined means provider effect is unknown; false is explicit unsent evidence.
+
+###### Inherited from
+
+[`AgentSDKError`](#agentsdkerror).[`providerRequestSent`](#providerrequestsent-2)
+
+##### reason
+
+> `readonly` **reason**: `"persistence_failed"` \| `"identity_conflict"`
+
+Defined in: [errors.ts:57](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L57)
+
+##### retryable
+
+> `readonly` **retryable**: `boolean`
+
+Defined in: [errors.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L26)
+
+Whether this error is safe to retry
+
+###### Inherited from
+
+[`AgentSDKError`](#agentsdkerror).[`retryable`](#retryable-2)
+
+#### Methods
+
+##### is()
+
+> `static` **is**(`error`): `error is ProviderAcknowledgmentError`
+
+Defined in: [errors.ts:65](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L65)
+
+Check if an error is an AgentSDKError (works across bundled copies)
+
+###### Parameters
+
+###### error
+
+`unknown`
+
+###### Returns
+
+`error is ProviderAcknowledgmentError`
+
+###### Overrides
+
+[`AgentSDKError`](#agentsdkerror).[`is`](#is-2)
+
+***
+
 ### ReentrancyError
 
-Defined in: errors.ts:51
+Defined in: [errors.ts:71](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L71)
 
 Thrown when agent.run() is called while already running (M8 re-entrancy guard)
 
@@ -1833,7 +1969,7 @@ Thrown when agent.run() is called while already running (M8 re-entrancy guard)
 
 > **new ReentrancyError**(): [`ReentrancyError`](#reentrancyerror)
 
-Defined in: errors.ts:52
+Defined in: [errors.ts:72](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L72)
 
 ###### Returns
 
@@ -1849,7 +1985,7 @@ Defined in: errors.ts:52
 
 > `readonly` `optional` **code?**: `string`
 
-Defined in: errors.ts:23
+Defined in: [errors.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L24)
 
 Machine-readable error code. Prefer values from the ErrorCode enum.
 
@@ -1861,7 +1997,7 @@ Machine-readable error code. Prefer values from the ErrorCode enum.
 
 > `readonly` `optional` **httpStatus?**: `number`
 
-Defined in: errors.ts:27
+Defined in: [errors.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L28)
 
 HTTP status code hint for error classification
 
@@ -1873,7 +2009,7 @@ HTTP status code hint for error classification
 
 > `readonly` `optional` **providerRequestSent?**: `boolean`
 
-Defined in: errors.ts:29
+Defined in: [errors.ts:30](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L30)
 
 Undefined means provider effect is unknown; false is explicit unsent evidence.
 
@@ -1885,7 +2021,7 @@ Undefined means provider effect is unknown; false is explicit unsent evidence.
 
 > `readonly` **retryable**: `boolean`
 
-Defined in: errors.ts:25
+Defined in: [errors.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L26)
 
 Whether this error is safe to retry
 
@@ -1899,7 +2035,7 @@ Whether this error is safe to retry
 
 > `static` **is**(`error`): `error is AgentSDKError`
 
-Defined in: errors.ts:41
+Defined in: [errors.ts:42](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L42)
 
 Check if an error is an AgentSDKError (works across bundled copies)
 
@@ -1921,7 +2057,7 @@ Check if an error is an AgentSDKError (works across bundled copies)
 
 ### StructuredOutputError
 
-Defined in: errors.ts:143
+Defined in: [errors.ts:163](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L163)
 
 Thrown when structured output parsing fails
 
@@ -1935,7 +2071,7 @@ Thrown when structured output parsing fails
 
 > **new StructuredOutputError**(`message`, `options?`): [`StructuredOutputError`](#structuredoutputerror)
 
-Defined in: errors.ts:144
+Defined in: [errors.ts:164](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L164)
 
 ###### Parameters
 
@@ -1961,7 +2097,7 @@ Defined in: errors.ts:144
 
 > `readonly` `optional` **code?**: `string`
 
-Defined in: errors.ts:23
+Defined in: [errors.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L24)
 
 Machine-readable error code. Prefer values from the ErrorCode enum.
 
@@ -1973,7 +2109,7 @@ Machine-readable error code. Prefer values from the ErrorCode enum.
 
 > `readonly` `optional` **httpStatus?**: `number`
 
-Defined in: errors.ts:27
+Defined in: [errors.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L28)
 
 HTTP status code hint for error classification
 
@@ -1985,7 +2121,7 @@ HTTP status code hint for error classification
 
 > `readonly` `optional` **providerRequestSent?**: `boolean`
 
-Defined in: errors.ts:29
+Defined in: [errors.ts:30](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L30)
 
 Undefined means provider effect is unknown; false is explicit unsent evidence.
 
@@ -1997,7 +2133,7 @@ Undefined means provider effect is unknown; false is explicit unsent evidence.
 
 > `readonly` **retryable**: `boolean`
 
-Defined in: errors.ts:25
+Defined in: [errors.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L26)
 
 Whether this error is safe to retry
 
@@ -2011,7 +2147,7 @@ Whether this error is safe to retry
 
 > `static` **is**(`error`): `error is AgentSDKError`
 
-Defined in: errors.ts:41
+Defined in: [errors.ts:42](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L42)
 
 Check if an error is an AgentSDKError (works across bundled copies)
 
@@ -2033,7 +2169,7 @@ Check if an error is an AgentSDKError (works across bundled copies)
 
 ### SubprocessError
 
-Defined in: errors.ts:92
+Defined in: [errors.ts:112](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L112)
 
 Thrown when subprocess management fails
 
@@ -2047,7 +2183,7 @@ Thrown when subprocess management fails
 
 > **new SubprocessError**(`message`, `options?`): [`SubprocessError`](#subprocesserror)
 
-Defined in: errors.ts:93
+Defined in: [errors.ts:113](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L113)
 
 ###### Parameters
 
@@ -2073,7 +2209,7 @@ Defined in: errors.ts:93
 
 > `readonly` `optional` **code?**: `string`
 
-Defined in: errors.ts:23
+Defined in: [errors.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L24)
 
 Machine-readable error code. Prefer values from the ErrorCode enum.
 
@@ -2085,7 +2221,7 @@ Machine-readable error code. Prefer values from the ErrorCode enum.
 
 > `readonly` `optional` **httpStatus?**: `number`
 
-Defined in: errors.ts:27
+Defined in: [errors.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L28)
 
 HTTP status code hint for error classification
 
@@ -2097,7 +2233,7 @@ HTTP status code hint for error classification
 
 > `readonly` `optional` **providerRequestSent?**: `boolean`
 
-Defined in: errors.ts:29
+Defined in: [errors.ts:30](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L30)
 
 Undefined means provider effect is unknown; false is explicit unsent evidence.
 
@@ -2109,7 +2245,7 @@ Undefined means provider effect is unknown; false is explicit unsent evidence.
 
 > `readonly` **retryable**: `boolean`
 
-Defined in: errors.ts:25
+Defined in: [errors.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L26)
 
 Whether this error is safe to retry
 
@@ -2123,7 +2259,7 @@ Whether this error is safe to retry
 
 > `static` **is**(`error`): `error is AgentSDKError`
 
-Defined in: errors.ts:41
+Defined in: [errors.ts:42](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L42)
 
 Check if an error is an AgentSDKError (works across bundled copies)
 
@@ -2145,7 +2281,7 @@ Check if an error is an AgentSDKError (works across bundled copies)
 
 ### ToolExecutionError
 
-Defined in: errors.ts:121
+Defined in: [errors.ts:141](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L141)
 
 Thrown when a tool execution fails
 
@@ -2159,7 +2295,7 @@ Thrown when a tool execution fails
 
 > **new ToolExecutionError**(`toolName`, `message`, `options?`): [`ToolExecutionError`](#toolexecutionerror)
 
-Defined in: errors.ts:124
+Defined in: [errors.ts:144](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L144)
 
 ###### Parameters
 
@@ -2189,7 +2325,7 @@ Defined in: errors.ts:124
 
 > `readonly` `optional` **code?**: `string`
 
-Defined in: errors.ts:23
+Defined in: [errors.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L24)
 
 Machine-readable error code. Prefer values from the ErrorCode enum.
 
@@ -2201,7 +2337,7 @@ Machine-readable error code. Prefer values from the ErrorCode enum.
 
 > `readonly` `optional` **httpStatus?**: `number`
 
-Defined in: errors.ts:27
+Defined in: [errors.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L28)
 
 HTTP status code hint for error classification
 
@@ -2213,7 +2349,7 @@ HTTP status code hint for error classification
 
 > `readonly` `optional` **providerRequestSent?**: `boolean`
 
-Defined in: errors.ts:29
+Defined in: [errors.ts:30](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L30)
 
 Undefined means provider effect is unknown; false is explicit unsent evidence.
 
@@ -2225,7 +2361,7 @@ Undefined means provider effect is unknown; false is explicit unsent evidence.
 
 > `readonly` **retryable**: `boolean`
 
-Defined in: errors.ts:25
+Defined in: [errors.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L26)
 
 Whether this error is safe to retry
 
@@ -2237,7 +2373,7 @@ Whether this error is safe to retry
 
 > `readonly` **toolName**: `string`
 
-Defined in: errors.ts:122
+Defined in: [errors.ts:142](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L142)
 
 #### Methods
 
@@ -2245,7 +2381,7 @@ Defined in: errors.ts:122
 
 > `static` **is**(`error`): `error is AgentSDKError`
 
-Defined in: errors.ts:41
+Defined in: [errors.ts:42](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L42)
 
 Check if an error is an AgentSDKError (works across bundled copies)
 
@@ -2267,7 +2403,7 @@ Check if an error is an AgentSDKError (works across bundled copies)
 
 ### AgentConfig
 
-Defined in: [types/agent.ts:105](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L105)
+Defined in: [types/agent.ts:133](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L133)
 
 Identity-only agent configuration — defines the agent's behavior, NOT per-call defaults.
  For creating an agent with model/tools defaults, use FullAgentConfig.
@@ -2278,7 +2414,7 @@ Identity-only agent configuration — defines the agent's behavior, NOT per-call
 
 > `optional` **availableTools?**: `string`[]
 
-Defined in: [types/agent.ts:124](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L124)
+Defined in: [types/agent.ts:152](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L152)
 
 Filter for backend built-in tools (e.g. `["web_search", "web_fetch"]` for Copilot).
 When set, only listed built-in tools are available. Backend-specific.
@@ -2291,13 +2427,13 @@ Set this to restrict access (e.g. prevent file system access in a web-facing age
 
 > `optional` **errorHandling?**: [`ErrorHandlingConfig`](#errorhandlingconfig)
 
-Defined in: [types/agent.ts:110](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L110)
+Defined in: [types/agent.ts:138](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L138)
 
 ##### heartbeatInterval?
 
 > `optional` **heartbeatInterval?**: `number`
 
-Defined in: [types/agent.ts:131](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L131)
+Defined in: [types/agent.ts:159](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L159)
 
 Interval in milliseconds for emitting heartbeat events during streaming.
  When set, heartbeat events are emitted to keep the stream alive during
@@ -2307,13 +2443,13 @@ Interval in milliseconds for emitting heartbeat events during streaming.
 
 > `optional` **maxTurns?**: `number`
 
-Defined in: [types/agent.ts:108](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L108)
+Defined in: [types/agent.ts:136](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L136)
 
 ##### onUsage?
 
 > `optional` **onUsage?**: (`usage`) => `void`
 
-Defined in: [types/agent.ts:127](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L127)
+Defined in: [types/agent.ts:155](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L155)
 
 Callback invoked with usage data after run completion or during streaming.
  Fire-and-forget: errors are logged but not propagated.
@@ -2332,7 +2468,7 @@ Callback invoked with usage data after run completion or during streaming.
 
 > `optional` **permissionStore?**: [`IPermissionStore`](#ipermissionstore)
 
-Defined in: [types/agent.ts:112](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L112)
+Defined in: [types/agent.ts:140](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L140)
 
 Pluggable store for persisting permission scope decisions across runs
 
@@ -2340,7 +2476,7 @@ Pluggable store for persisting permission scope decisions across runs
 
 > `optional` **sessionMode?**: `"per-call"` \| `"persistent"`
 
-Defined in: [types/agent.ts:136](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L136)
+Defined in: [types/agent.ts:164](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L164)
 
 Session reuse mode for CLI backends (Copilot, Claude).
  "per-call" (default): creates a fresh CLI session for each run/stream call.
@@ -2351,13 +2487,13 @@ Session reuse mode for CLI backends (Copilot, Claude).
 
 > `optional` **supervisor?**: [`SupervisorHooks`](#supervisorhooks)
 
-Defined in: [types/agent.ts:107](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L107)
+Defined in: [types/agent.ts:135](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L135)
 
 ##### systemMessageMode?
 
 > `optional` **systemMessageMode?**: `"replace"` \| `"append"`
 
-Defined in: [types/agent.ts:115](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L115)
+Defined in: [types/agent.ts:143](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L143)
 
 How to apply systemPrompt: "append" adds to backend default, "replace" overrides it.
  Default: "append". Currently used by the Copilot backend.
@@ -2366,19 +2502,19 @@ How to apply systemPrompt: "append" adds to backend default, "replace" overrides
 
 > **systemPrompt**: `string`
 
-Defined in: [types/agent.ts:106](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L106)
+Defined in: [types/agent.ts:134](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L134)
 
 ##### timeout?
 
 > `optional` **timeout?**: [`TimeoutConfig`](#timeoutconfig)
 
-Defined in: [types/agent.ts:109](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L109)
+Defined in: [types/agent.ts:137](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L137)
 
 ***
 
 ### AgentResult
 
-Defined in: [types/agent.ts:161](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L161)
+Defined in: [types/agent.ts:189](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L189)
 
 Result of an agent run, generic over structured output type T
 
@@ -2394,25 +2530,25 @@ Result of an agent run, generic over structured output type T
 
 > **messages**: [`Message`](#message)[]
 
-Defined in: [types/agent.ts:170](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L170)
+Defined in: [types/agent.ts:198](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L198)
 
 ##### output
 
 > **output**: `string` \| `null`
 
-Defined in: [types/agent.ts:162](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L162)
+Defined in: [types/agent.ts:190](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L190)
 
 ##### structuredOutput
 
 > **structuredOutput**: `T` *extends* `void` ? `undefined` : `T`
 
-Defined in: [types/agent.ts:163](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L163)
+Defined in: [types/agent.ts:191](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L191)
 
 ##### toolCalls
 
 > **toolCalls**: `object`[]
 
-Defined in: [types/agent.ts:164](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L164)
+Defined in: [types/agent.ts:192](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L192)
 
 ###### approved
 
@@ -2434,13 +2570,13 @@ Defined in: [types/agent.ts:164](https://github.com/witqq/agent-sdk/blob/e81c2cb
 
 > `optional` **usage?**: [`UsageData`](#usagedata)
 
-Defined in: [types/agent.ts:171](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L171)
+Defined in: [types/agent.ts:199](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L199)
 
 ***
 
 ### AgentSDKErrorOptions
 
-Defined in: [errors.ts:4](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/errors.ts#L4)
+Defined in: [errors.ts:5](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L5)
 
 Options for constructing an AgentSDKError
 
@@ -2454,7 +2590,7 @@ Options for constructing an AgentSDKError
 
 > `optional` **code?**: `string`
 
-Defined in: [errors.ts:6](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/errors.ts#L6)
+Defined in: [errors.ts:7](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L7)
 
 Machine-readable error code
 
@@ -2462,7 +2598,7 @@ Machine-readable error code
 
 > `optional` **httpStatus?**: `number`
 
-Defined in: [errors.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/errors.ts#L10)
+Defined in: [errors.ts:11](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L11)
 
 HTTP status code hint (e.g. 401, 429, 500)
 
@@ -2470,7 +2606,7 @@ HTTP status code hint (e.g. 401, 429, 500)
 
 > `optional` **providerRequestSent?**: `boolean`
 
-Defined in: errors.ts:12
+Defined in: [errors.ts:13](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L13)
 
 False only when the backend proves model dispatch was not entered.
 
@@ -2478,7 +2614,7 @@ False only when the backend proves model dispatch was not entered.
 
 > `optional` **retryable?**: `boolean`
 
-Defined in: [errors.ts:8](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/errors.ts#L8)
+Defined in: [errors.ts:9](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/errors.ts#L9)
 
 Whether this error is retryable (default: false)
 
@@ -2486,7 +2622,7 @@ Whether this error is retryable (default: false)
 
 ### BackendOptionsMap
 
-Defined in: [registry.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/registry.ts#L20)
+Defined in: [registry.ts:20](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/registry.ts#L20)
 
 Map of built-in backend names to their options types
 
@@ -2496,25 +2632,25 @@ Map of built-in backend names to their options types
 
 > **claude**: [`ClaudeBackendOptions`](#claudebackendoptions)
 
-Defined in: [registry.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/registry.ts#L22)
+Defined in: [registry.ts:22](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/registry.ts#L22)
 
 ##### copilot
 
 > **copilot**: [`CopilotBackendOptions`](#copilotbackendoptions)
 
-Defined in: [registry.ts:21](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/registry.ts#L21)
+Defined in: [registry.ts:21](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/registry.ts#L21)
 
 ##### vercel-ai
 
 > **vercel-ai**: [`VercelAIBackendOptions`](#vercelaibackendoptions)
 
-Defined in: [registry.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/registry.ts#L23)
+Defined in: [registry.ts:23](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/registry.ts#L23)
 
 ***
 
 ### CallDefaults
 
-Defined in: [types/agent.ts:141](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L141)
+Defined in: [types/agent.ts:169](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L169)
 
 Per-call defaults that can be provided at agent creation time.
  Each field can also be overridden on individual calls via RunOptions.
@@ -2525,7 +2661,7 @@ Per-call defaults that can be provided at agent creation time.
 
 > `optional` **model?**: `string`
 
-Defined in: [types/agent.ts:143](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L143)
+Defined in: [types/agent.ts:171](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L171)
 
 Default model (overridable per-call via RunOptions.model)
 
@@ -2533,7 +2669,7 @@ Default model (overridable per-call via RunOptions.model)
 
 > `optional` **modelParams?**: [`ModelParams`](#modelparams-1)
 
-Defined in: [types/agent.ts:145](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L145)
+Defined in: [types/agent.ts:173](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L173)
 
 Default model parameters
 
@@ -2541,7 +2677,7 @@ Default model parameters
 
 > `optional` **providerOptions?**: `Record`\<`string`, `Record`\<`string`, `unknown`\>\>
 
-Defined in: [types/agent.ts:151](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L151)
+Defined in: [types/agent.ts:179](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L179)
 
 Provider-specific options passed through to the underlying SDK.
  For Vercel AI: passed as providerOptions to generateText/streamText.
@@ -2551,7 +2687,7 @@ Provider-specific options passed through to the underlying SDK.
 
 > `optional` **tools?**: [`ToolDefinition`](#tooldefinition)\<`unknown`\>[]
 
-Defined in: [types/agent.ts:147](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L147)
+Defined in: [types/agent.ts:175](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L175)
 
 Default tools (overridable per-call via RunOptions.tools)
 
@@ -2559,7 +2695,7 @@ Default tools (overridable per-call via RunOptions.tools)
 
 ### CallOptions
 
-Defined in: [types/agent.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L16)
+Defined in: [types/agent.ts:16](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L16)
 
 Per-call overrides passed to run(), stream(), runStructured().
  Allows overriding the model, tools, signal, and other parameters
@@ -2575,7 +2711,7 @@ Per-call overrides passed to run(), stream(), runStructured().
 
 > `optional` **maxTokens?**: `number`
 
-Defined in: [types/agent.ts:30](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L30)
+Defined in: [types/agent.ts:30](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L30)
 
 Per-call token limit
 
@@ -2583,7 +2719,7 @@ Per-call token limit
 
 > `optional` **model?**: `string`
 
-Defined in: [types/agent.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L18)
+Defined in: [types/agent.ts:18](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L18)
 
 Override the default model for this call
 
@@ -2591,7 +2727,7 @@ Override the default model for this call
 
 > `optional` **providerOptions?**: `Record`\<`string`, `unknown`\>
 
-Defined in: [types/agent.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L26)
+Defined in: [types/agent.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L26)
 
 Provider-specific options passed through to the underlying SDK
 
@@ -2599,7 +2735,7 @@ Provider-specific options passed through to the underlying SDK
 
 > `optional` **retry?**: [`RetryConfig`](#retryconfig)
 
-Defined in: [types/agent.ts:32](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L32)
+Defined in: [types/agent.ts:32](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L32)
 
 Retry configuration for this call
 
@@ -2607,7 +2743,7 @@ Retry configuration for this call
 
 > `optional` **signal?**: `AbortSignal`
 
-Defined in: [types/agent.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L22)
+Defined in: [types/agent.ts:22](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L22)
 
 Per-call abort signal
 
@@ -2615,7 +2751,7 @@ Per-call abort signal
 
 > `optional` **systemMessage?**: `string`
 
-Defined in: [types/agent.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L24)
+Defined in: [types/agent.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L24)
 
 Override system message for this call
 
@@ -2623,7 +2759,7 @@ Override system message for this call
 
 > `optional` **timeout?**: `number`
 
-Defined in: [types/agent.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L28)
+Defined in: [types/agent.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L28)
 
 Per-call timeout in milliseconds
 
@@ -2631,7 +2767,7 @@ Per-call timeout in milliseconds
 
 > `optional` **tools?**: [`ToolDefinition`](#tooldefinition)\<`unknown`\>[]
 
-Defined in: [types/agent.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L20)
+Defined in: [types/agent.ts:20](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L20)
 
 Override/extend tools for this call
 
@@ -2639,7 +2775,7 @@ Override/extend tools for this call
 
 ### ClaudeBackendOptions
 
-Defined in: [types/backends.ts:21](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L21)
+Defined in: [types/backends.ts:21](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L21)
 
 Options for Claude CLI backend
 
@@ -2649,13 +2785,13 @@ Options for Claude CLI backend
 
 > `optional` **cliPath?**: `string`
 
-Defined in: [types/backends.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L22)
+Defined in: [types/backends.ts:22](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L22)
 
 ##### env?
 
 > `optional` **env?**: `Record`\<`string`, `string` \| `undefined`\>
 
-Defined in: [types/backends.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L28)
+Defined in: [types/backends.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L28)
 
 Custom environment variables merged into the subprocess env
 
@@ -2663,13 +2799,13 @@ Custom environment variables merged into the subprocess env
 
 > `optional` **maxTurns?**: `number`
 
-Defined in: [types/backends.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L24)
+Defined in: [types/backends.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L24)
 
 ##### oauthToken?
 
 > `optional` **oauthToken?**: `string`
 
-Defined in: [types/backends.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L26)
+Defined in: [types/backends.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L26)
 
 OAuth token for Claude authentication (set as CLAUDE_CODE_OAUTH_TOKEN env var)
 
@@ -2677,7 +2813,7 @@ OAuth token for Claude authentication (set as CLAUDE_CODE_OAUTH_TOKEN env var)
 
 > `optional` **resumeSessionId?**: `string`
 
-Defined in: [types/backends.ts:31](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L31)
+Defined in: [types/backends.ts:31](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L31)
 
 Session ID to resume after server restart. On startup, the backend attempts
  to resume this session before creating a new one.
@@ -2686,13 +2822,13 @@ Session ID to resume after server restart. On startup, the backend attempts
 
 > `optional` **workingDirectory?**: `string`
 
-Defined in: [types/backends.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L23)
+Defined in: [types/backends.ts:23](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L23)
 
 ***
 
 ### CopilotBackendOptions
 
-Defined in: [types/backends.ts:2](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L2)
+Defined in: [types/backends.ts:2](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L2)
 
 Options for Copilot CLI backend
 
@@ -2702,7 +2838,7 @@ Options for Copilot CLI backend
 
 > `optional` **cliArgs?**: `string`[]
 
-Defined in: [types/backends.ts:8](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L8)
+Defined in: [types/backends.ts:8](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L8)
 
 Extra CLI arguments passed to the Copilot subprocess (e.g. ["--allow-all"])
 
@@ -2710,13 +2846,13 @@ Extra CLI arguments passed to the Copilot subprocess (e.g. ["--allow-all"])
 
 > `optional` **cliPath?**: `string`
 
-Defined in: [types/backends.ts:3](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L3)
+Defined in: [types/backends.ts:3](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L3)
 
 ##### env?
 
 > `optional` **env?**: `Record`\<`string`, `string` \| `undefined`\>
 
-Defined in: [types/backends.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L14)
+Defined in: [types/backends.ts:14](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L14)
 
 Custom environment variables merged into the subprocess env
 
@@ -2724,13 +2860,13 @@ Custom environment variables merged into the subprocess env
 
 > `optional` **githubToken?**: `string`
 
-Defined in: [types/backends.ts:5](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L5)
+Defined in: [types/backends.ts:5](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L5)
 
 ##### resumeSessionId?
 
 > `optional` **resumeSessionId?**: `string`
 
-Defined in: [types/backends.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L17)
+Defined in: [types/backends.ts:17](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L17)
 
 Session ID to resume after server restart. On startup, the backend attempts
  to resume this session before creating a new one.
@@ -2739,7 +2875,7 @@ Session ID to resume after server restart. On startup, the backend attempts
 
 > `optional` **startupTimeoutMs?**: `number`
 
-Defined in: [types/backends.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L12)
+Defined in: [types/backends.ts:12](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L12)
 
 Timeout in milliseconds for CLI startup and auth check (default: 30000).
 
@@ -2747,7 +2883,7 @@ Timeout in milliseconds for CLI startup and auth check (default: 30000).
 
 > `optional` **timeout?**: `number`
 
-Defined in: [types/backends.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L10)
+Defined in: [types/backends.ts:10](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L10)
 
 Timeout in milliseconds for sendAndWait() calls. When undefined, uses copilot-sdk default (60s).
 
@@ -2755,19 +2891,19 @@ Timeout in milliseconds for sendAndWait() calls. When undefined, uses copilot-sd
 
 > `optional` **useLoggedInUser?**: `boolean`
 
-Defined in: [types/backends.ts:6](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L6)
+Defined in: [types/backends.ts:6](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L6)
 
 ##### workingDirectory?
 
 > `optional` **workingDirectory?**: `string`
 
-Defined in: [types/backends.ts:4](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L4)
+Defined in: [types/backends.ts:4](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L4)
 
 ***
 
 ### ErrorHandlingConfig
 
-Defined in: [types/agent.ts:89](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L89)
+Defined in: [types/agent.ts:117](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L117)
 
 Error handling strategy configuration
 
@@ -2777,7 +2913,7 @@ Error handling strategy configuration
 
 > `optional` **onError?**: (`error`, `context`) => `void`
 
-Defined in: [types/agent.ts:95](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L95)
+Defined in: [types/agent.ts:123](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L123)
 
 Global error callback for monitoring
 
@@ -2801,7 +2937,7 @@ Global error callback for monitoring
 
 > `optional` **onToolError?**: `"fail"` \| `"continue"` \| `"ask-llm"`
 
-Defined in: [types/agent.ts:91](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L91)
+Defined in: [types/agent.ts:119](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L119)
 
 What to do when a tool throws
 
@@ -2809,7 +2945,7 @@ What to do when a tool throws
 
 > `optional` **retryLLM?**: `object`
 
-Defined in: [types/agent.ts:93](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L93)
+Defined in: [types/agent.ts:121](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L121)
 
 Retry config for transient LLM failures
 
@@ -2825,7 +2961,7 @@ Retry config for transient LLM failures
 
 ### IAgent
 
-Defined in: [types/agent.ts:182](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L182)
+Defined in: [types/agent.ts:210](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L210)
 
 Core agent interface — run prompts, stream events, manage lifecycle
 
@@ -2835,7 +2971,7 @@ Core agent interface — run prompts, stream events, manage lifecycle
 
 > `readonly` **sessionId**: `string` \| `undefined`
 
-Defined in: [types/agent.ts:185](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L185)
+Defined in: [types/agent.ts:213](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L213)
 
 The CLI session ID when using persistent session mode. Undefined in per-call mode
  or before the first call. Can be stored externally for session resume.
@@ -2846,7 +2982,7 @@ The CLI session ID when using persistent session mode. Undefined in per-call mod
 
 > **abort**(): `void`
 
-Defined in: [types/agent.ts:210](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L210)
+Defined in: [types/agent.ts:238](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L238)
 
 Abort the current operation. No-op if not running.
 
@@ -2858,7 +2994,7 @@ Abort the current operation. No-op if not running.
 
 > **dispose**(): `void`
 
-Defined in: [types/agent.ts:218](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L218)
+Defined in: [types/agent.ts:246](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L246)
 
 Release resources. After dispose(), agent must not be used.
 
@@ -2870,7 +3006,7 @@ Release resources. After dispose(), agent must not be used.
 
 > **getConfig**(): `Readonly`\<[`FullAgentConfig`](#fullagentconfig)\>
 
-Defined in: [types/agent.ts:216](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L216)
+Defined in: [types/agent.ts:244](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L244)
 
 Get frozen agent configuration.
 
@@ -2882,7 +3018,7 @@ Get frozen agent configuration.
 
 > **getState**(): [`AgentState`](#agentstate)
 
-Defined in: [types/agent.ts:214](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L214)
+Defined in: [types/agent.ts:242](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L242)
 
 Get current agent lifecycle state.
 
@@ -2894,7 +3030,7 @@ Get current agent lifecycle state.
 
 > **interrupt**(): `Promise`\<`void`\>
 
-Defined in: [types/agent.ts:212](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L212)
+Defined in: [types/agent.ts:240](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L240)
 
 Gracefully interrupt the current operation. Resolves when the backend acknowledges.
 
@@ -2906,7 +3042,7 @@ Gracefully interrupt the current operation. Resolves when the backend acknowledg
 
 > **run**(`prompt`, `options`): `Promise`\<[`AgentResult`](#agentresult)\<`void`\>\>
 
-Defined in: [types/agent.ts:187](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L187)
+Defined in: [types/agent.ts:215](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L215)
 
 Run a single prompt and return the result. Wraps prompt in a user message.
 
@@ -2928,7 +3064,7 @@ Run a single prompt and return the result. Wraps prompt in a user message.
 
 > **runStructured**\<`T`\>(`prompt`, `schema`, `options`): `Promise`\<[`AgentResult`](#agentresult)\<`T`\>\>
 
-Defined in: [types/agent.ts:194](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L194)
+Defined in: [types/agent.ts:222](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L222)
 
 Run with structured output validated against a Zod schema.
 
@@ -2960,7 +3096,7 @@ Run with structured output validated against a Zod schema.
 
 > **runWithContext**(`messages`, `options`): `Promise`\<[`AgentResult`](#agentresult)\<`void`\>\>
 
-Defined in: [types/agent.ts:189](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L189)
+Defined in: [types/agent.ts:217](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L217)
 
 Run with full conversation history. Messages are passed directly to the backend.
 
@@ -2982,7 +3118,7 @@ Run with full conversation history. Messages are passed directly to the backend.
 
 > **stream**(`prompt`, `options`): `AsyncIterable`\<[`AgentEvent`](#agentevent)\>
 
-Defined in: [types/agent.ts:200](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L200)
+Defined in: [types/agent.ts:228](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L228)
 
 Stream events for a single prompt. Wraps prompt in a user message.
 
@@ -3004,7 +3140,7 @@ Stream events for a single prompt. Wraps prompt in a user message.
 
 > **streamWithContext**(`messages`, `options`): `AsyncIterable`\<[`AgentEvent`](#agentevent)\>
 
-Defined in: [types/agent.ts:205](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L205)
+Defined in: [types/agent.ts:233](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L233)
 
 Stream events with full conversation history. Messages are passed directly to the backend.
 
@@ -3026,7 +3162,7 @@ Stream events with full conversation history. Messages are passed directly to th
 
 ### IAgentService
 
-Defined in: [types/agent.ts:224](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L224)
+Defined in: [types/agent.ts:252](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L252)
 
 Backend service interface — creates agents, lists models, validates config
 
@@ -3036,7 +3172,7 @@ Backend service interface — creates agents, lists models, validates config
 
 > `readonly` **name**: `string`
 
-Defined in: [types/agent.ts:225](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L225)
+Defined in: [types/agent.ts:253](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L253)
 
 #### Methods
 
@@ -3044,7 +3180,7 @@ Defined in: [types/agent.ts:225](https://github.com/witqq/agent-sdk/blob/e81c2cb
 
 > **createAgent**(`config`): [`IAgent`](#iagent)
 
-Defined in: [types/agent.ts:226](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L226)
+Defined in: [types/agent.ts:254](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L254)
 
 ###### Parameters
 
@@ -3060,7 +3196,7 @@ Defined in: [types/agent.ts:226](https://github.com/witqq/agent-sdk/blob/e81c2cb
 
 > **dispose**(): `Promise`\<`void`\>
 
-Defined in: [types/agent.ts:229](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L229)
+Defined in: [types/agent.ts:257](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L257)
 
 ###### Returns
 
@@ -3070,7 +3206,7 @@ Defined in: [types/agent.ts:229](https://github.com/witqq/agent-sdk/blob/e81c2cb
 
 > **listModels**(): `Promise`\<[`ModelInfo`](#modelinfo)[]\>
 
-Defined in: [types/agent.ts:227](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L227)
+Defined in: [types/agent.ts:255](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L255)
 
 ###### Returns
 
@@ -3080,7 +3216,7 @@ Defined in: [types/agent.ts:227](https://github.com/witqq/agent-sdk/blob/e81c2cb
 
 > **validate**(): `Promise`\<[`ValidationResult`](#validationresult)\>
 
-Defined in: [types/agent.ts:228](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L228)
+Defined in: [types/agent.ts:256](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L256)
 
 ###### Returns
 
@@ -3090,7 +3226,7 @@ Defined in: [types/agent.ts:228](https://github.com/witqq/agent-sdk/blob/e81c2cb
 
 ### IPermissionStore
 
-Defined in: [permission-store.ts:9](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L9)
+Defined in: [permission-store.ts:9](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L9)
 
 Pluggable store for persisting permission (scope) decisions across runs.
 
@@ -3100,7 +3236,7 @@ Pluggable store for persisting permission (scope) decisions across runs.
 
 > **approve**(`toolName`, `scope`): `Promise`\<`void`\>
 
-Defined in: [permission-store.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L14)
+Defined in: [permission-store.ts:14](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L14)
 
 Store an approval decision
 
@@ -3122,7 +3258,7 @@ Store an approval decision
 
 > **clear**(): `Promise`\<`void`\>
 
-Defined in: [permission-store.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L20)
+Defined in: [permission-store.ts:20](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L20)
 
 Clear all approvals
 
@@ -3134,7 +3270,7 @@ Clear all approvals
 
 > **dispose**(): `Promise`\<`void`\>
 
-Defined in: [permission-store.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L23)
+Defined in: [permission-store.ts:23](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L23)
 
 Dispose resources
 
@@ -3146,7 +3282,7 @@ Dispose resources
 
 > **isApproved**(`toolName`): `Promise`\<`boolean`\>
 
-Defined in: [permission-store.ts:11](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L11)
+Defined in: [permission-store.ts:11](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L11)
 
 Check if tool is already approved
 
@@ -3164,7 +3300,7 @@ Check if tool is already approved
 
 > **revoke**(`toolName`): `Promise`\<`void`\>
 
-Defined in: [permission-store.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L17)
+Defined in: [permission-store.ts:17](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L17)
 
 Revoke approval for a tool
 
@@ -3182,24 +3318,54 @@ Revoke approval for a tool
 
 ### LocalToolRefusal
 
-Defined in: types/events.ts:28
+Defined in: [types/events.ts:29](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L29)
 
-A native parse refusal for one observed call before tool execution. This observation does not prove the model request was unsent, complete or replay safe.
+A native parse refusal for one observed call, before any tool execution.
+This does not mean the model request was unsent or authorize a retry.
 
-| Property | Type | Meaning |
-|---|---|---|
-| reason | `"no_such_tool" \| "invalid_tool_input"` | Recognized native parse refusal |
-| toolCallId | `string` | Actual correlated call identity |
-| toolName | `string` | Actual observed name, including empty names |
-| args? | [JSONValue](#jsonvalue) | Observed input; missing remains absent, null remains null |
-| toolExecutionStarted | `false` | Application tool execution did not start |
-| providerExecuted | `false` | Provider tool execution did not occur for this call |
+#### Properties
+
+##### args?
+
+> `optional` **args?**: [`JSONValue`](#jsonvalue)
+
+Defined in: [types/events.ts:33](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L33)
+
+##### providerExecuted
+
+> **providerExecuted**: `false`
+
+Defined in: [types/events.ts:35](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L35)
+
+##### reason
+
+> **reason**: `"no_such_tool"` \| `"invalid_tool_input"`
+
+Defined in: [types/events.ts:30](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L30)
+
+##### toolCallId
+
+> **toolCallId**: `string`
+
+Defined in: [types/events.ts:31](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L31)
+
+##### toolExecutionStarted
+
+> **toolExecutionStarted**: `false`
+
+Defined in: [types/events.ts:34](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L34)
+
+##### toolName
+
+> **toolName**: `string`
+
+Defined in: [types/events.ts:32](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L32)
 
 ***
 
 ### ModelInfo
 
-Defined in: [types/models.ts:2](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/models.ts#L2)
+Defined in: [types/models.ts:2](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/models.ts#L2)
 
 Model metadata returned by listModels()
 
@@ -3209,7 +3375,7 @@ Model metadata returned by listModels()
 
 > `optional` **capabilities?**: `string`[]
 
-Defined in: [types/models.ts:11](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/models.ts#L11)
+Defined in: [types/models.ts:11](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/models.ts#L11)
 
 Model capabilities (e.g. "vision", "tools", "structured")
 
@@ -3217,7 +3383,7 @@ Model capabilities (e.g. "vision", "tools", "structured")
 
 > `optional` **contextWindow?**: `number`
 
-Defined in: [types/models.ts:9](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/models.ts#L9)
+Defined in: [types/models.ts:9](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/models.ts#L9)
 
 Context window size in tokens
 
@@ -3225,25 +3391,25 @@ Context window size in tokens
 
 > **id**: `string`
 
-Defined in: [types/models.ts:3](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/models.ts#L3)
+Defined in: [types/models.ts:3](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/models.ts#L3)
 
 ##### name?
 
 > `optional` **name?**: `string`
 
-Defined in: [types/models.ts:4](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/models.ts#L4)
+Defined in: [types/models.ts:4](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/models.ts#L4)
 
 ##### provider?
 
 > `optional` **provider?**: `string`
 
-Defined in: [types/models.ts:5](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/models.ts#L5)
+Defined in: [types/models.ts:5](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/models.ts#L5)
 
 ##### tier?
 
 > `optional` **tier?**: `"fast"` \| `"standard"` \| `"premium"`
 
-Defined in: [types/models.ts:7](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/models.ts#L7)
+Defined in: [types/models.ts:7](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/models.ts#L7)
 
 Model tier for UI categorization and cost hints
 
@@ -3251,7 +3417,7 @@ Model tier for UI categorization and cost hints
 
 ### ModelParams
 
-Defined in: [types/models.ts:15](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/models.ts#L15)
+Defined in: [types/models.ts:15](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/models.ts#L15)
 
 LLM model parameters
 
@@ -3261,31 +3427,31 @@ LLM model parameters
 
 > `optional` **maxTokens?**: `number`
 
-Defined in: [types/models.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/models.ts#L17)
+Defined in: [types/models.ts:17](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/models.ts#L17)
 
 ##### stopSequences?
 
 > `optional` **stopSequences?**: `string`[]
 
-Defined in: [types/models.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/models.ts#L19)
+Defined in: [types/models.ts:19](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/models.ts#L19)
 
 ##### temperature?
 
 > `optional` **temperature?**: `number`
 
-Defined in: [types/models.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/models.ts#L16)
+Defined in: [types/models.ts:16](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/models.ts#L16)
 
 ##### topP?
 
 > `optional` **topP?**: `number`
 
-Defined in: [types/models.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/models.ts#L18)
+Defined in: [types/models.ts:18](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/models.ts#L18)
 
 ***
 
 ### PermissionDecision
 
-Defined in: [types/permissions.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L17)
+Defined in: [types/permissions.ts:17](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L17)
 
 What the permission callback returns
 
@@ -3295,13 +3461,13 @@ What the permission callback returns
 
 > **allowed**: `boolean`
 
-Defined in: [types/permissions.ts:18](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L18)
+Defined in: [types/permissions.ts:18](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L18)
 
 ##### modifiedInput?
 
 > `optional` **modifiedInput?**: `Record`\<`string`, `unknown`\>
 
-Defined in: [types/permissions.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L22)
+Defined in: [types/permissions.ts:22](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L22)
 
 Modified tool arguments (tool args may be altered by user)
 
@@ -3309,7 +3475,7 @@ Modified tool arguments (tool args may be altered by user)
 
 > `optional` **reason?**: `string`
 
-Defined in: [types/permissions.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L24)
+Defined in: [types/permissions.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L24)
 
 Denial reason (if denied)
 
@@ -3317,7 +3483,7 @@ Denial reason (if denied)
 
 > `optional` **scope?**: [`PermissionScope`](#permissionscope)
 
-Defined in: [types/permissions.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L20)
+Defined in: [types/permissions.ts:20](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L20)
 
 How long to remember this decision
 
@@ -3325,7 +3491,7 @@ How long to remember this decision
 
 ### PermissionRequest
 
-Defined in: [types/permissions.ts:5](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L5)
+Defined in: [types/permissions.ts:5](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L5)
 
 What the permission callback receives
 
@@ -3335,7 +3501,7 @@ What the permission callback receives
 
 > `optional` **rawSDKRequest?**: `unknown`
 
-Defined in: [types/permissions.ts:13](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L13)
+Defined in: [types/permissions.ts:13](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L13)
 
 Original SDK permission request (for pass-through)
 
@@ -3343,7 +3509,7 @@ Original SDK permission request (for pass-through)
 
 > `optional` **suggestedScope?**: [`PermissionScope`](#permissionscope)
 
-Defined in: [types/permissions.ts:11](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L11)
+Defined in: [types/permissions.ts:11](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L11)
 
 SDK-suggested scope (from Claude CLI's suggestions)
 
@@ -3351,13 +3517,13 @@ SDK-suggested scope (from Claude CLI's suggestions)
 
 > **toolArgs**: `Record`\<`string`, `unknown`\>
 
-Defined in: [types/permissions.ts:7](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L7)
+Defined in: [types/permissions.ts:7](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L7)
 
 ##### toolCallId?
 
 > `optional` **toolCallId?**: `string`
 
-Defined in: [types/permissions.ts:9](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L9)
+Defined in: [types/permissions.ts:9](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L9)
 
 Unique identifier for this specific tool call
 
@@ -3365,13 +3531,62 @@ Unique identifier for this specific tool call
 
 > **toolName**: `string`
 
-Defined in: [types/permissions.ts:6](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L6)
+Defined in: [types/permissions.ts:6](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L6)
+
+***
+
+### ProviderAcknowledgment
+
+Defined in: [types/agent.ts:63](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L63)
+
+Native response identity observed inside one physical provider invocation.
+provider is the configured adapter namespace, not evidence of an upstream account.
+Optional metadata is supplied only by the provider, never synthesized.
+
+#### Properties
+
+##### modelCallIndex
+
+> **modelCallIndex**: `number`
+
+Defined in: [types/agent.ts:67](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L67)
+
+Zero-based native doGenerate/doStream invocation index within this run.
+Resets for each run/stream operation; separate physical calls have separate indices.
+
+##### modelId?
+
+> `optional` **modelId?**: `string`
+
+Defined in: [types/agent.ts:70](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L70)
+
+##### provider
+
+> **provider**: `string`
+
+Defined in: [types/agent.ts:64](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L64)
+
+##### responseId
+
+> **responseId**: `string`
+
+Defined in: [types/agent.ts:69](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L69)
+
+Exact provider-supplied ID, never an AI SDK fallback or locally generated ID.
+
+##### timestamp?
+
+> `optional` **timestamp?**: `string`
+
+Defined in: [types/agent.ts:72](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L72)
+
+ISO timestamp derived from native response metadata.
 
 ***
 
 ### RetryConfig
 
-Defined in: [types/agent.ts:38](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L38)
+Defined in: [types/agent.ts:38](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L38)
 
 Configuration for automatic retries on transient errors
 
@@ -3381,7 +3596,7 @@ Configuration for automatic retries on transient errors
 
 > `optional` **backoffMultiplier?**: `number`
 
-Defined in: [types/agent.ts:44](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L44)
+Defined in: [types/agent.ts:44](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L44)
 
 Backoff multiplier (default: 2)
 
@@ -3389,7 +3604,7 @@ Backoff multiplier (default: 2)
 
 > `optional` **initialDelayMs?**: `number`
 
-Defined in: [types/agent.ts:42](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L42)
+Defined in: [types/agent.ts:42](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L42)
 
 Initial delay in ms before first retry (default: 1000)
 
@@ -3397,7 +3612,7 @@ Initial delay in ms before first retry (default: 1000)
 
 > `optional` **maxRetries?**: `number`
 
-Defined in: [types/agent.ts:40](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L40)
+Defined in: [types/agent.ts:40](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L40)
 
 Maximum number of retries (default: 0 — no retry)
 
@@ -3405,7 +3620,7 @@ Maximum number of retries (default: 0 — no retry)
 
 > `optional` **retryableErrors?**: [`ErrorCode`](#errorcode)[]
 
-Defined in: [types/agent.ts:46](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L46)
+Defined in: [types/agent.ts:46](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L46)
 
 Which error codes to retry (default: all recoverable codes)
 
@@ -3413,7 +3628,7 @@ Which error codes to retry (default: all recoverable codes)
 
 ### RunOptions
 
-Defined in: [types/agent.ts:63](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L63)
+Defined in: [types/agent.ts:78](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L78)
 
 Options passed to agent.run() / agent.stream().
  Extends CallOptions with run-specific fields (context, activityTimeoutMs).
@@ -3429,7 +3644,7 @@ Options passed to agent.run() / agent.stream().
 
 > `optional` **activityTimeoutMs?**: `number`
 
-Defined in: [types/agent.ts:71](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L71)
+Defined in: [types/agent.ts:99](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L99)
 
 Inactivity timeout for streaming (ms). When set, the stream aborts if no
  event (including heartbeats/progress) arrives within this period. Resets on
@@ -3439,7 +3654,7 @@ Inactivity timeout for streaming (ms). When set, the stream aborts if no
 
 > `optional` **context?**: `Record`\<`string`, `unknown`\>
 
-Defined in: [types/agent.ts:67](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L67)
+Defined in: [types/agent.ts:82](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L82)
 
 Arbitrary context passed to the agent run
 
@@ -3447,7 +3662,7 @@ Arbitrary context passed to the agent run
 
 > `optional` **maxTokens?**: `number`
 
-Defined in: [types/agent.ts:30](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L30)
+Defined in: [types/agent.ts:30](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L30)
 
 Per-call token limit
 
@@ -3459,7 +3674,7 @@ Per-call token limit
 
 > **model**: `string`
 
-Defined in: [types/agent.ts:65](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L65)
+Defined in: [types/agent.ts:80](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L80)
 
 Model to use for this call (required — no implicit defaults)
 
@@ -3467,11 +3682,40 @@ Model to use for this call (required — no implicit defaults)
 
 [`CallOptions`](#calloptions).[`model`](#model-1)
 
+##### onProviderAcknowledgment?
+
+> `optional` **onProviderAcknowledgment?**: (`observation`) => `void` \| `Promise`\<`void`\>
+
+Defined in: [types/agent.ts:95](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L95)
+
+Vercel AI: called once per physical invocation on its first actual native
+response ID, including an ID that first appears in a later stream chunk.
+Missing ID means no callback. Optional metadata contains only values observed
+at that point; no model or timestamp fallback is synthesized. Consistent
+duplicate observations do not call again; contradictory ID or overlapping
+metadata stops the invocation with ProviderAcknowledgmentError.
+
+The callback is awaited before forwarding the observed chunk's metadata or
+content to AI. Persistence failure keeps its original cause in a typed local
+ProviderAcknowledgmentError: this sent effect remains unresolved, supplies no
+unsent evidence, and is not automatically retried. Raw chunks are enabled only
+while this hook is present, inspected for identity, and never exposed.
+
+###### Parameters
+
+###### observation
+
+[`ProviderAcknowledgment`](#provideracknowledgment)
+
+###### Returns
+
+`void` \| `Promise`\<`void`\>
+
 ##### providerOptions?
 
 > `optional` **providerOptions?**: `Record`\<`string`, `unknown`\>
 
-Defined in: [types/agent.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L26)
+Defined in: [types/agent.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L26)
 
 Provider-specific options passed through to the underlying SDK
 
@@ -3483,7 +3727,7 @@ Provider-specific options passed through to the underlying SDK
 
 > `optional` **retry?**: [`RetryConfig`](#retryconfig)
 
-Defined in: [types/agent.ts:32](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L32)
+Defined in: [types/agent.ts:32](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L32)
 
 Retry configuration for this call
 
@@ -3495,7 +3739,7 @@ Retry configuration for this call
 
 > `optional` **signal?**: `AbortSignal`
 
-Defined in: [types/agent.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L22)
+Defined in: [types/agent.ts:22](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L22)
 
 Per-call abort signal
 
@@ -3507,7 +3751,7 @@ Per-call abort signal
 
 > `optional` **systemMessage?**: `string`
 
-Defined in: [types/agent.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L24)
+Defined in: [types/agent.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L24)
 
 Override system message for this call
 
@@ -3519,7 +3763,7 @@ Override system message for this call
 
 > `optional` **timeout?**: `number`
 
-Defined in: [types/agent.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L28)
+Defined in: [types/agent.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L28)
 
 Per-call timeout in milliseconds
 
@@ -3531,7 +3775,7 @@ Per-call timeout in milliseconds
 
 > `optional` **tools?**: [`ToolDefinition`](#tooldefinition)\<`unknown`\>[]
 
-Defined in: [types/agent.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L20)
+Defined in: [types/agent.ts:20](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L20)
 
 Override/extend tools for this call
 
@@ -3543,7 +3787,7 @@ Override/extend tools for this call
 
 ### StreamContext
 
-Defined in: types/events.ts:80
+Defined in: [types/events.ts:84](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L84)
 
 Context passed to stream middleware — immutable per stream invocation
 
@@ -3553,19 +3797,19 @@ Context passed to stream middleware — immutable per stream invocation
 
 > **abortController**: `AbortController`
 
-Defined in: types/events.ts:83
+Defined in: [types/events.ts:87](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L87)
 
 ##### backend
 
 > **backend**: `string`
 
-Defined in: types/events.ts:82
+Defined in: [types/events.ts:86](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L86)
 
 ##### config
 
 > **config**: `Readonly`\<`Record`\<`string`, `unknown`\>\>
 
-Defined in: types/events.ts:85
+Defined in: [types/events.ts:89](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L89)
 
 Agent config snapshot. Loosely typed to avoid leaking internal FullAgentConfig to external middleware consumers.
 
@@ -3573,13 +3817,13 @@ Agent config snapshot. Loosely typed to avoid leaking internal FullAgentConfig t
 
 > **model**: `string`
 
-Defined in: types/events.ts:81
+Defined in: [types/events.ts:85](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L85)
 
 ***
 
 ### StructuredOutputConfig
 
-Defined in: [types/agent.ts:52](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L52)
+Defined in: [types/agent.ts:52](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L52)
 
 Configuration for typed structured output from LLM
 
@@ -3595,25 +3839,25 @@ Configuration for typed structured output from LLM
 
 > `optional` **description?**: `string`
 
-Defined in: [types/agent.ts:55](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L55)
+Defined in: [types/agent.ts:55](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L55)
 
 ##### name?
 
 > `optional` **name?**: `string`
 
-Defined in: [types/agent.ts:54](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L54)
+Defined in: [types/agent.ts:54](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L54)
 
 ##### schema
 
 > **schema**: `ZodType`\<`T`\>
 
-Defined in: [types/agent.ts:53](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L53)
+Defined in: [types/agent.ts:53](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L53)
 
 ***
 
 ### SupervisorHooks
 
-Defined in: [types/permissions.ts:51](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L51)
+Defined in: [types/permissions.ts:51](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L51)
 
 Hooks for supervisor/UI to intercept agent actions
 
@@ -3623,7 +3867,7 @@ Hooks for supervisor/UI to intercept agent actions
 
 > `optional` **onAskUser?**: (`request`, `signal`) => `Promise`\<[`UserInputResponse`](#userinputresponse)\>
 
-Defined in: [types/permissions.ts:53](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L53)
+Defined in: [types/permissions.ts:53](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L53)
 
 ###### Parameters
 
@@ -3643,13 +3887,13 @@ Defined in: [types/permissions.ts:53](https://github.com/witqq/agent-sdk/blob/e8
 
 > `optional` **onPermission?**: [`PermissionCallback`](#permissioncallback)
 
-Defined in: [types/permissions.ts:52](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L52)
+Defined in: [types/permissions.ts:52](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L52)
 
 ***
 
 ### TimeoutConfig
 
-Defined in: [types/agent.ts:77](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L77)
+Defined in: [types/agent.ts:105](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L105)
 
 Timeout configuration for agent operations
 
@@ -3659,7 +3903,7 @@ Timeout configuration for agent operations
 
 > `optional` **perLLMRequest?**: `number`
 
-Defined in: [types/agent.ts:83](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L83)
+Defined in: [types/agent.ts:111](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L111)
 
 Max time for a single LLM request (ms)
 
@@ -3667,7 +3911,7 @@ Max time for a single LLM request (ms)
 
 > `optional` **perTool?**: `number`
 
-Defined in: [types/agent.ts:81](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L81)
+Defined in: [types/agent.ts:109](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L109)
 
 Max time for a single tool execution (ms)
 
@@ -3675,7 +3919,7 @@ Max time for a single tool execution (ms)
 
 > `optional` **total?**: `number`
 
-Defined in: [types/agent.ts:79](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L79)
+Defined in: [types/agent.ts:107](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L107)
 
 Max time for entire agent run (ms)
 
@@ -3683,7 +3927,7 @@ Max time for entire agent run (ms)
 
 ### ToolCall
 
-Defined in: [types/tools.ts:36](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L36)
+Defined in: [types/tools.ts:36](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L36)
 
 A tool call made by the LLM during execution
 
@@ -3693,25 +3937,33 @@ A tool call made by the LLM during execution
 
 > **args**: [`JSONValue`](#jsonvalue)
 
-Defined in: [types/tools.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L39)
+Defined in: [types/tools.ts:39](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L39)
 
 ##### id
 
 > **id**: `string`
 
-Defined in: [types/tools.ts:37](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L37)
+Defined in: [types/tools.ts:37](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L37)
 
 ##### name
 
 > **name**: `string`
 
-Defined in: [types/tools.ts:38](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L38)
+Defined in: [types/tools.ts:38](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L38)
+
+##### providerOptions?
+
+> `optional` **providerOptions?**: `Record`\<`string`, `Record`\<`string`, [`JSONValue`](#jsonvalue)\>\>
+
+Defined in: [types/tools.ts:41](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L41)
+
+Native continuation metadata, such as a provider's opaque thought signature.
 
 ***
 
 ### ToolContext
 
-Defined in: [types/tools.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L28)
+Defined in: [types/tools.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L28)
 
 Request-scoped context passed to tool execute functions via ChatRuntime.
  Contains session identity and user-defined metadata from the current session.
@@ -3722,7 +3974,7 @@ Request-scoped context passed to tool execute functions via ChatRuntime.
 
 > `optional` **custom?**: `Record`\<`string`, `unknown`\>
 
-Defined in: [types/tools.ts:32](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L32)
+Defined in: [types/tools.ts:32](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L32)
 
 Custom metadata from the session (e.g. user ID, tenant, permissions)
 
@@ -3730,7 +3982,7 @@ Custom metadata from the session (e.g. user ID, tenant, permissions)
 
 > **sessionId**: `string`
 
-Defined in: [types/tools.ts:30](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L30)
+Defined in: [types/tools.ts:30](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L30)
 
 Active chat session ID
 
@@ -3738,7 +3990,7 @@ Active chat session ID
 
 ### ToolDeclaration
 
-Defined in: [types/tools.ts:5](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L5)
+Defined in: [types/tools.ts:5](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L5)
 
 What the LLM sees — name, description, schema. Passed to all backends.
 
@@ -3758,13 +4010,13 @@ What the LLM sees — name, description, schema. Passed to all backends.
 
 > **description**: `string`
 
-Defined in: [types/tools.ts:7](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L7)
+Defined in: [types/tools.ts:7](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L7)
 
 ##### metadata?
 
 > `optional` **metadata?**: `object`
 
-Defined in: [types/tools.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L10)
+Defined in: [types/tools.ts:10](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L10)
 
 ###### category?
 
@@ -3782,25 +4034,25 @@ Defined in: [types/tools.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5
 
 > **name**: `string`
 
-Defined in: [types/tools.ts:6](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L6)
+Defined in: [types/tools.ts:6](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L6)
 
 ##### needsApproval?
 
 > `optional` **needsApproval?**: `boolean`
 
-Defined in: [types/tools.ts:9](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L9)
+Defined in: [types/tools.ts:9](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L9)
 
 ##### parameters
 
 > **parameters**: `ZodType`\<`TParams`\>
 
-Defined in: [types/tools.ts:8](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L8)
+Defined in: [types/tools.ts:8](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L8)
 
 ***
 
 ### ToolDefinition
 
-Defined in: [types/tools.ts:21](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L21)
+Defined in: [types/tools.ts:21](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L21)
 
 Full tool with execute function. Required for API-based backends.
  CLI backends extract declaration; execute map held internally.
@@ -3823,7 +4075,7 @@ Full tool with execute function. Required for API-based backends.
 
 > **description**: `string`
 
-Defined in: [types/tools.ts:7](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L7)
+Defined in: [types/tools.ts:7](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L7)
 
 ###### Inherited from
 
@@ -3833,7 +4085,7 @@ Defined in: [types/tools.ts:7](https://github.com/witqq/agent-sdk/blob/e81c2cb5f
 
 > **execute**: (`params`, `context?`) => `unknown`
 
-Defined in: [types/tools.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L23)
+Defined in: [types/tools.ts:23](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L23)
 
 ###### Parameters
 
@@ -3853,7 +4105,7 @@ Defined in: [types/tools.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5
 
 > `optional` **metadata?**: `object`
 
-Defined in: [types/tools.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L10)
+Defined in: [types/tools.ts:10](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L10)
 
 ###### category?
 
@@ -3875,7 +4127,7 @@ Defined in: [types/tools.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5
 
 > **name**: `string`
 
-Defined in: [types/tools.ts:6](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L6)
+Defined in: [types/tools.ts:6](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L6)
 
 ###### Inherited from
 
@@ -3885,7 +4137,7 @@ Defined in: [types/tools.ts:6](https://github.com/witqq/agent-sdk/blob/e81c2cb5f
 
 > `optional` **needsApproval?**: `boolean`
 
-Defined in: [types/tools.ts:9](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L9)
+Defined in: [types/tools.ts:9](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L9)
 
 ###### Inherited from
 
@@ -3895,7 +4147,7 @@ Defined in: [types/tools.ts:9](https://github.com/witqq/agent-sdk/blob/e81c2cb5f
 
 > **parameters**: `ZodType`\<`TParams`\>
 
-Defined in: [types/tools.ts:8](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L8)
+Defined in: [types/tools.ts:8](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L8)
 
 ###### Inherited from
 
@@ -3905,7 +4157,7 @@ Defined in: [types/tools.ts:8](https://github.com/witqq/agent-sdk/blob/e81c2cb5f
 
 ### ToolResult
 
-Defined in: [types/tools.ts:43](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L43)
+Defined in: [types/tools.ts:45](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L45)
 
 Result of executing a tool call
 
@@ -3915,31 +4167,37 @@ Result of executing a tool call
 
 > `optional` **isError?**: `boolean`
 
-Defined in: [types/tools.ts:47](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L47)
+Defined in: [types/tools.ts:49](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L49)
 
 ##### name
 
 > **name**: `string`
 
-Defined in: [types/tools.ts:45](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L45)
+Defined in: [types/tools.ts:47](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L47)
+
+##### providerOptions?
+
+> `optional` **providerOptions?**: `Record`\<`string`, `Record`\<`string`, [`JSONValue`](#jsonvalue)\>\>
+
+Defined in: [types/tools.ts:50](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L50)
 
 ##### result
 
 > **result**: [`JSONValue`](#jsonvalue)
 
-Defined in: [types/tools.ts:46](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L46)
+Defined in: [types/tools.ts:48](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L48)
 
 ##### toolCallId
 
 > **toolCallId**: `string`
 
-Defined in: [types/tools.ts:44](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/tools.ts#L44)
+Defined in: [types/tools.ts:46](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/tools.ts#L46)
 
 ***
 
 ### UsageData
 
-Defined in: [types/events.ts:6](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/events.ts#L6)
+Defined in: [types/events.ts:8](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L8)
 
 Usage data from LLM execution — tokens consumed plus optional metadata
 
@@ -3949,13 +4207,13 @@ Usage data from LLM execution — tokens consumed plus optional metadata
 
 > `optional` **backend?**: `string`
 
-Defined in: [types/events.ts:10](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/events.ts#L10)
+Defined in: [types/events.ts:15](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L15)
 
 ##### cachedTokens?
 
 > `optional` **cachedTokens?**: `number`
 
-Defined in: [types/events.ts:16](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/events.ts#L16)
+Defined in: [types/events.ts:21](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L21)
 
 Number of prompt tokens served from the provider's cache, when reported.
 
@@ -3963,36 +4221,35 @@ Number of prompt tokens served from the provider's cache, when reported.
 
 > **completionTokens**: `number`
 
-Defined in: [types/events.ts:8](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/events.ts#L8)
+Defined in: [types/events.ts:10](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L10)
 
 ##### cost?
 
 > `optional` **cost?**: `number`
 
-Defined in: [types/events.ts:14](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/events.ts#L14)
+Defined in: [types/events.ts:19](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L19)
 
 Best-effort normalized request cost in USD, when the provider reports it.
  Populated by backends that can extract a numeric cost from provider metadata
  (e.g. OpenRouter via the Vercel AI backend). Undefined when unavailable.
- Vercel AI blocking and streaming tool loops expose normalized cost only when every observed step reports measured cost. A missing later cost does not turn a known prefix into a complete run price. Raw provider metadata does not establish completeness.
 
 ##### model?
 
 > `optional` **model?**: `string`
 
-Defined in: [types/events.ts:9](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/events.ts#L9)
+Defined in: [types/events.ts:14](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L14)
 
 ##### promptTokens
 
 > **promptTokens**: `number`
 
-Defined in: [types/events.ts:7](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/events.ts#L7)
+Defined in: [types/events.ts:9](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L9)
 
 ##### providerMetadata?
 
 > `optional` **providerMetadata?**: `Record`\<`string`, [`JSONValue`](#jsonvalue)\>
 
-Defined in: [types/events.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/events.ts#L19)
+Defined in: [types/events.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L24)
 
 Raw, provider-specific response metadata passed through untouched.
  Provider-agnostic escape hatch for fields the SDK does not normalize.
@@ -4001,9 +4258,10 @@ Raw, provider-specific response metadata passed through untouched.
 
 > `optional` **tokenUsageKnown?**: `object`
 
-Defined in: types/events.ts:12
+Defined in: [types/events.ts:13](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L13)
 
-Presence of measured cumulative token counters. A false flag means the numeric count contains only the known prefix, not a measured zero for missing usage. Vercel AI streaming supplies these flags on native usage events and `onUsage` callbacks; this does not extend the serialized `ChatEvent` protocol.
+Presence of measured cumulative token counters. False means the numeric
+ count includes only the known prefix, not a measured zero for missing usage.
 
 ###### completionTokens
 
@@ -4017,7 +4275,7 @@ Presence of measured cumulative token counters. A false flag means the numeric c
 
 ### UserInputRequest
 
-Defined in: [types/permissions.ts:34](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L34)
+Defined in: [types/permissions.ts:34](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L34)
 
 Request for user input — separate from permissions
 
@@ -4027,7 +4285,7 @@ Request for user input — separate from permissions
 
 > `optional` **allowFreeform?**: `boolean`
 
-Defined in: [types/permissions.ts:38](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L38)
+Defined in: [types/permissions.ts:38](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L38)
 
 Whether to allow freeform text input (default: true)
 
@@ -4035,19 +4293,19 @@ Whether to allow freeform text input (default: true)
 
 > `optional` **choices?**: `string`[]
 
-Defined in: [types/permissions.ts:36](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L36)
+Defined in: [types/permissions.ts:36](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L36)
 
 ##### question
 
 > **question**: `string`
 
-Defined in: [types/permissions.ts:35](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L35)
+Defined in: [types/permissions.ts:35](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L35)
 
 ***
 
 ### UserInputResponse
 
-Defined in: [types/permissions.ts:42](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L42)
+Defined in: [types/permissions.ts:42](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L42)
 
 Response from user to an input request
 
@@ -4057,13 +4315,13 @@ Response from user to an input request
 
 > **answer**: `string`
 
-Defined in: [types/permissions.ts:43](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L43)
+Defined in: [types/permissions.ts:43](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L43)
 
 ##### selectedChoiceIndex?
 
 > `optional` **selectedChoiceIndex?**: `number`
 
-Defined in: [types/permissions.ts:47](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L47)
+Defined in: [types/permissions.ts:47](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L47)
 
 Index of selected choice (if choice was selected)
 
@@ -4071,7 +4329,7 @@ Index of selected choice (if choice was selected)
 
 > **wasFreeform**: `boolean`
 
-Defined in: [types/permissions.ts:45](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L45)
+Defined in: [types/permissions.ts:45](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L45)
 
 true if user typed a custom answer instead of selecting a choice
 
@@ -4079,7 +4337,7 @@ true if user typed a custom answer instead of selecting a choice
 
 ### ValidationResult
 
-Defined in: [types/models.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/models.ts#L23)
+Defined in: [types/models.ts:23](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/models.ts#L23)
 
 Result of backend validation check
 
@@ -4089,19 +4347,19 @@ Result of backend validation check
 
 > **errors**: `string`[]
 
-Defined in: [types/models.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/models.ts#L25)
+Defined in: [types/models.ts:25](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/models.ts#L25)
 
 ##### valid
 
 > **valid**: `boolean`
 
-Defined in: [types/models.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/models.ts#L24)
+Defined in: [types/models.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/models.ts#L24)
 
 ***
 
 ### VercelAIBackendOptions
 
-Defined in: [types/backends.ts:97](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L97)
+Defined in: [types/backends.ts:97](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L97)
 
 Options for Vercel AI SDK backend
 
@@ -4111,29 +4369,182 @@ Options for Vercel AI SDK backend
 
 > **apiKey**: `string`
 
-Defined in: [types/backends.ts:98](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L98)
+Defined in: [types/backends.ts:98](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L98)
 
 ##### baseUrl?
 
 > `optional` **baseUrl?**: `string`
 
-Defined in: [types/backends.ts:100](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L100)
+Defined in: [types/backends.ts:100](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L100)
 
 ##### provider?
 
 > `optional` **provider?**: `string`
 
-Defined in: [types/backends.ts:99](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/backends.ts#L99)
+Defined in: [types/backends.ts:99](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/backends.ts#L99)
 
 ## Type Aliases
 
 ### AgentEvent
 
-> **AgentEvent** = \{ `text`: `string`; `type`: `"text_delta"`; \} \| \{ `text`: `string`; `type`: `"thinking_delta"`; \} \| \{ `args?`: [`JSONValue`](#jsonvalue); `toolCallId`: `string`; `toolName`: `string`; `type`: `"tool_call_start"`; \} \| \{ `result`: [`JSONValue`](#jsonvalue); `toolCallId`: `string`; `toolName`: `string`; `type`: `"tool_call_end"`; \} \| \{ `request`: [`PermissionRequest`](#permissionrequest); `type`: `"permission_request"`; \} \| \{ `decision`: [`PermissionDecision`](#permissiondecision); `toolName`: `string`; `type`: `"permission_response"`; \} \| \{ `request`: [`UserInputRequest`](#userinputrequest); `type`: `"ask_user"`; \} \| \{ `answer`: `string`; `type`: `"ask_user_response"`; \} \| \{ `type`: `"thinking_start"`; \} \| \{ `type`: `"thinking_end"`; \} \| \{ `backend?`: `string`; `cachedTokens?`: `number`; `completionTokens`: `number`; `cost?`: `number`; `model?`: `string`; `promptTokens`: `number`; `providerMetadata?`: `Record`\<`string`, [`JSONValue`](#jsonvalue)\>; `tokenUsageKnown?`: \{ `completionTokens`: `boolean`; `promptTokens`: `boolean`; \}; `type`: `"usage_update"`; \} \| \{ `backend`: `string`; `sessionId`: `string`; `transcriptPath?`: `string`; `type`: `"session_info"`; \} \| \{ `type`: `"heartbeat"`; \} \| \{ `cause?`: [`AgentSDKError`](#agentsdkerror); `code?`: [`ErrorCode`](#errorcode); `error`: `string`; `localToolRefusal?`: [`LocalToolRefusal`](#localtoolrefusal); `recoverable`: `boolean`; `toolCallId?`: `string`; `toolName?`: `string`; `type`: `"error"`; \} \| \{ `finalOutput`: `string` \| `null`; `finishReason?`: `string`; `streamed?`: `boolean`; `structuredOutput?`: `unknown`; `type`: `"done"`; \}
+> **AgentEvent** = \{ `text`: `string`; `type`: `"text_delta"`; \} \| \{ `text`: `string`; `type`: `"thinking_delta"`; \} \| \{ `args?`: [`JSONValue`](#jsonvalue); `toolCallId`: `string`; `toolName`: `string`; `type`: `"tool_call_start"`; \} \| \{ `result`: [`JSONValue`](#jsonvalue); `toolCallId`: `string`; `toolName`: `string`; `type`: `"tool_call_end"`; \} \| \{ `request`: [`PermissionRequest`](#permissionrequest); `type`: `"permission_request"`; \} \| \{ `decision`: [`PermissionDecision`](#permissiondecision); `toolName`: `string`; `type`: `"permission_response"`; \} \| \{ `request`: [`UserInputRequest`](#userinputrequest); `type`: `"ask_user"`; \} \| \{ `answer`: `string`; `type`: `"ask_user_response"`; \} \| \{ `type`: `"thinking_start"`; \} \| \{ `type`: `"thinking_end"`; \} \| \{ `backend?`: `string`; `cachedTokens?`: `number`; `completionTokens`: `number`; `cost?`: `number`; `model?`: `string`; `promptTokens`: `number`; `providerMetadata?`: `Record`\<`string`, [`JSONValue`](#jsonvalue)\>; `tokenUsageKnown?`: \{ `completionTokens`: `boolean`; `promptTokens`: `boolean`; \}; `type`: `"usage_update"`; \} \| \{ `backend`: `string`; `sessionId`: `string`; `transcriptPath?`: `string`; `type`: `"session_info"`; \} \| \{ `type`: `"heartbeat"`; \} \| \{ `cause?`: [`AgentSDKError`](#agentsdkerror); `code?`: [`ErrorCode`](#errorcode); `error`: `string`; `localToolRefusal?`: [`LocalToolRefusal`](#localtoolrefusal); `recoverable`: `boolean`; `toolCallId?`: `string`; `toolName?`: `string`; `type`: `"error"`; \} \| \{ `finalOutput`: `string` \| `null`; `finishReason?`: `string`; `messages?`: [`Message`](#message)[]; `streamed?`: `boolean`; `structuredOutput?`: `unknown`; `type`: `"done"`; \}
 
-Defined in: types/events.ts:38
+Defined in: [types/events.ts:39](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L39)
 
 Events emitted during streaming agent execution
+
+#### Union Members
+
+##### Type Literal
+
+\{ `text`: `string`; `type`: `"text_delta"`; \}
+
+***
+
+##### Type Literal
+
+\{ `text`: `string`; `type`: `"thinking_delta"`; \}
+
+***
+
+##### Type Literal
+
+\{ `args?`: [`JSONValue`](#jsonvalue); `toolCallId`: `string`; `toolName`: `string`; `type`: `"tool_call_start"`; \}
+
+***
+
+##### Type Literal
+
+\{ `result`: [`JSONValue`](#jsonvalue); `toolCallId`: `string`; `toolName`: `string`; `type`: `"tool_call_end"`; \}
+
+***
+
+##### Type Literal
+
+\{ `request`: [`PermissionRequest`](#permissionrequest); `type`: `"permission_request"`; \}
+
+***
+
+##### Type Literal
+
+\{ `decision`: [`PermissionDecision`](#permissiondecision); `toolName`: `string`; `type`: `"permission_response"`; \}
+
+***
+
+##### Type Literal
+
+\{ `request`: [`UserInputRequest`](#userinputrequest); `type`: `"ask_user"`; \}
+
+***
+
+##### Type Literal
+
+\{ `answer`: `string`; `type`: `"ask_user_response"`; \}
+
+***
+
+##### Type Literal
+
+\{ `type`: `"thinking_start"`; \}
+
+***
+
+##### Type Literal
+
+\{ `type`: `"thinking_end"`; \}
+
+***
+
+##### Type Literal
+
+\{ `backend?`: `string`; `cachedTokens?`: `number`; `completionTokens`: `number`; `cost?`: `number`; `model?`: `string`; `promptTokens`: `number`; `providerMetadata?`: `Record`\<`string`, [`JSONValue`](#jsonvalue)\>; `tokenUsageKnown?`: \{ `completionTokens`: `boolean`; `promptTokens`: `boolean`; \}; `type`: `"usage_update"`; \}
+
+***
+
+##### Type Literal
+
+\{ `backend`: `string`; `sessionId`: `string`; `transcriptPath?`: `string`; `type`: `"session_info"`; \}
+
+***
+
+##### Type Literal
+
+\{ `type`: `"heartbeat"`; \}
+
+***
+
+##### Type Literal
+
+\{ `cause?`: [`AgentSDKError`](#agentsdkerror); `code?`: [`ErrorCode`](#errorcode); `error`: `string`; `localToolRefusal?`: [`LocalToolRefusal`](#localtoolrefusal); `recoverable`: `boolean`; `toolCallId?`: `string`; `toolName?`: `string`; `type`: `"error"`; \}
+
+###### cause?
+
+> `optional` **cause?**: [`AgentSDKError`](#agentsdkerror)
+
+Primary native failure for in-process consumers; do not serialize raw Error causes.
+
+###### code?
+
+> `optional` **code?**: [`ErrorCode`](#errorcode)
+
+###### error
+
+> **error**: `string`
+
+###### localToolRefusal?
+
+> `optional` **localToolRefusal?**: [`LocalToolRefusal`](#localtoolrefusal)
+
+###### recoverable
+
+> **recoverable**: `boolean`
+
+###### toolCallId?
+
+> `optional` **toolCallId?**: `string`
+
+Present for a failed tool invocation, never a successful tool result.
+
+###### toolName?
+
+> `optional` **toolName?**: `string`
+
+###### type
+
+> **type**: `"error"`
+
+***
+
+##### Type Literal
+
+\{ `finalOutput`: `string` \| `null`; `finishReason?`: `string`; `messages?`: [`Message`](#message)[]; `streamed?`: `boolean`; `structuredOutput?`: `unknown`; `type`: `"done"`; \}
+
+###### finalOutput
+
+> **finalOutput**: `string` \| `null`
+
+###### finishReason?
+
+> `optional` **finishReason?**: `string`
+
+###### messages?
+
+> `optional` **messages?**: [`Message`](#message)[]
+
+Completed native response messages only. Private continuation data is not
+public prose; tool results still belong to the caller's execution authority.
+
+###### streamed?
+
+> `optional` **streamed?**: `boolean`
+
+###### structuredOutput?
+
+> `optional` **structuredOutput?**: `unknown`
+
+###### type
+
+> **type**: `"done"`
 
 ***
 
@@ -4141,7 +4552,7 @@ Events emitted during streaming agent execution
 
 > **AgentState** = `"idle"` \| `"running"` \| `"streaming"` \| `"disposed"`
 
-Defined in: [types/agent.ts:177](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L177)
+Defined in: [types/agent.ts:205](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L205)
 
 Agent lifecycle state
 
@@ -4151,7 +4562,7 @@ Agent lifecycle state
 
 > **BackendFactory**\<`TOptions`\> = (`options`) => [`IAgentService`](#iagentservice) \| `Promise`\<[`IAgentService`](#iagentservice)\>
 
-Defined in: [registry.ts:15](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/registry.ts#L15)
+Defined in: [registry.ts:15](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/registry.ts#L15)
 
 Factory function that creates a backend service from options
 
@@ -4177,7 +4588,7 @@ Factory function that creates a backend service from options
 
 > **BuiltinBackendName** = keyof [`BackendOptionsMap`](#backendoptionsmap)
 
-Defined in: [registry.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/registry.ts#L27)
+Defined in: [registry.ts:27](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/registry.ts#L27)
 
 All known backend names (built-in + custom)
 
@@ -4185,9 +4596,9 @@ All known backend names (built-in + custom)
 
 ### ContentPart
 
-> **ContentPart** = \{ `text`: `string`; `type`: `"text"`; \} \| \{ `data`: `string`; `mimeType`: `string`; `type`: `"image"`; \}
+> **ContentPart** = \{ `providerOptions?`: `Record`\<`string`, `Record`\<`string`, [`JSONValue`](#jsonvalue)\>\>; `text`: `string`; `type`: `"text"`; \} \| \{ `providerOptions?`: `Record`\<`string`, `Record`\<`string`, [`JSONValue`](#jsonvalue)\>\>; `text`: `string`; `type`: `"reasoning"`; \} \| \{ `data`: `string`; `mimeType`: `string`; `type`: `"image"`; \}
 
-Defined in: [types/messages.ts:7](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/messages.ts#L7)
+Defined in: [types/messages.ts:8](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/messages.ts#L8)
 
 Individual content part within a multi-part message
 
@@ -4197,7 +4608,7 @@ Individual content part within a multi-part message
 
 > **FullAgentConfig** = [`AgentConfig`](#agentconfig) & [`CallDefaults`](#calldefaults)
 
-Defined in: [types/agent.ts:156](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/agent.ts#L156)
+Defined in: [types/agent.ts:184](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/agent.ts#L184)
 
 Full agent configuration: identity + per-call defaults.
  This is what createAgent() accepts. Backward-compatible with the old AgentConfig shape.
@@ -4208,7 +4619,7 @@ Full agent configuration: identity + per-call defaults.
 
 > **JSONValue** = `string` \| `number` \| `boolean` \| `null` \| [`JSONValue`](#jsonvalue)[] \| \{\[`key`: `string`\]: [`JSONValue`](#jsonvalue); \}
 
-Defined in: [types/json.ts:2](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/json.ts#L2)
+Defined in: [types/json.ts:2](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/json.ts#L2)
 
 JSON-serializable value used for tool arguments and results
 
@@ -4218,7 +4629,7 @@ JSON-serializable value used for tool arguments and results
 
 > **Message** = \{ `content`: [`MessageContent`](#messagecontent); `role`: `"user"`; \} \| \{ `content`: [`MessageContent`](#messagecontent); `role`: `"assistant"`; `thinking?`: `string`; `toolCalls?`: [`ToolCall`](#toolcall)[]; \} \| \{ `content?`: `string`; `role`: `"tool"`; `toolResults`: [`ToolResult`](#toolresult)[]; \} \| \{ `content`: `string`; `role`: `"system"`; \}
 
-Defined in: [types/messages.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/messages.ts#L12)
+Defined in: [types/messages.ts:14](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/messages.ts#L14)
 
 Conversation message — discriminated union on `role`
 
@@ -4228,9 +4639,9 @@ Conversation message — discriminated union on `role`
 
 > **MessageContent** = `string` \| [`ContentPart`](#contentpart)[]
 
-Defined in: [types/messages.ts:4](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/messages.ts#L4)
+Defined in: [types/messages.ts:5](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/messages.ts#L5)
 
-Message content — plain string or array of text/image parts
+Message content. Native reasoning is continuation data, not visible prose.
 
 ***
 
@@ -4238,7 +4649,7 @@ Message content — plain string or array of text/image parts
 
 > **PermissionCallback** = (`request`, `signal`) => `Promise`\<[`PermissionDecision`](#permissiondecision)\>
 
-Defined in: [types/permissions.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L28)
+Defined in: [types/permissions.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L28)
 
 Permission callback signature
 
@@ -4262,7 +4673,7 @@ Permission callback signature
 
 > **PermissionScope** = `"once"` \| `"session"` \| `"project"` \| `"always"`
 
-Defined in: [types/permissions.ts:2](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/permissions.ts#L2)
+Defined in: [types/permissions.ts:2](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/permissions.ts#L2)
 
 Scope for "remember this decision"
 
@@ -4272,7 +4683,7 @@ Scope for "remember this decision"
 
 > **StreamMiddleware** = (`source`, `context`) => `AsyncIterable`\<[`AgentEvent`](#agentevent)\>
 
-Defined in: types/events.ts:90
+Defined in: [types/events.ts:94](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/events.ts#L94)
 
 A composable transform over the agent event stream.
  Receives the upstream source and context, returns a transformed stream.
@@ -4297,7 +4708,7 @@ A composable transform over the agent event stream.
 
 > **buildSystemPrompt**(`base`, `schemaInstruction?`): `string`
 
-Defined in: [utils/messages.ts:29](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/utils/messages.ts#L29)
+Defined in: [utils/messages.ts:29](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/utils/messages.ts#L29)
 
 Build a system prompt with optional structured output instruction
 
@@ -4321,7 +4732,7 @@ Build a system prompt with optional structured output instruction
 
 > **classifyAgentError**(`error`): [`ErrorCode`](#errorcode)
 
-Defined in: [types/errors.ts:73](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L73)
+Defined in: [types/errors.ts:73](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L73)
 
 Classify an error message string into an ErrorCode
 
@@ -4341,7 +4752,7 @@ Classify an error message string into an ErrorCode
 
 > **contentToText**(`content`): `string`
 
-Defined in: [utils/messages.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/utils/messages.ts#L24)
+Defined in: [utils/messages.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/utils/messages.ts#L24)
 
 Convert MessageContent to plain text
 
@@ -4363,7 +4774,7 @@ Convert MessageContent to plain text
 
 > **createAgentService**\<`K`\>(`name`, `options`, `configId?`): `Promise`\<[`IAgentService`](#iagentservice)\>
 
-Defined in: [registry.ts:171](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/registry.ts#L171)
+Defined in: [registry.ts:171](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/registry.ts#L171)
 
 Create a backend service with type-safe options.
  When `configId` is provided, the service instance is cached and reused
@@ -4398,7 +4809,7 @@ Create a backend service with type-safe options.
 
 > **createAgentService**(`name`, `options`, `configId?`): `Promise`\<[`IAgentService`](#iagentservice)\>
 
-Defined in: [registry.ts:176](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/registry.ts#L176)
+Defined in: [registry.ts:176](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/registry.ts#L176)
 
 Create a backend service with type-safe options.
  When `configId` is provided, the service instance is cached and reused
@@ -4429,7 +4840,7 @@ Create a backend service with type-safe options.
 
 > **createDefaultPermissionStore**(`projectDir?`): [`CompositePermissionStore`](#compositepermissionstore)
 
-Defined in: [permission-store.ts:187](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/permission-store.ts#L187)
+Defined in: [permission-store.ts:187](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/permission-store.ts#L187)
 
 Create a default composite store with separate project and user-level persistence.
 
@@ -4449,7 +4860,7 @@ Create a default composite store with separate project and user-level persistenc
 
 > **disposeBackend**(`name`, `configId?`): `Promise`\<`number`\>
 
-Defined in: [registry.ts:84](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/registry.ts#L84)
+Defined in: [registry.ts:84](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/registry.ts#L84)
 
 Dispose all cached service instances for a backend, or a single named config.
  Returns the number of instances disposed.
@@ -4474,7 +4885,7 @@ Dispose all cached service instances for a backend, or a single named config.
 
 > **getTextContent**(`content`): `string`
 
-Defined in: [types/guards.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/guards.ts#L24)
+Defined in: [types/guards.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/guards.ts#L24)
 
 Extract text from MessageContent regardless of format
 
@@ -4494,7 +4905,7 @@ Extract text from MessageContent regardless of format
 
 > **hasBackend**(`name`): `boolean`
 
-Defined in: [registry.ts:63](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/registry.ts#L63)
+Defined in: [registry.ts:63](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/registry.ts#L63)
 
 Check if a backend is registered (eagerly or lazily)
 
@@ -4514,7 +4925,7 @@ Check if a backend is registered (eagerly or lazily)
 
 > **isMultiPartContent**(`content`): `content is ContentPart[]`
 
-Defined in: [types/guards.ts:17](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/guards.ts#L17)
+Defined in: [types/guards.ts:17](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/guards.ts#L17)
 
 Type guard: checks if MessageContent is multi-part array
 
@@ -4534,7 +4945,7 @@ Type guard: checks if MessageContent is multi-part array
 
 > **isRecoverableErrorCode**(`code`): `boolean`
 
-Defined in: [types/errors.ts:68](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/errors.ts#L68)
+Defined in: [types/errors.ts:68](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/errors.ts#L68)
 
 Check if an error code is recoverable
 
@@ -4554,7 +4965,7 @@ Check if an error code is recoverable
 
 > **isTextContent**(`content`): `content is string`
 
-Defined in: [types/guards.ts:12](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/guards.ts#L12)
+Defined in: [types/guards.ts:12](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/guards.ts#L12)
 
 Type guard: checks if MessageContent is plain string
 
@@ -4574,7 +4985,7 @@ Type guard: checks if MessageContent is plain string
 
 > **isToolDefinition**(`tool`): `tool is ToolDefinition<unknown>`
 
-Defined in: [types/guards.ts:5](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/types/guards.ts#L5)
+Defined in: [types/guards.ts:5](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/types/guards.ts#L5)
 
 Type guard: checks if a ToolDeclaration has an execute function (i.e., is a ToolDefinition)
 
@@ -4594,7 +5005,7 @@ Type guard: checks if a ToolDeclaration has an execute function (i.e., is a Tool
 
 > **listBackends**(): `string`[]
 
-Defined in: [registry.ts:68](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/registry.ts#L68)
+Defined in: [registry.ts:68](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/registry.ts#L68)
 
 List all registered backend names (eager + lazy)
 
@@ -4608,7 +5019,7 @@ List all registered backend names (eager + lazy)
 
 > **listConfigs**(`name`): `string`[]
 
-Defined in: [registry.ts:109](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/registry.ts#L109)
+Defined in: [registry.ts:109](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/registry.ts#L109)
 
 List all active config IDs for a backend
 
@@ -4628,7 +5039,7 @@ List all active config IDs for a backend
 
 > **messagesToPrompt**(`messages`): `string`
 
-Defined in: [utils/messages.ts:5](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/utils/messages.ts#L5)
+Defined in: [utils/messages.ts:5](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/utils/messages.ts#L5)
 
 Convert our Message[] to a flat prompt string (for CLIs that accept text)
 
@@ -4648,7 +5059,7 @@ Convert our Message[] to a flat prompt string (for CLIs that accept text)
 
 > **registerBackend**\<`TOptions`\>(`name`, `factory`): `void`
 
-Defined in: [registry.ts:47](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/registry.ts#L47)
+Defined in: [registry.ts:47](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/registry.ts#L47)
 
 Register a custom backend factory
 
@@ -4678,7 +5089,7 @@ Register a custom backend factory
 
 > **registerLazyBackend**(`name`, `loader`): `void`
 
-Defined in: [registry.ts:158](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/registry.ts#L158)
+Defined in: [registry.ts:158](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/registry.ts#L158)
 
 Register a lazy-loaded backend. The loader is called once on first use,
 then the resulting factory is cached in the main registry.
@@ -4704,7 +5115,7 @@ Use this for backends that have heavy dependencies (peer deps, native modules).
 
 > **resetRegistry**(): `void`
 
-Defined in: [registry.ts:77](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/registry.ts#L77)
+Defined in: [registry.ts:77](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/registry.ts#L77)
 
 Reset registry to initial state (for testing)
 
@@ -4718,7 +5129,7 @@ Reset registry to initial state (for testing)
 
 > **unregisterBackend**(`name`): `boolean`
 
-Defined in: [registry.ts:58](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/registry.ts#L58)
+Defined in: [registry.ts:58](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/registry.ts#L58)
 
 Unregister a backend (primarily for testing)
 
@@ -4738,7 +5149,7 @@ Unregister a backend (primarily for testing)
 
 > **zodToJsonSchema**(`schema`): `Record`\<`string`, `unknown`\>
 
-Defined in: [utils/schema.ts:5](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/utils/schema.ts#L5)
+Defined in: [utils/schema.ts:5](https://github.com/witqq/agent-sdk/blob/v0.15.0/packages/sdk/src/utils/schema.ts#L5)
 
 Convert a Zod schema to JSON Schema.
  Detection order: toJSONSchema() (Zod v4) → jsonSchema() (Zod v3.24+) → _def extraction (Zod v3 legacy).

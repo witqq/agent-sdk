@@ -130,6 +130,8 @@ const result = await agent.runWithContext(messages, { model: "openai/gpt-4.1-min
 
 The backend converts these public messages to native tool content parts without mutating the supplied history. Tool results accept strings or JSON values; set `isError: true` on a result to preserve a tool failure. Assistant text, tool names, call IDs and result values are retained.
 
+`runWithContext()` includes normalized completed native response messages in `result.messages`. `streamWithContext()` exposes them on the optional `done.messages` field after completion. An assistant message can retain native `text` and `reasoning` content parts with `providerOptions`; tool calls and tool results can retain provider continuation options under the same call IDs. Store this private `Message[]` context as JSON and restore it for a later request, including when creating a new agent instance. `getTextContent()` reads text parts only. Partial reasoning deltas and failed streams are not completed continuation messages. Keep native reasoning and provider options out of user-facing output.
+
 `modelParams.maxTokens` limits generated output on blocking, structured and streaming calls. The backend maps it to AI SDK 7's `maxOutputTokens`. Configure this public setting directly; no provider option is required for the output limit.
 
 ### Retry Ownership
