@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [0.15.1] — 2026-10-11
+
+### Fixes
+
+- Classify a verified socket break after a successful native HTTP response as `NETWORK`, retaining the original provider cause and acknowledgment without a completed answer, invented usage, HTTP refusal status or unsent marker.
+- Prevent untrusted provider error text from granting network or timeout recovery; rate-limit classification and the existing cancellation, tool, acknowledgment and retry boundaries remain intact.
+
 ## [0.15.0] — 2026-10-10
 
 ### Public type changes

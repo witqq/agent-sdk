@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { z } from "zod";
-import { NoSuchToolError } from "ai";
+import { APICallError, NoSuchToolError } from "ai";
 import type {
   AgentConfig,
   AgentEvent,
@@ -8,7 +8,7 @@ import type {
   PermissionDecision,
   JSONValue,
 } from "../../src/types.js";
-import { DisposedError, DependencyError, ToolExecutionError } from "../../src/errors.js";
+import { AgentSDKError, DisposedError, DependencyError, ToolExecutionError } from "../../src/errors.js";
 
 import {
   createVercelAIService,
@@ -1010,6 +1010,44 @@ describe("VercelAIAgent.stream", () => {
     expect(errorEvent).toBeDefined();
     expect(errorEvent!.code).toBe("RATE_LIMIT");
     expect(errorEvent!.recoverable).toBe(true);
+  });
+
+  it("keeps a native post-200 socket error part typed as NETWORK through the event and thrown failure", async () => {
+    const socket = Object.assign(new Error("fixture socket closed"), { code: "UND_ERR_SOCKET" });
+    const native = new APICallError({ message: "Failed to process successful response",
+      url: "https://test.example.com/api/v1/chat/completions", requestBodyValues: {}, statusCode: 200,
+      cause: new TypeError("terminated", { cause: socket }) });
+    const sdk = createMockSDK({ streamParts: [{ type: "reasoning-delta", text: "Partial reasoning" },
+      { type: "error", error: native }] });
+    const original = sdk.streamText;
+    const streamText = vi.fn((options: Record<string, unknown>) => {
+      const result = original(options);
+      return { ...result, fullStream: { async *[Symbol.asyncIterator]() {
+        await (options.model as { doStream: (value: unknown) => Promise<unknown> }).doStream({});
+        for await (const part of result.fullStream) yield part;
+      } } };
+    });
+    _injectSDK({ ...sdk, APICallError, streamText });
+    const model = { doStream: vi.fn(async () => ({ stream: new ReadableStream({ start: controller => controller.close() }) })) };
+    _injectCompat({ createOpenAICompatible: () => ({ chatModel: () => model, languageModel: () => model }) });
+    const instance = createVercelAIService(BACKEND_OPTIONS).createAgent(baseConfig());
+    const events: AgentEvent[] = [];
+    let failure: unknown;
+    try {
+      for await (const event of instance.stream("Answer", { model: "test-model", retry: { maxRetries: 1, initialDelayMs: 0 } })) {
+        events.push(event);
+      }
+    } catch (error) { failure = error; }
+    instance.dispose();
+    expect(model.doStream).toHaveBeenCalledTimes(1);
+    expect(streamText).toHaveBeenCalledTimes(1);
+    expect(events.some(event => event.type === "thinking_delta")).toBe(true);
+    expect(events.filter(event => event.type === "done" || event.type === "usage_update")).toEqual([]);
+    expect(AgentSDKError.is(failure)).toBe(true);
+    expect(failure).toMatchObject({ code: "NETWORK", cause: native });
+    expect((failure as AgentSDKError).httpStatus).toBeUndefined();
+    expect((failure as AgentSDKError).providerRequestSent).toBeUndefined();
+    expect(events.find(event => event.type === "error")).toMatchObject({ code: "NETWORK", cause: failure });
   });
 
   it("should classify tool errors with TOOL_EXECUTION code", async () => {
