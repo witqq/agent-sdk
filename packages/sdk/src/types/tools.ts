@@ -37,6 +37,8 @@ export interface ToolCall {
   id: string;
   name: string;
   args: JSONValue;
+  /** Native continuation metadata, such as a provider's opaque thought signature. */
+  providerOptions?: Record<string, Record<string, JSONValue>>;
 }
 
 /** Result of executing a tool call */
@@ -45,6 +47,7 @@ export interface ToolResult {
   name: string;
   result: JSONValue;
   isError?: boolean;
+  providerOptions?: Record<string, Record<string, JSONValue>>;
 }
 
 /** Accepts either a declaration (schema-only) or a full definition (with execute).

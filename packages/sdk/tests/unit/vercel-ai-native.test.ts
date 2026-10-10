@@ -4,6 +4,8 @@ import { InvalidPromptError } from "ai";
 import { createVercelAIService, _resetSDK } from "../../src/backends/vercel-ai.js";
 import { AgentSDKError, ProviderAcknowledgmentError } from "../../src/errors.js";
 import type { AgentEvent, Message, RunOptions } from "../../src/types.js";
+import { getTextContent } from "../../src/types.js";
+import { agentEventToChatEvent } from "../../src/chat/bridge.js";
 
 afterEach(() => { vi.unstubAllGlobals(); _resetSDK(); });
 
@@ -36,7 +38,7 @@ function transport(stream: boolean, content = "Done", firstFailure?: Error) {
 function context(): Message[] {
   return [
     { role: "user", content: "Use the collected evidence." },
-    { role: "assistant", content: "Collecting evidence", toolCalls: [
+    { role: "assistant", content: "Collecting evidence", thinking: "Private legacy reasoning", toolCalls: [
       { id: "call-text", name: "search", args: { query: "example" } },
       { id: "call-json", name: "read", args: { page: 1 } },
       { id: "call-error-text", name: "read", args: { page: 2 } },
@@ -53,7 +55,7 @@ function context(): Message[] {
 
 describe("Vercel native AI protocol without live provider calls", () => {
   function sse(chunks: unknown[] | ((request: number) => unknown[])) {
-    const fetch = vi.fn(async (url: unknown) => {
+    const fetch = vi.fn(async (url: unknown, _init?: RequestInit) => {
       if (String(url) !== "https://offline.invalid/v1/chat/completions") throw new Error("Unexpected offline fixture URL");
       const parts = typeof chunks === "function" ? chunks(fetch.mock.calls.length) : chunks;
       return new Response(parts.map(chunk => `data: ${JSON.stringify(chunk)}\n\n`).join("") + "data: [DONE]\n\n",
@@ -67,6 +69,58 @@ describe("Vercel native AI protocol without live provider calls", () => {
     return { id: "offline-response", object: "chat.completion.chunk", created: 1, model: "offline-model",
       choices: [{ index: 0, delta, finish_reason: finishReason }], ...(reportedUsage ? { usage: reportedUsage } : {}) };
   }
+
+  it("preserves completed native reasoning and tool metadata through JSON and a separate agent operation", async () => {
+    const reasoning = "Compare the retained measurements before requesting their original source.";
+    const signature = "offline-native-signature";
+    const fetch = sse(request => request === 1 ? [
+      chunk({ role: "assistant", reasoning_content: reasoning.slice(0, 24) }),
+      chunk({ reasoning_content: reasoning.slice(24), content: "Opening the original.", tool_calls: [
+        { index: 0, id: "call-context", type: "function", function: { name: "lookup", arguments: "{}" },
+          extra_content: { google: { thought_signature: signature } } },
+      ] }),
+      chunk({}, "tool_calls", usage),
+    ] : [{ ...chunk({ content: "The retained result is supported." }), id: "second-response" },
+      { ...chunk({}, "stop", usage), id: "second-response" }]);
+    let applicationResult: string | undefined;
+    const service = createVercelAIService({ apiKey: "offline-key", baseUrl: "https://offline.invalid/v1" });
+    const first = service.createAgent({ model: "offline-model", maxTurns: 1, tools: [{ name: "lookup",
+      description: "Read the original", parameters: z.object({}), execute: async () => {
+        applicationResult = "Actual retained source result";
+        return applicationResult;
+      } }] });
+    const events: AgentEvent[] = [];
+    for await (const event of first.stream("Check the measurements.", { model: "offline-model" })) events.push(event);
+    first.dispose();
+    const terminal = events.find(event => event.type === "done") as
+      (Extract<AgentEvent, { type: "done" }> & { messages?: Message[] }) | undefined;
+    expect(terminal?.messages).toEqual(expect.any(Array));
+    const completed = terminal!.messages!.find(message => message.role === "assistant");
+    expect(completed).toBeDefined();
+    expect(applicationResult).toBe("Actual retained source result");
+    const restored: Message = JSON.parse(JSON.stringify(completed));
+    expect(getTextContent(restored.content)).toBe("Opening the original.");
+    expect(agentEventToChatEvent(terminal!, "context-message")).toEqual({
+      type: "done", finalOutput: undefined, finishReason: "tool-calls" });
+    const second = service.createAgent({ model: "offline-model", maxTurns: 1, tools: [] });
+    const secondEvents: AgentEvent[] = [];
+    for await (const event of second.streamWithContext([
+      { role: "user", content: "Check the measurements." }, restored,
+      { role: "tool", toolResults: [{ toolCallId: "call-context", name: "lookup", result: applicationResult! }] },
+    ], { model: "offline-model" })) secondEvents.push(event);
+    second.dispose();
+    service.dispose();
+    expect(fetch).toHaveBeenCalledTimes(2);
+    const wire = JSON.parse(String(fetch.mock.calls[1][1]?.body)).messages as Array<Record<string, unknown>>;
+    expect(wire[1]).toMatchObject({ role: "assistant", content: "Opening the original.", reasoning_content: reasoning,
+      tool_calls: [{ id: "call-context", function: { name: "lookup", arguments: "{}" },
+        extra_content: { google: { thought_signature: signature } } }] });
+    expect(wire[2]).toEqual({ role: "tool", tool_call_id: "call-context", content: applicationResult });
+    expect(secondEvents.find(event => event.type === "done")).toMatchObject({
+      finalOutput: null, streamed: true, finishReason: "stop" });
+    expect(secondEvents.findLast(event => event.type === "usage_update")).toMatchObject({
+      promptTokens: 41, completionTokens: 7, cost: 0.003 });
+  });
 
   async function drain(instance: ReturnType<typeof agent>, options: Partial<RunOptions> & {
     onProviderAcknowledgment?: (observation: { provider: string; modelCallIndex: number; responseId: string; modelId?: string; timestamp?: string }) => void | Promise<void>;
@@ -424,9 +478,10 @@ describe("Vercel native AI protocol without live provider calls", () => {
   });
 
   it("preserves partial text without fabricating zero usage or successful terminal output", async () => {
-    const fetch = sse([chunk({ role: "assistant", content: "Partial answer" })]);
+    const fetch = sse([chunk({ role: "assistant", reasoning_content: "Incomplete private reasoning", content: "Partial answer" })]);
     const { events, failure } = await drain(agent());
     expect(events.filter(e => e.type === "text_delta").map(e => e.text).join("")).toBe("Partial answer");
+    expect(events.some(e => e.type === "thinking_delta")).toBe(true);
     expect(AgentSDKError.is(failure)).toBe(true);
     expect((failure as Error).message).toBe("Response stream ended without a finish reason.");
     expect(events.filter(e => e.type === "usage_update" || e.type === "done")).toEqual([]);
@@ -531,7 +586,7 @@ describe("Vercel native AI protocol without live provider calls", () => {
     expect(requests).toHaveLength(1);
     expect(requests[0].max_tokens).toBe(123);
     const wire = requests[0].messages as Array<Record<string, unknown>>;
-    expect(wire[1]).toMatchObject({ role: "assistant", content: "Collecting evidence", tool_calls: [
+    expect(wire[1]).toMatchObject({ role: "assistant", content: "Collecting evidence", reasoning_content: "Private legacy reasoning", tool_calls: [
       { id: "call-text", type: "function", function: { name: "search", arguments: '{"query":"example"}' } },
       { id: "call-json", type: "function", function: { name: "read", arguments: '{"page":1}' } },
       { id: "call-error-text", type: "function", function: { name: "read", arguments: '{"page":2}' } },

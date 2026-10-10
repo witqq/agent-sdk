@@ -5,6 +5,7 @@ import type {
   AgentResult,
   AgentEvent,
   Message,
+  ContentPart,
   RunOptions,
   ProviderAcknowledgment,
   StructuredOutputConfig,
@@ -57,6 +58,7 @@ interface SDKGenerateTextResult {
   totalUsage: { inputTokens?: number; outputTokens?: number };
   finishReason: string;
   response: { messages: unknown[] };
+  responseMessages?: unknown[];
   providerMetadata?: SDKProviderMetadata;
 }
 
@@ -73,6 +75,8 @@ interface SDKStreamTextResult {
   totalUsage: PromiseLike<{ inputTokens?: number; outputTokens?: number }>;
   text: PromiseLike<string>;
   providerMetadata: PromiseLike<SDKProviderMetadata | undefined>;
+  responseMessages?: PromiseLike<unknown[]>;
+  response?: PromiseLike<{ messages?: unknown[] }>;
 }
 
 interface SDKTokenUsage { inputTokens?: number; outputTokens?: number; raw?: Record<string, unknown> }
@@ -575,18 +579,16 @@ function messagesToSDK(messages: Message[]): Array<Record<string, unknown>> {
       case "user":
         return { role: "user", content: getTextContent(msg.content) };
       case "assistant": {
-        let content = getTextContent(msg.content);
-        const thinking = msg.thinking;
-        if (thinking) {
-          content = `[reasoning: ${thinking}]\n${content}`;
-        }
-        if (msg.toolCalls && msg.toolCalls.length > 0) {
-          return { role: "assistant", content: [
-            ...(content ? [{ type: "text", text: content }] : []),
-            ...msg.toolCalls.map(tc => ({ type: "tool-call", toolCallId: tc.id, toolName: tc.name, input: tc.args })),
-          ] };
-        }
-        return { role: "assistant", content };
+        const content = typeof msg.content === "string"
+          ? (msg.content ? [{ type: "text", text: msg.content }] : [])
+          : msg.content;
+        return { role: "assistant", content: [
+          ...(msg.thinking && !content.some(part => part.type === "reasoning")
+            ? [{ type: "reasoning", text: msg.thinking }] : []),
+          ...content,
+          ...(msg.toolCalls ?? []).map(tc => ({ type: "tool-call", toolCallId: tc.id, toolName: tc.name, input: tc.args,
+            ...(tc.providerOptions ? { providerOptions: tc.providerOptions } : {}) })),
+        ] };
       }
       case "system":
         return { role: "system", content: msg.content };
@@ -601,11 +603,55 @@ function messagesToSDK(messages: Message[]): Array<Record<string, unknown>> {
               : (typeof tr.result === "string" ? "text" : "json"),
             value: tr.result,
           },
+          ...(tr.providerOptions ? { providerOptions: tr.providerOptions } : {}),
         })) };
       }
       default:
         return { role: "user", content: "" };
     }
+  });
+}
+
+/** Normalize the AI SDK's completed response messages into the existing context
+ * representation. Never infer continuation from partial deltas or final text. */
+function completedMessagesToContext(messages: unknown[]): Message[] {
+  return messages.map(message => {
+    if (!isRecord(message) || !Array.isArray(message.content)) {
+      throw new AgentSDKError("Native completed message has no content parts", { retryable: false });
+    }
+    if (message.role === "assistant") {
+      const content: ContentPart[] = [];
+      const toolCalls: NonNullable<Extract<Message, { role: "assistant" }>["toolCalls"]> = [];
+      for (const part of message.content) {
+        if (!isRecord(part)) throw new AgentSDKError("Invalid native completed content part", { retryable: false });
+        const providerOptions = isRecord(part.providerOptions)
+          ? { providerOptions: structuredClone(part.providerOptions) as Record<string, Record<string, JSONValue>> } : {};
+        if ((part.type === "text" || part.type === "reasoning") && typeof part.text === "string") {
+          content.push({ type: part.type, text: part.text, ...providerOptions });
+        } else if (part.type === "tool-call" && typeof part.toolCallId === "string" && typeof part.toolName === "string") {
+          toolCalls.push({ id: part.toolCallId, name: part.toolName, args: part.input as JSONValue, ...providerOptions });
+        } else {
+          throw new AgentSDKError("Unsupported native completed assistant part", { retryable: false });
+        }
+      }
+      const plainText = content.every(part => part.type === "text" && !part.providerOptions);
+      return { role: "assistant", content: plainText ? content.map(part => (part as { text: string }).text).join("") : content,
+        ...(toolCalls.length ? { toolCalls } : {}) };
+    }
+    if (message.role === "tool") {
+      const toolResults = message.content.map(part => {
+        if (!isRecord(part) || part.type !== "tool-result" || typeof part.toolCallId !== "string"
+          || typeof part.toolName !== "string" || !isRecord(part.output) || !Object.hasOwn(part.output, "value")) {
+          throw new AgentSDKError("Unsupported native completed tool result", { retryable: false });
+        }
+        return { toolCallId: part.toolCallId, name: part.toolName, result: part.output.value as JSONValue,
+          ...(part.output.type === "error-text" || part.output.type === "error-json" ? { isError: true } : {}),
+          ...(isRecord(part.providerOptions)
+            ? { providerOptions: structuredClone(part.providerOptions) as Record<string, Record<string, JSONValue>> } : {}) };
+      });
+      return { role: "tool", toolResults };
+    }
+    throw new AgentSDKError("Unsupported native completed message role", { retryable: false });
   });
 }
 
@@ -857,9 +903,7 @@ class VercelAIAgent extends BaseAgent {
       toolCalls,
       messages: [
         ...messages,
-        ...(outputText
-          ? [{ role: "assistant" as const, content: outputText }]
-          : []),
+        ...completedMessagesToContext(result.responseMessages ?? result.response.messages),
       ],
       usage,
     };
@@ -1112,11 +1156,14 @@ class VercelAIAgent extends BaseAgent {
       }
 
       const hasStreamed = finalText.length > 0;
+      const completedMessages = result.responseMessages !== undefined
+        ? await result.responseMessages : (await result.response)?.messages;
       yield {
         type: "done",
         finalOutput: hasStreamed ? null : (finalText || null),
         ...(hasStreamed ? { streamed: true } : {}),
         ...(lastFinishReason ? { finishReason: lastFinishReason } : {}),
+        ...(completedMessages !== undefined ? { messages: completedMessagesToContext(completedMessages) } : {}),
       };
     } catch (e) {
       if (signal.aborted) throw new AbortError();

@@ -1,4 +1,5 @@
 import type { JSONValue } from "./json.js";
+import type { Message } from "./messages.js";
 import type { ErrorCode } from "./errors.js";
 import type { AgentSDKError } from "../errors.js";
 import type { PermissionRequest, PermissionDecision, UserInputRequest } from "./permissions.js";
@@ -72,7 +73,10 @@ export type AgentEvent =
       toolName?: string;
       localToolRefusal?: LocalToolRefusal;
     }
-  | { type: "done"; finalOutput: string | null; structuredOutput?: unknown; streamed?: boolean; finishReason?: string };
+  | { type: "done"; finalOutput: string | null; structuredOutput?: unknown; streamed?: boolean; finishReason?: string;
+      /** Completed native response messages only. Private continuation data is not
+       * public prose; tool results still belong to the caller's execution authority. */
+      messages?: Message[] };
 
 // ─── Stream Middleware ────────────────────────────────────────
 
