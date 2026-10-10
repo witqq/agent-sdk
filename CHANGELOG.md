@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [0.15.0] — 2026-10-10
+
+### Public type changes
+
+- Add native reasoning content parts and optional provider metadata to text, reasoning, tool calls and tool results in the existing `Message` context.
+- Add optional completed `done.messages` on Vercel AI streaming runs and preserve completed native response messages in blocking run results. Plain text without native metadata remains a string.
+
+### Fixes
+
+- Preserve native reasoning and opaque tool metadata across separate context calls, including JSON storage and a new agent instance. Map legacy assistant `thinking` to native reasoning rather than a visible text prefix on the Vercel AI path.
+- Do not expose completed continuation messages for failed or partial responses. Completed context is private model history; visible text and chat projections exclude reasoning and continuation metadata. SDK-generated tool results do not authorize application effects or replace the caller's actual tool results.
+
 ## [0.14.0] — 2026-10-10
 
 ### Public type changes
