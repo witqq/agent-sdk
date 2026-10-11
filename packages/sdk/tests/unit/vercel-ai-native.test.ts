@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { createServer } from "node:http";
 import { z } from "zod";
-import { InvalidPromptError } from "ai";
+import { APICallError, InvalidPromptError } from "ai";
 import { createVercelAIService, _resetSDK } from "../../src/backends/vercel-ai.js";
 import { AgentSDKError, ProviderAcknowledgmentError } from "../../src/errors.js";
 import type { AgentEvent, Message, RunOptions } from "../../src/types.js";
@@ -161,12 +162,13 @@ describe("Vercel native AI protocol without live provider calls", () => {
     const fetch = sse([chunk({ content: "Partial" }), chunk({}, "stop", usage)]);
     const controller = new AbortController();
     const observed: unknown[] = [];
-    const { events } = await drain(agent(), { signal: controller.signal, onProviderAcknowledgment: observation => {
+    const { events, failure } = await drain(agent(), { signal: controller.signal, onProviderAcknowledgment: observation => {
       observed.push(observation);
       controller.abort();
     } });
     expect(observed).toEqual([expect.objectContaining({ responseId: "offline-response", modelCallIndex: 0 })]);
     expect(events.some(event => event.type === "done")).toBe(false);
+    expect((failure as AgentSDKError | undefined)?.code).not.toBe("NETWORK");
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
@@ -333,6 +335,16 @@ describe("Vercel native AI protocol without live provider calls", () => {
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
+  it.each(["Fixture provider refusal", "socket hang up"])("does not promote a provider payload that only claims a socket code (%s)", async message => {
+    const fetch = sse([{ error: { message, code: "UND_ERR_SOCKET" } }]);
+    const { events, failure } = await drain(agent());
+    expect(AgentSDKError.is(failure)).toBe(true);
+    expect(failure).toMatchObject({ code: "PROVIDER_ERROR" });
+    expect(events.find(event => event.type === "error")).toMatchObject({ code: "PROVIDER_ERROR" });
+    expect(events.filter(event => event.type === "done" || event.type === "usage_update")).toEqual([]);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
   it("correlates a throwing tool with its original cause and measured model usage", async () => {
     const original = new Error("Offline tool unavailable");
     const fetch = sse([
@@ -489,6 +501,63 @@ describe("Vercel native AI protocol without live provider calls", () => {
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
+  it("classifies a post-200 native SSE socket break as network while retaining its ACK and partial event", async () => {
+    let requests = 0;
+    let drop!: () => void;
+    const observed = new Promise<void>(resolve => { drop = resolve; });
+    const server = createServer(async (request, response) => {
+      if (request.method !== "POST" || request.url !== "/v1/chat/completions") {
+        response.writeHead(404).end();
+        return;
+      }
+      requests++;
+      const socket = response.socket;
+      response.writeHead(200, { "content-type": "text/event-stream" });
+      response.write(`data: ${JSON.stringify({ id: "native-socket-break", object: "chat.completion.chunk",
+        created: 1, model: "offline-model", choices: [{ index: 0,
+          delta: { role: "assistant", reasoning_content: "Partial reasoning" }, finish_reason: null }] })}\n\n`);
+      await observed;
+      socket?.destroy();
+    });
+    await new Promise<void>((resolve, reject) => {
+      server.once("error", reject);
+      server.listen(3458, "127.0.0.1", resolve);
+    });
+    const events: AgentEvent[] = [];
+    const acknowledgments: unknown[] = [];
+    const instance = createVercelAIService({ apiKey: "offline-key", baseUrl: "http://127.0.0.1:3458/v1" })
+      .createAgent({ model: "offline-model", tools: [] });
+    let failure: unknown;
+    try {
+      for await (const event of instance.stream("Answer", { model: "offline-model",
+        retry: { maxRetries: 1, initialDelayMs: 0 },
+        onProviderAcknowledgment: value => { acknowledgments.push(value); } })) {
+        events.push(event);
+        if (event.type === "thinking_delta") drop();
+      }
+    } catch (error) { failure = error; }
+    finally {
+      drop();
+      instance.dispose();
+      server.closeAllConnections();
+      await new Promise<void>(resolve => server.close(() => resolve()));
+    }
+    expect(requests).toBe(1);
+    expect(acknowledgments).toEqual([expect.objectContaining({ responseId: "native-socket-break", modelCallIndex: 0 })]);
+    expect(events.some(event => event.type === "thinking_delta")).toBe(true);
+    expect(events.filter(event => event.type === "done" || event.type === "usage_update")).toEqual([]);
+    expect(AgentSDKError.is(failure)).toBe(true);
+    expect(failure).toMatchObject({ code: "NETWORK" });
+    const typed = failure as AgentSDKError;
+    expect(typed.httpStatus).toBeUndefined();
+    expect(typed.providerRequestSent).toBeUndefined();
+    expect(APICallError.isInstance(typed.cause)).toBe(true);
+    const native = typed.cause as Error;
+    expect((native as Error & { statusCode?: number }).statusCode).toBe(200);
+    const nested = (native.cause as Error)?.cause as Error & { code?: string };
+    expect(nested.code).toBe("UND_ERR_SOCKET");
+  });
+
   it.each([
     { reported: { prompt_tokens: 41 }, expected: { promptTokens: 41, completionTokens: 0, tokenUsageKnown: { promptTokens: true, completionTokens: false } } },
     { reported: { completion_tokens: 7 }, expected: { promptTokens: 0, completionTokens: 7, tokenUsageKnown: { promptTokens: false, completionTokens: true } } },
@@ -545,6 +614,16 @@ describe("Vercel native AI protocol without live provider calls", () => {
       expect(failure).not.toHaveProperty("providerRequestSent", false);
       instance.dispose();
     });
+
+  it.each([401, 402])("does not promote an HTTP %i refusal to a native socket interruption", async status => {
+    const fetch = vi.fn(async () => Response.json({ error: { message: "Fixture provider refusal" } }, { status }));
+    vi.stubGlobal("fetch", fetch);
+    const { events, failure } = await drain(agent());
+    expect(failure).toBeDefined();
+    expect(AgentSDKError.is(failure) && (failure as AgentSDKError).code === "NETWORK").toBe(false);
+    expect(events.filter(event => event.type === "done" || event.type === "usage_update")).toEqual([]);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
 
   it.each(["blocking", "structured"])("preserves explicit SDK retry and native invocation index across one public operation (%s)", async mode => {
     const original = new AgentSDKError("Offline timeout", { code: "TIMEOUT", retryable: true });

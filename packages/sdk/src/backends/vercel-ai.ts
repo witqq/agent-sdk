@@ -105,6 +105,7 @@ type SDKLanguageModel = Record<string, unknown>;
 
 /** @internal SDK module shape */
 interface SDKModule {
+  APICallError?: { isInstance: (error: unknown) => boolean };
   InvalidPromptError?: { isInstance: (error: unknown) => boolean };
   StreamProviderError?: { isInstance: (error: unknown) => boolean };
   NoSuchToolError?: { isInstance: (error: unknown) => boolean };
@@ -561,7 +562,31 @@ function observeDispatch(model: SDKLanguageModel, provider: string, invocationCo
   };
 }
 
-function projectPromptError(error: unknown, sdk: SDKModule, dispatched: boolean): unknown {
+/** A successful native response can still lose its body socket. Only a real
+ * APICallError with a structured socket cause grants this transport identity. */
+function nativeSocketInterruption(error: unknown, sdk: SDKModule, dispatched: boolean, signal?: AbortSignal): AgentSDKError | undefined {
+  if (!dispatched || signal?.aborted || !sdk.APICallError?.isInstance(error) || !(error instanceof Error)) return;
+  const status = (error as Error & { statusCode?: unknown }).statusCode;
+  if (status !== undefined && status !== null && (!Number.isInteger(status) || Number(status) < 200 || Number(status) >= 300)) return;
+  let current: unknown = error;
+  let socketBreak = false;
+  const seen = new Set<unknown>();
+  for (let depth = 0; depth < 8 && current != null; depth++) {
+    if (!(current instanceof Error) || seen.has(current)) return;
+    seen.add(current);
+    if (ProviderAcknowledgmentError.is(current) || current instanceof AbortError || current instanceof ToolExecutionError) return;
+    const code = (current as Error & { code?: unknown }).code;
+    if (code === "ABORT_ERR" || code === "ERR_ABORTED") return;
+    if (depth > 0 && code === "UND_ERR_SOCKET") socketBreak = true;
+    current = current.cause;
+  }
+  if (current != null || !socketBreak) return;
+  return new AgentSDKError("Native provider response stream interrupted", {
+    code: ErrorCode.NETWORK, retryable: false, cause: error,
+  });
+}
+
+function projectPromptError(error: unknown, sdk: SDKModule, dispatched: boolean, signal?: AbortSignal): unknown {
   if (!dispatched && sdk.InvalidPromptError?.isInstance(error)) {
     return new AgentSDKError(error instanceof Error ? error.message : "Invalid prompt", {
       code: ErrorCode.INVALID_INPUT,
@@ -570,7 +595,7 @@ function projectPromptError(error: unknown, sdk: SDKModule, dispatched: boolean)
       cause: error,
     });
   }
-  return error;
+  return nativeSocketInterruption(error, sdk, dispatched, signal) ?? error;
 }
 
 function messagesToSDK(messages: Message[]): Array<Record<string, unknown>> {
@@ -674,8 +699,13 @@ function streamErrorCause(error: unknown, sdk?: SDKModule): AgentSDKError {
   else if (providerPayload.param === null) details.param = null;
   const status = source.statusCode ?? source.code;
   const httpStatus = typeof status === "number" && Number.isInteger(status) && status >= 400 && status <= 599 ? status : undefined;
+  const classified = classifyAgentError(message);
+  // Provider prose is not structured transport proof. Only nativeSocketInterruption
+  // may issue NETWORK for a response-body socket break.
+  const code = classified === ErrorCode.NETWORK || classified === ErrorCode.TIMEOUT
+    ? ErrorCode.PROVIDER_ERROR : classified;
   return new AgentSDKError(message, {
-    code: classifyAgentError(message), retryable: false,
+    code, retryable: false,
     ...(httpStatus !== undefined ? { httpStatus } : {}),
     cause: error instanceof Error && !sdk?.StreamProviderError?.isInstance(error) ? error : details,
   });
@@ -691,7 +721,7 @@ function measuredTokens(usage: SDKTokenUsage | undefined, metadata?: SDKProvider
   };
 }
 
-function mapStreamPart(part: SDKStreamPart, sdk?: SDKModule): AgentEvent | null {
+function mapStreamPart(part: SDKStreamPart, sdk?: SDKModule, signal?: AbortSignal, dispatched = false): AgentEvent | null {
   switch (part.type) {
     case "text-delta": {
       const p = part as Extract<SDKStreamPart, { type: "text-delta" }>;
@@ -751,9 +781,11 @@ function mapStreamPart(part: SDKStreamPart, sdk?: SDKModule): AgentEvent | null 
 
     case "error": {
       const p = part as Extract<SDKStreamPart, { type: "error" }>;
-      const cause = streamErrorCause(p.error, sdk);
+      const nativeSocket = sdk ? nativeSocketInterruption(p.error, sdk, dispatched, signal) : undefined;
+      const cause = nativeSocket ?? streamErrorCause(p.error, sdk);
       const errorMsg = cause.message;
-      const code = classifyAgentError(errorMsg);
+      const code = nativeSocket ? ErrorCode.NETWORK : AgentSDKError.is(p.error)
+        ? classifyAgentError(errorMsg) : (cause.code as ErrorCode | undefined) ?? classifyAgentError(errorMsg);
       return {
         type: "error",
         error: errorMsg,
@@ -868,7 +900,7 @@ class VercelAIAgent extends BaseAgent {
       ...(this.config.providerOptions && {
         providerOptions: this.config.providerOptions,
       }),
-    }).catch(error => { throw projectPromptError(error, sdk, dispatch.entered); });
+    }).catch(error => { throw projectPromptError(error, sdk, dispatch.entered, signal); });
 
     // Collect all tool calls across all steps
     const toolCalls: AgentResult["toolCalls"] = [];
@@ -943,7 +975,7 @@ class VercelAIAgent extends BaseAgent {
       ...(this.config.providerOptions && {
         providerOptions: this.config.providerOptions,
       }),
-    }).catch(error => { throw projectPromptError(error, sdk, dispatch.entered); });
+    }).catch(error => { throw projectPromptError(error, sdk, dispatch.entered, signal); });
 
     // Validate and parse through our zod schema
     let structuredOutput: T | undefined;
@@ -1059,7 +1091,7 @@ class VercelAIAgent extends BaseAgent {
             });
           }
         }
-        const event = mapStreamPart(part as SDKStreamPart, sdk);
+        const event = mapStreamPart(part as SDKStreamPart, sdk, signal, dispatch.entered);
         if (part.type === "tool-error" && event?.type === "error") {
           const failure = part as Extract<SDKStreamPart, { type: "tool-error" }>;
           const observed = localRefusals.get(failure.toolCallId);
@@ -1119,7 +1151,7 @@ class VercelAIAgent extends BaseAgent {
         // Drain terminal promises so their no-output rejection cannot obscure
         // the original refusal or escape as an unhandled rejection.
         await Promise.allSettled([result.totalUsage, result.text, result.providerMetadata]);
-        throw projectPromptError(nativePromptError, sdk, dispatch.entered);
+        throw projectPromptError(nativePromptError, sdk, dispatch.entered, signal);
       }
 
       if (primaryStreamError) {
@@ -1168,7 +1200,7 @@ class VercelAIAgent extends BaseAgent {
     } catch (e) {
       if (signal.aborted) throw new AbortError();
       if (primaryStreamError) throw primaryStreamError;
-      throw projectPromptError(e, sdk, dispatch.entered);
+      throw projectPromptError(e, sdk, dispatch.entered, signal);
     }
   }
 
