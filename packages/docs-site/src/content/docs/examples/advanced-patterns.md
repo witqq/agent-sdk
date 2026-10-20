@@ -387,7 +387,7 @@ main().catch(console.error);
 
 ## Error Handling Patterns
 
-Production-grade error handling with retry and classification:
+Error classification for a call. A stream inactivity timeout after provider dispatch does not prove the request was unsent. Retrying may create another physical provider request; reconcile the prior effect or obtain caller authorization before doing so. `activityTimeoutMs` applies to `stream()` and `streamWithContext()`, not `run()`.
 
 ```typescript
 import {
@@ -420,8 +420,8 @@ async function robustRun(
       }
 
       if (err instanceof ActivityTimeoutError) {
-        console.log(`Attempt ${attempt}: timeout, retrying...`);
-        continue;
+        console.log(`Attempt ${attempt}: stream activity timeout; provider effect unknown`);
+        throw err;
       }
 
       if (err instanceof SubprocessError) {

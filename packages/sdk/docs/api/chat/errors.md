@@ -10,7 +10,7 @@
 
 ### ChatError
 
-Defined in: [chat/errors.ts:33](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L33)
+Defined in: [chat/errors.ts:33](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L33)
 
 Unified error class for all chat SDK errors
 
@@ -24,7 +24,7 @@ Unified error class for all chat SDK errors
 
 > **new ChatError**(`message`, `options`): [`ChatError`](#chaterror)
 
-Defined in: [chat/errors.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L39)
+Defined in: [chat/errors.ts:39](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L39)
 
 ###### Parameters
 
@@ -50,7 +50,7 @@ Defined in: [chat/errors.ts:39](https://github.com/witqq/agent-sdk/blob/e81c2cb5
 
 > `readonly` **code**: [`ErrorCode`](../index.md#errorcode)
 
-Defined in: [chat/errors.ts:34](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L34)
+Defined in: [chat/errors.ts:34](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L34)
 
 Machine-readable error code. Prefer values from the ErrorCode enum.
 
@@ -62,7 +62,7 @@ Machine-readable error code. Prefer values from the ErrorCode enum.
 
 > `readonly` `optional` **httpStatus?**: `number`
 
-Defined in: errors.ts:27
+Defined in: [errors.ts:29](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L29)
 
 HTTP status code hint for error classification
 
@@ -74,7 +74,7 @@ HTTP status code hint for error classification
 
 > `readonly` `optional` **providerRequestSent?**: `boolean`
 
-Defined in: errors.ts:29
+Defined in: [errors.ts:31](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L31)
 
 Undefined means provider effect is unknown; false is explicit unsent evidence.
 
@@ -86,7 +86,7 @@ Undefined means provider effect is unknown; false is explicit unsent evidence.
 
 > `readonly` **retryable**: `boolean`
 
-Defined in: [chat/errors.ts:35](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L35)
+Defined in: [chat/errors.ts:35](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L35)
 
 Whether this error is safe to retry
 
@@ -98,13 +98,26 @@ Whether this error is safe to retry
 
 > `readonly` `optional` **retryAfter?**: `number`
 
-Defined in: [chat/errors.ts:36](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L36)
+Defined in: [chat/errors.ts:36](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L36)
+
+##### streamActivity?
+
+> `optional` **streamActivity?**: [`StreamActivitySnapshot`](../index.md#streamactivitysnapshot)
+
+Defined in: [errors.ts:34](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L34)
+
+Scalar observations from the failed streaming attempt, attached without
+replacing the native error identity or implying a completed response.
+
+###### Inherited from
+
+[`AgentSDKError`](../index.md#agentsdkerror).[`streamActivity`](../index.md#streamactivity-2)
 
 ##### timestamp
 
 > `readonly` **timestamp**: `string`
 
-Defined in: [chat/errors.ts:37](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L37)
+Defined in: [chat/errors.ts:37](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L37)
 
 #### Methods
 
@@ -112,7 +125,7 @@ Defined in: [chat/errors.ts:37](https://github.com/witqq/agent-sdk/blob/e81c2cb5
 
 > `static` **is**(`error`): `error is AgentSDKError`
 
-Defined in: errors.ts:41
+Defined in: [errors.ts:46](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L46)
 
 Check if an error is an AgentSDKError (works across bundled copies)
 
@@ -134,7 +147,7 @@ Check if an error is an AgentSDKError (works across bundled copies)
 
 ### ExponentialBackoffStrategy
 
-Defined in: [chat/errors.ts:253](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L253)
+Defined in: [chat/errors.ts:253](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L253)
 
 Exponential backoff with optional jitter
 
@@ -148,7 +161,7 @@ Exponential backoff with optional jitter
 
 > **new ExponentialBackoffStrategy**(`options?`): [`ExponentialBackoffStrategy`](#exponentialbackoffstrategy)
 
-Defined in: [chat/errors.ts:259](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L259)
+Defined in: [chat/errors.ts:259](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L259)
 
 ###### Parameters
 
@@ -166,7 +179,7 @@ Defined in: [chat/errors.ts:259](https://github.com/witqq/agent-sdk/blob/e81c2cb
 
 > **nextDelay**(`attempt`, `error`): `number` \| `null`
 
-Defined in: [chat/errors.ts:266](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L266)
+Defined in: [chat/errors.ts:266](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L266)
 
 Return delay in ms for the given attempt (0-based), or null to stop
 
@@ -192,7 +205,7 @@ Return delay in ms for the given attempt (0-based), or null to stop
 
 ### ChatErrorOptions
 
-Defined in: [chat/errors.ts:19](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L19)
+Defined in: [chat/errors.ts:19](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L19)
 
 Options for constructing a ChatError
 
@@ -202,7 +215,7 @@ Options for constructing a ChatError
 
 > `optional` **cause?**: `unknown`
 
-Defined in: [chat/errors.ts:27](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L27)
+Defined in: [chat/errors.ts:27](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L27)
 
 Original cause, if wrapping another error
 
@@ -210,7 +223,7 @@ Original cause, if wrapping another error
 
 > **code**: [`ErrorCode`](../index.md#errorcode)
 
-Defined in: [chat/errors.ts:21](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L21)
+Defined in: [chat/errors.ts:21](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L21)
 
 Machine-readable error code
 
@@ -218,7 +231,7 @@ Machine-readable error code
 
 > `optional` **retryable?**: `boolean`
 
-Defined in: [chat/errors.ts:23](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L23)
+Defined in: [chat/errors.ts:23](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L23)
 
 Whether this error is retryable (default: false)
 
@@ -226,7 +239,7 @@ Whether this error is retryable (default: false)
 
 > `optional` **retryAfter?**: `number`
 
-Defined in: [chat/errors.ts:25](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L25)
+Defined in: [chat/errors.ts:25](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L25)
 
 Retry delay hint in milliseconds
 
@@ -234,7 +247,7 @@ Retry delay hint in milliseconds
 
 ### ExponentialBackoffOptions
 
-Defined in: [chat/errors.ts:241](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L241)
+Defined in: [chat/errors.ts:241](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L241)
 
 Options for ExponentialBackoffStrategy
 
@@ -244,7 +257,7 @@ Options for ExponentialBackoffStrategy
 
 > `optional` **baseMs?**: `number`
 
-Defined in: [chat/errors.ts:243](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L243)
+Defined in: [chat/errors.ts:243](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L243)
 
 Base delay in ms (default: 1000)
 
@@ -252,7 +265,7 @@ Base delay in ms (default: 1000)
 
 > `optional` **jitter?**: `number`
 
-Defined in: [chat/errors.ts:249](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L249)
+Defined in: [chat/errors.ts:249](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L249)
 
 Jitter factor 0–1 (default: 0.1)
 
@@ -260,7 +273,7 @@ Jitter factor 0–1 (default: 0.1)
 
 > `optional` **maxAttempts?**: `number`
 
-Defined in: [chat/errors.ts:247](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L247)
+Defined in: [chat/errors.ts:247](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L247)
 
 Maximum number of attempts (default: 3)
 
@@ -268,7 +281,7 @@ Maximum number of attempts (default: 3)
 
 > `optional` **maxMs?**: `number`
 
-Defined in: [chat/errors.ts:245](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L245)
+Defined in: [chat/errors.ts:245](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L245)
 
 Maximum delay in ms (default: 30000)
 
@@ -276,7 +289,7 @@ Maximum delay in ms (default: 30000)
 
 ### RetryOptions
 
-Defined in: [chat/errors.ts:284](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L284)
+Defined in: [chat/errors.ts:284](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L284)
 
 Options for withRetry execution
 
@@ -286,7 +299,7 @@ Options for withRetry execution
 
 > `optional` **onRetry?**: (`error`, `attempt`, `delayMs`) => `void`
 
-Defined in: [chat/errors.ts:288](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L288)
+Defined in: [chat/errors.ts:288](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L288)
 
 Called before each retry with the error and delay
 
@@ -312,7 +325,7 @@ Called before each retry with the error and delay
 
 > `optional` **signal?**: `AbortSignal`
 
-Defined in: [chat/errors.ts:286](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L286)
+Defined in: [chat/errors.ts:286](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L286)
 
 Abort signal to cancel retries
 
@@ -320,7 +333,7 @@ Abort signal to cancel retries
 
 ### RetryStrategy
 
-Defined in: [chat/errors.ts:235](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L235)
+Defined in: [chat/errors.ts:235](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L235)
 
 Strategy for computing retry delays
 
@@ -330,7 +343,7 @@ Strategy for computing retry delays
 
 > **nextDelay**(`attempt`, `error`): `number` \| `null`
 
-Defined in: [chat/errors.ts:237](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L237)
+Defined in: [chat/errors.ts:237](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L237)
 
 Return delay in ms for the given attempt (0-based), or null to stop
 
@@ -354,7 +367,7 @@ Return delay in ms for the given attempt (0-based), or null to stop
 
 > **classifyError**(`error`): [`ChatError`](#chaterror)
 
-Defined in: [chat/errors.ts:69](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L69)
+Defined in: [chat/errors.ts:69](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L69)
 
 Classify an unknown thrown value into a ChatError with the appropriate code.
 Pattern-matches against common error shapes:
@@ -386,7 +399,7 @@ ChatError with appropriate error code and retryable flag
 
 > **isRetryable**(`error`): `boolean`
 
-Defined in: [chat/errors.ts:337](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L337)
+Defined in: [chat/errors.ts:337](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L337)
 
 Type guard: check if an error is retryable
 
@@ -410,7 +423,7 @@ True if error is a retryable ChatError
 
 > **withRetry**\<`T`\>(`fn`, `strategy`, `options?`): `Promise`\<`T`\>
 
-Defined in: [chat/errors.ts:302](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/errors.ts#L302)
+Defined in: [chat/errors.ts:302](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/errors.ts#L302)
 
 Execute an async function with automatic retries using the provided strategy.
 Respects ChatError.retryable and ChatError.retryAfter.

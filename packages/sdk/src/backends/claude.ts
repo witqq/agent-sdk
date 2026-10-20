@@ -671,6 +671,16 @@ class ClaudeAgent extends BaseAgent {
   private _sessionId: string | undefined;
   private activeQuery: SDKQuery | null = null;
 
+  private observeMessageContent(signal: AbortSignal, message: SDKMessage): void {
+    if (message.type !== "stream_event") return;
+    const event = message.event as { type?: string; delta?: { type?: string; text?: string; thinking?: string; partial_json?: string } } | undefined;
+    if (event?.type !== "content_block_delta") return;
+    const delta = event.delta;
+    if (delta?.type === "input_json_delta") this.observeStreamContent(signal, delta.partial_json);
+    else if (delta?.type === "text_delta") this.observeStreamContent(signal, delta.text);
+    else if (delta?.type === "thinking_delta") this.observeStreamContent(signal, delta.thinking);
+  }
+
   constructor(config: FullAgentConfig, options: ClaudeBackendOptions) {
     super(config);
     this.options = options;
@@ -1164,6 +1174,8 @@ class ClaudeAgent extends BaseAgent {
       for await (const msg of q) {
         if (signal.aborted) throw new AbortError();
 
+        this.observeMessageContent(signal, msg);
+
         const events = mapSDKMessage(msg, thinkingBlockIndices, toolCallTracker);
         if (events) {
           const mapped = Array.isArray(events) ? events : [events];
@@ -1226,6 +1238,7 @@ class ClaudeAgent extends BaseAgent {
         try {
           for await (const msg of retryQ) {
             if (signal.aborted) throw new AbortError();
+            this.observeMessageContent(signal, msg);
             const retryEvents = mapSDKMessage(msg, retryThinkingBlockIndices, retryToolCallTracker);
             if (retryEvents) {
               const mapped = Array.isArray(retryEvents) ? retryEvents : [retryEvents];

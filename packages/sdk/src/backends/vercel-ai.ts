@@ -84,6 +84,7 @@ interface SDKTokenUsage { inputTokens?: number; outputTokens?: number; raw?: Rec
 /** @internal Vercel AI SDK v7 stream part union */
 type SDKStreamPart =
   | { type: "text-delta"; text: string }
+  | { type: "tool-input-delta"; id: string; delta: string }
   | { type: "tool-call"; toolCallId: string; toolName: string; input: unknown; invalid?: boolean; error?: unknown; providerExecuted?: boolean }
   | { type: "tool-result"; toolCallId: string; toolName: string; output: unknown }
   | { type: "tool-error"; toolCallId: string; toolName: string; error: unknown; input?: unknown; providerExecuted?: boolean }
@@ -1067,6 +1068,12 @@ class VercelAIAgent extends BaseAgent {
     try {
       for await (const part of result.fullStream) {
         if (signal.aborted) throw new AbortError();
+
+        if (part.type === "text-delta" || part.type === "reasoning-delta") {
+          this.observeStreamContent(signal, (part as { text: string }).text);
+        } else if (part.type === "tool-input-delta") {
+          this.observeStreamContent(signal, (part as Extract<SDKStreamPart, { type: "tool-input-delta" }>).delta);
+        }
 
         if (part.type === "error" && sdk.InvalidPromptError?.isInstance((part as Extract<SDKStreamPart, { type: "error" }>).error)) {
           nativePromptError = (part as Extract<SDKStreamPart, { type: "error" }>).error;

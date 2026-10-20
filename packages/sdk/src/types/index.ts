@@ -45,6 +45,7 @@ export type {
   LocalToolRefusal,
   StreamContext,
   StreamMiddleware,
+  StreamActivitySnapshot,
 } from "./events.js";
 
 export type {
