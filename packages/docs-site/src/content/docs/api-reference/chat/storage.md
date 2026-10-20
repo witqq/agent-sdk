@@ -10,7 +10,7 @@ sidebar:
 
 ### FileStorage
 
-Defined in: [chat/storage.ts:263](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L263)
+Defined in: [chat/storage.ts:263](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L263)
 
 File-based storage adapter that persists each item as a JSON file.
 Suitable for local applications, CLI tools, and development.
@@ -43,7 +43,7 @@ The type of stored items (must be JSON-serializable)
 
 > **new FileStorage**\<`T`\>(`options`): [`FileStorage`](#filestorage)\<`T`\>
 
-Defined in: [chat/storage.ts:267](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L267)
+Defined in: [chat/storage.ts:267](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L267)
 
 ###### Parameters
 
@@ -61,7 +61,7 @@ Defined in: [chat/storage.ts:267](https://github.com/witqq/agent-sdk/blob/e81c2c
 
 > **clear**(): `Promise`\<`void`\>
 
-Defined in: [chat/storage.ts:361](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L361)
+Defined in: [chat/storage.ts:361](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L361)
 
 Remove all items from storage.
 
@@ -77,7 +77,7 @@ Remove all items from storage.
 
 > **count**(): `Promise`\<`number`\>
 
-Defined in: [chat/storage.ts:353](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L353)
+Defined in: [chat/storage.ts:353](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L353)
 
 Return the number of stored items.
 
@@ -95,7 +95,7 @@ Count of items
 
 > **create**(`key`, `item`): `Promise`\<`void`\>
 
-Defined in: [chat/storage.ts:312](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L312)
+Defined in: [chat/storage.ts:312](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L312)
 
 Create a new item. Throws `StorageError` with code `DUPLICATE_KEY` if key exists.
 
@@ -125,7 +125,7 @@ Data to store
 
 > **delete**(`key`): `Promise`\<`void`\>
 
-Defined in: [chat/storage.ts:336](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L336)
+Defined in: [chat/storage.ts:336](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L336)
 
 Delete an item by key. Throws `StorageError` with code `NOT_FOUND` if key missing.
 
@@ -149,7 +149,7 @@ Unique identifier
 
 > **get**(`key`): `Promise`\<`T` \| `null`\>
 
-Defined in: [chat/storage.ts:274](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L274)
+Defined in: [chat/storage.ts:274](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L274)
 
 Retrieve an item by key.
 
@@ -175,7 +175,7 @@ The item, or `null` if not found
 
 > **has**(`key`): `Promise`\<`boolean`\>
 
-Defined in: [chat/storage.ts:348](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L348)
+Defined in: [chat/storage.ts:348](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L348)
 
 Check whether a key exists.
 
@@ -201,7 +201,7 @@ Unique identifier
 
 > **list**(`options?`): `Promise`\<`T`[]\>
 
-Defined in: [chat/storage.ts:283](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L283)
+Defined in: [chat/storage.ts:283](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L283)
 
 List items with optional filtering, sorting, and pagination.
 
@@ -227,7 +227,7 @@ Array of matching items
 
 > **update**(`key`, `item`): `Promise`\<`void`\>
 
-Defined in: [chat/storage.ts:324](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L324)
+Defined in: [chat/storage.ts:324](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L324)
 
 Update an existing item. Throws `StorageError` with code `NOT_FOUND` if key missing.
 
@@ -257,7 +257,7 @@ Updated data
 
 ### InMemoryStorage
 
-Defined in: [chat/storage.ts:158](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L158)
+Defined in: [chat/storage.ts:158](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L158)
 
 In-memory storage adapter backed by a `Map`.
 Suitable for development, testing, and short-lived processes.
@@ -301,7 +301,7 @@ The type of stored items
 
 > **clear**(): `Promise`\<`void`\>
 
-Defined in: [chat/storage.ts:231](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L231)
+Defined in: [chat/storage.ts:231](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L231)
 
 Remove all items from storage.
 
@@ -317,7 +317,7 @@ Remove all items from storage.
 
 > **count**(): `Promise`\<`number`\>
 
-Defined in: [chat/storage.ts:226](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L226)
+Defined in: [chat/storage.ts:226](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L226)
 
 Return the number of stored items.
 
@@ -335,7 +335,7 @@ Count of items
 
 > **create**(`key`, `item`): `Promise`\<`void`\>
 
-Defined in: [chat/storage.ts:188](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L188)
+Defined in: [chat/storage.ts:188](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L188)
 
 Create a new item. Throws `StorageError` with code `DUPLICATE_KEY` if key exists.
 
@@ -365,7 +365,7 @@ Data to store
 
 > **delete**(`key`): `Promise`\<`void`\>
 
-Defined in: [chat/storage.ts:210](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L210)
+Defined in: [chat/storage.ts:210](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L210)
 
 Delete an item by key. Throws `StorageError` with code `NOT_FOUND` if key missing.
 
@@ -389,7 +389,7 @@ Unique identifier
 
 > **get**(`key`): `Promise`\<`T` \| `null`\>
 
-Defined in: [chat/storage.ts:162](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L162)
+Defined in: [chat/storage.ts:162](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L162)
 
 Retrieve an item by key.
 
@@ -415,7 +415,7 @@ The item, or `null` if not found
 
 > **has**(`key`): `Promise`\<`boolean`\>
 
-Defined in: [chat/storage.ts:221](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L221)
+Defined in: [chat/storage.ts:221](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L221)
 
 Check whether a key exists.
 
@@ -441,7 +441,7 @@ Unique identifier
 
 > **list**(`options?`): `Promise`\<`T`[]\>
 
-Defined in: [chat/storage.ts:168](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L168)
+Defined in: [chat/storage.ts:168](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L168)
 
 List items with optional filtering, sorting, and pagination.
 
@@ -467,7 +467,7 @@ Array of matching items
 
 > **update**(`key`, `item`): `Promise`\<`void`\>
 
-Defined in: [chat/storage.ts:199](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L199)
+Defined in: [chat/storage.ts:199](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L199)
 
 Update an existing item. Throws `StorageError` with code `NOT_FOUND` if key missing.
 
@@ -497,7 +497,7 @@ Updated data
 
 ### StorageError
 
-Defined in: [chat/storage.ts:31](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L31)
+Defined in: [chat/storage.ts:31](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L31)
 
 Error thrown by storage operations.
 
@@ -523,7 +523,7 @@ try {
 
 > **new StorageError**(`message`, `code`): [`StorageError`](#storageerror)
 
-Defined in: [chat/storage.ts:35](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L35)
+Defined in: [chat/storage.ts:35](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L35)
 
 ###### Parameters
 
@@ -549,7 +549,7 @@ Defined in: [chat/storage.ts:35](https://github.com/witqq/agent-sdk/blob/e81c2cb
 
 > `readonly` **code**: [`StorageErrorCode`](#storageerrorcode-1)
 
-Defined in: [chat/storage.ts:33](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L33)
+Defined in: [chat/storage.ts:33](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L33)
 
 Machine-readable error code from the unified ErrorCode enum
 
@@ -561,7 +561,7 @@ Machine-readable error code from the unified ErrorCode enum
 
 > `readonly` `optional` **httpStatus?**: `number`
 
-Defined in: errors.ts:27
+Defined in: [errors.ts:29](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L29)
 
 HTTP status code hint for error classification
 
@@ -573,7 +573,7 @@ HTTP status code hint for error classification
 
 > `readonly` `optional` **providerRequestSent?**: `boolean`
 
-Defined in: errors.ts:29
+Defined in: [errors.ts:31](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L31)
 
 Undefined means provider effect is unknown; false is explicit unsent evidence.
 
@@ -585,7 +585,7 @@ Undefined means provider effect is unknown; false is explicit unsent evidence.
 
 > `readonly` **retryable**: `boolean`
 
-Defined in: errors.ts:25
+Defined in: [errors.ts:27](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L27)
 
 Whether this error is safe to retry
 
@@ -593,13 +593,26 @@ Whether this error is safe to retry
 
 [`AgentSDKError`](/api-reference/core/#agentsdkerror).[`retryable`](/api-reference/core/#retryable-2)
 
+##### streamActivity?
+
+> `optional` **streamActivity?**: [`StreamActivitySnapshot`](/api-reference/core/#streamactivitysnapshot)
+
+Defined in: [errors.ts:34](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L34)
+
+Scalar observations from the failed streaming attempt, attached without
+replacing the native error identity or implying a completed response.
+
+###### Inherited from
+
+[`AgentSDKError`](/api-reference/core/#agentsdkerror).[`streamActivity`](/api-reference/core/#streamactivity-2)
+
 #### Methods
 
 ##### is()
 
 > `static` **is**(`error`): `error is AgentSDKError`
 
-Defined in: errors.ts:41
+Defined in: [errors.ts:46](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L46)
 
 Check if an error is an AgentSDKError (works across bundled copies)
 
@@ -621,7 +634,7 @@ Check if an error is an AgentSDKError (works across bundled copies)
 
 ### FileStorageOptions
 
-Defined in: [chat/storage.ts:241](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L241)
+Defined in: [chat/storage.ts:241](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L241)
 
 Options for configuring `FileStorage`.
 
@@ -631,7 +644,7 @@ Options for configuring `FileStorage`.
 
 > **directory**: `string`
 
-Defined in: [chat/storage.ts:243](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L243)
+Defined in: [chat/storage.ts:243](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L243)
 
 Directory path where JSON files are stored
 
@@ -639,7 +652,7 @@ Directory path where JSON files are stored
 
 > `optional` **extension?**: `string`
 
-Defined in: [chat/storage.ts:245](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L245)
+Defined in: [chat/storage.ts:245](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L245)
 
 File extension (default: `.json`)
 
@@ -647,7 +660,7 @@ File extension (default: `.json`)
 
 ### IStorageAdapter
 
-Defined in: [chat/storage.ts:80](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L80)
+Defined in: [chat/storage.ts:80](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L80)
 
 Generic storage adapter for CRUD operations on any data type.
 Items are identified by a string key.
@@ -674,7 +687,7 @@ The type of stored items
 
 > **clear**(): `Promise`\<`void`\>
 
-Defined in: [chat/storage.ts:131](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L131)
+Defined in: [chat/storage.ts:131](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L131)
 
 Remove all items from storage.
 
@@ -686,7 +699,7 @@ Remove all items from storage.
 
 > **count**(): `Promise`\<`number`\>
 
-Defined in: [chat/storage.ts:126](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L126)
+Defined in: [chat/storage.ts:126](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L126)
 
 Return the number of stored items.
 
@@ -700,7 +713,7 @@ Count of items
 
 > **create**(`key`, `item`): `Promise`\<`void`\>
 
-Defined in: [chat/storage.ts:100](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L100)
+Defined in: [chat/storage.ts:100](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L100)
 
 Create a new item. Throws `StorageError` with code `DUPLICATE_KEY` if key exists.
 
@@ -726,7 +739,7 @@ Data to store
 
 > **delete**(`key`): `Promise`\<`void`\>
 
-Defined in: [chat/storage.ts:113](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L113)
+Defined in: [chat/storage.ts:113](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L113)
 
 Delete an item by key. Throws `StorageError` with code `NOT_FOUND` if key missing.
 
@@ -746,7 +759,7 @@ Unique identifier
 
 > `optional` **dispose**(): `Promise`\<`void`\>
 
-Defined in: [chat/storage.ts:137](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L137)
+Defined in: [chat/storage.ts:137](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L137)
 
 Release any resources held by this adapter (DB connections, file handles).
 Optional — adapters that don't hold resources need not implement this.
@@ -759,7 +772,7 @@ Optional — adapters that don't hold resources need not implement this.
 
 > **get**(`key`): `Promise`\<`T` \| `null`\>
 
-Defined in: [chat/storage.ts:86](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L86)
+Defined in: [chat/storage.ts:86](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L86)
 
 Retrieve an item by key.
 
@@ -781,7 +794,7 @@ The item, or `null` if not found
 
 > **has**(`key`): `Promise`\<`boolean`\>
 
-Defined in: [chat/storage.ts:120](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L120)
+Defined in: [chat/storage.ts:120](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L120)
 
 Check whether a key exists.
 
@@ -803,7 +816,7 @@ Unique identifier
 
 > **list**(`options?`): `Promise`\<`T`[]\>
 
-Defined in: [chat/storage.ts:93](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L93)
+Defined in: [chat/storage.ts:93](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L93)
 
 List items with optional filtering, sorting, and pagination.
 
@@ -825,7 +838,7 @@ Array of matching items
 
 > **update**(`key`, `item`): `Promise`\<`void`\>
 
-Defined in: [chat/storage.ts:107](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L107)
+Defined in: [chat/storage.ts:107](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L107)
 
 Update an existing item. Throws `StorageError` with code `NOT_FOUND` if key missing.
 
@@ -851,7 +864,7 @@ Updated data
 
 ### ListOptions
 
-Defined in: [chat/storage.ts:56](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L56)
+Defined in: [chat/storage.ts:56](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L56)
 
 Options for listing stored items.
 
@@ -869,7 +882,7 @@ The type of stored items
 
 > `optional` **filter?**: (`item`) => `boolean`
 
-Defined in: [chat/storage.ts:58](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L58)
+Defined in: [chat/storage.ts:58](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L58)
 
 Filter predicate — return `true` to include the item
 
@@ -887,7 +900,7 @@ Filter predicate — return `true` to include the item
 
 > `optional` **limit?**: `number`
 
-Defined in: [chat/storage.ts:62](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L62)
+Defined in: [chat/storage.ts:62](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L62)
 
 Maximum number of items to return
 
@@ -895,7 +908,7 @@ Maximum number of items to return
 
 > `optional` **offset?**: `number`
 
-Defined in: [chat/storage.ts:64](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L64)
+Defined in: [chat/storage.ts:64](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L64)
 
 Number of items to skip (for pagination)
 
@@ -903,7 +916,7 @@ Number of items to skip (for pagination)
 
 > `optional` **sort?**: (`a`, `b`) => `number`
 
-Defined in: [chat/storage.ts:60](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L60)
+Defined in: [chat/storage.ts:60](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L60)
 
 Sort comparator — standard Array.sort semantics
 
@@ -927,6 +940,6 @@ Sort comparator — standard Array.sort semantics
 
 > **StorageErrorCode** = [`STORAGE_NOT_FOUND`](/api-reference/core/#storage_not_found) \| [`STORAGE_DUPLICATE_KEY`](/api-reference/core/#storage_duplicate_key) \| [`STORAGE_IO_ERROR`](/api-reference/core/#storage_io_error) \| [`STORAGE_SERIALIZATION_ERROR`](/api-reference/core/#storage_serialization_error)
 
-Defined in: [chat/storage.ts:43](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/chat/storage.ts#L43)
+Defined in: [chat/storage.ts:43](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/chat/storage.ts#L43)
 
 Storage-specific subset of ErrorCode

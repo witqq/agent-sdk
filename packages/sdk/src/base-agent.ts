@@ -13,6 +13,7 @@ import type {
   ToolDefinition,
   StreamMiddleware,
   StreamContext,
+  StreamActivitySnapshot,
 } from "./types.js";
 import { ReentrancyError, DisposedError, AbortError, ActivityTimeoutError } from "./errors.js";
 import { AgentSDKError } from "./errors.js";
@@ -26,6 +27,10 @@ export abstract class BaseAgent implements IAgent {
   protected readonly config: FullAgentConfig;
   private _cleanupExternalSignal: (() => void) | null = null;
   private _streamMiddleware: StreamMiddleware[] = [];
+  private readonly streamActivity = new WeakMap<AbortSignal, {
+    snapshot: StreamActivitySnapshot;
+    touch?: () => void;
+  }>();
 
   /** Backend identifier (e.g. "copilot", "claude", "vercel-ai") */
   protected abstract readonly backendName: string;
@@ -160,8 +165,11 @@ export abstract class BaseAgent implements IAgent {
     options: RunOptions,
     ac: AbortController,
   ): AsyncIterable<AgentEvent> {
+    const observation = () => ({ eventCount: 0, byteCount: 0, firstEventAt: null, lastEventAt: null });
+    const activity = { snapshot: { native: observation(), semantic: observation() } };
+    this.streamActivity.set(ac.signal, activity);
     // Built-in pipeline
-    let stream: AsyncIterable<AgentEvent> = this.enrichStream(source, options);
+    let stream: AsyncIterable<AgentEvent> = this.enrichStream(source, options, activity.snapshot);
     stream = this.activityTimeoutStream(stream, options?.activityTimeoutMs, ac);
     stream = this.heartbeatStream(stream);
 
@@ -178,7 +186,39 @@ export abstract class BaseAgent implements IAgent {
       }
     }
 
-    yield* stream;
+    try {
+      yield* stream;
+    } catch (error) {
+      this.attachStreamActivity(error, activity.snapshot);
+      throw error;
+    } finally {
+      this.streamActivity.delete(ac.signal);
+    }
+  }
+
+  /** Backends call this before mapping a real nonempty native content fragment.
+   * It updates the existing inactivity watchdog without yielding a fake event. */
+  protected observeStreamContent(signal: AbortSignal, content: unknown): void {
+    if (signal.aborted || typeof content !== "string" || content.length === 0) return;
+    const activity = this.streamActivity.get(signal);
+    if (!activity) return;
+    this.recordStreamActivity(activity.snapshot.native, new TextEncoder().encode(content).byteLength);
+    activity.touch?.();
+  }
+
+  private recordStreamActivity(observation: StreamActivitySnapshot["native"], bytes: number): void {
+    const now = Date.now();
+    observation.eventCount++;
+    observation.byteCount += bytes;
+    observation.firstEventAt ??= now;
+    observation.lastEventAt = now;
+  }
+
+  private attachStreamActivity(error: unknown, snapshot: StreamActivitySnapshot): void {
+    // Diagnostics must not replace an immutable error supplied by a tool/backend.
+    if (AgentSDKError.is(error) && !Object.isFrozen(error) && error.streamActivity === undefined) {
+      error.streamActivity = { native: { ...snapshot.native }, semantic: { ...snapshot.semantic } };
+    }
   }
 
   abort(): void {
@@ -358,9 +398,15 @@ export abstract class BaseAgent implements IAgent {
   private async *enrichStream(
     source: AsyncIterable<AgentEvent>,
     options: RunOptions,
+    activity: StreamActivitySnapshot,
   ): AsyncIterable<AgentEvent> {
     const model = options.model;
     for await (const event of source) {
+      if (event.type !== "heartbeat") {
+        const content = event.type === "text_delta" || event.type === "thinking_delta" ? event.text : "";
+        this.recordStreamActivity(activity.semantic, new TextEncoder().encode(content).byteLength);
+        if (event.type === "error") this.attachStreamActivity(event.cause, activity);
+      }
       if (event.type === "usage_update") {
         const usage: UsageData = {
           promptTokens: event.promptTokens,
@@ -456,7 +502,8 @@ export abstract class BaseAgent implements IAgent {
 
   // ─── Activity Timeout ────────────────────────────────────────
 
-  /** Wrap a stream to abort on inactivity. Resets timer on every event.
+  /** Wrap a stream to abort on inactivity. Real native content can reset the
+   * same timer before a semantic event exists. Empty deltas and heartbeat cannot.
    *  When timeoutMs is not set, passes through directly. */
   private async *activityTimeoutStream(
     source: AsyncIterable<AgentEvent>,
@@ -470,15 +517,29 @@ export abstract class BaseAgent implements IAgent {
 
     const iterator = source[Symbol.asyncIterator]();
     let timerId: ReturnType<typeof setTimeout> | undefined;
+    const activity = this.streamActivity.get(ac.signal);
+    let lastActivityAt = Date.now();
     try {
       while (true) {
         const timeoutPromise = new Promise<never>((_, reject) => {
-          timerId = setTimeout(() => reject(new ActivityTimeoutError(timeoutMs)), timeoutMs);
+          const arm = () => {
+            clearTimeout(timerId);
+            timerId = setTimeout(() => reject(new ActivityTimeoutError(timeoutMs)), Math.max(0, timeoutMs - (Date.now() - lastActivityAt)));
+          };
+          if (activity) activity.touch = () => { lastActivityAt = Date.now(); arm(); };
+          arm();
         });
         const result = await Promise.race([iterator.next(), timeoutPromise]);
         clearTimeout(timerId);
+        if (activity) activity.touch = undefined;
         if (result.done) break;
+        const event = result.value;
+        const productive = event.type !== "heartbeat" &&
+          ((event.type !== "text_delta" && event.type !== "thinking_delta") || event.text.length > 0);
+        if (productive) lastActivityAt = Date.now();
         yield result.value;
+        // Consumer backpressure after real progress is not provider inactivity.
+        if (productive) lastActivityAt = Date.now();
       }
     } catch (err) {
       if (err instanceof ActivityTimeoutError) {
@@ -487,6 +548,7 @@ export abstract class BaseAgent implements IAgent {
       throw err;
     } finally {
       clearTimeout(timerId);
+      if (activity) activity.touch = undefined;
     }
   }
 

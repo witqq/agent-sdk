@@ -41,6 +41,7 @@ export type {
   RetryConfig,
   StreamMiddleware,
   StreamContext,
+  StreamActivitySnapshot,
 } from "./types.js";
 
 // ─── Error Classification ──────────────────────────────────────

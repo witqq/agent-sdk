@@ -10,7 +10,7 @@ sidebar:
 
 ### AccessDeniedError
 
-Defined in: [auth/types.ts:155](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L155)
+Defined in: [auth/types.ts:155](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L155)
 
 User denied access during OAuth flow
 
@@ -24,7 +24,7 @@ User denied access during OAuth flow
 
 > **new AccessDeniedError**(): [`AccessDeniedError`](#accessdeniederror)
 
-Defined in: [auth/types.ts:156](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L156)
+Defined in: [auth/types.ts:156](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L156)
 
 ###### Returns
 
@@ -40,7 +40,7 @@ Defined in: [auth/types.ts:156](https://github.com/witqq/agent-sdk/blob/e81c2cb5
 
 > `readonly` `optional` **code?**: `string`
 
-Defined in: errors.ts:23
+Defined in: [errors.ts:25](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L25)
 
 Machine-readable error code. Prefer values from the ErrorCode enum.
 
@@ -52,7 +52,7 @@ Machine-readable error code. Prefer values from the ErrorCode enum.
 
 > `readonly` `optional` **httpStatus?**: `number`
 
-Defined in: errors.ts:27
+Defined in: [errors.ts:29](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L29)
 
 HTTP status code hint for error classification
 
@@ -64,7 +64,7 @@ HTTP status code hint for error classification
 
 > `readonly` `optional` **providerRequestSent?**: `boolean`
 
-Defined in: errors.ts:29
+Defined in: [errors.ts:31](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L31)
 
 Undefined means provider effect is unknown; false is explicit unsent evidence.
 
@@ -76,7 +76,7 @@ Undefined means provider effect is unknown; false is explicit unsent evidence.
 
 > `readonly` **retryable**: `boolean`
 
-Defined in: errors.ts:25
+Defined in: [errors.ts:27](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L27)
 
 Whether this error is safe to retry
 
@@ -84,13 +84,26 @@ Whether this error is safe to retry
 
 [`AuthError`](#autherror).[`retryable`](#retryable-1)
 
+##### streamActivity?
+
+> `optional` **streamActivity?**: [`StreamActivitySnapshot`](/api-reference/core/#streamactivitysnapshot)
+
+Defined in: [errors.ts:34](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L34)
+
+Scalar observations from the failed streaming attempt, attached without
+replacing the native error identity or implying a completed response.
+
+###### Inherited from
+
+[`AuthError`](#autherror).[`streamActivity`](#streamactivity-1)
+
 #### Methods
 
 ##### is()
 
 > `static` **is**(`error`): `error is AgentSDKError`
 
-Defined in: errors.ts:41
+Defined in: [errors.ts:46](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L46)
 
 Check if an error is an AgentSDKError (works across bundled copies)
 
@@ -112,7 +125,7 @@ Check if an error is an AgentSDKError (works across bundled copies)
 
 ### AuthError
 
-Defined in: [auth/types.ts:139](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L139)
+Defined in: [auth/types.ts:139](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L139)
 
 Base error for auth operations.
 
@@ -144,7 +157,7 @@ Standard ErrorOptions (e.g. cause)
 
 > **new AuthError**(`message`, `options?`): [`AuthError`](#autherror)
 
-Defined in: [auth/types.ts:140](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L140)
+Defined in: [auth/types.ts:140](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L140)
 
 ###### Parameters
 
@@ -170,7 +183,7 @@ Defined in: [auth/types.ts:140](https://github.com/witqq/agent-sdk/blob/e81c2cb5
 
 > `readonly` `optional` **code?**: `string`
 
-Defined in: errors.ts:23
+Defined in: [errors.ts:25](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L25)
 
 Machine-readable error code. Prefer values from the ErrorCode enum.
 
@@ -182,7 +195,7 @@ Machine-readable error code. Prefer values from the ErrorCode enum.
 
 > `readonly` `optional` **httpStatus?**: `number`
 
-Defined in: errors.ts:27
+Defined in: [errors.ts:29](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L29)
 
 HTTP status code hint for error classification
 
@@ -194,7 +207,7 @@ HTTP status code hint for error classification
 
 > `readonly` `optional` **providerRequestSent?**: `boolean`
 
-Defined in: errors.ts:29
+Defined in: [errors.ts:31](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L31)
 
 Undefined means provider effect is unknown; false is explicit unsent evidence.
 
@@ -206,7 +219,7 @@ Undefined means provider effect is unknown; false is explicit unsent evidence.
 
 > `readonly` **retryable**: `boolean`
 
-Defined in: errors.ts:25
+Defined in: [errors.ts:27](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L27)
 
 Whether this error is safe to retry
 
@@ -214,13 +227,26 @@ Whether this error is safe to retry
 
 [`AgentSDKError`](/api-reference/core/#agentsdkerror).[`retryable`](/api-reference/core/#retryable-2)
 
+##### streamActivity?
+
+> `optional` **streamActivity?**: [`StreamActivitySnapshot`](/api-reference/core/#streamactivitysnapshot)
+
+Defined in: [errors.ts:34](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L34)
+
+Scalar observations from the failed streaming attempt, attached without
+replacing the native error identity or implying a completed response.
+
+###### Inherited from
+
+[`AgentSDKError`](/api-reference/core/#agentsdkerror).[`streamActivity`](/api-reference/core/#streamactivity-2)
+
 #### Methods
 
 ##### is()
 
 > `static` **is**(`error`): `error is AgentSDKError`
 
-Defined in: errors.ts:41
+Defined in: [errors.ts:46](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L46)
 
 Check if an error is an AgentSDKError (works across bundled copies)
 
@@ -242,7 +268,7 @@ Check if an error is an AgentSDKError (works across bundled copies)
 
 ### ClaudeAuth
 
-Defined in: [auth/claude-auth.ts:33](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/claude-auth.ts#L33)
+Defined in: [auth/claude-auth.ts:33](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/claude-auth.ts#L33)
 
 Programmatic OAuth+PKCE authentication for Claude SDK.
 
@@ -264,7 +290,7 @@ const token = await completeAuth(code);
 
 > **new ClaudeAuth**(`options?`): [`ClaudeAuth`](#claudeauth)
 
-Defined in: [auth/claude-auth.ts:40](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/claude-auth.ts#L40)
+Defined in: [auth/claude-auth.ts:40](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/claude-auth.ts#L40)
 
 ###### Parameters
 
@@ -290,7 +316,7 @@ Optional configuration with custom fetch and random bytes for testing
 
 > `static` **extractCode**(`input`): `string`
 
-Defined in: [auth/claude-auth.ts:103](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/claude-auth.ts#L103)
+Defined in: [auth/claude-auth.ts:103](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/claude-auth.ts#L103)
 
 Extract an authorization code from user input.
 Accepts a raw code string or a full redirect URL containing a `code` query parameter.
@@ -320,7 +346,7 @@ ClaudeAuth.extractCode("https://platform.claude.com/oauth/code/callback?code=abc
 
 > **refreshToken**(`refreshToken`): `Promise`\<[`ClaudeAuthToken`](#claudeauthtoken)\>
 
-Defined in: [auth/claude-auth.ts:133](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/claude-auth.ts#L133)
+Defined in: [auth/claude-auth.ts:133](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/claude-auth.ts#L133)
 
 Refresh an expired Claude token.
 
@@ -353,7 +379,7 @@ const newToken = await auth.refreshToken(oldToken.refreshToken);
 
 > **startOAuthFlow**(`options?`): [`OAuthFlowResult`](#oauthflowresult)
 
-Defined in: [auth/claude-auth.ts:67](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/claude-auth.ts#L67)
+Defined in: [auth/claude-auth.ts:67](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/claude-auth.ts#L67)
 
 Start the Claude OAuth+PKCE flow.
 Generates PKCE code verifier/challenge and returns an authorize URL
@@ -392,7 +418,7 @@ const token = await completeAuth(authorizationCode);
 
 ### CopilotAuth
 
-Defined in: [auth/copilot-auth.ts:54](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/copilot-auth.ts#L54)
+Defined in: [auth/copilot-auth.ts:54](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/copilot-auth.ts#L54)
 
 Programmatic GitHub Device Flow authentication for Copilot SDK.
 
@@ -412,7 +438,7 @@ const token = await flow.waitForToken();
 
 > **new CopilotAuth**(`options?`): [`CopilotAuth`](#copilotauth)
 
-Defined in: [auth/copilot-auth.ts:58](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/copilot-auth.ts#L58)
+Defined in: [auth/copilot-auth.ts:58](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/copilot-auth.ts#L58)
 
 ###### Parameters
 
@@ -434,7 +460,7 @@ Optional configuration with custom fetch for testing
 
 > **refreshToken**(`refreshToken`, `signal?`): `Promise`\<[`CopilotAuthToken`](#copilotauthtoken)\>
 
-Defined in: [auth/copilot-auth.ts:232](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/copilot-auth.ts#L232)
+Defined in: [auth/copilot-auth.ts:232](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/copilot-auth.ts#L232)
 
 Refresh an expired Copilot token using a refresh token.
 Only works for GitHub App tokens that include a refresh_token.
@@ -474,7 +500,7 @@ const newToken = await auth.refreshToken(oldToken.refreshToken!);
 
 > **startDeviceFlow**(`options?`): `Promise`\<[`DeviceFlowResult`](#deviceflowresult)\>
 
-Defined in: [auth/copilot-auth.ts:81](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/copilot-auth.ts#L81)
+Defined in: [auth/copilot-auth.ts:81](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/copilot-auth.ts#L81)
 
 Start the GitHub Device Flow.
 Returns a device code result with user code, verification URL,
@@ -525,7 +551,7 @@ const token = await waitForToken();
 
 ### DeviceCodeExpiredError
 
-Defined in: [auth/types.ts:147](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L147)
+Defined in: [auth/types.ts:147](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L147)
 
 Device code expired before user authorized
 
@@ -539,7 +565,7 @@ Device code expired before user authorized
 
 > **new DeviceCodeExpiredError**(): [`DeviceCodeExpiredError`](#devicecodeexpirederror)
 
-Defined in: [auth/types.ts:148](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L148)
+Defined in: [auth/types.ts:148](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L148)
 
 ###### Returns
 
@@ -555,7 +581,7 @@ Defined in: [auth/types.ts:148](https://github.com/witqq/agent-sdk/blob/e81c2cb5
 
 > `readonly` `optional` **code?**: `string`
 
-Defined in: errors.ts:23
+Defined in: [errors.ts:25](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L25)
 
 Machine-readable error code. Prefer values from the ErrorCode enum.
 
@@ -567,7 +593,7 @@ Machine-readable error code. Prefer values from the ErrorCode enum.
 
 > `readonly` `optional` **httpStatus?**: `number`
 
-Defined in: errors.ts:27
+Defined in: [errors.ts:29](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L29)
 
 HTTP status code hint for error classification
 
@@ -579,7 +605,7 @@ HTTP status code hint for error classification
 
 > `readonly` `optional` **providerRequestSent?**: `boolean`
 
-Defined in: errors.ts:29
+Defined in: [errors.ts:31](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L31)
 
 Undefined means provider effect is unknown; false is explicit unsent evidence.
 
@@ -591,7 +617,7 @@ Undefined means provider effect is unknown; false is explicit unsent evidence.
 
 > `readonly` **retryable**: `boolean`
 
-Defined in: errors.ts:25
+Defined in: [errors.ts:27](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L27)
 
 Whether this error is safe to retry
 
@@ -599,13 +625,26 @@ Whether this error is safe to retry
 
 [`AuthError`](#autherror).[`retryable`](#retryable-1)
 
+##### streamActivity?
+
+> `optional` **streamActivity?**: [`StreamActivitySnapshot`](/api-reference/core/#streamactivitysnapshot)
+
+Defined in: [errors.ts:34](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L34)
+
+Scalar observations from the failed streaming attempt, attached without
+replacing the native error identity or implying a completed response.
+
+###### Inherited from
+
+[`AuthError`](#autherror).[`streamActivity`](#streamactivity-1)
+
 #### Methods
 
 ##### is()
 
 > `static` **is**(`error`): `error is AgentSDKError`
 
-Defined in: errors.ts:41
+Defined in: [errors.ts:46](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L46)
 
 Check if an error is an AgentSDKError (works across bundled copies)
 
@@ -627,7 +666,7 @@ Check if an error is an AgentSDKError (works across bundled copies)
 
 ### TokenExchangeError
 
-Defined in: [auth/types.ts:166](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L166)
+Defined in: [auth/types.ts:166](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L166)
 
 Token exchange or refresh failed.
 
@@ -653,7 +692,7 @@ Standard ErrorOptions (e.g. cause)
 
 > **new TokenExchangeError**(`message`, `options?`): [`TokenExchangeError`](#tokenexchangeerror)
 
-Defined in: [auth/types.ts:167](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L167)
+Defined in: [auth/types.ts:167](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L167)
 
 ###### Parameters
 
@@ -679,7 +718,7 @@ Defined in: [auth/types.ts:167](https://github.com/witqq/agent-sdk/blob/e81c2cb5
 
 > `readonly` `optional` **code?**: `string`
 
-Defined in: errors.ts:23
+Defined in: [errors.ts:25](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L25)
 
 Machine-readable error code. Prefer values from the ErrorCode enum.
 
@@ -691,7 +730,7 @@ Machine-readable error code. Prefer values from the ErrorCode enum.
 
 > `readonly` `optional` **httpStatus?**: `number`
 
-Defined in: errors.ts:27
+Defined in: [errors.ts:29](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L29)
 
 HTTP status code hint for error classification
 
@@ -703,7 +742,7 @@ HTTP status code hint for error classification
 
 > `readonly` `optional` **providerRequestSent?**: `boolean`
 
-Defined in: errors.ts:29
+Defined in: [errors.ts:31](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L31)
 
 Undefined means provider effect is unknown; false is explicit unsent evidence.
 
@@ -715,7 +754,7 @@ Undefined means provider effect is unknown; false is explicit unsent evidence.
 
 > `readonly` **retryable**: `boolean`
 
-Defined in: errors.ts:25
+Defined in: [errors.ts:27](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L27)
 
 Whether this error is safe to retry
 
@@ -723,13 +762,26 @@ Whether this error is safe to retry
 
 [`AuthError`](#autherror).[`retryable`](#retryable-1)
 
+##### streamActivity?
+
+> `optional` **streamActivity?**: [`StreamActivitySnapshot`](/api-reference/core/#streamactivitysnapshot)
+
+Defined in: [errors.ts:34](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L34)
+
+Scalar observations from the failed streaming attempt, attached without
+replacing the native error identity or implying a completed response.
+
+###### Inherited from
+
+[`AuthError`](#autherror).[`streamActivity`](#streamactivity-1)
+
 #### Methods
 
 ##### is()
 
 > `static` **is**(`error`): `error is AgentSDKError`
 
-Defined in: errors.ts:41
+Defined in: [errors.ts:46](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/errors.ts#L46)
 
 Check if an error is an AgentSDKError (works across bundled copies)
 
@@ -751,7 +803,7 @@ Check if an error is an AgentSDKError (works across bundled copies)
 
 ### TokenRefreshManager
 
-Defined in: [auth/refresh-manager.ts:116](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L116)
+Defined in: [auth/refresh-manager.ts:116](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L116)
 
 Background token refresh manager with event emission and retry logic.
 
@@ -763,7 +815,7 @@ Lifecycle: `new` → `start()` → (auto-refreshes) → `stop()` or `dispose()`
 
 > **new TokenRefreshManager**(`options`): [`TokenRefreshManager`](#tokenrefreshmanager)
 
-Defined in: [auth/refresh-manager.ts:135](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L135)
+Defined in: [auth/refresh-manager.ts:135](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L135)
 
 ###### Parameters
 
@@ -783,7 +835,7 @@ Defined in: [auth/refresh-manager.ts:135](https://github.com/witqq/agent-sdk/blo
 
 > **get** **isDisposed**(): `boolean`
 
-Defined in: [auth/refresh-manager.ts:169](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L169)
+Defined in: [auth/refresh-manager.ts:169](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L169)
 
 Whether the manager has been disposed
 
@@ -797,7 +849,7 @@ Whether the manager has been disposed
 
 > **get** **isRunning**(): `boolean`
 
-Defined in: [auth/refresh-manager.ts:164](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L164)
+Defined in: [auth/refresh-manager.ts:164](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L164)
 
 Whether the manager is currently running
 
@@ -811,7 +863,7 @@ Whether the manager is currently running
 
 > **get** **token**(): [`AuthToken`](#authtoken)
 
-Defined in: [auth/refresh-manager.ts:159](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L159)
+Defined in: [auth/refresh-manager.ts:159](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L159)
 
 Current token managed by this instance
 
@@ -825,7 +877,7 @@ Current token managed by this instance
 
 > **dispose**(): `void`
 
-Defined in: [auth/refresh-manager.ts:205](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L205)
+Defined in: [auth/refresh-manager.ts:205](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L205)
 
 Stop and clean up all resources
 
@@ -837,7 +889,7 @@ Stop and clean up all resources
 
 > **off**\<`K`\>(`event`, `listener`): `this`
 
-Defined in: [auth/refresh-manager.ts:152](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L152)
+Defined in: [auth/refresh-manager.ts:152](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L152)
 
 Remove an event listener
 
@@ -865,7 +917,7 @@ Remove an event listener
 
 > **on**\<`K`\>(`event`, `listener`): `this`
 
-Defined in: [auth/refresh-manager.ts:145](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L145)
+Defined in: [auth/refresh-manager.ts:145](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L145)
 
 Register an event listener
 
@@ -893,7 +945,7 @@ Register an event listener
 
 > **start**(): `void`
 
-Defined in: [auth/refresh-manager.ts:178](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L178)
+Defined in: [auth/refresh-manager.ts:178](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L178)
 
 Start automatic refresh scheduling.
 If the token is already expired, emits "expired" immediately.
@@ -907,7 +959,7 @@ If the token has no expiresIn, does nothing (long-lived token).
 
 > **stop**(): `void`
 
-Defined in: [auth/refresh-manager.ts:186](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L186)
+Defined in: [auth/refresh-manager.ts:186](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L186)
 
 Stop automatic refresh (can be restarted with start())
 
@@ -919,7 +971,7 @@ Stop automatic refresh (can be restarted with start())
 
 > **updateToken**(`token`): `void`
 
-Defined in: [auth/refresh-manager.ts:195](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L195)
+Defined in: [auth/refresh-manager.ts:195](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L195)
 
 Update the managed token (e.g. after manual refresh).
 Reschedules automatic refresh if running.
@@ -938,7 +990,7 @@ Reschedules automatic refresh if running.
 
 ### AuthToken
 
-Defined in: [auth/types.ts:20](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L20)
+Defined in: [auth/types.ts:20](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L20)
 
 Base auth token returned by all auth providers.
 
@@ -965,7 +1017,7 @@ const token: AuthToken = {
 
 > **accessToken**: `string`
 
-Defined in: [auth/types.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L22)
+Defined in: [auth/types.ts:22](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L22)
 
 The access token string
 
@@ -973,7 +1025,7 @@ The access token string
 
 > `optional` **expiresIn?**: `number`
 
-Defined in: [auth/types.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L26)
+Defined in: [auth/types.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L26)
 
 Seconds until token expires (undefined = long-lived)
 
@@ -981,7 +1033,7 @@ Seconds until token expires (undefined = long-lived)
 
 > **obtainedAt**: `number`
 
-Defined in: [auth/types.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L28)
+Defined in: [auth/types.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L28)
 
 Timestamp when the token was obtained
 
@@ -989,7 +1041,7 @@ Timestamp when the token was obtained
 
 > **tokenType**: `string`
 
-Defined in: [auth/types.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L24)
+Defined in: [auth/types.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L24)
 
 Token type (e.g. "bearer")
 
@@ -997,7 +1049,7 @@ Token type (e.g. "bearer")
 
 ### ClaudeAuthToken
 
-Defined in: [auth/types.ts:70](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L70)
+Defined in: [auth/types.ts:70](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L70)
 
 Claude-specific token (OAuth+PKCE, expires in 8h).
 
@@ -1026,7 +1078,7 @@ const token: ClaudeAuthToken = {
 
 > **accessToken**: `string`
 
-Defined in: [auth/types.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L22)
+Defined in: [auth/types.ts:22](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L22)
 
 The access token string
 
@@ -1038,7 +1090,7 @@ The access token string
 
 > `optional` **expiresIn?**: `number`
 
-Defined in: [auth/types.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L26)
+Defined in: [auth/types.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L26)
 
 Seconds until token expires (undefined = long-lived)
 
@@ -1050,7 +1102,7 @@ Seconds until token expires (undefined = long-lived)
 
 > **obtainedAt**: `number`
 
-Defined in: [auth/types.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L28)
+Defined in: [auth/types.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L28)
 
 Timestamp when the token was obtained
 
@@ -1062,7 +1114,7 @@ Timestamp when the token was obtained
 
 > **refreshToken**: `string`
 
-Defined in: [auth/types.ts:72](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L72)
+Defined in: [auth/types.ts:72](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L72)
 
 Refresh token for obtaining new access tokens
 
@@ -1070,7 +1122,7 @@ Refresh token for obtaining new access tokens
 
 > **scopes**: `string`[]
 
-Defined in: [auth/types.ts:74](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L74)
+Defined in: [auth/types.ts:74](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L74)
 
 OAuth scopes granted
 
@@ -1078,7 +1130,7 @@ OAuth scopes granted
 
 > **tokenType**: `string`
 
-Defined in: [auth/types.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L24)
+Defined in: [auth/types.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L24)
 
 Token type (e.g. "bearer")
 
@@ -1090,7 +1142,7 @@ Token type (e.g. "bearer")
 
 ### CopilotAuthToken
 
-Defined in: [auth/types.ts:46](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L46)
+Defined in: [auth/types.ts:46](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L46)
 
 Copilot-specific token (GitHub OAuth, long-lived).
 
@@ -1117,7 +1169,7 @@ const token: CopilotAuthToken = {
 
 > **accessToken**: `string`
 
-Defined in: [auth/types.ts:22](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L22)
+Defined in: [auth/types.ts:22](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L22)
 
 The access token string
 
@@ -1129,7 +1181,7 @@ The access token string
 
 > `optional` **expiresIn?**: `number`
 
-Defined in: [auth/types.ts:26](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L26)
+Defined in: [auth/types.ts:26](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L26)
 
 Seconds until token expires (undefined = long-lived)
 
@@ -1141,7 +1193,7 @@ Seconds until token expires (undefined = long-lived)
 
 > `optional` **login?**: `string`
 
-Defined in: [auth/types.ts:48](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L48)
+Defined in: [auth/types.ts:48](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L48)
 
 GitHub user login associated with the token
 
@@ -1149,7 +1201,7 @@ GitHub user login associated with the token
 
 > **obtainedAt**: `number`
 
-Defined in: [auth/types.ts:28](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L28)
+Defined in: [auth/types.ts:28](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L28)
 
 Timestamp when the token was obtained
 
@@ -1161,7 +1213,7 @@ Timestamp when the token was obtained
 
 > `optional` **refreshToken?**: `string`
 
-Defined in: [auth/types.ts:50](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L50)
+Defined in: [auth/types.ts:50](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L50)
 
 Refresh token for obtaining new access tokens (present when GitHub App has expiring tokens)
 
@@ -1169,7 +1221,7 @@ Refresh token for obtaining new access tokens (present when GitHub App has expir
 
 > **tokenType**: `string`
 
-Defined in: [auth/types.ts:24](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L24)
+Defined in: [auth/types.ts:24](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L24)
 
 Token type (e.g. "bearer")
 
@@ -1181,7 +1233,7 @@ Token type (e.g. "bearer")
 
 ### DeviceFlowResult
 
-Defined in: [auth/types.ts:92](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L92)
+Defined in: [auth/types.ts:92](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L92)
 
 Result of initiating a GitHub Device Flow.
 
@@ -1202,7 +1254,7 @@ const token = await waitForToken();
 
 > **userCode**: `string`
 
-Defined in: [auth/types.ts:94](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L94)
+Defined in: [auth/types.ts:94](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L94)
 
 The code the user must enter at the verification URL
 
@@ -1210,7 +1262,7 @@ The code the user must enter at the verification URL
 
 > **verificationUrl**: `string`
 
-Defined in: [auth/types.ts:96](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L96)
+Defined in: [auth/types.ts:96](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L96)
 
 URL where the user enters the code
 
@@ -1218,7 +1270,7 @@ URL where the user enters the code
 
 > **waitForToken**: (`signal?`) => `Promise`\<[`CopilotAuthToken`](#copilotauthtoken)\>
 
-Defined in: [auth/types.ts:98](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L98)
+Defined in: [auth/types.ts:98](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L98)
 
 Polls GitHub until user authorizes; resolves with token
 
@@ -1236,7 +1288,7 @@ Polls GitHub until user authorizes; resolves with token
 
 ### OAuthFlowOptions
 
-Defined in: [auth/types.ts:104](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L104)
+Defined in: [auth/types.ts:104](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L104)
 
 Options for starting a Claude OAuth flow
 
@@ -1246,7 +1298,7 @@ Options for starting a Claude OAuth flow
 
 > `optional` **redirectUri?**: `string`
 
-Defined in: [auth/types.ts:106](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L106)
+Defined in: [auth/types.ts:106](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L106)
 
 The redirect URI registered with the OAuth app
 
@@ -1254,7 +1306,7 @@ The redirect URI registered with the OAuth app
 
 > `optional` **scopes?**: `string`
 
-Defined in: [auth/types.ts:108](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L108)
+Defined in: [auth/types.ts:108](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L108)
 
 OAuth scopes to request (defaults to user:profile user:inference)
 
@@ -1262,7 +1314,7 @@ OAuth scopes to request (defaults to user:profile user:inference)
 
 ### OAuthFlowResult
 
-Defined in: [auth/types.ts:126](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L126)
+Defined in: [auth/types.ts:126](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L126)
 
 Result of initiating a Claude OAuth flow.
 
@@ -1285,7 +1337,7 @@ const token = await result.completeAuth(code);
 
 > **authorizeUrl**: `string`
 
-Defined in: [auth/types.ts:128](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L128)
+Defined in: [auth/types.ts:128](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L128)
 
 URL to open in browser for user authorization
 
@@ -1293,7 +1345,7 @@ URL to open in browser for user authorization
 
 > **completeAuth**: (`codeOrUrl`) => `Promise`\<[`ClaudeAuthToken`](#claudeauthtoken)\>
 
-Defined in: [auth/types.ts:130](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/types.ts#L130)
+Defined in: [auth/types.ts:130](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/types.ts#L130)
 
 Exchange the authorization code (or full redirect URL) for tokens
 
@@ -1311,7 +1363,7 @@ Exchange the authorization code (or full redirect URL) for tokens
 
 ### TokenRefreshEvents
 
-Defined in: [auth/refresh-manager.ts:67](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L67)
+Defined in: [auth/refresh-manager.ts:67](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L67)
 
 Events emitted by TokenRefreshManager
 
@@ -1321,7 +1373,7 @@ Events emitted by TokenRefreshManager
 
 > **disposed**: () => `void`
 
-Defined in: [auth/refresh-manager.ts:75](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L75)
+Defined in: [auth/refresh-manager.ts:75](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L75)
 
 Emitted when manager is disposed
 
@@ -1333,7 +1385,7 @@ Emitted when manager is disposed
 
 > **error**: (`error`, `attempt`) => `void`
 
-Defined in: [auth/refresh-manager.ts:71](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L71)
+Defined in: [auth/refresh-manager.ts:71](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L71)
 
 Emitted when refresh attempt failed (may retry)
 
@@ -1355,7 +1407,7 @@ Emitted when refresh attempt failed (may retry)
 
 > **expired**: () => `void`
 
-Defined in: [auth/refresh-manager.ts:73](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L73)
+Defined in: [auth/refresh-manager.ts:73](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L73)
 
 Emitted when token expired and could not be refreshed
 
@@ -1367,7 +1419,7 @@ Emitted when token expired and could not be refreshed
 
 > **refreshed**: (`token`) => `void`
 
-Defined in: [auth/refresh-manager.ts:69](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L69)
+Defined in: [auth/refresh-manager.ts:69](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L69)
 
 Emitted when token was successfully refreshed
 
@@ -1385,7 +1437,7 @@ Emitted when token was successfully refreshed
 
 ### TokenRefreshOptions
 
-Defined in: [auth/refresh-manager.ts:79](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L79)
+Defined in: [auth/refresh-manager.ts:79](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L79)
 
 Configuration for TokenRefreshManager
 
@@ -1395,7 +1447,7 @@ Configuration for TokenRefreshManager
 
 > `optional` **maxRetries?**: `number`
 
-Defined in: [auth/refresh-manager.ts:95](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L95)
+Defined in: [auth/refresh-manager.ts:95](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L95)
 
 Maximum retry attempts on refresh failure. Default: 3
 
@@ -1403,7 +1455,7 @@ Maximum retry attempts on refresh failure. Default: 3
 
 > `optional` **minDelayMs?**: `number`
 
-Defined in: [auth/refresh-manager.ts:103](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L103)
+Defined in: [auth/refresh-manager.ts:103](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L103)
 
 Minimum schedule delay in ms (prevents scheduling in the past). Default: 1000
 
@@ -1411,7 +1463,7 @@ Minimum schedule delay in ms (prevents scheduling in the past). Default: 1000
 
 > **refresh**: (`token`) => `Promise`\<[`AuthToken`](#authtoken)\>
 
-Defined in: [auth/refresh-manager.ts:86](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L86)
+Defined in: [auth/refresh-manager.ts:86](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L86)
 
 Function that performs the actual token refresh.
 Receives the current token and returns a new one.
@@ -1430,7 +1482,7 @@ Receives the current token and returns a new one.
 
 > `optional` **refreshThreshold?**: `number`
 
-Defined in: [auth/refresh-manager.ts:91](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L91)
+Defined in: [auth/refresh-manager.ts:91](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L91)
 
 Fraction of token lifetime at which to trigger refresh (0-1).
 Default: 0.8 (refresh at 80% of lifetime, i.e. with 20% remaining)
@@ -1439,7 +1491,7 @@ Default: 0.8 (refresh at 80% of lifetime, i.e. with 20% remaining)
 
 > `optional` **retryDelayMs?**: `number`
 
-Defined in: [auth/refresh-manager.ts:99](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L99)
+Defined in: [auth/refresh-manager.ts:99](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L99)
 
 Base delay between retries in ms. Exponential backoff applied. Default: 1000
 
@@ -1447,6 +1499,6 @@ Base delay between retries in ms. Exponential backoff applied. Default: 1000
 
 > **token**: [`AuthToken`](#authtoken)
 
-Defined in: [auth/refresh-manager.ts:81](https://github.com/witqq/agent-sdk/blob/e81c2cb5fcb97392735d278ca05e109de8a490fb/packages/sdk/src/auth/refresh-manager.ts#L81)
+Defined in: [auth/refresh-manager.ts:81](https://github.com/witqq/agent-sdk/blob/v0.15.2/packages/sdk/src/auth/refresh-manager.ts#L81)
 
 Current token with expiresIn and obtainedAt

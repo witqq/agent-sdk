@@ -93,9 +93,10 @@ export interface RunOptions extends CallOptions {
    * unsent evidence, and is not automatically retried. Raw chunks are enabled only
    * while this hook is present, inspected for identity, and never exposed. */
   onProviderAcknowledgment?: (observation: ProviderAcknowledgment) => void | Promise<void>;
-  /** Inactivity timeout for streaming (ms). When set, the stream aborts if no
-   *  event (including heartbeats/progress) arrives within this period. Resets on
-   *  every received event. Default: no timeout. Only affects stream()/streamWithContext(). */
+  /** Inactivity timeout for stream()/streamWithContext() in milliseconds.
+   *  Nonempty native text, reasoning, or tool-input fragments can reset the
+   *  timer before a semantic event exists. Productive semantic events also
+   *  reset it; empty deltas and synthetic heartbeat do not. Default: no timeout. */
   activityTimeoutMs?: number;
 }
 
@@ -153,9 +154,8 @@ export interface AgentConfig {
   /** Callback invoked with usage data after run completion or during streaming.
    *  Fire-and-forget: errors are logged but not propagated. */
   onUsage?: (usage: UsageData) => void;
-  /** Interval in milliseconds for emitting heartbeat events during streaming.
-   *  When set, heartbeat events are emitted to keep the stream alive during
-   *  long tool executions. Default: off (no heartbeats). */
+  /** Interval in milliseconds for emitting connection keepalive events during
+   *  streaming. Heartbeats do not reset activityTimeoutMs. Default: off. */
   heartbeatInterval?: number;
   /** Session reuse mode for CLI backends (Copilot, Claude).
    *  "per-call" (default): creates a fresh CLI session for each run/stream call.

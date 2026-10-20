@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [0.15.2] — 2026-10-20
+
+### Public type changes
+
+- Export `StreamActivitySnapshot` and add optional `AgentSDKError.streamActivity` with payload-free native and semantic counters and timestamps on failed streams. The original error and provider-effect uncertainty remain intact.
+
+### Fixes
+
+- Reset the streaming inactivity timer on nonempty native text, reasoning and tool-input fragments before semantic events are available. Empty deltas and synthetic heartbeats do not extend the timer or create public model events.
+
 ## [0.15.1] — 2026-10-11
 
 ### Fixes

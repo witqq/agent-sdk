@@ -132,6 +132,12 @@ For Vercel AI, a terminal provider error emits `error` and then throws its same 
 
 For a completed Vercel AI response, `done.messages` contains normalized native messages when the provider supplies them. This private context can include reasoning parts and provider continuation options associated with exact tool-call IDs. Preserve it for a later model request without copying reasoning into user-visible text. `thinking_delta` is an activity event, not completed continuation context; a failed stream supplies no `done.messages`.
 
+### Native Activity and Inactivity
+
+`RunOptions.activityTimeoutMs` bounds silence during `stream()` and `streamWithContext()`. The Vercel AI backend observes nonempty native text, reasoning and tool-input fragments before they become public events; Claude observes nonempty content deltas, including tool input. This resets the same inactivity timer without emitting a fabricated `AgentEvent`. Partial tool arguments are not executable calls or a completed response. Empty fragments, provider metadata and synthetic heartbeats do not reset the timer.
+
+On a failed stream, an `AgentSDKError` can carry an optional `streamActivity: StreamActivitySnapshot`. Its `native` and `semantic` observations contain only fragment/event counts, byte counts and first/last epoch-millisecond timestamps; they contain no text or tool arguments. Native activity without a semantic event explains why a stream remained live, but does not establish a completed transcript, usage or an unsent provider request. Preserve the error's original identity and inspect provider effects before authorizing any new paid request.
+
 ### Local Tool Refusals and Argument Presence
 
 The Vercel AI backend can attach an exported `LocalToolRefusal` to an `error` event when its native parser refuses an unavailable tool or invalid declared input before execution. The proof is correlated with the observed call ID, name and input. Generic thrown errors and provider-executed tool failures do not carry this proof. The serialized `ChatEvent` bridge does not expose this native observation.
@@ -321,13 +327,13 @@ onUsage: (usage) => {
 
 ## Heartbeat
 
-Configure heartbeat interval to detect stalled streams:
+Configure heartbeat events to keep a client connection alive while it waits:
 
 ```typescript
 const config: FullAgentConfig = {
   systemPrompt: "Assistant",
-  heartbeatInterval: 10000, // emit heartbeat every 10s of inactivity
+  heartbeatInterval: 10000, // emit a keepalive while waiting
 };
 ```
 
-Heartbeat events are useful for keeping connections alive in proxy scenarios.
+Heartbeat events are useful for proxy connections. They are synthetic keepalives, not evidence of model activity, and do not reset `activityTimeoutMs`. Use that option to detect actual inactivity.

@@ -1,5 +1,6 @@
 import { ErrorCode } from "./types/errors.js";
 import type { ProviderAcknowledgment } from "./types/agent.js";
+import type { StreamActivitySnapshot } from "./types/events.js";
 
 /** Options for constructing an AgentSDKError */
 export interface AgentSDKErrorOptions extends ErrorOptions {
@@ -28,6 +29,9 @@ export class AgentSDKError extends Error {
   readonly httpStatus?: number;
   /** Undefined means provider effect is unknown; false is explicit unsent evidence. */
   readonly providerRequestSent?: boolean;
+  /** Scalar observations from the failed streaming attempt, attached without
+   * replacing the native error identity or implying a completed response. */
+  streamActivity?: StreamActivitySnapshot;
 
   constructor(message: string, options?: AgentSDKErrorOptions) {
     super(message, options);

@@ -4,6 +4,15 @@ import type { ErrorCode } from "./errors.js";
 import type { AgentSDKError } from "../errors.js";
 import type { PermissionRequest, PermissionDecision, UserInputRequest } from "./permissions.js";
 
+/** Payload-free observations from one streaming attempt. Timestamps are epoch
+ * milliseconds; null means no observation. Native counts only nonempty content
+ * fragments, not provider metadata, keepalive or synthetic heartbeat. Semantic
+ * counts SDK events other than heartbeat; bytes count text/reasoning only. */
+export interface StreamActivitySnapshot {
+  native: { eventCount: number; byteCount: number; firstEventAt: number | null; lastEventAt: number | null };
+  semantic: { eventCount: number; byteCount: number; firstEventAt: number | null; lastEventAt: number | null };
+}
+
 /** Usage data from LLM execution — tokens consumed plus optional metadata */
 export interface UsageData {
   promptTokens: number;

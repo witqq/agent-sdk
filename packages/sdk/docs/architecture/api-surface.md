@@ -26,6 +26,7 @@ Public exports inventory grouped by entry point.
 | `ToolContext` | interface | Stable | Request-scoped session data passed to tool execute |
 | `Message` | interface | Stable | Conversation message: role, content (string or ContentPart[]) |
 | `AgentEvent` | union type | Stable | Agent stream events with optional observed tool arguments |
+| `StreamActivitySnapshot` | interface | Stable | Payload-free native and semantic stream activity counters and timestamps on failed streams |
 | `LocalToolRefusal` | interface | Stable | Correlated native parse refusal before tool execution; no replay authority |
 | `RunOptions` | interface | Stable | Per-call options: model (required), tools, systemMessage, retry |
 | `AgentConfig` | interface | Stable | Construction-time config: tools, systemMessage, providerOptions |
